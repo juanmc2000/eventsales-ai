@@ -155,6 +155,18 @@ Confirm every file is allowed by the issue.
 
 If implementation requires a file not listed in `Allowed Files`, stop.
 
+### Frontend issues: UI/UX Reference Requirements
+
+If the issue touches any frontend file, the issue body must include a `## UI/UX Reference Requirements` section specifying:
+
+* page-specific reference image(s) from `design/reference_images/`
+* which design system docs apply (`design/docs/UI_DESIGN_SYSTEM.md`, `design/docs/UI_COMPONENT_RULES.md`, etc.)
+* UI guardrails that apply to the page
+
+If a frontend issue lacks a `## UI/UX Reference Requirements` section, stop and ask the author to add it before implementing.
+
+Do not implement frontend changes without confirmed reference images. Do not redesign any layout element outside the issue scope.
+
 ---
 
 ## 5. Implement
@@ -198,6 +210,19 @@ Worker-specific rules:
 ---
 
 ## 6. Validate
+
+### Frontend issues: UI drift check
+
+For any frontend change, validate against the reference pack before committing:
+
+* Does the implementation match the page-specific reference image?
+* Does the shell (sidebar, topbar) remain unchanged?
+* Are only approved design tokens used?
+* Is there no generic CRM, chatbot, or consumer-app styling introduced?
+
+If UI drift is detected, correct it before committing.
+
+### Backend / data / doc issues
 
 Run only relevant checks.
 
@@ -310,6 +335,10 @@ PR body must include:
 - [ ] No secrets committed
 - [ ] No real customer data committed
 - [ ] POC scope preserved
+- [ ] (Frontend only) UI matches page-specific reference image
+- [ ] (Frontend only) Shell layout (sidebar, topbar) unchanged
+- [ ] (Frontend only) No unapproved design tokens introduced
+- [ ] (Frontend only) No generic CRM / chatbot styling introduced
 
 ## Scope Confirmation
 

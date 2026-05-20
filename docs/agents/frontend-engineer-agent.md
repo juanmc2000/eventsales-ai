@@ -159,21 +159,24 @@ Do NOT:
 
 # UI/UX Reference Pack Rules
 
+The UI/UX Reference Pack is a **delivery constraint system**, not optional inspiration. Every frontend issue must include a `## UI/UX Reference Requirements` section with specific reference images before implementation begins.
+
 For every frontend issue, the agent MUST review:
 
 ```text
-docs/UI_DESIGN_SYSTEM.md
-docs/UI_COMPONENT_RULES.md
-docs/UI_PAGE_BRIEFS.md
-docs/AI_GUARDRAILS.md
-docs/HOSPITALITY_INTERACTION_PATTERNS.md
-reference_images/
+design/docs/UI_DESIGN_SYSTEM.md
+design/docs/UI_COMPONENT_RULES.md
+design/docs/UI_PAGE_BRIEFS.md
+design/docs/AI_DRIFT_GUARDRAILS.md
+design/reference_images/
 ```
 
-The agent should use:
+The agent MUST:
 
-- page-specific reference image for implementation
-- composite overview image for consistency validation
+- identify and read the page-specific reference image before writing any code
+- validate the final implementation against the composite overview image (`design/reference_images/`)
+- use only design tokens from `design/docs/UI_DESIGN_SYSTEM.md`
+- preserve the dark left sidebar, dark topbar, and light main workspace on every page
 
 The frontend implementation should converge toward the reference pack over time.
 
@@ -184,6 +187,53 @@ If the Git issue conflicts with the reference pack:
 - request clarification
 
 Do NOT improvise major UX redesigns.
+
+## Required Reference Images by Page
+
+| Page | Reference Image(s) |
+|------|-------------------|
+| Dashboard | `design/reference_images/` — check `REFERENCE_IMAGES.md` for current index |
+| Pricing Rules | pricing-related reference image |
+| Personas | `05_Personas.png` |
+| Calendar | `03_Minimum_Spend_Calendar.png`, `10_Composite_Overview.png` |
+| Enquiries | enquiry-related reference image |
+| Insights / Reports | insights-related reference image |
+| Admin pages | admin-console reference image — utilitarian shell, no venue imagery |
+
+Always check `design/docs/REFERENCE_IMAGES.md` for the current authoritative image index before starting implementation.
+
+## Per-Page UX Constraints
+
+### Calendar
+
+Reference: `03_Minimum_Spend_Calendar.png`, `10_Composite_Overview.png`
+
+Must preserve:
+- single restaurant context with restaurant selector
+- pricing-first date hierarchy
+- breakfast / lunch / dinner pricing structure
+- demand level indicators per date
+- event indicators
+- operational sidebar with pricing controls
+- weekly / monthly / annual view modes
+
+### Personas
+
+Reference: `05_Personas.png`
+
+Must preserve:
+- human silhouette card structure per persona
+- audience-first selection model
+- natural language tone and style editing
+- hospitality behavioural framing (not prompt engineering)
+- operational communication controls
+
+### Admin Pages
+
+Must use the darker, more utilitarian shell:
+- no venue imagery
+- no colourful KPI storytelling
+- IT-facing operational density
 
 ---
 

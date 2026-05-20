@@ -117,6 +117,16 @@ Always include recommendation + rationale + confidence indicator. Never show AI 
 ### Page consistency checklist (before completing any page)
 Verify: sidebar and topbar match shell rules, approved tokens used, cards have consistent radius/shadow, typography matches design system, status pills match approved language, forms and tables follow component rules, AI suggestions include rationale.
 
+### UI/UX Reference Pack — mandatory for all frontend issues
+
+The UI/UX Reference Pack is a **delivery constraint system**, not optional inspiration. Before implementing any frontend issue:
+
+1. Read the `## UI/UX Reference Requirements` section in the issue — if it is missing, stop and ask the author to add it.
+2. Read the page-specific reference image from `design/reference_images/` before writing any code.
+3. Read `design/docs/REFERENCE_IMAGES.md` for the current image index.
+4. Validate the finished implementation against the composite overview image.
+5. Do not redesign any layout element outside the issue scope.
+
 ## Key Reference Documents
 
 | Document | Purpose |
