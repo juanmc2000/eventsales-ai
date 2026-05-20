@@ -112,6 +112,30 @@ def send_test_email(enquiry_id, ...):
 
 ---
 
+## 5a. Check frontend UI drift (frontend changes only)
+
+For any change touching `frontend/` or `app/` (Next.js) files:
+
+- Does the implementation match the page-specific reference image in `design/reference_images/`?
+- Is the dark left sidebar (`--nav-bg: #070A1F`) preserved?
+- Is the dark topbar (`--topbar-bg: #080B24`) preserved?
+- Is the light main workspace (`--page-bg: #F8F7FC`) preserved?
+- Are only tokens from `design/docs/UI_DESIGN_SYSTEM.md` used?
+- Is there generic CRM, chatbot-builder, or consumer-app styling?
+- Does the issue include a `## UI/UX Reference Requirements` section with specific reference images?
+
+**Violation examples:**
+
+```text
+# BAD — overrides the shared shell background without issue approval
+.sidebar { background: #1a1a2e; }
+
+# BAD — introduces a consumer-app card layout not in the reference pack
+<div className="rounded-full shadow-2xl p-8 bg-gradient-to-br ...">
+```
+
+---
+
 ## 6. Check for POC scope violations
 
 See `poc-scope-review` skill for a full scope check. Quick flags:
@@ -152,6 +176,11 @@ PASS / FAIL / PASS WITH NOTES
 - [ ] No production integrations introduced
 - [ ] No ML pricing introduced
 - [ ] POC scope preserved
+- [ ] (Frontend only) UI matches page-specific reference image
+- [ ] (Frontend only) Shell layout (sidebar, topbar) unchanged
+- [ ] (Frontend only) Only approved design tokens used
+- [ ] (Frontend only) No generic CRM / chatbot styling introduced
+- [ ] (Frontend only) Issue includes UI/UX Reference Requirements section
 ```
 
 ---

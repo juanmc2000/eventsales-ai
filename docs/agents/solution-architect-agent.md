@@ -70,3 +70,8 @@ The POC must preserve:
 - [ ] Redis is used only as broker/cache
 - [ ] Celery jobs are idempotency-aware
 - [ ] POC scope remains intact
+- [ ] (Frontend only) Issue includes `## UI/UX Reference Requirements` with reference images
+- [ ] (Frontend only) Shell layout (dark sidebar, dark topbar, light workspace) unchanged
+- [ ] (Frontend only) Only approved design tokens used — no arbitrary colours
+- [ ] (Frontend only) No generic CRM / chatbot / consumer-app aesthetics introduced
+- [ ] (Frontend only) No redesign outside issue scope
