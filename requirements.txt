@@ -12,6 +12,7 @@ psycopg2-binary==2.9.10
 
 # ─── Settings ────────────────────────────────────────────────
 pydantic-settings==2.9.1
+email-validator==2.2.0
 
 # ─── Background Jobs ─────────────────────────────────────────
 celery==5.5.2

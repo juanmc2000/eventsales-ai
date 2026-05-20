@@ -186,10 +186,15 @@ def test_seed_no_ml_pricing_fields() -> None:
 
 def test_alembic_migration_importable() -> None:
     """Initial migration script imports without error."""
-    import importlib
-    migration = importlib.import_module(
-        "alembic.versions.20260520_000001_create_core_poc_tables"
-    )
+    import importlib.util
+    import pathlib
+
+    migration_path = pathlib.Path(__file__).parent.parent / "alembic" / "versions" / "20260520_000001_create_core_poc_tables.py"
+    spec = importlib.util.spec_from_file_location("migration_initial", migration_path)
+    assert spec is not None
+    migration = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(migration)
     assert hasattr(migration, "upgrade")
     assert hasattr(migration, "downgrade")
     assert migration.down_revision is None, "First migration must have no parent"
