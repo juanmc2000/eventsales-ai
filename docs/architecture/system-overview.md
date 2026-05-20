@@ -70,6 +70,18 @@ The POC uses a **modular monolith**. All modules are deployed as a single FastAP
 
 See `docs/adr/ADR-001-modular-monolith.md` for the full decision record.
 
+## Testing Approach
+
+Tests are organised into three directories:
+
+| Directory | Scope |
+|---|---|
+| `tests/api/` | FastAPI endpoint tests (health check, DB connectivity, CORS) |
+| `tests/workers/` | Celery app config and task import tests |
+| `tests/integration/` | Seeded data validation, pricing rule determinism |
+
+Full test strategy: `docs/business/non-functional-requirements.md`.
+
 ## POC Limitations
 
 - No production authentication
