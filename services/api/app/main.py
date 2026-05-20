@@ -26,8 +26,11 @@ def health_check():
 from app.modules.restaurants.router import router as restaurants_router
 from app.modules.personas.router import restaurant_assignment_router, router as personas_router
 from app.modules.pricing.router import router as pricing_router
+from app.modules.calendar.router import calendar_router, router as demand_events_router
 
 app.include_router(restaurants_router)
 app.include_router(personas_router)
 app.include_router(restaurant_assignment_router)
 app.include_router(pricing_router)
+app.include_router(demand_events_router)
+app.include_router(calendar_router)
