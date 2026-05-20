@@ -23,7 +23,6 @@ def health_check():
     return {"status": "ok", "service": "eventsales-api"}
 
 
-# Module routers are registered here as each module is implemented.
-# Example (uncomment when the module is ready):
-# from app.modules.restaurants.router import router as restaurants_router
-# app.include_router(restaurants_router, prefix="/api/restaurants", tags=["restaurants"])
+from app.modules.restaurants.router import router as restaurants_router
+
+app.include_router(restaurants_router)
