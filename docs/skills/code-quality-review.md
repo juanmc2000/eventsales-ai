@@ -138,6 +138,26 @@ Flags:
 
 ---
 
+## 7a. Check frontend UI consistency (frontend changes only)
+
+For any change touching `frontend/` or Next.js files:
+
+- Does the page match the reference image in `design/reference_images/`?
+- Are design tokens used (not arbitrary hex values or hardcoded pixel values)?
+- Are spacing, radius, and shadow values from the design system?
+- Are typography styles from the approved type scale?
+- Are status pills using approved language and colour tokens?
+- Are KPI card colours following the purple → pink → orange → teal sequence?
+- Is the composite overview image (`design/reference_images/`) checked for cross-page consistency?
+
+**Flags:**
+
+- Hardcoded colour values not matching any design token?
+- Typography font sizes or weights that do not appear in the design system?
+- Page layout that does not match the reference image?
+
+---
+
 ## 8. Output the review
 
 ```md
@@ -173,6 +193,10 @@ PASS / PASS WITH NOTES / NEEDS CHANGES
 - [ ] No speculative abstractions for single-use cases
 - [ ] New behaviour has at least a smoke test
 - [ ] No TODO comments without a linked issue
+- [ ] (Frontend only) UI matches page-specific reference image
+- [ ] (Frontend only) Design tokens used — no arbitrary hardcoded colours
+- [ ] (Frontend only) Typography follows approved type scale
+- [ ] (Frontend only) KPI card colour sequence preserved (purple → pink → orange → teal)
 ```
 
 ---

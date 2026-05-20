@@ -121,6 +121,31 @@ Does the proposed change introduce anything on the out-of-scope list?
 
 ---
 
+## 3a. Check UI/UX Reference Pack compliance (frontend issues only)
+
+The UI/UX Reference Pack is a **delivery constraint system**, not optional inspiration.
+
+For any frontend issue or PR:
+
+- Does the issue include `## UI/UX Reference Requirements` with specific reference images?
+- Is the implementation constrained to `design/reference_images/` and `design/docs/`?
+- Is the dark left sidebar + dark topbar + light main workspace shell preserved?
+- Are only approved colour tokens from `design/docs/UI_DESIGN_SYSTEM.md` used?
+
+Watch for these UI scope violations:
+
+| Pattern | Concern |
+|---|---|
+| "Improve the layout while I'm here" | Out of scope — only implement the referenced issue |
+| "The sidebar looks better in light mode" | Shell must stay dark — see UI_DESIGN_SYSTEM.md |
+| "I added a modern card design" | Must match reference pack — not generic SaaS styling |
+| "I replaced the KPI colours" | KPI card colours are fixed tokens — do not change sequence |
+| "I added a floating action button" | Not in the reference pack — flag before implementing |
+
+If the issue does not include reference images for a frontend change, flag and ask the author to add them.
+
+---
+
 ## 4. Check for hidden scope expansion
 
 Watch for these patterns even when they sound reasonable:
@@ -153,6 +178,12 @@ IN SCOPE / OUT OF SCOPE / PARTIAL — NEEDS TRIMMING
 
 ### Out-of-Scope Items (if any)
 - ...
+
+### UI/UX Reference Pack Check (frontend issues only)
+- [ ] Issue includes `## UI/UX Reference Requirements`
+- [ ] Specific reference image(s) identified
+- [ ] Shell layout preserved
+- [ ] No unapproved design tokens
 
 ### Recommendation
 - Proceed as written
