@@ -1,0 +1,11 @@
+# EventSales AI — Worker Dependencies
+# These packages are required by the Celery worker.
+# Kept in sync with the root requirements.txt.
+
+celery==5.5.2
+redis==5.2.1
+sqlalchemy==2.0.40
+psycopg2-binary==2.9.10
+pydantic-settings==2.2.1
+python-dotenv==1.1.0
+anthropic==0.51.0
