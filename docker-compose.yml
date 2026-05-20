@@ -1,0 +1,80 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: eventsales_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-eventsales}
+      POSTGRES_USER: ${POSTGRES_USER:-eventsales}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-eventsales}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - eventsales-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-eventsales}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: eventsales_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - eventsales-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    container_name: eventsales_api
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./services/api:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - eventsales-net
+
+  worker:
+    build:
+      context: ./services/workers
+      dockerfile: Dockerfile
+    container_name: eventsales_worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./services/workers:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - eventsales-net
+
+volumes:
+  postgres_data:
+
+networks:
+  eventsales-net:
+    driver: bridge
