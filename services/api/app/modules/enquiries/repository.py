@@ -75,3 +75,17 @@ class EnquiryRepository:
         self._db.add(record)
         self._db.flush()
         return record
+
+    def get_latest_draft_message(self, enquiry_id: uuid.UUID) -> EnquiryMessage | None:
+        """Return the most recently created outbound draft message for an enquiry."""
+        stmt = (
+            select(EnquiryMessage)
+            .where(
+                EnquiryMessage.enquiry_id == enquiry_id,
+                EnquiryMessage.direction == "outbound",
+                EnquiryMessage.channel == "draft",
+            )
+            .order_by(EnquiryMessage.created_at.desc())
+            .limit(1)
+        )
+        return self._db.scalars(stmt).first()
