@@ -29,6 +29,7 @@ from app.modules.pricing.router import router as pricing_router
 from app.modules.calendar.router import calendar_router, router as demand_events_router
 from app.modules.enquiries.router import router as enquiries_router
 from app.modules.dashboard.router import router as dashboard_router
+from app.modules.email.router import router as email_router
 
 app.include_router(restaurants_router)
 app.include_router(personas_router)
@@ -38,3 +39,4 @@ app.include_router(demand_events_router)
 app.include_router(calendar_router)
 app.include_router(enquiries_router)
 app.include_router(dashboard_router)
+app.include_router(email_router)
