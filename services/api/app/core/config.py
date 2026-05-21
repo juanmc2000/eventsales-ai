@@ -18,8 +18,8 @@ class Settings(BaseSettings):
     celery_result_backend: str = "redis://localhost:6379/1"
 
     # CORS
-    cors_origins: list[str] = ["http://localhost:3000"]
-    frontend_url: str = "http://localhost:3000"
+    cors_origins: list[str] = ["http://localhost:3000", "http://localhost:3001"]
+    frontend_url: str = "http://localhost:3001"
 
     # SMTP (Gmail test sending)
     smtp_host: str = "smtp.gmail.com"
