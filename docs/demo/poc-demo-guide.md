@@ -1,0 +1,304 @@
+# POC Demo and Validation Guide
+
+**EventSales AI — Sprint 5A**
+**Status:** POC (Proof of Concept) — not production-ready
+**Date:** 2026-05-21
+
+---
+
+## Important Constraints
+
+> **This is a POC.** All emails use a test Gmail account only — no real guest or restaurant data is sent. Draft generation uses a deterministic fallback when no Anthropic API key is present. The system is demonstrating commercial hospitality operating infrastructure, not a production product.
+
+- Gmail SMTP/IMAP: test account only (`SMTP_USERNAME` / `IMAP_USERNAME` env vars required)
+- AI drafts: FallbackProvider (deterministic) unless `ANTHROPIC_API_KEY` is set
+- All seed data uses `.example.com` email domains — safe to demo
+- No real customer or restaurant data at any point
+
+---
+
+## 1. Local Setup Checklist
+
+### Prerequisites
+
+- [ ] Docker and Docker Compose installed
+- [ ] Python 3.11 with virtual environment at `.venv-eventsales-ai`
+- [ ] Node.js 18+ and npm installed
+
+### Environment
+
+```bash
+# Copy and configure environment
+cp services/api/.env.example services/api/.env
+cp services/workers/.env.example services/workers/.env
+cp services/web/.env.local.example services/web/.env.local
+```
+
+Required `.env` values for full demo:
+| Variable | Required For | Notes |
+|---|---|---|
+| `DATABASE_URL` | Everything | PostgreSQL connection string |
+| `REDIS_URL` | Background jobs | Redis connection string |
+| `SMTP_USERNAME` | Gmail send | Gmail address |
+| `SMTP_PASSWORD` | Gmail send | Gmail App Password (16-char) |
+| `IMAP_USERNAME` | Gmail inbox | Same Gmail address |
+| `IMAP_PASSWORD` | Gmail inbox | Same Gmail App Password |
+| `ANTHROPIC_API_KEY` | LLM drafts | Optional — fallback works without it |
+| `NEXT_PUBLIC_API_URL` | Frontend | `http://localhost:8000` |
+
+### Start Services
+
+```bash
+# Start PostgreSQL and Redis
+docker-compose up -d
+
+# Activate Python environment
+source .venv-eventsales-ai/bin/activate
+
+# Run database migrations
+cd services/api
+alembic upgrade head
+
+# Seed demo data (4 restaurants, 3 personas, pricing rules, demand events)
+python scripts/seed.py
+
+# Start API server (terminal 1)
+uvicorn app.main:app --reload --port 8000
+
+# Start Celery worker (terminal 2)
+celery -A workers.celery_app worker --loglevel=info -Q email
+
+# Start frontend (terminal 3)
+cd services/web
+npm install
+npm run dev
+```
+
+Frontend: http://localhost:3000
+API docs: http://localhost:8000/docs
+
+---
+
+## 2. Seed Data Reset Instructions
+
+Reset to a clean demo state at any point:
+
+```bash
+source .venv-eventsales-ai/bin/activate
+cd services/api
+
+# Drop all tables and re-run migrations
+alembic downgrade base
+alembic upgrade head
+
+# Re-seed
+python scripts/seed.py
+```
+
+This restores: 4 restaurants, 3 personas, ~20 pricing rules, 1 year of demand events, and a set of sample enquiries in various statuses.
+
+---
+
+## 3. Webform Demo Flow
+
+**What this shows:** A prospective guest submitting a private dining enquiry via the restaurant-facing webform.
+
+1. Navigate to http://localhost:3000/webform
+2. Select a restaurant from the dropdown (e.g., "The Grand Brasserie")
+3. Fill in guest details:
+   - First name: Alice, Last name: Smith
+   - Email: alice@example.com
+   - Event type: Birthday
+   - Date: any future date
+   - Party size: 20
+   - Message: "Looking for a private room for a birthday dinner."
+4. Submit the form
+5. Observe: confirmation message with enquiry reference (e.g., `ENQ-2026-0001`)
+
+**What happens behind the scenes:**
+- `POST /api/v1/enquiries/intake` creates the enquiry
+- `EnquiryIntakeService` attaches the default persona and pricing rule
+- An initial inbound message is stored
+- Status is set to `new`
+
+**Talking point:** "Any restaurant can embed this form. The intake pipeline auto-assigns the AI persona and pricing rules — no manual configuration needed per enquiry."
+
+---
+
+## 4. Enquiry Detail Demo Flow
+
+**What this shows:** The operations team's view of a live enquiry.
+
+1. Navigate to http://localhost:3000/enquiries
+2. Click any enquiry row to open the detail drawer
+3. Show: guest details, event date, party size, recommended minimum spend
+4. Show: message thread (inbound initial message visible)
+5. Change status using the dropdown (e.g., `new` → `open`)
+6. Observe: status pill updates immediately
+
+**Talking point:** "The enquiry list gives the events team a single view of every lead — status, source, date, spend recommendation. The drawer contains the full conversation thread and all context needed to respond."
+
+---
+
+## 5. Draft Generation Demo Flow
+
+**What this shows:** AI-assisted draft email generation for an enquiry.
+
+1. Open any enquiry in the detail drawer
+2. Scroll to the **Draft Response** section
+3. Click **Generate Draft**
+4. Observe: a personalised draft appears with:
+   - Subject referencing the restaurant name
+   - Guest name in the salutation
+   - Party size, event date, and minimum spend if available
+   - Persona signature
+
+**With Anthropic API key configured:**
+The draft is generated by Claude and will reflect the enquiry context in natural language.
+
+**Without Anthropic API key (FallbackProvider):**
+A deterministic template draft is generated — structurally valid and persona-aware, but not LLM-generated. This is noted in the UI.
+
+**Talking point:** "The draft generation engine is persona-aware — each restaurant can configure its own tone, greeting, and signature. The system handles the first-response copy; the operator just reviews and sends."
+
+---
+
+## 6. Gmail SMTP Demo Flow
+
+**What this shows:** Sending a draft response to a guest email address via Gmail.
+
+> **Requires:** `SMTP_USERNAME` and `SMTP_PASSWORD` set in `.env`
+
+1. Generate a draft (see Section 5)
+2. The **Draft Response** section shows: "Test email only — will send to [guest email]"
+3. Click **Send Draft**
+4. Observe: status changes to **Sent** with timestamp
+5. Check the test Gmail sent folder — email should appear
+6. The **Email Activity** timeline in the drawer shows the outbound `sent` event
+
+**Without Gmail credentials:**
+Clicking Send Draft returns a `503 SMTP not configured` response. Status shows **Not Sent (disabled)**. The Email Activity timeline records the disabled event. The demo can show this flow to explain the credential activation path.
+
+**Talking point:** "When Gmail App Password credentials are configured, the system activates SMTP automatically — no code change required. The test-only constraint means only emails to test addresses are sent during the POC."
+
+---
+
+## 7. Inbound Email Demo Flow
+
+**What this shows:** An incoming email reply from a guest being parsed into a new enquiry or message thread.
+
+> **Requires:** `IMAP_USERNAME` and `IMAP_PASSWORD` set in `.env`, and the Celery worker running
+
+1. Send a test email to the configured Gmail inbox from any email client
+2. The IMAP reader polls every 5 minutes (or trigger manually via Celery)
+3. Navigate to http://localhost:3000/enquiries
+4. Observe: a new enquiry appears with `source: email`
+5. Open the enquiry — the email body appears as an inbound message
+
+**Manual trigger (for demo purposes):**
+```bash
+# From services/api environment
+python -c "
+from app.modules.email.inbox_service import InboxReaderService
+from app.db.session import get_db
+db = next(get_db())
+svc = InboxReaderService(db)
+svc.read_inbox()
+"
+```
+
+**Without Gmail credentials:**
+The IMAP reader is disabled; no inbox polling occurs. Show the existing seed enquiries with `source: email` as an alternative demo path.
+
+**Talking point:** "When a guest replies to the draft email, the system reads the inbox and threads the reply into the enquiry. This closes the loop — the operator sees the full conversation in one place."
+
+---
+
+## 8. Known Limitations
+
+| Limitation | Impact | Planned Resolution |
+|---|---|---|
+| Gmail SMTP/IMAP requires App Password | Demo requires manual credential setup | Production would use OAuth2 |
+| FallbackProvider draft quality is templated | LLM drafts require `ANTHROPIC_API_KEY` | Operator configures own key |
+| No multi-tenant authentication | Any browser user can see all data | Sprint 6+ auth hardening |
+| IMAP polling interval is 5 minutes | Inbound email demo requires patience | Configurable in production |
+| No real payment/deposit handling | Confirmed enquiries are manual | Out of POC scope |
+| No production SMTP relay | Gmail rate limits apply (100/day) | Production uses SendGrid/Postmark |
+| Seed data only | No real venue or guest data | Expected for POC |
+| Draft send is test-only | Emails go to seed addresses only | Production removes this constraint |
+
+---
+
+## 9. Demo Script
+
+### Opening (1 min)
+
+> "EventSales AI is private dining and events operating infrastructure for hospitality groups. Today I'll show you the complete loop from a guest enquiry landing on the webform through to a personalised draft response being sent — and coming back in."
+
+### Flow (8 min)
+
+1. **(2 min)** Open the Dashboard — show KPI cards (enquiries this week, pipeline value, average response time, conversion rate). Mention: "This is live seeded data — in production these pull from real bookings."
+
+2. **(1 min)** Open Enquiries list — show status distribution across the pipeline. Click into a `new` enquiry. Show guest details, recommended minimum spend from the pricing engine.
+
+3. **(1 min)** Show Personas page — the AI persona assigned to this restaurant. Explain tone/greeting/signature configuration.
+
+4. **(2 min)** Return to the enquiry drawer. Generate a draft. Walk through the draft content — persona name in signature, minimum spend, event date.
+
+5. **(1 min)** Click Send Draft. Show the Email Activity timeline — sent event with timestamp. Open Gmail sent folder.
+
+6. **(1 min)** Show the Webform at `/webform`. Submit a new enquiry. Switch back to the Enquiries list — new entry appears at the top.
+
+### Close (1 min)
+
+> "What you've seen is the complete operational loop. Guest submits on the webform, operations team reviews with AI-suggested spend and auto-generated draft, sends with one click, and inbound replies thread back automatically. The system is persona-configurable per restaurant and pricing-rule-configurable per event type."
+
+---
+
+## 10. Stakeholder Talking Points
+
+**On AI and pricing:**
+> "Pricing is deterministic — rules-based, not ML. The operator controls the minimum spend for each event type, meal period, and day of week. No black box."
+
+**On data safety:**
+> "The POC uses exclusively seeded test data. No real guest information. No real restaurant data. The `.example.com` email domain is enforced throughout."
+
+**On Gmail:**
+> "Gmail is used for the POC because it requires no infrastructure. Production would use a transactional email relay (SendGrid, Postmark) with full deliverability and tracking. The SMTP interface is identical."
+
+**On the AI draft quality:**
+> "In the POC, we can demonstrate both the fallback template (deterministic, no API key) and the Anthropic-powered draft (with API key). The persona system makes both feel on-brand."
+
+**On multi-tenancy:**
+> "The data model is multi-tenant from day one — each restaurant is isolated. The POC doesn't enforce authentication yet; that's Sprint 6 scope."
+
+---
+
+## 11. POC Success Criteria Checklist
+
+| Criterion | Status | Notes |
+|---|---|---|
+| Dashboard KPI cards render with seeded data | ✓ Done | Sprint 3 |
+| Pricing Rules page shows rules per restaurant | ✓ Done | Sprint 3 |
+| Personas page shows configured personas | ✓ Done | Sprint 3 |
+| Calendar page shows demand events | ✓ Done | Sprint 3 |
+| Insights page shows performance metrics | ✓ Done | Sprint 3 |
+| Enquiries list with status filtering | ✓ Done | Sprint 3 |
+| Enquiry detail drawer with message thread | ✓ Done | Sprint 3 |
+| Webform intake endpoint (`POST /enquiries/intake`) | ✓ Done | Sprint 4 |
+| Webform page at `/webform` | ✓ Done | Sprint 4 |
+| Draft generation (FallbackProvider) | ✓ Done | Sprint 4 |
+| Draft generation (AnthropicProvider) | ✓ Done | Sprint 4 (key needed) |
+| Draft response UI in enquiry drawer | ✓ Done | Sprint 4 |
+| Gmail SMTP send wiring | ✓ Done | Sprint 4 (disabled without creds) |
+| Gmail IMAP inbox reader | ✓ Done | Sprint 4 (disabled without creds) |
+| DraftSection component (generate + send) | ✓ Done | Sprint 5A (UI-012) |
+| Email Activity Timeline component | ✓ Done | Sprint 5A (UI-013) |
+| Email delivery status logging (EmailEvent) | ✓ Done | Sprint 5A (EMAIL-005) |
+| SMTP Celery worker task with retry | ✓ Done | Sprint 5A (WORKFLOW-005) |
+| Inbound email → enquiry pipeline | ✓ Done | Sprint 5A (WORKFLOW-006) |
+| End-to-end POC workflow tests (deterministic) | ✓ Done | Sprint 5A (TEST-005) |
+| **Full demo loop completable without live credentials** | ✓ **Yes** | Fallback + seed data |
+| **Full demo loop completable with Gmail credentials** | ✓ **Yes** | SMTP + IMAP active |
+
+**POC verdict:** The complete operational loop — webform intake → enquiry creation → persona/pricing attachment → draft generation → email send → inbound reply threading — is implemented and demonstrable. The system requires Gmail App Password credentials for live email and optionally an Anthropic API key for LLM-quality drafts; all other flows operate fully with seeded data and deterministic fallbacks.
