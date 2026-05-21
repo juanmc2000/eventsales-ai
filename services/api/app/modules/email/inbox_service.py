@@ -1,5 +1,12 @@
 """
 InboxReaderService — disabled IMAP inbox reader wiring.
+
+Provides the service boundary for Gmail IMAP inbox polling.
+Returns an empty list when credentials are not configured.
+No live IMAP calls are made until credentials are set in .env.
+
+Used by: future Celery scheduled task (not wired in Sprint 4).
+Future:  Poll inbox, parse inbound emails, match to enquiries.
 """
 
 from __future__ import annotations
@@ -14,8 +21,18 @@ from app.modules.email.providers import GmailIMAPProvider, make_imap_provider
 logger = logging.getLogger(__name__)
 
 
+# ─── Parsed email DTO ─────────────────────────────────────────────────────────
+
+
 @dataclass
 class ParsedEmail:
+    """
+    A normalised inbound email message.
+
+    Populated by InboxParser from raw IMAP message dicts.
+    All fields are optional — real messages may be missing headers.
+    """
+
     message_id: str | None = None
     from_address: str | None = None
     to_address: str | None = None
@@ -25,10 +42,21 @@ class ParsedEmail:
     raw: dict = field(default_factory=dict)
 
 
+# ─── Parser ───────────────────────────────────────────────────────────────────
+
+
 class InboxParser:
+    """
+    Simple parser that converts raw IMAP message dicts into ParsedEmail objects.
+
+    Kept minimal for POC — no attachment processing, no MIME decoding.
+    """
+
+    # Matches "Name <email@example.com>" or bare "email@example.com"
     _EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
 
     def parse(self, raw: dict) -> ParsedEmail:
+        """Parse a raw IMAP message dict into a ParsedEmail."""
         return ParsedEmail(
             message_id=self._get(raw, "message_id") or self._get(raw, "Message-ID"),
             from_address=self._extract_email(self._get(raw, "from") or self._get(raw, "From")),
@@ -40,6 +68,7 @@ class InboxParser:
         )
 
     def parse_many(self, raws: list[dict]) -> list[ParsedEmail]:
+        """Parse a list of raw messages."""
         return [self.parse(r) for r in raws]
 
     @staticmethod
@@ -57,6 +86,7 @@ class InboxParser:
     def _clean_subject(value: str | None) -> str | None:
         if not value:
             return None
+        # Strip common reply/forward prefixes for normalisation.
         cleaned = re.sub(r"^(Re:|Fwd?:)\s*", "", value, flags=re.IGNORECASE).strip()
         return cleaned or None
 
@@ -65,26 +95,60 @@ class InboxParser:
         if not value:
             return None
         from email.utils import parsedate_to_datetime
+
         try:
             return parsedate_to_datetime(value)
         except Exception:
             return None
 
 
+# ─── InboxReaderService ───────────────────────────────────────────────────────
+
+
 class InboxReaderService:
-    def __init__(self, provider: GmailIMAPProvider | None = None, parser: InboxParser | None = None) -> None:
+    """
+    Service layer for IMAP inbox polling.
+
+    Disabled by default — returns an empty list when IMAP credentials are
+    not configured. No live network calls are made in that state.
+    """
+
+    def __init__(
+        self,
+        provider: GmailIMAPProvider | None = None,
+        parser: InboxParser | None = None,
+    ) -> None:
         self._provider = provider or make_imap_provider()
         self._parser = parser or InboxParser()
 
     def poll(self) -> list[ParsedEmail]:
+        """
+        Poll the inbox for new messages.
+
+        Returns an empty list when credentials are not configured or
+        the live polling logic is not yet wired.
+        """
         if not self._provider.is_configured:
+            logger.info(
+                "InboxReaderService: poll skipped — IMAP provider not configured "
+                "(set IMAP_USERNAME, IMAP_PASSWORD in .env)"
+            )
             return []
+
         raw_messages = self._provider.poll()
-        return self._parser.parse_many(raw_messages) if raw_messages else []
+        if not raw_messages:
+            return []
+
+        return self._parser.parse_many(raw_messages)
 
     def status(self) -> dict:
+        """Return IMAP provider configuration status."""
         return {
             **self._provider.status(),
             "poll_enabled": self._provider.is_configured,
-            "reason": None if self._provider.is_configured else "IMAP credentials not configured.",
+            "reason": (
+                None
+                if self._provider.is_configured
+                else "IMAP credentials not configured. Set IMAP_USERNAME and IMAP_PASSWORD in .env."
+            ),
         }

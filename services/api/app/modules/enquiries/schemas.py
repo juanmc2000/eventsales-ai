@@ -132,3 +132,26 @@ class EnquiryIntakeOut(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": False}
+
+
+# ── Draft response ─────────────────────────────────────────────────────────────
+
+
+class DraftResponseOut(BaseModel):
+    """API response for a generated or retrieved draft enquiry response.
+
+    Returned by both POST /draft (generate) and GET /draft (retrieve latest).
+    Fields only available on fresh generation (is_fallback, model, pricing_explanation)
+    are optional so the schema serves both paths.
+    """
+
+    enquiry_id: uuid.UUID
+    message_id: uuid.UUID
+    subject: str | None = None
+    body: str
+    persona_name: str | None = None
+    recommended_minimum_spend: float | None = None
+    pricing_explanation: str | None = None
+    is_fallback: bool | None = None
+    model: str | None = None
+    generated_at: datetime
