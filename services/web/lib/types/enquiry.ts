@@ -57,3 +57,17 @@ export type EnquiryIntakeOut = {
   pricing_explanation: string;
   created_at: string;
 };
+
+/** Mirrors DraftResponseOut from services/api/app/modules/enquiries/schemas.py */
+export type DraftResponseOut = {
+  enquiry_id: string;
+  message_id: string;
+  subject: string | null;
+  body: string;
+  persona_name: string | null;
+  recommended_minimum_spend: number | null;
+  pricing_explanation: string | null;
+  is_fallback: boolean | null;
+  model: string | null;
+  generated_at: string;
+};
