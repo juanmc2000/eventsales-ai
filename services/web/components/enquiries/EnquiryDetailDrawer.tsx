@@ -330,7 +330,7 @@ export function EnquiryDetailDrawer({
                 }
               />
               <FieldRow label="Event Type" value={enquiry.event_type ?? ""} />
-              <FieldRow label="Preferred Area" value={enquiry.preferred_area ?? ""} />
+              <FieldRow label="Preferred Room / Area" value={enquiry.preferred_area ?? ""} />
               <FieldRow label="Source" value={enquiry.source} />
             </div>
           </DrawerSection>

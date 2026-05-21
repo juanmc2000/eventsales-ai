@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Card } from "@/components/layout/Card";
-import type { Restaurant, RestaurantListOut } from "@/lib/types/restaurant";
+import type { Restaurant, RestaurantListOut, Room } from "@/lib/types/restaurant";
 import type { EnquiryIntakeOut } from "@/lib/types/enquiry";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -256,6 +256,8 @@ export function EnquiryWebform() {
   const [form, setForm] = useState<FormState>(EMPTY);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [roomsLoading, setRoomsLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [result, setResult] = useState<EnquiryIntakeOut | null>(null);
@@ -267,6 +269,22 @@ export function EnquiryWebform() {
       .then((d: RestaurantListOut) => setRestaurants(d.items ?? []))
       .catch(() => {});
   }, []);
+
+  // Load rooms whenever restaurant selection changes
+  useEffect(() => {
+    setForm((prev) => ({ ...prev, preferred_area: "" }));
+    if (!form.restaurant_id) {
+      setRooms([]);
+      return;
+    }
+    setRoomsLoading(true);
+    fetch(`${API_BASE}/api/v1/restaurants/${form.restaurant_id}/rooms?active_only=true&limit=50`)
+      .then((r) => (r.ok ? r.json() : { items: [] }))
+      .then((d) => setRooms(d.items ?? []))
+      .catch(() => setRooms([]))
+      .finally(() => setRoomsLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.restaurant_id]);
 
   function set(key: keyof FormState, value: string | boolean) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -493,12 +511,35 @@ export function EnquiryWebform() {
                 onChange={(e) => set("budget_indication", e.target.value)}
                 placeholder="e.g. Around £3,000"
               />
-              <Input
-                label="Preferred Room or Area"
-                value={form.preferred_area}
-                onChange={(e) => set("preferred_area", e.target.value)}
-                placeholder="e.g. Private Dining Room"
-              />
+              {rooms.length > 0 ? (
+                <Select
+                  label="Preferred Room or Area"
+                  value={form.preferred_area}
+                  onChange={(e) => set("preferred_area", e.target.value)}
+                  options={[
+                    { value: "", label: roomsLoading ? "Loading rooms…" : "No specific room" },
+                    ...rooms.map((r) => ({
+                      value: r.name,
+                      label: r.is_private_dining ? `${r.name} (PDR)` : r.name,
+                    })),
+                  ]}
+                  helper="Rooms available at the selected venue."
+                />
+              ) : (
+                <Input
+                  label="Preferred Room or Area"
+                  value={form.preferred_area}
+                  onChange={(e) => set("preferred_area", e.target.value)}
+                  placeholder={
+                    form.restaurant_id
+                      ? roomsLoading
+                        ? "Loading rooms…"
+                        : "e.g. Private Dining Room"
+                      : "Select a venue first"
+                  }
+                  disabled={roomsLoading}
+                />
+              )}
             </FieldRow>
             <FieldRow>
               <Input
