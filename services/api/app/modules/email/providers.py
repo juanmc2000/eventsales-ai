@@ -189,16 +189,74 @@ class GmailIMAPProvider:
     def is_configured(self) -> bool:
         return bool(self._username and self._password)
 
-    def poll(self) -> list[dict]:
+    def poll(self, mailbox: str = "INBOX", max_messages: int = 20) -> list[dict]:
         if not self.is_configured:
             logger.warning(
                 "GmailIMAPProvider: poll skipped — credentials not configured "
                 "(set IMAP_USERNAME, IMAP_PASSWORD in .env)"
             )
             return []
-        # Live poll logic wired in EMAIL-003.
-        logger.info("GmailIMAPProvider: poll called but not yet implemented")
-        return []
+
+        try:
+            with imaplib.IMAP4_SSL(self._host, self._port) as imap:
+                imap.login(self._username, self._password)
+                imap.select(mailbox, readonly=True)
+                status, data = imap.search(None, "UNSEEN")
+                if status != "OK" or not data or not data[0]:
+                    return []
+
+                uids = data[0].split()
+                uids = uids[-max_messages:]
+
+                messages = []
+                for uid in uids:
+                    fetch_status, msg_data = imap.fetch(uid, "(RFC822)")
+                    if fetch_status != "OK" or not msg_data:
+                        continue
+                    raw_bytes = msg_data[0][1] if isinstance(msg_data[0], tuple) else None
+                    if not raw_bytes:
+                        continue
+                    messages.append(self._parse_rfc822(raw_bytes))
+
+                logger.info(
+                    "GmailIMAPProvider: polled %d messages from %s",
+                    len(messages),
+                    mailbox,
+                )
+                return messages
+        except Exception as exc:
+            logger.error("GmailIMAPProvider: poll failed: %s", exc)
+            return []
+
+    @staticmethod
+    def _parse_rfc822(raw_bytes: bytes) -> dict:
+        """Parse raw RFC822 bytes into a flat header+body dict for InboxParser."""
+        import email as _email  # noqa: PLC0415
+
+        msg = _email.message_from_bytes(raw_bytes)
+        body = ""
+        if msg.is_multipart():
+            for part in msg.walk():
+                if part.get_content_type() == "text/plain" and not part.get("Content-Disposition"):
+                    payload = part.get_payload(decode=True)
+                    if payload:
+                        charset = part.get_content_charset() or "utf-8"
+                        body = payload.decode(charset, errors="replace")
+                        break
+        else:
+            payload = msg.get_payload(decode=True)
+            if payload:
+                charset = msg.get_content_charset() or "utf-8"
+                body = payload.decode(charset, errors="replace")
+
+        return {
+            "message_id": msg.get("Message-ID"),
+            "from": msg.get("From"),
+            "to": msg.get("To"),
+            "subject": msg.get("Subject"),
+            "date": msg.get("Date"),
+            "body": body,
+        }
 
     def status(self) -> dict:
         return {
