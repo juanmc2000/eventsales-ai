@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { StatusPill } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
-import type { Enquiry, EnquiryMessage } from "@/lib/types/enquiry";
+import type { Enquiry, EnquiryMessage, DraftResponseOut } from "@/lib/types/enquiry";
 import type { Persona, PersonaListOut } from "@/lib/types/persona";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -125,6 +125,119 @@ function MessageBubble({ message }: { message: EnquiryMessage }) {
       </div>
     </div>
   );
+}
+
+// ─── Icons ───────────────────────────────────────────────────────────────────
+function SparkleIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
+    </svg>
+  );
+}
+function RefreshIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" />
+    </svg>
+  );
+}
+
+// ─── Draft response section ────────────────────────────────────────────────────
+type DraftState = "idle" | "loading" | "ready" | "error";
+
+function DraftSection({ enquiryId }: { enquiryId: string }) {
+  const [draftState, setDraftState] = useState<DraftState>("idle");
+  const [draft, setDraft] = useState<DraftResponseOut | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  async function handleGenerate() {
+    setDraftState("loading");
+    setErrorMsg(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/enquiries/${enquiryId}/draft`, { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail ?? `HTTP ${res.status}`);
+      }
+      const data: DraftResponseOut = await res.json();
+      setDraft(data);
+      setDraftState("ready");
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "Failed to generate draft.");
+      setDraftState("error");
+    }
+  }
+
+  if (draftState === "idle") {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-start" }}>
+        <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6 }}>
+          Generate a persona-based draft response using this enquiry's assigned persona, event details, and pricing recommendation.
+        </p>
+        <Button variant="primary" size="sm" icon={<SparkleIcon />} onClick={handleGenerate}>
+          Generate Draft
+        </Button>
+      </div>
+    );
+  }
+
+  if (draftState === "loading") {
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "16px 0" }}>
+        <div style={{ width: 16, height: 16, border: "2px solid rgba(109,61,245,0.3)", borderTopColor: "var(--brand-purple)", borderRadius: "50%", animation: "spin 0.8s linear infinite", flexShrink: 0 }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <span style={{ fontSize: 13, color: "var(--text-muted)" }}>Generating draft response…</span>
+      </div>
+    );
+  }
+
+  if (draftState === "error") {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <p style={{ fontSize: 13, color: "#dc2626" }}>{errorMsg}</p>
+        <Button variant="secondary" size="sm" onClick={handleGenerate}>Retry</Button>
+      </div>
+    );
+  }
+
+  if (draftState === "ready" && draft) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          {draft.persona_name && (
+            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--brand-purple)", background: "rgba(109,61,245,0.1)", padding: "2px 8px", borderRadius: 4 }}>
+              {draft.persona_name}
+            </span>
+          )}
+          <span style={{ fontSize: 11, color: "var(--brand-orange)", background: "rgba(251,146,60,0.1)", padding: "2px 8px", borderRadius: 4, fontWeight: 600 }}>
+            Draft — Not Sent
+          </span>
+          {draft.is_fallback && (
+            <span style={{ fontSize: 11, color: "var(--text-muted)", background: "var(--surface-soft)", padding: "2px 8px", borderRadius: 4 }}>
+              Template fallback
+            </span>
+          )}
+        </div>
+        {draft.subject && (
+          <p style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>{draft.subject}</p>
+        )}
+        <div style={{ padding: "12px 14px", borderRadius: 8, background: "var(--surface-soft)", border: "1px solid var(--border)", fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
+          {draft.body}
+        </div>
+        {(draft.recommended_minimum_spend != null || draft.pricing_explanation) && (
+          <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
+            {draft.pricing_explanation ?? `Recommended minimum spend: £${draft.recommended_minimum_spend?.toLocaleString()}`}
+          </p>
+        )}
+        <Button variant="secondary" size="sm" icon={<RefreshIcon />} onClick={handleGenerate}>
+          Regenerate
+        </Button>
+      </div>
+    );
+  }
+
+  return null;
 }
 
 // ─── Drawer component ─────────────────────────────────────────────────────────
@@ -460,46 +573,9 @@ export function EnquiryDetailDrawer({
             )}
           </DrawerSection>
 
-          {/* Placeholder draft response */}
+          {/* Draft response */}
           <DrawerSection title="Draft Response">
-            <div
-              style={{
-                padding: "16px",
-                borderRadius: 10,
-                background: "rgba(109,61,245,0.04)",
-                border: "1px dashed rgba(109,61,245,0.3)",
-                display: "flex",
-                flexDirection: "column",
-                gap: 10,
-                alignItems: "flex-start",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: "var(--brand-purple)",
-                    background: "rgba(109,61,245,0.12)",
-                    padding: "2px 7px",
-                    borderRadius: 4,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                  }}
-                >
-                  Coming Soon
-                </span>
-                <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                  AI-assisted draft response (Sprint 4)
-                </span>
-              </div>
-              <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6 }}>
-                Persona-aware draft emails will be generated here based on the assigned persona, event details, and pricing recommendation. Email sending requires Gmail SMTP integration.
-              </p>
-              <Button variant="secondary" size="sm" disabled>
-                Generate Draft
-              </Button>
-            </div>
+            <DraftSection enquiryId={enquiry.id} />
           </DrawerSection>
 
           {/* Notes */}

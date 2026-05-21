@@ -176,7 +176,7 @@ describe("EnquiryDetailDrawer with mocked API", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows the draft response placeholder section", async () => {
+  it("shows the draft response section with Generate Draft button", async () => {
     const { EnquiryDetailDrawer } = await import(
       "@/components/enquiries/EnquiryDetailDrawer"
     );
@@ -187,7 +187,8 @@ describe("EnquiryDetailDrawer with mocked API", () => {
         onClose={() => {}}
       />
     );
-    expect(screen.getByText(/coming soon/i)).toBeInTheDocument();
+    expect(screen.getByText("Draft Response")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /generate draft/i })).toBeInTheDocument();
   });
 
   it("loads messages from the API on mount", async () => {
