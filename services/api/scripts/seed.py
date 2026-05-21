@@ -18,6 +18,7 @@ import os
 # Ensure app/ is importable when running directly
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import app.db.models  # noqa: F401 — registers all models with SQLAlchemy mapper
 from app.db.session import SessionLocal
 from app.modules.shared.seed_data import run_seed
 
