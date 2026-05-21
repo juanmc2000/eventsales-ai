@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import type { Enquiry, EnquiryMessage } from "@/lib/types/enquiry";
 import type { Persona, PersonaListOut } from "@/lib/types/persona";
+import { DraftSection } from "@/components/enquiries/DraftSection";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -460,46 +461,9 @@ export function EnquiryDetailDrawer({
             )}
           </DrawerSection>
 
-          {/* Placeholder draft response */}
+          {/* Draft response with send action */}
           <DrawerSection title="Draft Response">
-            <div
-              style={{
-                padding: "16px",
-                borderRadius: 10,
-                background: "rgba(109,61,245,0.04)",
-                border: "1px dashed rgba(109,61,245,0.3)",
-                display: "flex",
-                flexDirection: "column",
-                gap: 10,
-                alignItems: "flex-start",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: "var(--brand-purple)",
-                    background: "rgba(109,61,245,0.12)",
-                    padding: "2px 7px",
-                    borderRadius: 4,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                  }}
-                >
-                  Coming Soon
-                </span>
-                <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                  AI-assisted draft response (Sprint 4)
-                </span>
-              </div>
-              <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6 }}>
-                Persona-aware draft emails will be generated here based on the assigned persona, event details, and pricing recommendation. Email sending requires Gmail SMTP integration.
-              </p>
-              <Button variant="secondary" size="sm" disabled>
-                Generate Draft
-              </Button>
-            </div>
+            <DraftSection enquiryId={enquiry.id} toEmail={enquiry.email} />
           </DrawerSection>
 
           {/* Notes */}
