@@ -102,15 +102,26 @@ function RoomPill({
   name,
   seatedCapacity,
   isPrivateDining,
+  restaurantId,
 }: {
   name: string;
   seatedCapacity: number | null;
   isPrivateDining: boolean;
+  restaurantId: string;
 }) {
   return (
-    <div
-      className="flex items-center justify-between px-3 py-2 rounded-lg"
+    <a
+      href={`/rooms?restaurant=${restaurantId}`}
+      className="flex items-center justify-between px-3 py-2 rounded-lg transition-colors duration-150"
       style={{ backgroundColor: "var(--surface-soft)", border: "1px solid var(--border)" }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLAnchorElement).style.borderColor = "var(--brand-purple)";
+        (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "rgba(109,61,245,0.04)";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLAnchorElement).style.borderColor = "var(--border)";
+        (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "var(--surface-soft)";
+      }}
     >
       <div className="flex items-center gap-2 min-w-0">
         <span style={{ color: "var(--brand-purple)" }}>
@@ -142,7 +153,7 @@ function RoomPill({
           {seatedCapacity} seated
         </span>
       )}
-    </div>
+    </a>
   );
 }
 
@@ -235,6 +246,7 @@ export function RestaurantRoomsSummary({ context, restaurantId }: Props) {
                 name={room.name}
                 seatedCapacity={room.seated_capacity}
                 isPrivateDining={room.is_private_dining}
+                restaurantId={restaurantId}
               />
             ))}
           </div>
