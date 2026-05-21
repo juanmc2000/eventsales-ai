@@ -5,16 +5,19 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.modules.enquiries.intake_service import EnquiryIntakeService
 from app.modules.enquiries.repository import EnquiryRepository
 from app.modules.enquiries.schemas import (
     DraftResponseOut,
     EnquiryCreate,
+    EnquiryIntakeOut,
     EnquiryListOut,
     EnquiryMessageCreate,
     EnquiryMessageOut,
     EnquiryOut,
     EnquiryStatusUpdate,
     EnquiryUpdate,
+    WebformIntakeRequest,
 )
 from app.modules.enquiries.service import EnquiryService
 from app.modules.personas.repository import PersonaRepository
@@ -30,6 +33,22 @@ def get_draft_service(db: Session = Depends(get_db)):  # type: ignore[return]
     # Lazy import — DraftGenerationService lives in the ai module (AI-001).
     from app.modules.ai.service import DraftGenerationService  # noqa: PLC0415
     return DraftGenerationService(db)
+
+
+def get_intake_service(db: Session = Depends(get_db)) -> EnquiryIntakeService:
+    return EnquiryIntakeService(db)
+
+
+@router.post("/intake", response_model=EnquiryIntakeOut, status_code=201)
+def intake_enquiry(
+    data: WebformIntakeRequest,
+    service: EnquiryIntakeService = Depends(get_intake_service),
+) -> EnquiryIntakeOut:
+    """Accept a webform submission and return the created enquiry with persona and pricing context."""
+    try:
+        return service.intake(data)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
 
 
 @router.get("", response_model=EnquiryListOut)

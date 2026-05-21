@@ -44,3 +44,16 @@ export type EnquiryMessage = {
   sent_at: string | null;
   created_at: string;
 };
+
+/** Response from POST /api/v1/enquiries/intake */
+export type EnquiryIntakeOut = {
+  enquiry_id: string;
+  reference: string;
+  status: string;
+  restaurant_id: string;
+  persona_id: string | null;
+  persona_name: string | null;
+  recommended_minimum_spend: number;
+  pricing_explanation: string;
+  created_at: string;
+};
