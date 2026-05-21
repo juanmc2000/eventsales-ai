@@ -4,10 +4,11 @@ import { useEffect, useState, useCallback } from "react";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card } from "@/components/layout/Card";
-import { Badge, StatusPill } from "@/components/ui/Badge";
+import { StatusPill } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
+import { EnquiryDetailDrawer } from "@/components/enquiries/EnquiryDetailDrawer";
 import type { Enquiry, EnquiryListOut } from "@/lib/types/enquiry";
 import type { Restaurant, RestaurantListOut } from "@/lib/types/restaurant";
 
@@ -48,22 +49,6 @@ function UserIcon() {
   );
 }
 
-// ─── Status to badge variant mapping ─────────────────────────────────────────
-function statusVariant(status: string): string {
-  const map: Record<string, string> = {
-    new: "new",
-    open: "active",
-    follow_up: "warning",
-    proposal_sent: "proposal-sent",
-    deposit_sent: "deposit-sent",
-    deposit_received: "deposit-received",
-    closed_won: "closed-won",
-    closed_lost: "closed-lost",
-    escalated: "escalated",
-  };
-  return map[status] ?? "neutral";
-}
-
 // ─── Guest avatar initials ────────────────────────────────────────────────────
 function GuestAvatar({ firstName, lastName }: { firstName: string; lastName: string }) {
   const initials = `${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase();
@@ -87,215 +72,6 @@ function GuestAvatar({ firstName, lastName }: { firstName: string; lastName: str
     >
       {initials}
     </div>
-  );
-}
-
-// ─── Enquiry detail drawer (stub — expanded in UI-009) ────────────────────────
-function EnquiryDetailDrawer({
-  enquiry,
-  restaurantName,
-  onClose,
-}: {
-  enquiry: Enquiry;
-  restaurantName: string;
-  onClose: () => void;
-}) {
-  useEffect(() => {
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  }, [onClose]);
-
-  return (
-    <>
-      {/* Backdrop */}
-      <div
-        onClick={onClose}
-        style={{
-          position: "fixed",
-          inset: 0,
-          background: "rgba(7,10,31,0.45)",
-          zIndex: 40,
-        }}
-      />
-      {/* Drawer */}
-      <div
-        style={{
-          position: "fixed",
-          top: 0,
-          right: 0,
-          bottom: 0,
-          width: 520,
-          background: "var(--surface)",
-          zIndex: 50,
-          display: "flex",
-          flexDirection: "column",
-          boxShadow: "var(--shadow-hover)",
-          overflowY: "auto",
-        }}
-      >
-        {/* Header */}
-        <div
-          style={{
-            padding: "20px 24px",
-            borderBottom: "1px solid var(--border)",
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-            gap: 12,
-          }}
-        >
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
-                {enquiry.first_name} {enquiry.last_name}
-              </h2>
-              <StatusPill status={enquiry.status} />
-            </div>
-            <p style={{ fontSize: 13, color: "var(--text-muted)" }}>
-              {enquiry.reference} · {restaurantName}
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              color: "var(--text-muted)",
-              padding: 4,
-              borderRadius: 6,
-              fontSize: 20,
-              lineHeight: 1,
-            }}
-          >
-            ×
-          </button>
-        </div>
-
-        {/* Body */}
-        <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: 20 }}>
-          {/* Key details grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            {[
-              { label: "Email", value: enquiry.email },
-              { label: "Phone", value: enquiry.phone ?? "—" },
-              { label: "Company", value: enquiry.company_name ?? "—" },
-              { label: "Party Size", value: enquiry.party_size?.toString() ?? "—" },
-              {
-                label: "Event Date",
-                value: enquiry.event_date
-                  ? new Date(enquiry.event_date).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })
-                  : "—",
-              },
-              { label: "Event Type", value: enquiry.event_type ?? "—" },
-              { label: "Preferred Area", value: enquiry.preferred_area ?? "—" },
-              { label: "Source", value: enquiry.source },
-            ].map((row) => (
-              <div key={row.label}>
-                <p style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 2 }}>{row.label}</p>
-                <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}>{row.value}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Recommended min spend */}
-          {enquiry.recommended_minimum_spend != null && (
-            <div
-              style={{
-                padding: "14px 16px",
-                borderRadius: 10,
-                background: "rgba(109,61,245,0.06)",
-                border: "1px solid rgba(109,61,245,0.2)",
-              }}
-            >
-              <p style={{ fontSize: 11, color: "var(--brand-purple)", fontWeight: 600, marginBottom: 4 }}>
-                RECOMMENDED MINIMUM SPEND
-              </p>
-              <p style={{ fontSize: 22, fontWeight: 700, color: "var(--brand-purple)" }}>
-                £{Math.round(enquiry.recommended_minimum_spend).toLocaleString()}
-              </p>
-            </div>
-          )}
-
-          {/* Budget indication */}
-          {enquiry.budget_indication && (
-            <div>
-              <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4 }}>Budget Indication</p>
-              <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>{enquiry.budget_indication}</p>
-            </div>
-          )}
-
-          {/* Message */}
-          {enquiry.message && (
-            <div>
-              <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 6 }}>Initial Message</p>
-              <div
-                style={{
-                  padding: "12px 14px",
-                  borderRadius: 8,
-                  background: "var(--surface-soft)",
-                  border: "1px solid var(--border)",
-                  fontSize: 13,
-                  color: "var(--text-secondary)",
-                  lineHeight: 1.6,
-                  whiteSpace: "pre-wrap",
-                }}
-              >
-                {enquiry.message}
-              </div>
-            </div>
-          )}
-
-          {/* Dietary / special requests */}
-          {(enquiry.dietary_requirements || enquiry.special_requests) && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              {enquiry.dietary_requirements && (
-                <div>
-                  <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4 }}>Dietary Requirements</p>
-                  <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>{enquiry.dietary_requirements}</p>
-                </div>
-              )}
-              {enquiry.special_requests && (
-                <div>
-                  <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4 }}>Special Requests</p>
-                  <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>{enquiry.special_requests}</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Notes */}
-          {enquiry.notes && (
-            <div>
-              <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4 }}>Notes</p>
-              <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>{enquiry.notes}</p>
-            </div>
-          )}
-
-          <div
-            style={{
-              padding: "10px 0 0",
-              borderTop: "1px solid var(--border)",
-              display: "flex",
-              gap: 12,
-              fontSize: 12,
-              color: "var(--text-muted)",
-            }}
-          >
-            <span>Created {new Date(enquiry.created_at).toLocaleDateString("en-GB")}</span>
-            <span>·</span>
-            <span>Updated {new Date(enquiry.updated_at).toLocaleDateString("en-GB")}</span>
-          </div>
-        </div>
-      </div>
-    </>
   );
 }
 
@@ -587,6 +363,10 @@ export default function EnquiriesPage() {
           enquiry={selected}
           restaurantName={restaurantMap[selected.restaurant_id] ?? "—"}
           onClose={() => setSelected(null)}
+          onStatusUpdated={(updated) => {
+            setEnquiries((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
+            setSelected(updated);
+          }}
         />
       )}
     </PageContainer>
