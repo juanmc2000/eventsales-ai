@@ -1,3 +1,5 @@
+import app.db.models  # noqa: F401 — registers all models with SQLAlchemy before any router imports
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
