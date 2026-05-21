@@ -100,6 +100,215 @@ SEED_PERSONAS: list[dict[str, Any]] = [
     },
 ]
 
+SEED_ROOMS: list[dict[str, Any]] = [
+    # ── The Grand Ballroom ──────────────────────────────────────────────────────
+    {
+        "restaurant_slug": "the-grand-ballroom",
+        "name": "The Grand Ballroom",
+        "slug": "grand-ballroom-main",
+        "description": "Our spectacular main ballroom, accommodating up to 300 guests for seated dinners and 500 for standing receptions. Adorned with original gilded cornicing, crystal chandeliers, and a private entrance on Grand Place.",
+        "room_type": "ballroom",
+        "seated_capacity": 300,
+        "standing_capacity": 500,
+        "min_capacity": 50,
+        "max_capacity": 500,
+        "layouts": ["theatre", "banquet", "cabaret", "reception"],
+        "amenities": [
+            "Crystal chandeliers",
+            "Built-in AV system",
+            "Stage and dance floor",
+            "Private entrance",
+            "Adjacent dressing room",
+            "Dedicated events team",
+        ],
+        "asset_links": [
+            {"type": "image", "label": "Main ballroom overview", "url": "https://assets.example.com/grand-ballroom/ballroom-main.jpg"},
+            {"type": "image", "label": "Stage and dance floor", "url": "https://assets.example.com/grand-ballroom/stage.jpg"},
+        ],
+        "room_hire_fee": 2500.00,
+        "minimum_spend_notes": "Weekday minimum spend from £5,000; weekend from £8,000.",
+        "suitability_notes": "Ideal for gala dinners, corporate awards, product launches, weddings, and milestone celebrations.",
+        "booking_url": "https://events.thegrandballroom.example.com/enquire",
+        "is_private_dining": False,
+        "display_order": 1,
+    },
+    {
+        "restaurant_slug": "the-grand-ballroom",
+        "name": "The Mayfair Suite",
+        "slug": "grand-ballroom-mayfair-suite",
+        "description": "An intimate private dining room adjoining the main ballroom, ideal for pre-dinner receptions, board dinners, or exclusive celebrations for up to 24 guests.",
+        "room_type": "private_dining",
+        "seated_capacity": 24,
+        "standing_capacity": 35,
+        "min_capacity": 8,
+        "max_capacity": 35,
+        "layouts": ["boardroom", "banquet", "reception"],
+        "amenities": [
+            "Private butler service",
+            "65-inch display screen",
+            "Bespoke wine list",
+            "Dedicated entrance from foyer",
+            "Natural daylight",
+        ],
+        "asset_links": [
+            {"type": "image", "label": "Mayfair Suite dining setup", "url": "https://assets.example.com/grand-ballroom/mayfair-suite.jpg"},
+        ],
+        "room_hire_fee": 750.00,
+        "minimum_spend_notes": "Minimum food and beverage spend of £3,500.",
+        "suitability_notes": "Perfect for board dinners, intimate celebrations, and pre-event private dining.",
+        "booking_url": "https://events.thegrandballroom.example.com/enquire",
+        "is_private_dining": True,
+        "display_order": 2,
+    },
+    # ── Harbour View ────────────────────────────────────────────────────────────
+    {
+        "restaurant_slug": "harbour-view",
+        "name": "The Waterfront Room",
+        "slug": "harbour-view-waterfront",
+        "description": "Floor-to-ceiling windows overlooking the harbour, accommodating up to 80 guests for seated dinners with panoramic views of Canary Wharf.",
+        "room_type": "event_space",
+        "seated_capacity": 80,
+        "standing_capacity": 120,
+        "min_capacity": 20,
+        "max_capacity": 120,
+        "layouts": ["banquet", "cabaret", "theatre", "reception"],
+        "amenities": [
+            "Panoramic harbour views",
+            "Retractable room divider",
+            "Integrated AV and lighting",
+            "Private terrace access",
+            "Dedicated bar",
+        ],
+        "asset_links": [
+            {"type": "image", "label": "Waterfront Room daytime", "url": "https://assets.example.com/harbour-view/waterfront-day.jpg"},
+            {"type": "image", "label": "Waterfront Room evening setup", "url": "https://assets.example.com/harbour-view/waterfront-evening.jpg"},
+        ],
+        "room_hire_fee": 1200.00,
+        "minimum_spend_notes": "Minimum spend from £2,500 on weekdays, £4,000 on weekends.",
+        "suitability_notes": "Popular with financial and professional services clients. Excellent for corporate dinners, team celebrations, and product launches.",
+        "booking_url": "https://events.harbourview.example.com/enquire",
+        "is_private_dining": False,
+        "display_order": 1,
+    },
+    {
+        "restaurant_slug": "harbour-view",
+        "name": "The Captain's Table",
+        "slug": "harbour-view-captains-table",
+        "description": "Our most exclusive semi-private dining space — a suspended glass box extending over the water, seating up to 14 for the ultimate corporate or celebration dinner.",
+        "room_type": "private_dining",
+        "seated_capacity": 14,
+        "standing_capacity": 14,
+        "min_capacity": 6,
+        "max_capacity": 14,
+        "layouts": ["boardroom"],
+        "amenities": [
+            "360° harbour views",
+            "Sommelier service",
+            "Bespoke tasting menu available",
+            "Frosted privacy glass",
+        ],
+        "asset_links": [
+            {"type": "image", "label": "Captain's Table overview", "url": "https://assets.example.com/harbour-view/captains-table.jpg"},
+        ],
+        "room_hire_fee": 0.00,
+        "minimum_spend_notes": "Minimum food and beverage spend of £2,000 per occasion.",
+        "suitability_notes": "Best for high-stakes client entertainment, intimate milestone dinners, and VIP occasions.",
+        "booking_url": "https://events.harbourview.example.com/enquire",
+        "is_private_dining": True,
+        "display_order": 2,
+    },
+    # ── The Garden Room ─────────────────────────────────────────────────────────
+    {
+        "restaurant_slug": "the-garden-room",
+        "name": "The Walled Garden Room",
+        "slug": "garden-room-main",
+        "description": "The entire venue — a single exquisite private dining room surrounded by a Chelsea walled garden. Exclusive hire only, seating up to 40 guests.",
+        "room_type": "private_dining",
+        "seated_capacity": 40,
+        "standing_capacity": 60,
+        "min_capacity": 10,
+        "max_capacity": 60,
+        "layouts": ["banquet", "cabaret", "boardroom", "reception"],
+        "amenities": [
+            "Walled garden access",
+            "Open fireplace",
+            "Private kitchen and chef's table option",
+            "Bespoke floral design available",
+            "Dedicated event coordinator",
+            "Garden terrace for pre-dinner drinks",
+        ],
+        "asset_links": [
+            {"type": "image", "label": "Garden Room interior", "url": "https://assets.example.com/garden-room/interior.jpg"},
+            {"type": "image", "label": "Walled garden terrace", "url": "https://assets.example.com/garden-room/terrace.jpg"},
+        ],
+        "room_hire_fee": 1500.00,
+        "minimum_spend_notes": "Minimum food and beverage spend from £3,000.",
+        "suitability_notes": "Sought after for intimate weddings, milestone birthdays, boardroom dinners, and exclusive celebrations. Whole-venue hire only.",
+        "booking_url": "https://events.thegardenroom.example.com/enquire",
+        "is_private_dining": True,
+        "display_order": 1,
+    },
+    # ── City Brasserie ───────────────────────────────────────────────────────────
+    {
+        "restaurant_slug": "city-brasserie",
+        "name": "The Exchange Room",
+        "slug": "city-brasserie-exchange",
+        "description": "A flexible private dining and events space in the heart of the City, accommodating up to 60 guests. Popular with financial sector clients for corporate lunches, team dinners, and client entertainment.",
+        "room_type": "private_dining",
+        "seated_capacity": 60,
+        "standing_capacity": 80,
+        "min_capacity": 12,
+        "max_capacity": 80,
+        "layouts": ["boardroom", "banquet", "cabaret", "theatre", "reception"],
+        "amenities": [
+            "Integrated AV and presentation screen",
+            "Video conferencing capability",
+            "Whiteboards",
+            "Natural daylight with blackout blinds",
+            "Private bar",
+            "Dedicated service team",
+        ],
+        "asset_links": [
+            {"type": "image", "label": "Exchange Room boardroom layout", "url": "https://assets.example.com/city-brasserie/exchange-boardroom.jpg"},
+            {"type": "image", "label": "Exchange Room banquet layout", "url": "https://assets.example.com/city-brasserie/exchange-banquet.jpg"},
+        ],
+        "room_hire_fee": 0.00,
+        "minimum_spend_notes": "Minimum food and beverage spend from £1,200 at lunch, £2,000 at dinner.",
+        "suitability_notes": "Best suited to corporate lunches, team away days, client presentations, and post-deal celebration dinners.",
+        "booking_url": "https://events.citybrasserie.example.com/enquire",
+        "is_private_dining": True,
+        "display_order": 1,
+    },
+    {
+        "restaurant_slug": "city-brasserie",
+        "name": "The Trading Floor",
+        "slug": "city-brasserie-trading-floor",
+        "description": "Full venue buyout for up to 200 standing guests. The main brasserie floor transforms into an exclusive reception or awards evening space.",
+        "room_type": "event_space",
+        "seated_capacity": 120,
+        "standing_capacity": 200,
+        "min_capacity": 80,
+        "max_capacity": 200,
+        "layouts": ["reception", "banquet", "theatre"],
+        "amenities": [
+            "Full bar service",
+            "Stage and PA system",
+            "High-profile City address",
+            "Private street-level entrance",
+            "Canapé and bowl food service",
+        ],
+        "asset_links": [
+            {"type": "image", "label": "Trading Floor reception setup", "url": "https://assets.example.com/city-brasserie/trading-floor-reception.jpg"},
+        ],
+        "room_hire_fee": 2000.00,
+        "minimum_spend_notes": "Minimum food and beverage spend of £8,000 for full venue hire.",
+        "suitability_notes": "Ideal for City awards evenings, large corporate celebrations, drinks receptions, and company milestones.",
+        "booking_url": "https://events.citybrasserie.example.com/enquire",
+        "is_private_dining": False,
+        "display_order": 2,
+    },
+]
+
 SEED_PRICING_RULES: list[dict[str, Any]] = [
     # Per-restaurant pricing rules: (slug, name, day_of_week, meal_period, min_spend, min_covers)
     # day_of_week: None=all days, 0=Monday, 5=Saturday, 6=Sunday
@@ -183,6 +392,45 @@ def _upsert_restaurant_persona(db: Session, restaurant_id: uuid.UUID, persona_id
         )
     )
     db.flush()
+
+
+def _upsert_room(db: Session, restaurant_id: uuid.UUID, data: dict[str, Any]) -> Any:
+    """Insert a room if no room with the same slug exists for this restaurant."""
+    from app.modules.restaurants.models import Room
+
+    existing = (
+        db.query(Room)
+        .filter_by(restaurant_id=restaurant_id, slug=data["slug"])
+        .first()
+    )
+    if existing:
+        return existing
+    room = Room(
+        id=uuid.uuid4(),
+        tenant_id="default",
+        restaurant_id=restaurant_id,
+        name=data["name"],
+        slug=data["slug"],
+        description=data.get("description"),
+        room_type=data.get("room_type"),
+        seated_capacity=data.get("seated_capacity"),
+        standing_capacity=data.get("standing_capacity"),
+        min_capacity=data.get("min_capacity"),
+        max_capacity=data.get("max_capacity"),
+        layouts=data.get("layouts"),
+        amenities=data.get("amenities"),
+        asset_links=data.get("asset_links"),
+        room_hire_fee=data.get("room_hire_fee"),
+        minimum_spend_notes=data.get("minimum_spend_notes"),
+        suitability_notes=data.get("suitability_notes"),
+        booking_url=data.get("booking_url"),
+        is_private_dining=data.get("is_private_dining", False),
+        is_active=True,
+        display_order=data.get("display_order", 0),
+    )
+    db.add(room)
+    db.flush()
+    return room
 
 
 def _upsert_pricing_rule(db: Session, restaurant_id: uuid.UUID, data: dict[str, Any]) -> None:
@@ -386,24 +634,31 @@ def run_seed(db: Session, seed: int = 42) -> dict[str, int]:
         second_persona = personas[(i + 1) % len(personas)]
         _upsert_restaurant_persona(db, restaurant.id, second_persona.id, is_default=False)
 
-    # 4. Pricing rules
+    # 4. Rooms/PDRs
     restaurant_by_slug = {r.slug: r for r in restaurants}
+    for room_data in SEED_ROOMS:
+        restaurant = restaurant_by_slug.get(room_data["restaurant_slug"])
+        if restaurant:
+            room_payload = {k: v for k, v in room_data.items() if k != "restaurant_slug"}
+            _upsert_room(db, restaurant.id, room_payload)
+
+    # 5. Pricing rules
     for rule in SEED_PRICING_RULES:
         restaurant = restaurant_by_slug.get(rule["restaurant_slug"])
         if restaurant:
             _upsert_pricing_rule(db, restaurant.id, rule)
 
-    # 5. Demand events (one year per restaurant)
+    # 6. Demand events (one year per restaurant)
     for restaurant in restaurants:
         _seed_demand_events(db, restaurant.id, rng)
 
-    # 6. Enquiries
+    # 7. Enquiries
     _seed_enquiries(db, restaurants, personas, rng)
 
     db.commit()
 
     # Return summary for logging
-    from app.modules.restaurants.models import Restaurant
+    from app.modules.restaurants.models import Restaurant, Room
     from app.modules.personas.models import Persona, RestaurantPersona
     from app.modules.pricing.models import PricingRule
     from app.modules.enquiries.models import Enquiry, EnquiryMessage
@@ -411,6 +666,7 @@ def run_seed(db: Session, seed: int = 42) -> dict[str, int]:
 
     return {
         "restaurants": db.query(Restaurant).count(),
+        "rooms": db.query(Room).count(),
         "personas": db.query(Persona).count(),
         "restaurant_personas": db.query(RestaurantPersona).count(),
         "pricing_rules": db.query(PricingRule).count(),
