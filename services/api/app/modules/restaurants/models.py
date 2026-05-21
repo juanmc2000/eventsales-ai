@@ -1,8 +1,9 @@
 import uuid
 from datetime import datetime
+from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, DateTime, String, Text, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, Numeric, String, Text, func
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -66,3 +67,63 @@ class Restaurant(Base):
     insight_snapshots: Mapped[list["InsightSnapshot"]] = relationship(
         "InsightSnapshot", back_populates="restaurant"
     )
+    rooms: Mapped[list["Room"]] = relationship(
+        "Room", back_populates="restaurant", cascade="all, delete-orphan"
+    )
+
+
+class Room(Base):
+    """A room or private dining room (PDR) within a restaurant venue."""
+
+    __tablename__ = "rooms"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tenant_id: Mapped[str] = mapped_column(
+        String(100), nullable=False, default="default", index=True
+    )
+    restaurant_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("restaurants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    slug: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    room_type: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    # Capacity fields
+    seated_capacity: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    standing_capacity: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    min_capacity: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    max_capacity: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # Flexible JSON fields for POC
+    layouts: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    amenities: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    asset_links: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    # Pricing/notes
+    room_hire_fee: Mapped[Decimal | None] = mapped_column(
+        Numeric(10, 2), nullable=True
+    )
+    minimum_spend_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    suitability_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    booking_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    # Flags
+    is_private_dining: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False
+    )
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    display_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+    # Relationship
+    restaurant: Mapped["Restaurant"] = relationship("Restaurant", back_populates="rooms")

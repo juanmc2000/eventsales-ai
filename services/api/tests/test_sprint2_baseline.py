@@ -48,13 +48,13 @@ def test_enquiries_module_importable() -> None:
 
 
 def test_all_models_registered() -> None:
-    """All 10 POC tables are registered in Base.metadata."""
+    """All POC tables are registered in Base.metadata."""
     import app.db.models  # noqa: F401
 
     from app.db.base import Base
 
     expected = {
-        "restaurants", "personas", "restaurant_personas", "pricing_rules",
+        "restaurants", "rooms", "personas", "restaurant_personas", "pricing_rules",
         "enquiries", "enquiry_messages", "email_events",
         "calendar_events", "demand_events", "insight_snapshots",
     }

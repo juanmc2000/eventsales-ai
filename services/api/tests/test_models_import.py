@@ -25,13 +25,14 @@ def test_all_models_importable() -> None:
 
 
 def test_all_tables_in_metadata() -> None:
-    """All 10 POC tables are registered in Base.metadata after model import."""
+    """All POC tables are registered in Base.metadata after model import."""
     import app.db.models  # noqa: F401 — triggers model registration
 
     from app.db.base import Base
 
     expected_tables = {
         "restaurants",
+        "rooms",
         "personas",
         "restaurant_personas",
         "pricing_rules",
