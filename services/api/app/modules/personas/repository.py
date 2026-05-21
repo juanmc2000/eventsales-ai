@@ -63,6 +63,19 @@ class PersonaRepository:
         )
         return list(self._db.scalars(stmt).all())
 
+    def get_default_persona_for_restaurant(self, restaurant_id: uuid.UUID) -> Persona | None:
+        """Return the default active persona assigned to a restaurant, or None."""
+        stmt = (
+            select(Persona)
+            .join(RestaurantPersona, RestaurantPersona.persona_id == Persona.id)
+            .where(
+                RestaurantPersona.restaurant_id == restaurant_id,
+                RestaurantPersona.is_default.is_(True),
+                Persona.is_active.is_(True),
+            )
+        )
+        return self._db.scalars(stmt).first()
+
     def assign(self, restaurant_id: uuid.UUID, persona_id: uuid.UUID, is_default: bool) -> RestaurantPersona:
         record = RestaurantPersona(
             id=uuid.uuid4(),
