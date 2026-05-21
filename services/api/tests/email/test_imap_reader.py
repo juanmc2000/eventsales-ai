@@ -1,14 +1,17 @@
 """
-EMAIL-003: Disabled IMAP Inbox Reader Wiring tests.
+EMAIL-006: Gmail IMAP live poll tests.
 
-Verifies that the inbox reader boots safely without credentials,
-returns an empty list, and that the parser correctly normalises
-raw IMAP message dicts. No live IMAP calls are made.
+Verifies that GmailIMAPProvider polls correctly when configured and
+gracefully handles all failure cases. All tests mock imaplib.IMAP4_SSL —
+no live network calls are made.
 """
 
 from __future__ import annotations
 
+import email as _stdlib_email
 from datetime import timezone
+from email.mime.text import MIMEText
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -33,9 +36,14 @@ class TestInboxReaderServiceDisabled:
         assert service.poll() == []
 
     def test_poll_returns_empty_list_when_provider_returns_nothing(self):
-        service = InboxReaderService(provider=_configured_provider())
-        # Configured provider still returns [] until live logic is wired (EMAIL-003 live).
-        result = service.poll()
+        # Mock IMAP returning empty search results (no UNSEEN messages).
+        with patch("imaplib.IMAP4_SSL") as mock_cls:
+            imap = MagicMock()
+            mock_cls.return_value.__enter__ = lambda s: imap
+            mock_cls.return_value.__exit__ = MagicMock(return_value=False)
+            imap.search.return_value = ("OK", [b""])
+            service = InboxReaderService(provider=_configured_provider())
+            result = service.poll()
         assert result == []
 
     def test_status_poll_enabled_false_when_unconfigured(self):
@@ -87,14 +95,157 @@ class TestGmailIMAPProviderUnit:
     def test_poll_returns_empty_list_unconfigured(self):
         assert _unconfigured_provider().poll() == []
 
-    def test_poll_returns_empty_list_not_yet_wired(self):
-        assert _configured_provider().poll() == []
+    def test_poll_returns_empty_list_on_imap_exception(self):
+        with patch("imaplib.IMAP4_SSL", side_effect=ConnectionRefusedError("refused")):
+            assert _configured_provider().poll() == []
 
     def test_status_dict_keys(self):
         s = _unconfigured_provider().status()
         assert "provider" in s
         assert "configured" in s
         assert s["provider"] == "gmail_imap"
+
+
+# ─── GmailIMAPProvider — live poll (mocked IMAP) ──────────────────────────────
+
+
+def _make_rfc822(subject: str, from_addr: str, to_addr: str, body: str) -> bytes:
+    """Build minimal RFC822 bytes for test fixtures."""
+    msg = MIMEText(body, "plain", "utf-8")
+    msg["Subject"] = subject
+    msg["From"] = from_addr
+    msg["To"] = to_addr
+    msg["Message-ID"] = f"<test-{subject.replace(' ', '')}@example.com>"
+    msg["Date"] = "Thu, 01 May 2026 10:00:00 +0000"
+    return msg.as_bytes()
+
+
+def _mock_imap_with_messages(rfc822_list: list[bytes]):
+    """Return a configured IMAP4_SSL mock that yields the given messages."""
+    imap = MagicMock()
+    imap.search.return_value = (
+        "OK",
+        [b" ".join(str(i + 1).encode() for i in range(len(rfc822_list)))],
+    )
+
+    def fetch_side_effect(uid, fmt):
+        idx = int(uid) - 1
+        if idx < 0 or idx >= len(rfc822_list):
+            return ("NO", [])
+        return ("OK", [(b"1 (RFC822)", rfc822_list[idx])])
+
+    imap.fetch.side_effect = fetch_side_effect
+    return imap
+
+
+class TestGmailIMAPProviderLivePoll:
+    def _provider(self) -> GmailIMAPProvider:
+        return _configured_provider()
+
+    def test_poll_returns_list_of_dicts_on_success(self):
+        raw = _make_rfc822("Booking enquiry", "alice@example.com", "inbox@venue.com", "Hello!")
+        imap = _mock_imap_with_messages([raw])
+        with patch("imaplib.IMAP4_SSL") as mock_cls:
+            mock_cls.return_value.__enter__ = lambda s: imap
+            mock_cls.return_value.__exit__ = MagicMock(return_value=False)
+            result = self._provider().poll()
+        assert isinstance(result, list)
+        assert len(result) == 1
+        assert isinstance(result[0], dict)
+
+    def test_poll_extracts_subject(self):
+        raw = _make_rfc822("Private dining request", "alice@example.com", "inbox@venue.com", "Body")
+        imap = _mock_imap_with_messages([raw])
+        with patch("imaplib.IMAP4_SSL") as mock_cls:
+            mock_cls.return_value.__enter__ = lambda s: imap
+            mock_cls.return_value.__exit__ = MagicMock(return_value=False)
+            result = self._provider().poll()
+        assert result[0]["subject"] == "Private dining request"
+
+    def test_poll_extracts_from_address(self):
+        raw = _make_rfc822("Enquiry", "alice@example.com", "inbox@venue.com", "Body")
+        imap = _mock_imap_with_messages([raw])
+        with patch("imaplib.IMAP4_SSL") as mock_cls:
+            mock_cls.return_value.__enter__ = lambda s: imap
+            mock_cls.return_value.__exit__ = MagicMock(return_value=False)
+            result = self._provider().poll()
+        assert "alice@example.com" in result[0]["from"]
+
+    def test_poll_extracts_body(self):
+        raw = _make_rfc822("Enquiry", "alice@example.com", "inbox@venue.com", "I want to book a table")
+        imap = _mock_imap_with_messages([raw])
+        with patch("imaplib.IMAP4_SSL") as mock_cls:
+            mock_cls.return_value.__enter__ = lambda s: imap
+            mock_cls.return_value.__exit__ = MagicMock(return_value=False)
+            result = self._provider().poll()
+        assert "I want to book a table" in result[0]["body"]
+
+    def test_poll_calls_login_with_credentials(self):
+        raw = _make_rfc822("Enquiry", "alice@example.com", "inbox@venue.com", "Body")
+        imap = _mock_imap_with_messages([raw])
+        with patch("imaplib.IMAP4_SSL") as mock_cls:
+            mock_cls.return_value.__enter__ = lambda s: imap
+            mock_cls.return_value.__exit__ = MagicMock(return_value=False)
+            self._provider().poll()
+        imap.login.assert_called_once_with("test@example.com", "app-password")
+
+    def test_poll_selects_inbox_readonly(self):
+        raw = _make_rfc822("Enquiry", "alice@example.com", "inbox@venue.com", "Body")
+        imap = _mock_imap_with_messages([raw])
+        with patch("imaplib.IMAP4_SSL") as mock_cls:
+            mock_cls.return_value.__enter__ = lambda s: imap
+            mock_cls.return_value.__exit__ = MagicMock(return_value=False)
+            self._provider().poll()
+        imap.select.assert_called_once_with("INBOX", readonly=True)
+
+    def test_poll_returns_empty_on_no_unseen_messages(self):
+        imap = MagicMock()
+        imap.search.return_value = ("OK", [b""])
+        with patch("imaplib.IMAP4_SSL") as mock_cls:
+            mock_cls.return_value.__enter__ = lambda s: imap
+            mock_cls.return_value.__exit__ = MagicMock(return_value=False)
+            result = self._provider().poll()
+        assert result == []
+
+    def test_poll_returns_empty_on_search_failure(self):
+        imap = MagicMock()
+        imap.search.return_value = ("NO", [])
+        with patch("imaplib.IMAP4_SSL") as mock_cls:
+            mock_cls.return_value.__enter__ = lambda s: imap
+            mock_cls.return_value.__exit__ = MagicMock(return_value=False)
+            result = self._provider().poll()
+        assert result == []
+
+    def test_poll_returns_empty_on_connection_error(self):
+        with patch("imaplib.IMAP4_SSL", side_effect=ConnectionRefusedError("refused")):
+            result = self._provider().poll()
+        assert result == []
+
+    def test_poll_returns_empty_on_auth_failure(self):
+        imap = MagicMock()
+        imap.login.side_effect = Exception("Authentication failed")
+        with patch("imaplib.IMAP4_SSL") as mock_cls:
+            mock_cls.return_value.__enter__ = lambda s: imap
+            mock_cls.return_value.__exit__ = MagicMock(return_value=False)
+            result = self._provider().poll()
+        assert result == []
+
+    def test_poll_multiple_messages(self):
+        msgs = [
+            _make_rfc822(f"Enquiry {i}", f"guest{i}@example.com", "inbox@venue.com", f"Body {i}")
+            for i in range(3)
+        ]
+        imap = _mock_imap_with_messages(msgs)
+        with patch("imaplib.IMAP4_SSL") as mock_cls:
+            mock_cls.return_value.__enter__ = lambda s: imap
+            mock_cls.return_value.__exit__ = MagicMock(return_value=False)
+            result = self._provider().poll()
+        assert len(result) == 3
+
+    def test_poll_unconfigured_makes_no_imap_call(self):
+        with patch("imaplib.IMAP4_SSL") as mock_cls:
+            _unconfigured_provider().poll()
+        mock_cls.assert_not_called()
 
 
 # ─── InboxParser ──────────────────────────────────────────────────────────────
