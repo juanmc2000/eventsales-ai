@@ -86,3 +86,49 @@ class EnquiryMessageOut(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+# ── Intake ─────────────────────────────────────────────────────────────────────
+
+
+class WebformIntakeRequest(BaseModel):
+    """Input schema for the test enquiry webform intake endpoint."""
+
+    restaurant_id: uuid.UUID
+    first_name: str = Field(..., max_length=100)
+    last_name: str = Field(..., max_length=100)
+    email: EmailStr
+    phone: str | None = Field(default=None, max_length=50)
+    party_size: int | None = Field(default=None, ge=1)
+    event_date: date | None = None
+    event_type: str | None = Field(default=None, max_length=50)
+    # meal_period is used to calculate a pricing recommendation (breakfast/lunch/dinner)
+    meal_period: str = Field(default="dinner", max_length=20)
+    message: str | None = None
+    company_name: str | None = Field(default=None, max_length=255)
+    budget_indication: str | None = None
+    preferred_area: str | None = Field(default=None, max_length=255)
+    dietary_requirements: str | None = None
+    special_requests: str | None = None
+
+
+class EnquiryIntakeOut(BaseModel):
+    """Response schema for the enquiry intake endpoint.
+
+    Includes the created enquiry plus the persona and pricing context
+    derived during orchestration.
+    """
+
+    enquiry_id: uuid.UUID
+    reference: str
+    status: str
+    restaurant_id: uuid.UUID
+    # Persona context
+    persona_id: uuid.UUID | None = None
+    persona_name: str | None = None
+    # Pricing context
+    recommended_minimum_spend: float
+    pricing_explanation: str
+    created_at: datetime
+
+    model_config = {"from_attributes": False}
