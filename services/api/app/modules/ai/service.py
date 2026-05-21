@@ -26,7 +26,7 @@ from app.modules.ai.provider import make_provider
 from app.modules.ai.schemas import DraftContext, DraftGenerationResult
 from app.modules.enquiries.repository import EnquiryRepository
 from app.modules.personas.repository import PersonaRepository
-from app.modules.restaurants.repository import RestaurantRepository
+from app.modules.restaurants.repository import RestaurantRepository, RoomRepository
 
 
 class DraftGenerationService:
@@ -35,6 +35,7 @@ class DraftGenerationService:
         self._enquiry_repo = EnquiryRepository(db)
         self._persona_repo = PersonaRepository(db)
         self._restaurant_repo = RestaurantRepository(db)
+        self._room_repo = RoomRepository(db)
 
     def generate_draft(self, enquiry_id: uuid.UUID) -> DraftGenerationResult:
         """Generate and store a persona-based draft response for an enquiry.
@@ -49,6 +50,7 @@ class DraftGenerationService:
         restaurant = self._restaurant_repo.get_by_id(enquiry.restaurant_id)
         restaurant_name = restaurant.name if restaurant else "our venue"
         restaurant_description = restaurant.description if restaurant else None
+        restaurant_address = restaurant.address if restaurant else None
 
         # Load persona (from enquiry assignment, or fall back to restaurant default)
         persona = None
@@ -77,6 +79,16 @@ class DraftGenerationService:
         # Extract guest's initial message from stored notes or first inbound message
         guest_message = _extract_guest_message(enquiry.notes)
 
+        # Match a suitable room/PDR deterministically
+        preferred_area = getattr(enquiry, "preferred_area", None)
+        room = _match_room(
+            rooms=self._room_repo.list_for_restaurant(
+                enquiry.restaurant_id, active_only=True
+            ),
+            party_size=enquiry.party_size,
+            preferred_area=preferred_area,
+        )
+
         context = DraftContext(
             enquiry_id=enquiry_id,
             guest_first_name=enquiry.first_name,
@@ -92,6 +104,16 @@ class DraftGenerationService:
             persona_style=persona_style,
             persona_system_prompt=persona_system_prompt,
             recommended_minimum_spend=recommended_minimum_spend,
+            restaurant_address=restaurant_address,
+            room_name=room.name if room else None,
+            room_type=room.room_type if room else None,
+            room_seated_capacity=room.seated_capacity if room else None,
+            room_standing_capacity=room.standing_capacity if room else None,
+            room_layouts=list(room.layouts) if room and room.layouts else None,
+            room_amenities=list(room.amenities) if room and room.amenities else None,
+            room_suitability_notes=room.suitability_notes if room else None,
+            room_booking_url=room.booking_url if room else None,
+            room_is_private_dining=room.is_private_dining if room else False,
         )
 
         # Select provider based on configured API key
@@ -147,3 +169,36 @@ def _extract_guest_message(notes: str | None) -> str | None:
 def _build_subject(first_name: str, last_name: str, event_type: str | None) -> str:
     type_label = event_type.replace("_", " ").title() if event_type else "Event"
     return f"Re: {type_label} Enquiry — {first_name} {last_name}"
+
+
+def _match_room(rooms: list, party_size: int | None, preferred_area: str | None) -> object | None:
+    """Select the most suitable room deterministically.
+
+    Priority:
+    1. If preferred_area is set, find a room whose name contains that string (case-insensitive).
+    2. Find the first room whose min_capacity <= party_size <= max_capacity, ordered by display_order.
+    3. Fall back to the first active room by display_order.
+    4. If no rooms exist, return None.
+
+    This is intentionally simple — no ML, no availability checking.
+    """
+    if not rooms:
+        return None
+
+    # 1. Preferred area / name match
+    if preferred_area:
+        term = preferred_area.strip().lower()
+        for room in rooms:
+            if term in room.name.lower():
+                return room
+
+    # 2. Capacity match
+    if party_size is not None:
+        for room in rooms:
+            min_cap = room.min_capacity or 1
+            max_cap = room.max_capacity or room.seated_capacity or 0
+            if max_cap and min_cap <= party_size <= max_cap:
+                return room
+
+    # 3. First room
+    return rooms[0]
