@@ -55,3 +55,19 @@ export type EnquiryDraft = {
   body: string;
   generated_at: string;
 };
+
+/**
+ * Email delivery event record from email_events table.
+ * Mirrors the backend EmailEvent model.
+ */
+export type EmailEventRecord = {
+  id: string;
+  enquiry_id: string | null;
+  direction: string; // inbound | outbound
+  status: string; // sent | failed | disabled | received | queued | sending
+  from_address: string;
+  to_address: string;
+  subject: string;
+  error: string | null;
+  created_at: string;
+};

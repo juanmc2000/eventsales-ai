@@ -7,6 +7,7 @@ import { Select } from "@/components/ui/Select";
 import type { Enquiry, EnquiryMessage } from "@/lib/types/enquiry";
 import type { Persona, PersonaListOut } from "@/lib/types/persona";
 import { DraftSection } from "@/components/enquiries/DraftSection";
+import { EmailActivityTimeline } from "@/components/enquiries/EmailActivityTimeline";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -459,6 +460,11 @@ export function EnquiryDetailDrawer({
                 ))}
               </div>
             )}
+          </DrawerSection>
+
+          {/* Email activity timeline */}
+          <DrawerSection title="Email Activity">
+            <EmailActivityTimeline enquiryId={enquiry.id} />
           </DrawerSection>
 
           {/* Draft response with send action */}
