@@ -4,8 +4,9 @@ Source of truth for API contracts related to email delivery.
 """
 import uuid
 from datetime import datetime
+from typing import Literal
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class SendDraftIn(BaseModel):
@@ -38,3 +39,24 @@ class EmailEventOut(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+# ── Sprint 4 send service schemas ─────────────────────────────────────────────
+
+
+class SendDraftRequest(BaseModel):
+    """Request body for EmailSendService (Sprint 4 send_service.py)."""
+
+    enquiry_id: uuid.UUID
+    to_address: EmailStr
+    subject: str = Field(..., max_length=500)
+    body: str
+
+
+class SendEmailResult(BaseModel):
+    """Response for a send-draft attempt from EmailSendService."""
+
+    status: Literal["sent", "disabled", "error"]
+    reason: str | None = None
+    email_event_id: uuid.UUID | None = None
+    sent_at: datetime | None = None
