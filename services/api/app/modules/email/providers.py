@@ -1,9 +1,8 @@
 """
-Email provider interfaces and skeleton implementations.
+Email provider interfaces and implementations.
 
 All providers are disabled by default and boot safely without credentials.
-Live SMTP/IMAP calls are intentionally not wired here — that is EMAIL-002
-(SMTP send) and EMAIL-003 (IMAP inbox reader).
+Live sending and polling activate automatically when credentials are present.
 
 Provider hierarchy:
   EmailSendProvider  (Protocol)
@@ -15,7 +14,12 @@ Provider hierarchy:
 
 from __future__ import annotations
 
+import imaplib
 import logging
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.utils import formataddr
 from typing import Protocol, runtime_checkable
 
 logger = logging.getLogger(__name__)
@@ -97,12 +101,30 @@ class GmailSMTPProvider:
                 "(set SMTP_USERNAME, SMTP_PASSWORD, SMTP_FROM_EMAIL in .env)"
             )
             return False
-        # Live send logic wired in EMAIL-002.
-        logger.info(
-            "GmailSMTPProvider: send called but not yet implemented "
-            "(to=%s subject=%r)", to_address, subject
-        )
-        return False
+
+        sender = from_address or self._from_email
+        msg = MIMEMultipart()
+        msg["From"] = formataddr((self._from_name, sender))
+        msg["To"] = to_address
+        msg["Subject"] = subject
+        msg.attach(MIMEText(body, "plain", "utf-8"))
+
+        try:
+            with smtplib.SMTP(self._host, self._port, timeout=30) as smtp:
+                smtp.ehlo()
+                smtp.starttls()
+                smtp.ehlo()
+                smtp.login(self._username, self._password)
+                smtp.sendmail(sender, to_address, msg.as_string())
+            logger.info(
+                "GmailSMTPProvider: sent to=%s subject=%r", to_address, subject
+            )
+            return True
+        except Exception as exc:
+            logger.error(
+                "GmailSMTPProvider: send failed to=%s: %s", to_address, exc
+            )
+            return False
 
     def status(self) -> dict:
         return {
