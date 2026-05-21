@@ -45,6 +45,19 @@ export type EnquiryMessage = {
   created_at: string;
 };
 
+/** Response from POST /api/v1/enquiries/intake */
+export type EnquiryIntakeOut = {
+  enquiry_id: string;
+  reference: string;
+  status: string;
+  restaurant_id: string;
+  persona_id: string | null;
+  persona_name: string | null;
+  recommended_minimum_spend: number;
+  pricing_explanation: string;
+  created_at: string;
+};
+
 /** Mirrors DraftResponseOut from services/api/app/modules/enquiries/schemas.py */
 export type DraftResponseOut = {
   enquiry_id: string;
@@ -57,14 +70,4 @@ export type DraftResponseOut = {
   is_fallback: boolean | null;
   model: string | null;
   generated_at: string;
-};
-
-export type EnquiryIntakeOut = {
-  enquiry_id: string;
-  reference: string;
-  status: string;
-  persona_name: string | null;
-  recommended_minimum_spend: number | null;
-  pricing_explanation: string | null;
-  created_at: string;
 };

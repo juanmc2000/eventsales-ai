@@ -4,14 +4,17 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.modules.enquiries.intake_service import EnquiryIntakeService
 from app.modules.enquiries.schemas import (
     EnquiryCreate,
+    EnquiryIntakeOut,
     EnquiryListOut,
     EnquiryMessageCreate,
     EnquiryMessageOut,
     EnquiryOut,
     EnquiryStatusUpdate,
     EnquiryUpdate,
+    WebformIntakeRequest,
 )
 from app.modules.enquiries.service import EnquiryService
 
@@ -20,6 +23,22 @@ router = APIRouter(prefix="/api/v1/enquiries", tags=["enquiries"])
 
 def get_service(db: Session = Depends(get_db)) -> EnquiryService:
     return EnquiryService(db)
+
+
+def get_intake_service(db: Session = Depends(get_db)) -> EnquiryIntakeService:
+    return EnquiryIntakeService(db)
+
+
+@router.post("/intake", response_model=EnquiryIntakeOut, status_code=201)
+def intake_enquiry(
+    data: WebformIntakeRequest,
+    service: EnquiryIntakeService = Depends(get_intake_service),
+) -> EnquiryIntakeOut:
+    """Accept a webform submission and return the created enquiry with persona and pricing context."""
+    try:
+        return service.intake(data)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
 
 
 @router.get("", response_model=EnquiryListOut)
