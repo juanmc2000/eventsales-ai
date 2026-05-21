@@ -103,15 +103,17 @@ function RoomPill({
   seatedCapacity,
   isPrivateDining,
   restaurantId,
+  roomId,
 }: {
   name: string;
   seatedCapacity: number | null;
   isPrivateDining: boolean;
   restaurantId: string;
+  roomId: string;
 }) {
   return (
     <a
-      href={`/rooms?restaurant=${restaurantId}`}
+      href={`/rooms?restaurant=${restaurantId}&room=${roomId}`}
       className="flex items-center justify-between px-3 py-2 rounded-lg transition-colors duration-150"
       style={{ backgroundColor: "var(--surface-soft)", border: "1px solid var(--border)" }}
       onMouseEnter={(e) => {
@@ -247,6 +249,7 @@ export function RestaurantRoomsSummary({ context, restaurantId }: Props) {
                 seatedCapacity={room.seated_capacity}
                 isPrivateDining={room.is_private_dining}
                 restaurantId={restaurantId}
+                roomId={room.id}
               />
             ))}
           </div>

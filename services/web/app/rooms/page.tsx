@@ -330,6 +330,7 @@ function RoomDetailDrawer({ room, restaurantName, open, onClose, onEdit, onDeact
 function RoomsPageInner() {
   const searchParams = useSearchParams();
   const initialRestaurantId = searchParams.get("restaurant") ?? "";
+  const initialRoomId = searchParams.get("room") ?? "";
 
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState(initialRestaurantId);
@@ -375,6 +376,17 @@ function RoomsPageInner() {
   useEffect(() => {
     loadRooms();
   }, [selectedRestaurantId]);
+
+  // Open the drawer for a specific room when arriving via a deep link (?room=<id>)
+  useEffect(() => {
+    if (!initialRoomId || rooms.length === 0) return;
+    const target = rooms.find((r) => r.id === initialRoomId);
+    if (target) {
+      setSelectedRoom(target);
+      setDrawerOpen(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rooms]);
 
   const selectedRestaurant = restaurants.find((r) => r.id === selectedRestaurantId);
   const restaurantOptions = [
