@@ -15,6 +15,8 @@
 | Sprint 3 | UI Shell and Core Pages | ✓ Complete | #51–#82 |
 | Sprint 4 | Webform and Email Wiring | ✓ Complete | #83–#93 |
 | Sprint 5A | Live Gmail Validation | ✓ Complete | #104–#111 |
+| Sprint 5B | Live Gmail SMTP + IMAP | ✓ Complete | #113–#114 |
+| Sprint 5C | Venue Context (Rooms/PDR) | ✓ Complete | #126–#135 |
 
 ---
 
@@ -33,12 +35,38 @@
 
 ---
 
+## Sprint 5B Issues
+
+| Issue | PR | Title | Status |
+|-------|----|-------|--------|
+| EMAIL-004 | #113 | Live Gmail SMTP send (GmailSMTPProvider) | ✓ Merged |
+| EMAIL-006 | #114 | Live Gmail IMAP polling (GmailIMAPProvider) | ✓ Merged |
+
+---
+
+## Sprint 5C Issues
+
+| Issue | PR | Title | Status |
+|-------|----|-------|--------|
+| DATA-005 | #126 | Rooms/PDR database model, schemas, migration | ✓ PR open |
+| API-010 | #127 | Rooms/PDR backend CRUD module | ✓ PR open |
+| DATA-006 | #128 | Seed data: 7 rooms across 4 restaurants | ✓ PR open |
+| API-011 | #129 | Restaurant AI context endpoint | ✓ PR open |
+| AI-002 | #130 | AI draft generation uses room context | ✓ PR open |
+| UI-014 | #131 | Restaurant rooms summary section | ✓ PR open |
+| UI-015 | #132 | Rooms/PDR management page (`/rooms`) | ✓ PR open |
+| UI-016 | #133 | Webform room selection + enquiry detail | ✓ PR open |
+| TEST-006 | #134 | Venue context workflow tests | ✓ PR open |
+| DOC-011 | #135 | Update POC demo guide with venue context | ✓ PR open |
+
+---
+
 ## POC Feature Coverage
 
 | Feature | Sprint | Status |
 |---------|--------|--------|
 | Dashboard KPIs | 3 | ✓ |
-| Restaurants, Rooms configuration | 2–3 | ✓ |
+| Restaurants configuration | 2–3 | ✓ |
 | Personas configuration | 2–3 | ✓ |
 | Pricing Rules (deterministic) | 2–3 | ✓ |
 | Calendar + demand events | 2–3 | ✓ |
@@ -56,7 +84,18 @@
 | SMTP Celery worker with retry | 5A | ✓ |
 | Inbound email → enquiry pipeline | 5A | ✓ |
 | Deterministic end-to-end tests (73) | 5A | ✓ |
-| POC demo guide | 5A | ✓ |
+| Live Gmail SMTP send (GmailSMTPProvider) | 5B | ✓ |
+| Live Gmail IMAP polling (GmailIMAPProvider) | 5B | ✓ |
+| Rooms/PDR model, schemas, migration | 5C | ✓ |
+| Rooms/PDR CRUD API (nested under restaurants) | 5C | ✓ |
+| Seed data: 7 rooms/PDRs across 4 restaurants | 5C | ✓ |
+| Restaurant AI context endpoint (`/restaurants/{id}/context`) | 5C | ✓ |
+| AI draft uses room context (capacity, amenities, suitability) | 5C | ✓ |
+| Restaurant detail — room summary section | 5C | ✓ |
+| Rooms/PDR management page (`/rooms`) | 5C | ✓ |
+| Webform room selection (backend-driven dropdown) | 5C | ✓ |
+| Venue context workflow tests (332 backend, 79 frontend) | 5C | ✓ |
+| POC demo guide (updated with venue context) | 5C | ✓ |
 
 ---
 
@@ -64,12 +103,13 @@
 
 | Gap | Priority | Sprint |
 |-----|----------|--------|
-| Gmail App Password not in CI/CD | P1 | 5B |
-| Celery send-draft dispatch not wired in main.py | P1 | 5B |
-| Inbound email Celery beat schedule | P2 | 5B |
+| Gmail App Password not in CI/CD | P1 | 6 |
+| Celery send-draft dispatch not wired in main.py | P1 | 6 |
+| Inbound email Celery beat schedule | P2 | 6 |
 | Multi-tenant authentication | P1 | 6 |
 | E2E browser test (Playwright) | P2 | 6 |
 | Production email relay (SendGrid/Postmark) | P2 | Post-POC |
+| Room availability / booking engine | P3 | Post-POC |
 
 ---
 
@@ -80,4 +120,6 @@
 | `docs/product/POC_SPECIFICATION.md` | Full POC scope |
 | `docs/demo/poc-demo-guide.md` | Demo walkthrough and stakeholder talking points |
 | `docs/sprints/sprint-005-completion-review.md` | Sprint 5A delivery review |
+| `docs/demo/poc-demo-guide.md` (updated) | Demo walkthrough including venue context and room selection |
+| `docs/sprints/sprint-005c-venue-context.md` | Sprint 5C delivery review |
 | `CLAUDE.md` | Developer and AI assistant instructions |
