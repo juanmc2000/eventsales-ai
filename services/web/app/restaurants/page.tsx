@@ -1,12 +1,19 @@
+import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Card } from "@/components/layout/Card";
+
 export default function RestaurantsPage() {
   return (
-    <div>
-      <h1 className="text-2xl font-semibold" style={{ color: "var(--text-primary)" }}>
-        Restaurants
-      </h1>
-      <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>
-        Restaurant and venue management. Coming in UI-003.
-      </p>
-    </div>
+    <PageContainer>
+      <PageHeader
+        title="Restaurants"
+        subtitle="Restaurant and venue management."
+      />
+      <Card>
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+          Restaurant management coming in UI-003.
+        </p>
+      </Card>
+    </PageContainer>
   );
 }

@@ -1,12 +1,19 @@
+import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Card } from "@/components/layout/Card";
+
 export default function DashboardPage() {
   return (
-    <div>
-      <h1 className="text-2xl font-semibold" style={{ color: "var(--text-primary)" }}>
-        Dashboard
-      </h1>
-      <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>
-        Overview of event sales performance. Coming in DASH-001.
-      </p>
-    </div>
+    <PageContainer>
+      <PageHeader
+        title="Dashboard"
+        subtitle="Overview of event sales performance."
+      />
+      <Card>
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+          Dashboard widgets coming in DASH-001.
+        </p>
+      </Card>
+    </PageContainer>
   );
 }
