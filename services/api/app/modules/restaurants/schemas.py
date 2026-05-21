@@ -104,3 +104,80 @@ class RoomOut(RoomBase):
 class RoomListOut(BaseModel):
     items: list[RoomOut]
     total: int
+
+
+# --- Restaurant AI context schemas ---
+
+
+class PersonaContextOut(BaseModel):
+    """Persona metadata for AI context — system_prompt is intentionally excluded."""
+
+    id: uuid.UUID
+    name: str
+    slug: str
+    description: str | None
+    tone: str
+    style: str
+    is_default: bool
+
+    model_config = {"from_attributes": True}
+
+
+class PricingRuleContextOut(BaseModel):
+    """Pricing rule summary for AI context."""
+
+    name: str
+    meal_period: str
+    day_of_week: int | None
+    minimum_spend: Decimal
+    minimum_covers: int | None
+    notes: str | None
+
+    model_config = {"from_attributes": True}
+
+
+class RoomContextOut(BaseModel):
+    """Room summary for AI context."""
+
+    id: uuid.UUID
+    name: str
+    slug: str
+    description: str | None
+    room_type: str | None
+    seated_capacity: int | None
+    standing_capacity: int | None
+    min_capacity: int | None
+    max_capacity: int | None
+    layouts: list | None
+    amenities: list | None
+    asset_links: list | None
+    room_hire_fee: Decimal | None
+    minimum_spend_notes: str | None
+    suitability_notes: str | None
+    booking_url: str | None
+    is_private_dining: bool
+    display_order: int
+
+    model_config = {"from_attributes": True}
+
+
+class RestaurantContextOut(BaseModel):
+    """Full venue context for AI draft generation and operational UI use."""
+
+    id: uuid.UUID
+    tenant_id: str
+    name: str
+    slug: str
+    description: str | None
+    address: str | None
+    phone: str | None
+    email: str | None
+    # Personas (raw system_prompt excluded)
+    personas: list[PersonaContextOut]
+    default_persona: PersonaContextOut | None
+    # Active rooms/PDRs
+    rooms: list[RoomContextOut]
+    # Active pricing rules summary
+    pricing_rules: list[PricingRuleContextOut]
+
+    model_config = {"from_attributes": True}
