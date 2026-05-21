@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.modules.restaurants.schemas import (
+    RestaurantContextOut,
     RestaurantCreate,
     RestaurantListOut,
     RestaurantOut,
@@ -46,6 +47,17 @@ def get_restaurant(
     if not restaurant:
         raise HTTPException(status_code=404, detail="Restaurant not found")
     return restaurant
+
+
+@router.get("/{restaurant_id}/context", response_model=RestaurantContextOut)
+def get_restaurant_context(
+    restaurant_id: uuid.UUID,
+    service: RestaurantService = Depends(get_service),
+) -> RestaurantContextOut:
+    context = service.get_restaurant_context(restaurant_id)
+    if not context:
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+    return context
 
 
 @router.post("", response_model=RestaurantOut, status_code=201)
