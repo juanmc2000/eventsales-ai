@@ -467,7 +467,7 @@ export default function RoomsPage() {
           <div className="flex-1 max-w-xs">
             <Select
               value={selectedRestaurantId}
-              onChange={(v) => setSelectedRestaurantId(v)}
+              onChange={(e) => setSelectedRestaurantId(e.target.value)}
               options={restaurantOptions}
             />
           </div>

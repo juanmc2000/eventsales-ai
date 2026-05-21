@@ -34,6 +34,22 @@ export type EnquiryListOut = {
   total: number;
 };
 
+/**
+ * Response from POST /enquiries/intake.
+ * Mirrors backend EnquiryIntakeOut schema.
+ */
+export type EnquiryIntakeOut = {
+  enquiry_id: string;
+  reference: string;
+  status: string;
+  restaurant_id: string;
+  persona_id: string | null;
+  persona_name: string | null;
+  recommended_minimum_spend: number;
+  pricing_explanation: string;
+  created_at: string;
+};
+
 export type EnquiryMessage = {
   id: string;
   enquiry_id: string;
