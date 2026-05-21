@@ -164,7 +164,7 @@ export default function EnquiriesPage() {
               placeholder="Search name, email, reference, company…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              leadingIcon={<SearchIcon />}
+              leading={<SearchIcon />}
             />
           </div>
           <div style={{ width: 200 }}>
@@ -331,7 +331,7 @@ export default function EnquiriesPage() {
 
                   {/* Status */}
                   <td style={{ padding: "12px 16px" }}>
-                    <StatusPill status={enq.status} />
+                    <StatusPill status={enq.status as import("@/components/ui/Badge").StatusVariant} />
                   </td>
 
                   {/* Created */}

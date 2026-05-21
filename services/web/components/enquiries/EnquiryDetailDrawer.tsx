@@ -245,7 +245,7 @@ export function EnquiryDetailDrawer({
                 <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
                   {enquiry.first_name} {enquiry.last_name}
                 </h2>
-                <StatusPill status={enquiry.status} />
+                <StatusPill status={enquiry.status as import("@/components/ui/Badge").StatusVariant} />
               </div>
               <p style={{ fontSize: 13, color: "var(--text-muted)" }}>
                 <span
