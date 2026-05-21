@@ -84,7 +84,7 @@ const NAV_SECTIONS: NavSection[] = [
         href: "/restaurants",
         iconPath: ICONS.restaurants,
       },
-      { label: "Rooms", href: "/rooms", iconPath: ICONS.rooms, disabled: true },
+      { label: "Rooms", href: "/rooms", iconPath: ICONS.rooms },
       { label: "Pricing Rules", href: "/pricing-rules", iconPath: ICONS.pricing },
       { label: "Personas", href: "/personas", iconPath: ICONS.personas },
       {
