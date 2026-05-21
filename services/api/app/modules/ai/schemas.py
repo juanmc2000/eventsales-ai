@@ -35,6 +35,18 @@ class DraftContext:
     persona_style: str              # e.g. "concise"
     persona_system_prompt: str      # Base persona instruction
     recommended_minimum_spend: float | None
+    # Restaurant venue context (added in AI-002)
+    restaurant_address: str | None = field(default=None)
+    # Room/PDR context — present when a suitable room has been matched
+    room_name: str | None = field(default=None)
+    room_type: str | None = field(default=None)
+    room_seated_capacity: int | None = field(default=None)
+    room_standing_capacity: int | None = field(default=None)
+    room_layouts: list[str] | None = field(default=None)
+    room_amenities: list[str] | None = field(default=None)
+    room_suitability_notes: str | None = field(default=None)
+    room_booking_url: str | None = field(default=None)
+    room_is_private_dining: bool = field(default=False)
 
 
 @dataclass

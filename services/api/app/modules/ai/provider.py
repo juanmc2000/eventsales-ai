@@ -61,12 +61,14 @@ class FallbackProvider:
         )
         greeting = _greeting_for_tone(context.persona_tone)
         sign_off = _sign_off_for_style(context.persona_style)
+        room_line = _format_room_line(context)
 
         return (
             f"{greeting} {context.guest_first_name},\n\n"
             f"Thank you for reaching out to us at {context.restaurant_name}. "
             f"We are delighted to receive your enquiry{event_line} and would love "
             f"to be part of your occasion.\n\n"
+            f"{room_line}"
             f"Our team would be pleased to discuss every detail to ensure your event "
             f"exceeds expectations. Please let us know your preferred time to speak "
             f"and we will arrange a conversation at your convenience."
@@ -171,7 +173,47 @@ def _build_user_message(context: DraftContext) -> str:
         )
     if context.guest_message:
         parts.append(f"Guest message: \"{context.guest_message}\"")
+    # Room context
+    if context.room_name:
+        parts.append(f"Suggested space: {context.room_name}")
+        if context.room_seated_capacity:
+            parts.append(f"Seated capacity: {context.room_seated_capacity}")
+        if context.room_layouts:
+            parts.append(f"Available layouts: {', '.join(context.room_layouts)}")
+        if context.room_amenities:
+            parts.append(f"Amenities: {', '.join(context.room_amenities)}")
+        if context.room_suitability_notes:
+            parts.append(f"Suitability: {context.room_suitability_notes}")
+        if context.room_booking_url:
+            parts.append(f"Booking URL: {context.room_booking_url}")
     return "\n".join(parts)
+
+
+def _format_room_line(context: DraftContext) -> str:
+    """Build an optional room paragraph for the fallback template.
+
+    Returns an empty string when no room context is available, so the
+    template degrades gracefully.
+    """
+    if not context.room_name:
+        return ""
+    parts = [
+        f"Based on your requirements, we believe {context.room_name} would be "
+        f"an excellent choice for your occasion."
+    ]
+    if context.room_seated_capacity:
+        parts.append(
+            f"The space accommodates up to {context.room_seated_capacity} guests for a seated event"
+        )
+        if context.room_standing_capacity:
+            parts.append(f"and {context.room_standing_capacity} standing")
+        parts[-1] = parts[-1] + "."
+    if context.room_booking_url:
+        parts.append(
+            f"You can find further details and submit a provisional enquiry at "
+            f"{context.room_booking_url}."
+        )
+    return " ".join(parts) + "\n\n"
 
 
 def _format_event_line(context: DraftContext) -> str:
