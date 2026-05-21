@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -327,7 +327,7 @@ function RoomDetailDrawer({ room, restaurantName, open, onClose, onEdit, onDeact
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
-export default function RoomsPage() {
+function RoomsPageInner() {
   const searchParams = useSearchParams();
   const initialRestaurantId = searchParams.get("restaurant") ?? "";
 
@@ -592,5 +592,13 @@ export default function RoomsPage() {
         )}
       </Modal>
     </PageContainer>
+  );
+}
+
+export default function RoomsPage() {
+  return (
+    <Suspense fallback={null}>
+      <RoomsPageInner />
+    </Suspense>
   );
 }
