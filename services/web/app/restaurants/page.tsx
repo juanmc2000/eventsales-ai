@@ -13,10 +13,15 @@ import { Modal } from "@/components/ui/Modal";
 import { api } from "@/lib/api";
 import type {
   Restaurant,
+  RestaurantContext,
   RestaurantListOut,
   RestaurantCreate,
   RestaurantUpdate,
 } from "@/lib/types/restaurant";
+import {
+  RestaurantRoomsSummary,
+  RestaurantRoomsSummarySkeleton,
+} from "@/components/restaurants/RestaurantRoomsSummary";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -171,6 +176,20 @@ function RestaurantDetailDrawer({
   onClose,
   onEdit,
 }: DetailDrawerProps) {
+  const [context, setContext] = useState<RestaurantContext | null>(null);
+  const [contextLoading, setContextLoading] = useState(false);
+
+  useEffect(() => {
+    if (!restaurant || !open) return;
+    setContext(null);
+    setContextLoading(true);
+    api
+      .get<RestaurantContext>(`/api/v1/restaurants/${restaurant.id}/context`)
+      .then(setContext)
+      .catch(() => setContext(null))
+      .finally(() => setContextLoading(false));
+  }, [restaurant?.id, open]);
+
   if (!restaurant) return null;
   return (
     <Drawer open={open} onClose={onClose} title={restaurant.name}>
@@ -256,6 +275,21 @@ function RestaurantDetailDrawer({
               })}
             </p>
           </div>
+        </div>
+
+        {/* Rooms & Persona summary */}
+        <div
+          className="py-4 border-t"
+          style={{ borderColor: "var(--border)" }}
+        >
+          {contextLoading ? (
+            <RestaurantRoomsSummarySkeleton />
+          ) : context ? (
+            <RestaurantRoomsSummary
+              context={context}
+              restaurantId={restaurant.id}
+            />
+          ) : null}
         </div>
 
         <Button
