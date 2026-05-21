@@ -1,12 +1,19 @@
+import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Card } from "@/components/layout/Card";
+
 export default function InsightsPage() {
   return (
-    <div>
-      <h1 className="text-2xl font-semibold" style={{ color: "var(--text-primary)" }}>
-        Insights
-      </h1>
-      <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>
-        Analytics and performance insights. Coming in UI-007.
-      </p>
-    </div>
+    <PageContainer>
+      <PageHeader
+        title="Insights"
+        subtitle="Analytics and performance insights."
+      />
+      <Card>
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+          Insights analytics coming in UI-007.
+        </p>
+      </Card>
+    </PageContainer>
   );
 }

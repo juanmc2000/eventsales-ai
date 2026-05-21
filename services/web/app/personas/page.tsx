@@ -1,12 +1,19 @@
+import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Card } from "@/components/layout/Card";
+
 export default function PersonasPage() {
   return (
-    <div>
-      <h1 className="text-2xl font-semibold" style={{ color: "var(--text-primary)" }}>
-        Personas
-      </h1>
-      <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>
-        AI communication personas. Coming in UI-004.
-      </p>
-    </div>
+    <PageContainer>
+      <PageHeader
+        title="Personas"
+        subtitle="AI communication personas."
+      />
+      <Card>
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+          Persona management coming in UI-004.
+        </p>
+      </Card>
+    </PageContainer>
   );
 }

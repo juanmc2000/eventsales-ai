@@ -1,12 +1,19 @@
+import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Card } from "@/components/layout/Card";
+
 export default function CalendarPage() {
   return (
-    <div>
-      <h1 className="text-2xl font-semibold" style={{ color: "var(--text-primary)" }}>
-        Calendar
-      </h1>
-      <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>
-        Commercial calendar and demand events. Coming in UI-006.
-      </p>
-    </div>
+    <PageContainer>
+      <PageHeader
+        title="Calendar"
+        subtitle="Commercial calendar and demand events."
+      />
+      <Card>
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+          Commercial calendar coming in UI-006.
+        </p>
+      </Card>
+    </PageContainer>
   );
 }
