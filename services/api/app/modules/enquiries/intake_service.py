@@ -44,10 +44,16 @@ class EnquiryIntakeService:
         if not restaurant:
             raise ValueError(f"Restaurant {request.restaurant_id} not found.")
 
-        # 2. Resolve default persona for the restaurant
-        persona: Persona | None = self._persona_repo.get_default_persona_for_restaurant(
-            request.restaurant_id
-        )
+        # 2. Resolve persona: audience-specific first, fallback to default
+        persona: Persona | None = None
+        if request.audience_type:
+            persona = self._persona_repo.get_persona_for_audience(
+                request.restaurant_id, request.audience_type
+            )
+        if persona is None:
+            persona = self._persona_repo.get_default_persona_for_restaurant(
+                request.restaurant_id
+            )
 
         # 3. Calculate deterministic pricing recommendation
         day_of_week = (
@@ -115,6 +121,7 @@ class EnquiryIntakeService:
             restaurant_id=enquiry.restaurant_id,
             persona_id=persona.id if persona else None,
             persona_name=persona.name if persona else None,
+            audience_type=request.audience_type,
             recommended_minimum_spend=pricing.recommended_minimum_spend,
             pricing_explanation=pricing.explanation,
             created_at=enquiry.created_at,

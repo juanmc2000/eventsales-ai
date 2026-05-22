@@ -87,6 +87,25 @@ class PersonaRepository:
         )
         return self._db.scalars(stmt).first()
 
+    def get_persona_for_audience(
+        self, restaurant_id: uuid.UUID, audience: str
+    ) -> Persona | None:
+        """Return the active persona assigned to a restaurant for a specific audience segment.
+
+        Falls back to None if no audience-specific assignment exists — callers should
+        then fall back to get_default_persona_for_restaurant().
+        """
+        stmt = (
+            select(Persona)
+            .join(RestaurantPersona, RestaurantPersona.persona_id == Persona.id)
+            .where(
+                RestaurantPersona.restaurant_id == restaurant_id,
+                RestaurantPersona.audience == audience,
+                Persona.is_active.is_(True),
+            )
+        )
+        return self._db.scalars(stmt).first()
+
     def remove_assignment(self, assignment: RestaurantPersona) -> None:
         self._db.delete(assignment)
         self._db.flush()

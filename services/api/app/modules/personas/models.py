@@ -66,6 +66,9 @@ class RestaurantPersona(Base):
         index=True,
     )
     is_default: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    # Audience segment this assignment targets: "social" | "corporate" | "agency" | None (default).
+    # None means the assignment is the fallback when no audience-specific persona is found.
+    audience: Mapped[str | None] = mapped_column(String(20), nullable=True, default=None)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

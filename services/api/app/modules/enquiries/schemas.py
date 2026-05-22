@@ -109,6 +109,8 @@ class WebformIntakeRequest(BaseModel):
     preferred_area: str | None = Field(default=None, max_length=255)
     dietary_requirements: str | None = None
     special_requests: str | None = None
+    # Audience segment for persona resolution: "social" | "corporate" | "agency" | None
+    audience_type: str | None = Field(default=None, max_length=20)
 
 
 class EnquiryIntakeOut(BaseModel):
@@ -120,6 +122,7 @@ class EnquiryIntakeOut(BaseModel):
     restaurant_id: uuid.UUID
     persona_id: uuid.UUID | None = None
     persona_name: str | None = None
+    audience_type: str | None = None
     recommended_minimum_spend: float
     pricing_explanation: str
     created_at: datetime

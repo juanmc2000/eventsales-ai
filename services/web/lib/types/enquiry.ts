@@ -45,6 +45,7 @@ export type EnquiryIntakeOut = {
   restaurant_id: string;
   persona_id: string | null;
   persona_name: string | null;
+  audience_type: string | null;
   recommended_minimum_spend: number;
   pricing_explanation: string;
   created_at: string;

@@ -372,13 +372,19 @@ def _upsert_persona(db: Session, data: dict[str, Any]) -> Any:
     return record
 
 
-def _upsert_restaurant_persona(db: Session, restaurant_id: uuid.UUID, persona_id: uuid.UUID, is_default: bool) -> None:
-    """Assign a persona to a restaurant if not already assigned."""
+def _upsert_restaurant_persona(
+    db: Session,
+    restaurant_id: uuid.UUID,
+    persona_id: uuid.UUID,
+    is_default: bool,
+    audience: str | None = None,
+) -> None:
+    """Assign a persona to a restaurant if not already assigned for the same audience slot."""
     from app.modules.personas.models import RestaurantPersona
 
     existing = (
         db.query(RestaurantPersona)
-        .filter_by(restaurant_id=restaurant_id, persona_id=persona_id)
+        .filter_by(restaurant_id=restaurant_id, persona_id=persona_id, audience=audience)
         .first()
     )
     if existing:
@@ -389,6 +395,7 @@ def _upsert_restaurant_persona(db: Session, restaurant_id: uuid.UUID, persona_id
             restaurant_id=restaurant_id,
             persona_id=persona_id,
             is_default=is_default,
+            audience=audience,
         )
     )
     db.flush()
@@ -626,13 +633,24 @@ def run_seed(db: Session, seed: int = 42) -> dict[str, int]:
     # 2. Personas
     personas = [_upsert_persona(db, data) for data in SEED_PERSONAS]
 
-    # 3. Restaurant-persona assignments (round-robin: each restaurant gets one default persona)
+    # 3. Restaurant-persona assignments
+    # Audience mapping: Eleanor=social, James=corporate, Sophia=agency
+    # personas list order: [Eleanor(0), James(1), Sophia(2)]
+    # Each restaurant gets:
+    #   - A default persona (round-robin, no audience — fallback)
+    #   - An explicit social persona (Eleanor)
+    #   - An explicit corporate persona (James)
+    #   - An explicit agency persona (Sophia)
+    eleanor = personas[0]  # social
+    james = personas[1]    # corporate
+    sophia = personas[2]   # agency
+
     for i, restaurant in enumerate(restaurants):
         default_persona = personas[i % len(personas)]
-        _upsert_restaurant_persona(db, restaurant.id, default_persona.id, is_default=True)
-        # Assign a second non-default persona for variety
-        second_persona = personas[(i + 1) % len(personas)]
-        _upsert_restaurant_persona(db, restaurant.id, second_persona.id, is_default=False)
+        _upsert_restaurant_persona(db, restaurant.id, default_persona.id, is_default=True, audience=None)
+        _upsert_restaurant_persona(db, restaurant.id, eleanor.id, is_default=False, audience="social")
+        _upsert_restaurant_persona(db, restaurant.id, james.id, is_default=False, audience="corporate")
+        _upsert_restaurant_persona(db, restaurant.id, sophia.id, is_default=False, audience="agency")
 
     # 4. Rooms/PDRs
     restaurant_by_slug = {r.slug: r for r in restaurants}

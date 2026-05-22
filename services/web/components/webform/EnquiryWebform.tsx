@@ -7,9 +7,12 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Card } from "@/components/layout/Card";
 import type { Restaurant, RestaurantListOut, Room } from "@/lib/types/restaurant";
-import type { EnquiryIntakeOut } from "@/lib/types/enquiry";
+import type { EnquiryIntakeOut, EnquiryDraft } from "@/lib/types/enquiry";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+/** Default reply-to for auto-sent drafts. */
+const DEFAULT_REPLY_EMAIL = "juanmc@gmail.com";
 
 const EVENT_TYPE_OPTIONS = [
   { value: "", label: "Select event type" },
@@ -27,45 +30,15 @@ const MEAL_PERIOD_OPTIONS = [
   { value: "breakfast", label: "Breakfast" },
 ];
 
-type FormState = {
-  restaurant_id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  company_name: string;
-  event_date: string;
-  event_type: string;
-  party_size: string;
-  meal_period: string;
-  budget_indication: string;
-  preferred_area: string;
-  dietary_requirements: string;
-  special_requests: string;
-  message: string;
-  consent: boolean;
-};
+const AUDIENCE_OPTIONS = [
+  { value: "", label: "Default (no specific audience)" },
+  { value: "social", label: "Social — leisure, celebrations, personal dining" },
+  { value: "corporate", label: "Corporate — B2B, company events, offsite" },
+  { value: "agency", label: "Agency — event agencies, intermediaries" },
+];
 
-const EMPTY: FormState = {
-  restaurant_id: "",
-  first_name: "",
-  last_name: "",
-  email: "",
-  phone: "",
-  company_name: "",
-  event_date: "",
-  event_type: "",
-  party_size: "",
-  meal_period: "dinner",
-  budget_indication: "",
-  preferred_area: "",
-  dietary_requirements: "",
-  special_requests: "",
-  message: "",
-  consent: false,
-};
+// ── Shared helpers ─────────────────────────────────────────────────────────────
 
-// ── Section heading ────────────────────────────────────────────────────────────
 function SectionHeading({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div style={{ marginBottom: 16 }}>
@@ -79,7 +52,6 @@ function SectionHeading({ title, subtitle }: { title: string; subtitle?: string 
   );
 }
 
-// ── Field row (two columns on wide screens) ────────────────────────────────────
 function FieldRow({ children }: { children: React.ReactNode }) {
   return (
     <div
@@ -94,7 +66,6 @@ function FieldRow({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ── Divider ────────────────────────────────────────────────────────────────────
 function Divider() {
   return (
     <hr
@@ -107,8 +78,188 @@ function Divider() {
   );
 }
 
-// ── Success state ──────────────────────────────────────────────────────────────
-function SuccessPanel({ result, restaurantName }: { result: EnquiryIntakeOut; restaurantName: string }) {
+/** Badge showing email delivery outcome. */
+function EmailStatusBadge({ sent, disabled }: { sent: boolean; disabled?: boolean }) {
+  if (disabled) {
+    return (
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 5,
+          padding: "3px 10px",
+          borderRadius: 99,
+          fontSize: 12,
+          fontWeight: 600,
+          backgroundColor: "rgba(160,160,180,0.12)",
+          color: "var(--text-muted)",
+          border: "1px solid var(--border)",
+        }}
+      >
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        SMTP not configured
+      </span>
+    );
+  }
+  if (sent) {
+    return (
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 5,
+          padding: "3px 10px",
+          borderRadius: 99,
+          fontSize: 12,
+          fontWeight: 600,
+          backgroundColor: "rgba(22,166,106,0.1)",
+          color: "var(--success, #16A66A)",
+          border: "1px solid rgba(22,166,106,0.2)",
+        }}
+      >
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+        Email queued
+      </span>
+    );
+  }
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 5,
+        padding: "3px 10px",
+        borderRadius: 99,
+        fontSize: 12,
+        fontWeight: 600,
+        backgroundColor: "rgba(229,72,77,0.08)",
+        color: "var(--danger, #E5484D)",
+        border: "1px solid rgba(229,72,77,0.2)",
+      }}
+    >
+      Send failed
+    </span>
+  );
+}
+
+// ── Tab bar ────────────────────────────────────────────────────────────────────
+
+type Tab = "structured" | "freeform";
+
+function TabBar({ active, onChange }: { active: Tab; onChange: (t: Tab) => void }) {
+  const tabs: { key: Tab; label: string; description: string }[] = [
+    { key: "structured", label: "Structured Enquiry", description: "Full event details form" },
+    { key: "freeform", label: "Freeform Enquiry", description: "Natural-language message → AI reply" },
+  ];
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: 8,
+        padding: "4px",
+        borderRadius: 12,
+        backgroundColor: "var(--surface-soft)",
+        border: "1px solid var(--border)",
+      }}
+    >
+      {tabs.map((tab) => {
+        const isActive = active === tab.key;
+        return (
+          <button
+            key={tab.key}
+            type="button"
+            onClick={() => onChange(tab.key)}
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              padding: "10px 16px",
+              borderRadius: 9,
+              border: "none",
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+              backgroundColor: isActive ? "var(--surface)" : "transparent",
+              boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+            }}
+          >
+            <span
+              style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: isActive ? "var(--brand-purple)" : "var(--text-secondary)",
+              }}
+            >
+              {tab.label}
+            </span>
+            <span
+              style={{
+                fontSize: 11,
+                color: isActive ? "var(--text-muted)" : "var(--text-muted)",
+                marginTop: 1,
+              }}
+            >
+              {tab.description}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Structured form ────────────────────────────────────────────────────────────
+
+type StructuredFormState = {
+  restaurant_id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  company_name: string;
+  event_date: string;
+  event_type: string;
+  party_size: string;
+  meal_period: string;
+  audience_type: string;
+  budget_indication: string;
+  preferred_area: string;
+  dietary_requirements: string;
+  special_requests: string;
+  message: string;
+  consent: boolean;
+};
+
+const STRUCTURED_EMPTY: StructuredFormState = {
+  restaurant_id: "",
+  first_name: "",
+  last_name: "",
+  email: "",
+  phone: "",
+  company_name: "",
+  event_date: "",
+  event_type: "",
+  party_size: "",
+  meal_period: "dinner",
+  audience_type: "",
+  budget_indication: "",
+  preferred_area: "",
+  dietary_requirements: "",
+  special_requests: "",
+  message: "",
+  consent: false,
+};
+
+type StructuredResult = {
+  intake: EnquiryIntakeOut;
+  restaurantName: string;
+  draft: EnquiryDraft | null;
+  emailSent: boolean | null; // null = not attempted, true = queued, false = failed/disabled
+};
+
+function StructuredSuccessPanel({ result }: { result: StructuredResult }) {
+  const { intake, restaurantName, draft, emailSent } = result;
   return (
     <Card padding="lg">
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -126,7 +277,7 @@ function SuccessPanel({ result, restaurantName }: { result: EnquiryIntakeOut; re
               flexShrink: 0,
             }}
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--success, #16A66A)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 6L9 17l-5-5" />
             </svg>
           </div>
@@ -161,7 +312,7 @@ function SuccessPanel({ result, restaurantName }: { result: EnquiryIntakeOut; re
               color: "var(--brand-purple)",
             }}
           >
-            {result.reference}
+            {intake.reference}
           </span>
         </div>
 
@@ -173,76 +324,84 @@ function SuccessPanel({ result, restaurantName }: { result: EnquiryIntakeOut; re
             gap: 12,
           }}
         >
-          {result.persona_name && (
-            <div
-              style={{
-                padding: "12px 16px",
-                borderRadius: 10,
-                background: "var(--surface-soft)",
-                border: "1px solid var(--border)",
-              }}
-            >
+          {intake.persona_name && (
+            <div style={{ padding: "12px 16px", borderRadius: 10, background: "var(--surface-soft)", border: "1px solid var(--border)" }}>
               <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>
                 Assigned Persona
               </p>
               <p style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", marginTop: 4 }}>
-                {result.persona_name}
+                {intake.persona_name}
               </p>
             </div>
           )}
-          <div
-            style={{
-              padding: "12px 16px",
-              borderRadius: 10,
-              background: "var(--surface-soft)",
-              border: "1px solid var(--border)",
-            }}
-          >
+          <div style={{ padding: "12px 16px", borderRadius: 10, background: "var(--surface-soft)", border: "1px solid var(--border)" }}>
             <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>
               Recommended Min. Spend
             </p>
             <p style={{ fontSize: 14, fontWeight: 700, color: "var(--brand-purple)", marginTop: 4 }}>
-              {result.recommended_minimum_spend > 0
-                ? `£${Math.round(result.recommended_minimum_spend).toLocaleString()}`
+              {intake.recommended_minimum_spend > 0
+                ? `£${Math.round(intake.recommended_minimum_spend).toLocaleString()}`
                 : "No rule matched"}
             </p>
           </div>
+          <div style={{ padding: "12px 16px", borderRadius: 10, background: "var(--surface-soft)", border: "1px solid var(--border)" }}>
+            <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>
+              Status
+            </p>
+            <p style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", marginTop: 4, textTransform: "capitalize" }}>
+              {intake.status}
+            </p>
+          </div>
+        </div>
+
+        {/* AI draft + email status */}
+        {(draft !== null || emailSent !== null) && (
           <div
             style={{
               padding: "12px 16px",
               borderRadius: 10,
               background: "var(--surface-soft)",
               border: "1px solid var(--border)",
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
             }}
           >
             <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>
-              Status
+              AI Draft Response
             </p>
-            <p style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", marginTop: 4, textTransform: "capitalize" }}>
-              {result.status}
-            </p>
+            {draft ? (
+              <p style={{ fontSize: 13, color: "var(--text-primary)", fontWeight: 500, margin: 0 }}>
+                {draft.subject ?? "Draft generated"}
+              </p>
+            ) : (
+              <p style={{ fontSize: 13, color: "var(--text-muted)", margin: 0 }}>Draft generation failed</p>
+            )}
+            {emailSent !== null && (
+              <div style={{ marginTop: 2 }}>
+                <EmailStatusBadge sent={emailSent} disabled={emailSent === false} />
+                {emailSent && (
+                  <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>
+                    Reply sent to {DEFAULT_REPLY_EMAIL}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
-        </div>
+        )}
 
-        {/* Pricing explanation */}
-        {result.pricing_explanation && (
+        {intake.pricing_explanation && (
           <p style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.6 }}>
-            {result.pricing_explanation}
+            {intake.pricing_explanation}
           </p>
         )}
 
         {/* Actions */}
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           <Link href="/enquiries">
-            <Button variant="primary" size="md">
-              View All Enquiries
-            </Button>
+            <Button variant="primary" size="md">View All Enquiries</Button>
           </Link>
-          <Button
-            variant="secondary"
-            size="md"
-            onClick={() => window.location.reload()}
-          >
+          <Button variant="secondary" size="md" onClick={() => window.location.reload()}>
             Submit Another
           </Button>
         </div>
@@ -251,32 +410,22 @@ function SuccessPanel({ result, restaurantName }: { result: EnquiryIntakeOut; re
   );
 }
 
-// ── Main form component ────────────────────────────────────────────────────────
-export function EnquiryWebform() {
-  const [form, setForm] = useState<FormState>(EMPTY);
-  const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+function StructuredEnquiryForm({
+  restaurants,
+}: {
+  restaurants: Restaurant[];
+}) {
+  const [form, setForm] = useState<StructuredFormState>(STRUCTURED_EMPTY);
+  const [errors, setErrors] = useState<Partial<Record<keyof StructuredFormState, string>>>({});
   const [rooms, setRooms] = useState<Room[]>([]);
   const [roomsLoading, setRoomsLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-  const [result, setResult] = useState<EnquiryIntakeOut | null>(null);
+  const [result, setResult] = useState<StructuredResult | null>(null);
 
-  // Load restaurants for the dropdown
-  useEffect(() => {
-    fetch(`${API_BASE}/api/v1/restaurants?limit=100`)
-      .then((r) => r.json())
-      .then((d: RestaurantListOut) => setRestaurants(d.items ?? []))
-      .catch(() => {});
-  }, []);
-
-  // Load rooms whenever restaurant selection changes
   useEffect(() => {
     setForm((prev) => ({ ...prev, preferred_area: "" }));
-    if (!form.restaurant_id) {
-      setRooms([]);
-      return;
-    }
+    if (!form.restaurant_id) { setRooms([]); return; }
     setRoomsLoading(true);
     fetch(`${API_BASE}/api/v1/restaurants/${form.restaurant_id}/rooms?active_only=true&limit=50`)
       .then((r) => (r.ok ? r.json() : { items: [] }))
@@ -286,13 +435,13 @@ export function EnquiryWebform() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.restaurant_id]);
 
-  function set(key: keyof FormState, value: string | boolean) {
+  function set(key: keyof StructuredFormState, value: string | boolean) {
     setForm((prev) => ({ ...prev, [key]: value }));
     if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
   }
 
   function validate(): boolean {
-    const next: Partial<Record<keyof FormState, string>> = {};
+    const next: Partial<Record<keyof StructuredFormState, string>> = {};
     if (!form.restaurant_id) next.restaurant_id = "Please select a venue.";
     if (!form.first_name.trim()) next.first_name = "First name is required.";
     if (!form.last_name.trim()) next.last_name = "Last name is required.";
@@ -313,6 +462,7 @@ export function EnquiryWebform() {
 
     setSubmitting(true);
     try {
+      // Step 1: Create enquiry
       const body: Record<string, unknown> = {
         restaurant_id: form.restaurant_id,
         first_name: form.first_name.trim(),
@@ -320,6 +470,7 @@ export function EnquiryWebform() {
         email: form.email.trim(),
         meal_period: form.meal_period || "dinner",
       };
+      if (form.audience_type) body.audience_type = form.audience_type;
       if (form.phone) body.phone = form.phone;
       if (form.company_name) body.company_name = form.company_name;
       if (form.event_date) body.event_date = form.event_date;
@@ -331,19 +482,50 @@ export function EnquiryWebform() {
       if (form.special_requests) body.special_requests = form.special_requests;
       if (form.message) body.message = form.message;
 
-      const res = await fetch(`${API_BASE}/api/v1/enquiries/intake`, {
+      const intakeRes = await fetch(`${API_BASE}/api/v1/enquiries/intake`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
-      if (!res.ok) {
-        const text = await res.text().catch(() => res.statusText);
-        throw new Error(text || `Request failed (${res.status})`);
+      if (!intakeRes.ok) {
+        const text = await intakeRes.text().catch(() => intakeRes.statusText);
+        throw new Error(text || `Request failed (${intakeRes.status})`);
       }
 
-      const data: EnquiryIntakeOut = await res.json();
-      setResult(data);
+      const intake: EnquiryIntakeOut = await intakeRes.json();
+      const restaurantName =
+        restaurants.find((r) => r.id === intake.restaurant_id)?.name ?? "the selected venue";
+
+      // Step 2: Generate AI draft
+      let draft: EnquiryDraft | null = null;
+      try {
+        const draftRes = await fetch(`${API_BASE}/api/v1/enquiries/${intake.enquiry_id}/draft`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        });
+        if (draftRes.ok) draft = await draftRes.json();
+      } catch {
+        // draft generation is best-effort
+      }
+
+      // Step 3: Send via SMTP
+      let emailSent: boolean | null = null;
+      if (draft) {
+        try {
+          const sendRes = await fetch(`${API_BASE}/api/v1/email/send-draft`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ enquiry_id: intake.enquiry_id, to_email: DEFAULT_REPLY_EMAIL }),
+          });
+          emailSent = sendRes.ok;
+        } catch {
+          emailSent = false;
+        }
+      }
+
+      setResult({ intake, restaurantName, draft, emailSent });
     } catch (err) {
       setApiError(err instanceof Error ? err.message : "Submission failed. Please try again.");
     } finally {
@@ -351,12 +533,7 @@ export function EnquiryWebform() {
     }
   }
 
-  const restaurantName =
-    restaurants.find((r) => r.id === result?.restaurant_id)?.name ?? "the selected venue";
-
-  if (result) {
-    return <SuccessPanel result={result} restaurantName={restaurantName} />;
-  }
+  if (result) return <StructuredSuccessPanel result={result} />;
 
   const restaurantOptions = [
     { value: "", label: "Select a venue" },
@@ -366,7 +543,6 @@ export function EnquiryWebform() {
   return (
     <form onSubmit={handleSubmit} noValidate>
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-        {/* ── API error banner ──────────────────────────────────────────────── */}
         {apiError && (
           <div
             role="alert"
@@ -383,12 +559,9 @@ export function EnquiryWebform() {
           </div>
         )}
 
-        {/* ── Section 1: Venue ─────────────────────────────────────────────── */}
+        {/* Section 1: Venue */}
         <Card padding="lg">
-          <SectionHeading
-            title="Venue"
-            subtitle="Select the venue this enquiry is for."
-          />
+          <SectionHeading title="Venue" subtitle="Select the venue this enquiry is for." />
           <div style={{ maxWidth: 360 }}>
             <Select
               label="Venue"
@@ -401,12 +574,9 @@ export function EnquiryWebform() {
           </div>
         </Card>
 
-        {/* ── Section 2: Contact Details ────────────────────────────────────── */}
+        {/* Section 2: Contact Details */}
         <Card padding="lg">
-          <SectionHeading
-            title="Contact Details"
-            subtitle="Guest contact information."
-          />
+          <SectionHeading title="Contact Details" subtitle="Guest contact information." />
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <FieldRow>
               <Input
@@ -455,12 +625,9 @@ export function EnquiryWebform() {
           </div>
         </Card>
 
-        {/* ── Section 3: Event Details ──────────────────────────────────────── */}
+        {/* Section 3: Event Details */}
         <Card padding="lg">
-          <SectionHeading
-            title="Event Details"
-            subtitle="Tell us about the event you have in mind."
-          />
+          <SectionHeading title="Event Details" subtitle="Tell us about the event you have in mind." />
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <FieldRow>
               <Input
@@ -494,15 +661,21 @@ export function EnquiryWebform() {
                 helper="Used to calculate pricing recommendation."
               />
             </FieldRow>
+            <div style={{ maxWidth: 420 }}>
+              <Select
+                label="Audience Type"
+                value={form.audience_type}
+                onChange={(e) => set("audience_type", e.target.value)}
+                options={AUDIENCE_OPTIONS}
+                helper="Selects the persona tailored for this enquiry source."
+              />
+            </div>
           </div>
         </Card>
 
-        {/* ── Section 4: Preferences ────────────────────────────────────────── */}
+        {/* Section 4: Preferences */}
         <Card padding="lg">
-          <SectionHeading
-            title="Preferences"
-            subtitle="Optional details to help us prepare the best proposal."
-          />
+          <SectionHeading title="Preferences" subtitle="Optional details to help us prepare the best proposal." />
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <FieldRow>
               <Input
@@ -558,17 +731,11 @@ export function EnquiryWebform() {
           </div>
         </Card>
 
-        {/* ── Section 5: Message ────────────────────────────────────────────── */}
+        {/* Section 5: Message */}
         <Card padding="lg">
-          <SectionHeading
-            title="Message"
-            subtitle="Any additional context from the guest."
-          />
+          <SectionHeading title="Message" subtitle="Any additional context from the guest." />
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label
-              htmlFor="message"
-              style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}
-            >
+            <label htmlFor="message" style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}>
               Message
             </label>
             <textarea
@@ -594,7 +761,7 @@ export function EnquiryWebform() {
           </div>
         </Card>
 
-        {/* ── Section 6: Consent + Submit ───────────────────────────────────── */}
+        {/* Section 6: Consent + Submit */}
         <Card padding="lg">
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
@@ -611,12 +778,10 @@ export function EnquiryWebform() {
                   style={{ fontSize: 13, color: "var(--text-secondary)", cursor: "pointer", lineHeight: 1.5 }}
                 >
                   I understand this is a <strong>test submission</strong> for the EventSales AI POC.
-                  No real communications will be sent to the guest email address.
+                  The AI draft will be sent to <strong>{DEFAULT_REPLY_EMAIL}</strong> via SMTP.
                 </label>
                 {errors.consent && (
-                  <p style={{ fontSize: 12, color: "var(--danger)", marginTop: 4 }}>
-                    {errors.consent}
-                  </p>
+                  <p style={{ fontSize: 12, color: "var(--danger)", marginTop: 4 }}>{errors.consent}</p>
                 )}
               </div>
             </div>
@@ -630,5 +795,534 @@ export function EnquiryWebform() {
         </Card>
       </div>
     </form>
+  );
+}
+
+// ── Freeform form ──────────────────────────────────────────────────────────────
+
+type FreeformFormState = {
+  restaurant_id: string;
+  preferred_area: string;
+  audience_type: string;
+  first_name: string;
+  last_name: string;
+  reply_email: string;
+  message: string;
+};
+
+const FREEFORM_EMPTY: FreeformFormState = {
+  restaurant_id: "",
+  preferred_area: "",
+  audience_type: "",
+  first_name: "",
+  last_name: "",
+  reply_email: DEFAULT_REPLY_EMAIL,
+  message: "",
+};
+
+type FreeformResult = {
+  enquiry_id: string;
+  reference: string;
+  persona_name: string | null;
+  audience_type: string | null;
+  draft: EnquiryDraft | null;
+  emailSent: boolean;
+  smtpDisabled: boolean;
+  reply_email: string;
+};
+
+function FreeformSuccessPanel({
+  result,
+  restaurantName,
+  onReset,
+}: {
+  result: FreeformResult;
+  restaurantName: string;
+  onReset: () => void;
+}) {
+  return (
+    <Card padding="lg">
+      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        {/* Heading */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: "50%",
+              background: "rgba(22,166,106,0.12)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--success, #16A66A)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+          </div>
+          <div>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>
+              Enquiry Processed
+            </h2>
+            <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>
+              AI draft generated for {restaurantName}
+            </p>
+          </div>
+        </div>
+
+        {/* Reference */}
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "10px 16px",
+            borderRadius: 10,
+            background: "rgba(109,61,245,0.06)",
+            border: "1px solid rgba(109,61,245,0.15)",
+          }}
+        >
+          <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500 }}>Reference</span>
+          <span style={{ fontFamily: "monospace", fontSize: 15, fontWeight: 700, color: "var(--brand-purple)" }}>
+            {result.reference}
+          </span>
+        </div>
+
+        {/* Detail cards */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
+          {result.persona_name && (
+            <div style={{ padding: "12px 16px", borderRadius: 10, background: "var(--surface-soft)", border: "1px solid var(--border)" }}>
+              <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>
+                Persona Used
+              </p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", marginTop: 4 }}>
+                {result.persona_name}
+              </p>
+              {result.audience_type && (
+                <p style={{ fontSize: 11, color: "var(--brand-purple)", marginTop: 2, textTransform: "capitalize" }}>
+                  {result.audience_type} audience
+                </p>
+              )}
+            </div>
+          )}
+          <div style={{ padding: "12px 16px", borderRadius: 10, background: "var(--surface-soft)", border: "1px solid var(--border)" }}>
+            <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>
+              Draft Subject
+            </p>
+            <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", marginTop: 4 }}>
+              {result.draft?.subject ?? (result.draft ? "Generated" : "Generation failed")}
+            </p>
+          </div>
+          <div style={{ padding: "12px 16px", borderRadius: 10, background: "var(--surface-soft)", border: "1px solid var(--border)" }}>
+            <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>
+              Email Delivery
+            </p>
+            <div style={{ marginTop: 6 }}>
+              <EmailStatusBadge sent={result.emailSent} disabled={result.smtpDisabled} />
+            </div>
+            {result.emailSent && (
+              <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
+                Sent to {result.reply_email}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Draft preview */}
+        {result.draft?.body && (
+          <div
+            style={{
+              padding: "14px 16px",
+              borderRadius: 10,
+              background: "var(--surface-soft)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 8px 0" }}>
+              Draft Preview
+            </p>
+            <p
+              style={{
+                fontSize: 13,
+                color: "var(--text-secondary)",
+                lineHeight: 1.7,
+                margin: 0,
+                whiteSpace: "pre-wrap",
+                maxHeight: 200,
+                overflow: "auto",
+              }}
+            >
+              {result.draft.body}
+            </p>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <Link href={`/enquiries`}>
+            <Button variant="primary" size="md">View in Enquiries</Button>
+          </Link>
+          <Button variant="secondary" size="md" onClick={onReset}>
+            Send Another
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function FreeformEnquiryForm({ restaurants }: { restaurants: Restaurant[] }) {
+  const [form, setForm] = useState<FreeformFormState>(FREEFORM_EMPTY);
+  const [errors, setErrors] = useState<Partial<Record<keyof FreeformFormState, string>>>({});
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [roomsLoading, setRoomsLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [step, setStep] = useState<string | null>(null); // progress label
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [result, setResult] = useState<FreeformResult | null>(null);
+  const [restaurantName, setRestaurantName] = useState<string>("");
+
+  useEffect(() => {
+    setForm((prev) => ({ ...prev, preferred_area: "" }));
+    if (!form.restaurant_id) { setRooms([]); return; }
+    setRoomsLoading(true);
+    fetch(`${API_BASE}/api/v1/restaurants/${form.restaurant_id}/rooms?active_only=true&limit=50`)
+      .then((r) => (r.ok ? r.json() : { items: [] }))
+      .then((d) => setRooms(d.items ?? []))
+      .catch(() => setRooms([]))
+      .finally(() => setRoomsLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.restaurant_id]);
+
+  function set(key: keyof FreeformFormState, value: string) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+    if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
+  }
+
+  function validate(): boolean {
+    const next: Partial<Record<keyof FreeformFormState, string>> = {};
+    if (!form.restaurant_id) next.restaurant_id = "Please select a venue.";
+    if (!form.first_name.trim()) next.first_name = "First name is required.";
+    if (!form.last_name.trim()) next.last_name = "Last name is required.";
+    if (!form.reply_email.trim()) next.reply_email = "Reply-to email is required.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.reply_email))
+      next.reply_email = "Please enter a valid email address.";
+    if (!form.message.trim()) next.message = "Please enter your enquiry message.";
+    else if (form.message.trim().length < 20)
+      next.message = "Message is too short — please provide more detail.";
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setApiError(null);
+    if (!validate()) return;
+
+    const venueName =
+      restaurants.find((r) => r.id === form.restaurant_id)?.name ?? "the venue";
+    setRestaurantName(venueName);
+    setSubmitting(true);
+
+    try {
+      // Step 1: Create enquiry
+      setStep("Creating enquiry…");
+      const intakeBody: Record<string, unknown> = {
+        restaurant_id: form.restaurant_id,
+        first_name: form.first_name.trim(),
+        last_name: form.last_name.trim(),
+        email: form.reply_email.trim(),
+        message: form.message.trim(),
+        meal_period: "dinner",
+        source: "webform",
+      };
+      if (form.audience_type) intakeBody.audience_type = form.audience_type;
+      if (form.preferred_area) intakeBody.preferred_area = form.preferred_area;
+
+      const intakeRes = await fetch(`${API_BASE}/api/v1/enquiries/intake`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(intakeBody),
+      });
+
+      if (!intakeRes.ok) {
+        const text = await intakeRes.text().catch(() => intakeRes.statusText);
+        throw new Error(text || `Intake failed (${intakeRes.status})`);
+      }
+
+      const intake: EnquiryIntakeOut = await intakeRes.json();
+
+      // Step 2: Generate AI draft
+      setStep("Generating AI draft…");
+      let draft: EnquiryDraft | null = null;
+      try {
+        const draftRes = await fetch(
+          `${API_BASE}/api/v1/enquiries/${intake.enquiry_id}/draft`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({}),
+          }
+        );
+        if (draftRes.ok) draft = await draftRes.json();
+      } catch {
+        // best-effort — show the error in result
+      }
+
+      // Step 3: Send via SMTP
+      let emailSent = false;
+      let smtpDisabled = false;
+      if (draft) {
+        setStep("Sending email…");
+        try {
+          const sendRes = await fetch(`${API_BASE}/api/v1/email/send-draft`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              enquiry_id: intake.enquiry_id,
+              to_email: form.reply_email.trim(),
+            }),
+          });
+          if (sendRes.ok) {
+            emailSent = true;
+          } else if (sendRes.status === 503) {
+            smtpDisabled = true;
+          }
+        } catch {
+          // network error — treat as not sent
+        }
+      }
+
+      setResult({
+        enquiry_id: intake.enquiry_id,
+        reference: intake.reference,
+        persona_name: intake.persona_name,
+        audience_type: intake.audience_type,
+        draft,
+        emailSent,
+        smtpDisabled,
+        reply_email: form.reply_email.trim(),
+      });
+    } catch (err) {
+      setApiError(err instanceof Error ? err.message : "Submission failed. Please try again.");
+    } finally {
+      setSubmitting(false);
+      setStep(null);
+    }
+  }
+
+  if (result) {
+    return (
+      <FreeformSuccessPanel
+        result={result}
+        restaurantName={restaurantName}
+        onReset={() => { setResult(null); setForm(FREEFORM_EMPTY); }}
+      />
+    );
+  }
+
+  const restaurantOptions = [
+    { value: "", label: "Select a venue" },
+    ...restaurants.map((r) => ({ value: r.id, label: r.name })),
+  ];
+
+  return (
+    <form onSubmit={handleSubmit} noValidate>
+      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        {apiError && (
+          <div
+            role="alert"
+            style={{
+              padding: "12px 16px",
+              borderRadius: 10,
+              background: "rgba(229,72,77,0.08)",
+              border: "1px solid rgba(229,72,77,0.25)",
+              fontSize: 13,
+              color: "var(--danger)",
+            }}
+          >
+            {apiError}
+          </div>
+        )}
+
+        {/* Venue + Room + Audience */}
+        <Card padding="lg">
+          <SectionHeading
+            title="Venue & Audience"
+            subtitle="Select the venue, optionally a room, and the enquiry audience to test the matching persona."
+          />
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ maxWidth: 360 }}>
+              <Select
+                label="Venue"
+                required
+                value={form.restaurant_id}
+                onChange={(e) => set("restaurant_id", e.target.value)}
+                options={restaurantOptions}
+                error={errors.restaurant_id}
+              />
+            </div>
+            {form.restaurant_id && (
+              <div style={{ maxWidth: 360 }}>
+                {rooms.length > 0 ? (
+                  <Select
+                    label="Room / PDR (optional)"
+                    value={form.preferred_area}
+                    onChange={(e) => set("preferred_area", e.target.value)}
+                    options={[
+                      { value: "", label: roomsLoading ? "Loading rooms…" : "No specific room" },
+                      ...rooms.map((r) => ({
+                        value: r.name,
+                        label: r.is_private_dining ? `${r.name} (PDR)` : r.name,
+                      })),
+                    ]}
+                    helper="Helps the AI personalise the response."
+                  />
+                ) : (
+                  !roomsLoading && (
+                    <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                      No rooms configured for this venue.
+                    </p>
+                  )
+                )}
+              </div>
+            )}
+            <div style={{ maxWidth: 420 }}>
+              <Select
+                label="Audience Type"
+                value={form.audience_type}
+                onChange={(e) => set("audience_type", e.target.value)}
+                options={AUDIENCE_OPTIONS}
+                helper="Determines which persona generates the AI reply."
+              />
+            </div>
+          </div>
+        </Card>
+
+        {/* Guest details + reply email */}
+        <Card padding="lg">
+          <SectionHeading
+            title="Guest Details"
+            subtitle="The AI response will be sent to the reply-to address."
+          />
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <FieldRow>
+              <Input
+                label="First Name"
+                required
+                value={form.first_name}
+                onChange={(e) => set("first_name", e.target.value)}
+                placeholder="Jane"
+                error={errors.first_name}
+              />
+              <Input
+                label="Last Name"
+                required
+                value={form.last_name}
+                onChange={(e) => set("last_name", e.target.value)}
+                placeholder="Smith"
+                error={errors.last_name}
+              />
+            </FieldRow>
+            <div style={{ maxWidth: 360 }}>
+              <Input
+                label="Reply-to Email"
+                type="email"
+                required
+                value={form.reply_email}
+                onChange={(e) => set("reply_email", e.target.value)}
+                placeholder="guest@example.com"
+                error={errors.reply_email}
+                helper="The AI draft will be sent to this address via SMTP."
+              />
+            </div>
+          </div>
+        </Card>
+
+        {/* Freeform message */}
+        <Card padding="lg">
+          <SectionHeading
+            title="Enquiry Message"
+            subtitle="Write the guest's enquiry in natural language. The AI will generate a personalised reply."
+          />
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label
+              htmlFor="freeform-message"
+              style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}
+            >
+              Message <span style={{ color: "var(--danger)" }}>*</span>
+            </label>
+            <textarea
+              id="freeform-message"
+              rows={7}
+              value={form.message}
+              onChange={(e) => set("message", e.target.value)}
+              placeholder="e.g. Hi, I'm looking for a private dining room for 12 people for a birthday dinner in July. We'd love a set menu and would appreciate any wine pairing options. Our budget is around £1,500. Could you let me know what's available?"
+              style={{
+                width: "100%",
+                borderRadius: 10,
+                border: `1px solid ${errors.message ? "var(--danger)" : "var(--border)"}`,
+                backgroundColor: "var(--surface)",
+                color: "var(--text-primary)",
+                fontSize: 13,
+                padding: "10px 12px",
+                resize: "vertical",
+                outline: "none",
+                fontFamily: "inherit",
+                lineHeight: 1.7,
+              }}
+            />
+            {errors.message && (
+              <p style={{ fontSize: 12, color: "var(--danger)", marginTop: 2 }}>{errors.message}</p>
+            )}
+            <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
+              Minimum 20 characters. Write as the guest would.
+            </p>
+          </div>
+        </Card>
+
+        {/* Submit */}
+        <Card padding="lg">
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+            <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0, lineHeight: 1.5 }}>
+              On submit: enquiry created → AI draft generated → email sent to{" "}
+              <strong style={{ color: "var(--text-secondary)" }}>
+                {form.reply_email || DEFAULT_REPLY_EMAIL}
+              </strong>
+            </p>
+            <Button type="submit" variant="primary" size="lg" loading={submitting}>
+              {submitting && step ? step : "Send Enquiry"}
+            </Button>
+          </div>
+        </Card>
+      </div>
+    </form>
+  );
+}
+
+// ── Main export ────────────────────────────────────────────────────────────────
+
+export function EnquiryWebform() {
+  const [activeTab, setActiveTab] = useState<Tab>("structured");
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/v1/restaurants?limit=100`)
+      .then((r) => r.json())
+      .then((d: RestaurantListOut) => setRestaurants(d.items ?? []))
+      .catch(() => {});
+  }, []);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <TabBar active={activeTab} onChange={setActiveTab} />
+
+      {activeTab === "structured" ? (
+        <StructuredEnquiryForm restaurants={restaurants} />
+      ) : (
+        <FreeformEnquiryForm restaurants={restaurants} />
+      )}
+    </div>
   );
 }
