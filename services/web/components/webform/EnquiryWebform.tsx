@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Card } from "@/components/layout/Card";
 import type { Restaurant, RestaurantListOut, Room } from "@/lib/types/restaurant";
-import type { EnquiryIntakeOut, EnquiryDraft } from "@/lib/types/enquiry";
+import type { AIContextOut, EnquiryDraft, EnquiryIntakeOut, RoomAvailabilityOut } from "@/lib/types/enquiry";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -142,6 +142,193 @@ function EmailStatusBadge({ sent, disabled }: { sent: boolean; disabled?: boolea
   );
 }
 
+// ── AI Transparency Panel ──────────────────────────────────────────────────────
+
+const STATUS_PILL: Record<string, { bg: string; color: string; label: string }> = {
+  available:   { bg: "rgba(22,166,106,0.1)",  color: "var(--success, #16A66A)", label: "Available" },
+  booked:      { bg: "rgba(229,72,77,0.08)",  color: "var(--danger, #E5484D)",  label: "Booked" },
+  held:        { bg: "rgba(245,158,11,0.1)",  color: "#B45309",                 label: "Held" },
+  unavailable: { bg: "rgba(160,160,180,0.12)", color: "var(--text-muted)",       label: "Unavailable" },
+};
+
+function StatusPill({ status }: { status: string }) {
+  const cfg = STATUS_PILL[status] ?? STATUS_PILL.unavailable;
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 4,
+      padding: "2px 10px", borderRadius: 99,
+      fontSize: 11, fontWeight: 600,
+      backgroundColor: cfg.bg, color: cfg.color,
+      border: `1px solid ${cfg.color}33`,
+    }}>
+      {cfg.label}
+    </span>
+  );
+}
+
+function AITransparencyPanel({ aiContext }: { aiContext: AIContextOut }) {
+  const [open, setOpen] = useState(false);
+
+  const rows: [string, string | null | undefined][] = [
+    ["Model", aiContext.is_fallback ? "Deterministic fallback (no LLM call)" : aiContext.model],
+    ["Persona", aiContext.persona_name],
+    ["Tone", aiContext.persona_tone],
+    ["Style", aiContext.persona_style],
+    ["Guest message sent",
+      aiContext.guest_message_used
+        ? (aiContext.guest_message_used.length > 120
+          ? aiContext.guest_message_used.slice(0, 120) + "…"
+          : aiContext.guest_message_used)
+        : null],
+    ["Room context", aiContext.room_name],
+    ["Min. spend in prompt",
+      aiContext.recommended_minimum_spend && aiContext.recommended_minimum_spend > 0
+        ? `£${Math.round(aiContext.recommended_minimum_spend).toLocaleString()}`
+        : null],
+  ];
+
+  return (
+    <div style={{
+      borderRadius: 10,
+      border: "1px solid var(--border)",
+      overflow: "hidden",
+    }}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        style={{
+          width: "100%",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "10px 14px",
+          background: "var(--surface-soft)",
+          border: "none", cursor: "pointer",
+          fontSize: 11, fontWeight: 600, color: "var(--text-muted)",
+          textTransform: "uppercase", letterSpacing: "0.05em",
+        }}
+      >
+        <span>AI Generation Details</span>
+        <span style={{ fontSize: 10 }}>{open ? "▼" : "▶"}</span>
+      </button>
+
+      {open && (
+        <div style={{
+          padding: "12px 14px",
+          background: "var(--surface-soft)",
+          borderTop: "1px solid var(--border)",
+          display: "flex", flexDirection: "column", gap: 6,
+          fontFamily: "monospace",
+          fontSize: 12,
+        }}>
+          {rows.map(([label, value]) =>
+            value ? (
+              <div key={label} style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <span style={{ color: "var(--text-muted)", minWidth: 160, flexShrink: 0 }}>{label}</span>
+                <span style={{ color: "var(--text-secondary)" }}>{value}</span>
+              </div>
+            ) : null
+          )}
+
+          {!aiContext.is_fallback && aiContext.system_prompt && (
+            <>
+              <div style={{ borderTop: "1px solid var(--border)", margin: "6px 0" }} />
+              <div>
+                <div style={{ color: "var(--text-muted)", marginBottom: 4 }}>System prompt</div>
+                <pre style={{
+                  margin: 0, fontSize: 11, lineHeight: 1.5,
+                  color: "var(--text-secondary)",
+                  whiteSpace: "pre-wrap", wordBreak: "break-word",
+                  maxHeight: 160, overflowY: "auto",
+                  background: "var(--surface)", padding: "8px 10px", borderRadius: 6,
+                  border: "1px solid var(--border)",
+                }}>{aiContext.system_prompt}</pre>
+              </div>
+              {aiContext.user_message && (
+                <div>
+                  <div style={{ color: "var(--text-muted)", marginBottom: 4 }}>User message</div>
+                  <pre style={{
+                    margin: 0, fontSize: 11, lineHeight: 1.5,
+                    color: "var(--text-secondary)",
+                    whiteSpace: "pre-wrap", wordBreak: "break-word",
+                    maxHeight: 120, overflowY: "auto",
+                    background: "var(--surface)", padding: "8px 10px", borderRadius: 6,
+                    border: "1px solid var(--border)",
+                  }}>{aiContext.user_message}</pre>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Room Availability Card ─────────────────────────────────────────────────────
+
+function RoomAvailabilityCard({
+  restaurantId,
+  rooms,
+  roomName,
+  eventDate,
+}: {
+  restaurantId: string;
+  rooms: Room[];
+  roomName: string;
+  eventDate: string;
+}) {
+  const [availability, setAvailability] = useState<RoomAvailabilityOut | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const room = rooms.find((r) => r.name === roomName);
+    if (!room) { setLoading(false); return; }
+    fetch(`${API_BASE}/api/v1/restaurants/${restaurantId}/rooms/${room.id}/availability?date=${eventDate}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => setAvailability(data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [restaurantId, rooms, roomName, eventDate]);
+
+  return (
+    <div style={{
+      padding: "12px 16px", borderRadius: 10,
+      background: "var(--surface-soft)", border: "1px solid var(--border)",
+    }}>
+      <p style={{
+        fontSize: 11, color: "var(--text-muted)", fontWeight: 600,
+        textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 8px 0",
+      }}>
+        Room Availability — {roomName} · {eventDate}
+      </p>
+
+      {loading ? (
+        <div style={{ height: 32, borderRadius: 6, background: "var(--border)", width: "60%" }} />
+      ) : !availability || availability.slots.length === 0 ? (
+        <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0 }}>
+          No availability data for this date.
+        </p>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {availability.slots.map((slot) => (
+            <div key={slot.meal_period} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 12, color: "var(--text-secondary)", minWidth: 60, textTransform: "capitalize" }}>
+                {slot.meal_period}
+              </span>
+              <StatusPill status={slot.status} />
+              {slot.notes && (
+                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{slot.notes}</span>
+              )}
+            </div>
+          ))}
+          <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "4px 0 0 0", fontStyle: "italic" }}>
+            In production this will reflect live booking system status.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Tab bar ────────────────────────────────────────────────────────────────────
 
 type Tab = "structured" | "freeform";
@@ -256,10 +443,12 @@ type StructuredResult = {
   restaurantName: string;
   draft: EnquiryDraft | null;
   emailSent: boolean | null; // null = not attempted, true = queued, false = failed/disabled
+  rooms: Room[];
+  eventDate: string; // ISO date string, may be empty
 };
 
 function StructuredSuccessPanel({ result }: { result: StructuredResult }) {
-  const { intake, restaurantName, draft, emailSent } = result;
+  const { intake, restaurantName, draft, emailSent, rooms, eventDate } = result;
   return (
     <Card padding="lg">
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -396,6 +585,21 @@ function StructuredSuccessPanel({ result }: { result: StructuredResult }) {
           </p>
         )}
 
+        {/* Room availability */}
+        {draft?.ai_context?.room_name && eventDate && (
+          <RoomAvailabilityCard
+            restaurantId={intake.restaurant_id}
+            rooms={rooms}
+            roomName={draft.ai_context.room_name}
+            eventDate={eventDate}
+          />
+        )}
+
+        {/* AI transparency */}
+        {draft?.ai_context && (
+          <AITransparencyPanel aiContext={draft.ai_context} />
+        )}
+
         {/* Actions */}
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           <Link href="/enquiries">
@@ -525,7 +729,7 @@ function StructuredEnquiryForm({
         }
       }
 
-      setResult({ intake, restaurantName, draft, emailSent });
+      setResult({ intake, restaurantName, draft, emailSent, rooms, eventDate: form.event_date });
     } catch (err) {
       setApiError(err instanceof Error ? err.message : "Submission failed. Please try again.");
     } finally {
@@ -829,6 +1033,8 @@ type FreeformResult = {
   emailSent: boolean;
   smtpDisabled: boolean;
   reply_email: string;
+  restaurantId: string;
+  rooms: Room[];
 };
 
 function FreeformSuccessPanel({
@@ -840,6 +1046,7 @@ function FreeformSuccessPanel({
   restaurantName: string;
   onReset: () => void;
 }) {
+  const { draft, restaurantId, rooms } = result;
   return (
     <Card padding="lg">
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -911,7 +1118,7 @@ function FreeformSuccessPanel({
               Draft Subject
             </p>
             <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", marginTop: 4 }}>
-              {result.draft?.subject ?? (result.draft ? "Generated" : "Generation failed")}
+              {draft?.subject ?? (draft ? "Generated" : "Generation failed")}
             </p>
           </div>
           <div style={{ padding: "12px 16px", borderRadius: 10, background: "var(--surface-soft)", border: "1px solid var(--border)" }}>
@@ -930,7 +1137,7 @@ function FreeformSuccessPanel({
         </div>
 
         {/* Draft preview */}
-        {result.draft?.body && (
+        {draft?.body && (
           <div
             style={{
               padding: "14px 16px",
@@ -953,9 +1160,24 @@ function FreeformSuccessPanel({
                 overflow: "auto",
               }}
             >
-              {result.draft.body}
+              {draft.body}
             </p>
           </div>
+        )}
+
+        {/* Room availability — only when a room was matched (no event date for freeform) */}
+        {draft?.ai_context?.room_name && (
+          <RoomAvailabilityCard
+            restaurantId={restaurantId}
+            rooms={rooms}
+            roomName={draft.ai_context.room_name}
+            eventDate={new Date().toISOString().slice(0, 10)}
+          />
+        )}
+
+        {/* AI transparency */}
+        {draft?.ai_context && (
+          <AITransparencyPanel aiContext={draft.ai_context} />
         )}
 
         {/* Actions */}
@@ -1103,6 +1325,8 @@ function FreeformEnquiryForm({ restaurants }: { restaurants: Restaurant[] }) {
         emailSent,
         smtpDisabled,
         reply_email: form.reply_email.trim(),
+        restaurantId: intake.restaurant_id,
+        rooms,
       });
     } catch (err) {
       setApiError(err instanceof Error ? err.message : "Submission failed. Please try again.");
