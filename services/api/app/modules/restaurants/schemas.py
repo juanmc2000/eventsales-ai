@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 
 from pydantic import BaseModel, EmailStr, Field
@@ -104,6 +104,34 @@ class RoomOut(RoomBase):
 class RoomListOut(BaseModel):
     items: list[RoomOut]
     total: int
+
+
+# --- Room availability schemas ---
+
+
+class RoomAvailabilitySlot(BaseModel):
+    """Availability for a single meal period slot."""
+
+    meal_period: str   # "lunch" | "dinner" | "breakfast"
+    status: str        # "available" | "booked" | "held" | "unavailable"
+    notes: str | None = None
+
+    model_config = {"from_attributes": True}
+
+
+class RoomAvailabilityOut(BaseModel):
+    """Availability response for a room on a specific date.
+
+    Returns empty slots list when no availability data exists for the date
+    (do not treat as an error — seed may not cover all dates).
+    """
+
+    room_id: uuid.UUID
+    room_name: str
+    date: date
+    slots: list[RoomAvailabilitySlot]
+
+    model_config = {"from_attributes": False}
 
 
 # --- Restaurant AI context schemas ---

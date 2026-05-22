@@ -3,8 +3,9 @@
 These schemas define the internal context object passed to the
 draft generation service and the structured result returned to callers.
 
-The raw prompt text is never included in any response schema — it is
-assembled and discarded internally by the service.
+The raw prompts (system_prompt, user_message) are captured by the service
+and included in AIContextOut for AI transparency reporting on the webform
+response page. They are never stored in the database.
 """
 
 from __future__ import annotations
@@ -50,11 +51,31 @@ class DraftContext:
 
 
 @dataclass
+class AIContextOut:
+    """AI transparency context returned with every draft response.
+
+    Captures what data and prompts were used to generate the draft.
+    system_prompt and user_message are None when the fallback provider was used
+    (no LLM call was made).
+    """
+
+    model: str
+    is_fallback: bool
+    persona_name: str | None
+    persona_tone: str | None
+    persona_style: str | None
+    guest_message_used: str | None
+    room_name: str | None
+    recommended_minimum_spend: float | None
+    system_prompt: str | None       # Exact system prompt sent to Claude; None for fallback
+    user_message: str | None        # Exact user message sent to Claude; None for fallback
+
+
+@dataclass
 class DraftGenerationResult:
     """Structured output of the draft generation service.
 
-    Returned to the caller (API-009 endpoint) for further handling.
-    The raw prompt is not included.
+    Returned to the caller (API-013 endpoint) for further handling.
     """
 
     enquiry_id: uuid.UUID
@@ -64,3 +85,4 @@ class DraftGenerationResult:
     persona_name: str
     is_fallback: bool               # True when generated without an LLM call
     model: str                      # Model name or "fallback"
+    ai_context: AIContextOut | None = field(default=None)
