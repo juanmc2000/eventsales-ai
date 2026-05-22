@@ -2,7 +2,7 @@
 
 **Project:** EventSales AI
 **Phase:** POC (Proof of Concept)
-**Last Updated:** 2026-05-21
+**Last Updated:** 2026-05-22
 
 ---
 
@@ -17,6 +17,7 @@
 | Sprint 5A | Live Gmail Validation | ✓ Complete | #104–#111 |
 | Sprint 5B | Live Gmail SMTP + IMAP | ✓ Complete | #113–#114 |
 | Sprint 5C | Venue Context (Rooms/PDR) | ✓ Complete | #126–#135 |
+| Sprint 5D | Freeform Webform + Audience Routing | ✓ Complete | #138–#141 |
 
 ---
 
@@ -61,6 +62,16 @@
 
 ---
 
+## Sprint 5D Issues
+
+| Issue | PR | Title | Status |
+|-------|----|-------|--------|
+| UI-017 | #141 | Freeform enquiry tab + two-tab webform toggle | ✓ Merged |
+| DATA-007 | #141 | Audience type on RestaurantPersona + migration | ✓ Merged |
+| API-012 | #141 | Intake service resolves persona by audience type | ✓ Merged |
+
+---
+
 ## POC Feature Coverage
 
 | Feature | Sprint | Status |
@@ -96,6 +107,12 @@
 | Webform room selection (backend-driven dropdown) | 5C | ✓ |
 | Venue context workflow tests (332 backend, 79 frontend) | 5C | ✓ |
 | POC demo guide (updated with venue context) | 5C | ✓ |
+| Freeform enquiry tab (natural-language → AI → SMTP auto-flow) | 5D | ✓ |
+| Two-tab webform toggle (Structured / Freeform) | 5D | ✓ |
+| Audience type selector (Social / Corporate / Agency) on both tabs | 5D | ✓ |
+| Audience-based persona routing (Eleanor=social, James=corporate, Sophia=agency) | 5D | ✓ |
+| RestaurantPersona audience column + Alembic migration | 5D | ✓ |
+| Freeform smoke tests (84 frontend, 332 backend total) | 5D | ✓ |
 
 ---
 
@@ -108,6 +125,7 @@
 | Inbound email Celery beat schedule | P2 | 6 |
 | Multi-tenant authentication | P1 | 6 |
 | E2E browser test (Playwright) | P2 | 6 |
+| Audience auto-detection from email domain + CRM lookup | P2 | 6 |
 | Production email relay (SendGrid/Postmark) | P2 | Post-POC |
 | Room availability / booking engine | P3 | Post-POC |
 
