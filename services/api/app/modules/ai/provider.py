@@ -102,8 +102,8 @@ class AnthropicProvider:
             import anthropic
 
             client = anthropic.Anthropic(api_key=self._api_key)
-            system_prompt = _build_system_prompt(context)
-            user_message = _build_user_message(context)
+            system_prompt = build_system_prompt(context)
+            user_message = build_user_message(context)
 
             response = client.messages.create(
                 model=self._model,
@@ -134,10 +134,11 @@ def make_provider(api_key: str) -> tuple[LLMProvider, bool]:
 # ── Internal helpers ───────────────────────────────────────────────────────────
 
 
-def _build_system_prompt(context: DraftContext) -> str:
+def build_system_prompt(context: DraftContext) -> str:
     """Construct the LLM system prompt from persona attributes.
 
-    The system prompt is internal — it is never returned to API callers.
+    Exposed as a public function so the service layer can capture the exact
+    prompt sent to the API for AI transparency reporting.
     """
     base = context.persona_system_prompt.strip() if context.persona_system_prompt else ""
     instructions = (
@@ -152,10 +153,11 @@ def _build_system_prompt(context: DraftContext) -> str:
     return f"{base}\n\n{instructions}".strip()
 
 
-def _build_user_message(context: DraftContext) -> str:
+def build_user_message(context: DraftContext) -> str:
     """Format enquiry details as natural language for the LLM.
 
-    The user message is internal — it is never returned to API callers.
+    Exposed as a public function so the service layer can capture the exact
+    message sent to the API for AI transparency reporting.
     """
     parts = [
         f"Please draft a response to this event enquiry.",

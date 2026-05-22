@@ -3,6 +3,8 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, EmailStr, Field
 
+from app.modules.ai.schemas import AIContextOut  # noqa: TC001 — used in DraftResponseOut
+
 
 class EnquiryBase(BaseModel):
     restaurant_id: uuid.UUID
@@ -146,3 +148,4 @@ class DraftResponseOut(BaseModel):
     is_fallback: bool | None = None
     model: str | None = None
     generated_at: datetime
+    ai_context: AIContextOut | None = None

@@ -22,8 +22,8 @@ from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.modules.ai.provider import make_provider
-from app.modules.ai.schemas import DraftContext, DraftGenerationResult
+from app.modules.ai.provider import build_system_prompt, build_user_message, make_provider
+from app.modules.ai.schemas import AIContextOut, DraftContext, DraftGenerationResult
 from app.modules.enquiries.repository import EnquiryRepository
 from app.modules.personas.repository import PersonaRepository
 from app.modules.restaurants.repository import RestaurantRepository, RoomRepository
@@ -118,7 +118,28 @@ class DraftGenerationService:
 
         # Select provider based on configured API key
         provider, is_fallback = make_provider(settings.anthropic_api_key)
+
+        # Capture prompts before generating (only meaningful for AnthropicProvider)
+        system_prompt: str | None = None
+        user_message: str | None = None
+        if not is_fallback:
+            system_prompt = build_system_prompt(context)
+            user_message = build_user_message(context)
+
         draft_body = provider.generate(context)
+
+        ai_context = AIContextOut(
+            model=provider.model_name,
+            is_fallback=is_fallback,
+            persona_name=persona_name,
+            persona_tone=persona_tone,
+            persona_style=persona_style,
+            guest_message_used=guest_message,
+            room_name=context.room_name,
+            recommended_minimum_spend=recommended_minimum_spend,
+            system_prompt=system_prompt,
+            user_message=user_message,
+        )
 
         subject = _build_subject(enquiry.first_name, enquiry.last_name, enquiry.event_type)
 
@@ -143,6 +164,7 @@ class DraftGenerationService:
             persona_name=persona_name,
             is_fallback=is_fallback,
             model=provider.model_name,
+            ai_context=ai_context,
         )
 
 

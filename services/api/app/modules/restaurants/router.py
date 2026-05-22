@@ -1,15 +1,19 @@
 import uuid
+from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.modules.restaurants.repository import RoomAvailabilityRepository
 from app.modules.restaurants.schemas import (
     RestaurantContextOut,
     RestaurantCreate,
     RestaurantListOut,
     RestaurantOut,
     RestaurantUpdate,
+    RoomAvailabilityOut,
+    RoomAvailabilitySlot,
     RoomCreate,
     RoomListOut,
     RoomOut,
@@ -154,3 +158,38 @@ def deactivate_room(
     if not room:
         raise HTTPException(status_code=404, detail="Room not found")
     return room
+
+
+@router.get("/{restaurant_id}/rooms/{room_id}/availability", response_model=RoomAvailabilityOut)
+def get_room_availability(
+    restaurant_id: uuid.UUID,
+    room_id: uuid.UUID,
+    date: date = Query(..., description="Date to check availability for (YYYY-MM-DD)"),
+    room_service: RoomService = Depends(get_room_service),
+    db: Session = Depends(get_db),
+) -> RoomAvailabilityOut:
+    """Return availability slots for a room on a specific date.
+
+    Returns an empty slots list (not 404) when no availability data exists for the date.
+    POC-phase: data is seeded. Future: live booking system API call.
+    """
+    room = room_service.get_room(restaurant_id, room_id)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+
+    avail_repo = RoomAvailabilityRepository(db)
+    rows = avail_repo.get_for_room_date(room_id, date)
+
+    return RoomAvailabilityOut(
+        room_id=room_id,
+        room_name=room.name,
+        date=date,
+        slots=[
+            RoomAvailabilitySlot(
+                meal_period=row.meal_period,
+                status=row.status,
+                notes=row.notes,
+            )
+            for row in rows
+        ],
+    )

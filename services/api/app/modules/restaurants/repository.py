@@ -1,10 +1,11 @@
 import uuid
+from datetime import date
 from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.modules.restaurants.models import Restaurant, Room
+from app.modules.restaurants.models import Restaurant, Room, RoomAvailability
 
 
 class RestaurantRepository:
@@ -93,3 +94,18 @@ class RoomRepository:
         room.is_active = False
         self._db.flush()
         return room
+
+
+class RoomAvailabilityRepository:
+    def __init__(self, db: Session) -> None:
+        self._db = db
+
+    def get_for_room_date(self, room_id: uuid.UUID, availability_date: date) -> list[RoomAvailability]:
+        """Return all availability slots for a room on a specific date, ordered by meal_period."""
+        stmt = (
+            select(RoomAvailability)
+            .where(RoomAvailability.room_id == room_id)
+            .where(RoomAvailability.date == availability_date)
+            .order_by(RoomAvailability.meal_period)
+        )
+        return list(self._db.scalars(stmt).all())
