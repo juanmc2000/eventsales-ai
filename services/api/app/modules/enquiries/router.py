@@ -161,6 +161,7 @@ def generate_draft(
         is_fallback=result.is_fallback,
         model=result.model,
         generated_at=datetime.now(timezone.utc),
+        ai_context=result.ai_context,
     )
 
 
