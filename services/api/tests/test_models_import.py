@@ -33,6 +33,7 @@ def test_all_tables_in_metadata() -> None:
     expected_tables = {
         "restaurants",
         "rooms",
+        "room_availability",
         "personas",
         "restaurant_personas",
         "pricing_rules",

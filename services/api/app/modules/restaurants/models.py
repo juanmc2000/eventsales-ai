@@ -1,9 +1,9 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, Numeric, String, Text, func
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, Numeric, String, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -127,3 +127,49 @@ class Room(Base):
 
     # Relationship
     restaurant: Mapped["Restaurant"] = relationship("Restaurant", back_populates="rooms")
+    availability: Mapped[list["RoomAvailability"]] = relationship(
+        "RoomAvailability", back_populates="room", cascade="all, delete-orphan"
+    )
+
+
+class RoomAvailability(Base):
+    """Per-room, per-date, per-meal-period availability status.
+
+    POC-phase: populated from seed data.
+    Future: replaced by live API call to the venue's booking system.
+    """
+
+    __tablename__ = "room_availability"
+    __table_args__ = (
+        UniqueConstraint("room_id", "date", "meal_period", name="uq_room_availability_slot"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tenant_id: Mapped[str] = mapped_column(
+        String(100), nullable=False, default="default", index=True
+    )
+    room_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("rooms.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
+    # "lunch" | "dinner" | "breakfast"
+    meal_period: Mapped[str] = mapped_column(String(20), nullable=False)
+    # "available" | "booked" | "held" | "unavailable"
+    status: Mapped[str] = mapped_column(String(20), nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+    room: Mapped["Room"] = relationship("Room", back_populates="availability")

@@ -10,6 +10,7 @@ Usage via script:
 All seed functions are idempotent: re-running them will not create duplicates.
 """
 
+import hashlib
 import random
 import uuid
 from datetime import date, datetime, timedelta, timezone
@@ -466,6 +467,72 @@ def _upsert_pricing_rule(db: Session, restaurant_id: uuid.UUID, data: dict[str, 
     db.flush()
 
 
+_AVAILABILITY_STATUSES = ["available", "available", "available", "available", "available", "available",
+                          "booked", "booked", "booked", "booked", "booked",
+                          "held", "held",
+                          "unavailable"]
+# Distribution: 6/14 ≈ 43% available base, but we skew by dow below.
+# Actual target: ~60% available, ~25% booked, ~10% held, ~5% unavailable
+# Achieved by the weighted list: available=6, booked=5, held=2, unavailable=1 → 43/36/14/7%
+# On weekdays we additionally shift toward available; on weekends toward booked/held.
+_AVAIL_WEEKDAY = ["available"] * 9 + ["booked"] * 3 + ["held"] * 2 + ["unavailable"] * 1  # ~60/20/13/7
+_AVAIL_WEEKEND = ["available"] * 4 + ["booked"] * 6 + ["held"] * 3 + ["unavailable"] * 1  # ~29/43/21/7
+
+
+def _avail_status_for(room_id: uuid.UUID, d: date, meal_period: str) -> str:
+    """Return a deterministic availability status for a (room, date, meal_period) slot.
+
+    Uses a hash of the three keys so the distribution is stable across re-seeds.
+    Weekends (Sat/Sun) skew toward booked/held to reflect realistic demand.
+    """
+    key = f"{room_id}:{d.isoformat()}:{meal_period}".encode()
+    digest = hashlib.sha256(key).digest()
+    # Use first two bytes for index selection
+    idx = int.from_bytes(digest[:2], "big")
+    if d.weekday() in (5, 6):  # Saturday, Sunday
+        return _AVAIL_WEEKEND[idx % len(_AVAIL_WEEKEND)]
+    return _AVAIL_WEEKDAY[idx % len(_AVAIL_WEEKDAY)]
+
+
+def _seed_room_availability(db: Session, rooms: list[Any]) -> None:
+    """Seed room_availability for all rooms for the next 12 months.
+
+    Idempotent: skips rooms that already have any availability rows.
+    Deterministic: status is derived from a hash, not random.
+    """
+    from app.modules.restaurants.models import RoomAvailability
+
+    today = date.today()
+    end = today + timedelta(days=365)
+    meal_periods = ["lunch", "dinner"]
+
+    for room in rooms:
+        existing = db.query(RoomAvailability).filter_by(room_id=room.id).limit(1).first()
+        if existing:
+            continue
+
+        records: list[RoomAvailability] = []
+        current = today
+        while current <= end:
+            for meal_period in meal_periods:
+                status = _avail_status_for(room.id, current, meal_period)
+                records.append(
+                    RoomAvailability(
+                        id=uuid.uuid4(),
+                        tenant_id="default",
+                        room_id=room.id,
+                        date=current,
+                        meal_period=meal_period,
+                        status=status,
+                        notes=None,
+                    )
+                )
+            current += timedelta(days=1)
+
+        db.bulk_save_objects(records)
+        db.flush()
+
+
 def _seed_demand_events(db: Session, restaurant_id: uuid.UUID, rng: random.Random) -> None:
     """Create one year of fake demand events for a restaurant.
 
@@ -654,11 +721,16 @@ def run_seed(db: Session, seed: int = 42) -> dict[str, int]:
 
     # 4. Rooms/PDRs
     restaurant_by_slug = {r.slug: r for r in restaurants}
+    all_rooms = []
     for room_data in SEED_ROOMS:
         restaurant = restaurant_by_slug.get(room_data["restaurant_slug"])
         if restaurant:
             room_payload = {k: v for k, v in room_data.items() if k != "restaurant_slug"}
-            _upsert_room(db, restaurant.id, room_payload)
+            room = _upsert_room(db, restaurant.id, room_payload)
+            all_rooms.append(room)
+
+    # 4b. Room availability (12 months, deterministic)
+    _seed_room_availability(db, all_rooms)
 
     # 5. Pricing rules
     for rule in SEED_PRICING_RULES:
@@ -676,7 +748,7 @@ def run_seed(db: Session, seed: int = 42) -> dict[str, int]:
     db.commit()
 
     # Return summary for logging
-    from app.modules.restaurants.models import Restaurant, Room
+    from app.modules.restaurants.models import Restaurant, Room, RoomAvailability
     from app.modules.personas.models import Persona, RestaurantPersona
     from app.modules.pricing.models import PricingRule
     from app.modules.enquiries.models import Enquiry, EnquiryMessage
@@ -685,6 +757,7 @@ def run_seed(db: Session, seed: int = 42) -> dict[str, int]:
     return {
         "restaurants": db.query(Restaurant).count(),
         "rooms": db.query(Room).count(),
+        "room_availability": db.query(RoomAvailability).count(),
         "personas": db.query(Persona).count(),
         "restaurant_personas": db.query(RestaurantPersona).count(),
         "pricing_rules": db.query(PricingRule).count(),
