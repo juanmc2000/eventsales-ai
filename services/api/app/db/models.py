@@ -8,7 +8,7 @@ Add a new import here whenever a new DATA-xxx issue adds a model.
 
 # ruff: noqa: F401
 
-from app.modules.restaurants.models import Restaurant, Room
+from app.modules.restaurants.models import Restaurant, Room, RoomAvailability
 from app.modules.personas.models import Persona, RestaurantPersona
 from app.modules.pricing.models import PricingRule
 from app.modules.enquiries.models import Enquiry, EnquiryMessage
@@ -19,6 +19,7 @@ from app.modules.insights.models import DemandEvent, InsightSnapshot
 __all__ = [
     "Restaurant",
     "Room",
+    "RoomAvailability",
     "Persona",
     "RestaurantPersona",
     "PricingRule",

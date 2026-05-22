@@ -54,7 +54,7 @@ def test_all_models_registered() -> None:
     from app.db.base import Base
 
     expected = {
-        "restaurants", "rooms", "personas", "restaurant_personas", "pricing_rules",
+        "restaurants", "rooms", "room_availability", "personas", "restaurant_personas", "pricing_rules",
         "enquiries", "enquiry_messages", "email_events",
         "calendar_events", "demand_events", "insight_snapshots",
     }
