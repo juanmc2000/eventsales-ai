@@ -2,7 +2,7 @@
 
 **Project:** EventSales AI
 **Phase:** POC (Proof of Concept)
-**Last Updated:** 2026-05-22
+**Last Updated:** 2026-05-23
 
 ---
 
@@ -18,6 +18,7 @@
 | Sprint 5B | Live Gmail SMTP + IMAP | ✓ Complete | #113–#114 |
 | Sprint 5C | Venue Context (Rooms/PDR) | ✓ Complete | #126–#135 |
 | Sprint 5D | Freeform Webform + Audience Routing | ✓ Complete | #138–#141 |
+| Sprint 5E | AI Transparency + Room Availability | ✓ Complete | #145, #148–#149 |
 
 ---
 
@@ -72,6 +73,16 @@
 
 ---
 
+## Sprint 5E Issues
+
+| Issue | PR | Title | Status |
+|-------|----|-------|--------|
+| DATA-008 | #145 | room_availability table, Alembic migration, deterministic seed (5,124 rows) | ✓ Merged |
+| API-013 | #148 | Room availability endpoint + AIContextOut with raw prompts in draft response | ✓ Merged |
+| UI-018 | #149 | Enrich webform response panels: AI transparency + room availability card | ✓ Merged |
+
+---
+
 ## POC Feature Coverage
 
 | Feature | Sprint | Status |
@@ -113,6 +124,13 @@
 | Audience-based persona routing (Eleanor=social, James=corporate, Sophia=agency) | 5D | ✓ |
 | RestaurantPersona audience column + Alembic migration | 5D | ✓ |
 | Freeform smoke tests (84 frontend, 332 backend total) | 5D | ✓ |
+| room_availability table (7 rooms × 366 days × 2 periods = 5,124 rows) | 5E | ✓ |
+| Room availability endpoint (`GET /restaurants/{id}/rooms/{rid}/availability?date=`) | 5E | ✓ |
+| AIContextOut in draft response (model, persona, prompts, room, spend) | 5E | ✓ |
+| Raw system prompt + user message exposed in draft response | 5E | ✓ |
+| AI Transparency Panel on webform success page (collapsible) | 5E | ✓ |
+| Room Availability Card on webform success page (status pills) | 5E | ✓ |
+| Tests: 353 backend, 84 frontend (437 total) | 5E | ✓ |
 
 ---
 
@@ -127,7 +145,7 @@
 | E2E browser test (Playwright) | P2 | 6 |
 | Audience auto-detection from email domain + CRM lookup | P2 | 6 |
 | Production email relay (SendGrid/Postmark) | P2 | Post-POC |
-| Room availability / booking engine | P3 | Post-POC |
+| Room availability — replace seed with live booking system API | P3 | Post-POC |
 
 ---
 
