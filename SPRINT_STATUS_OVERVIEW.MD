@@ -19,6 +19,7 @@
 | Sprint 5C | Venue Context (Rooms/PDR) | ✓ Complete | #126–#135 |
 | Sprint 5D | Freeform Webform + Audience Routing | ✓ Complete | #138–#141 |
 | Sprint 5E | AI Transparency + Room Availability | ✓ Complete | #145, #148–#149 |
+| Sprint 6 | AI Gateway, Prompt Registry, and Traceability | ✓ Complete | #160–#168, DOC-013 |
 
 ---
 
@@ -83,6 +84,23 @@
 
 ---
 
+## Sprint 6 Issues
+
+| Issue | PR | Title | Status |
+|-------|----|-------|--------|
+| DOC-012 | #160 | Sprint 6 plan: AI Gateway, Prompt Registry, Traceability | ✓ Merged |
+| DATA-014 | #161 | Prompt versioning and AI run trace tables (5 tables, migration) | ✓ Merged |
+| AI-003 | #162 | Prompt registry and renderer foundation | ✓ Merged |
+| AI-004 | #163 | AI Gateway service (single LLM execution entry point) | ✓ Merged |
+| AI-005 | #164 | Structured output validation for AI Gateway calls | ✓ Merged |
+| AI-006 | #165 | Migrate draft generation to AI Gateway | ✓ Merged |
+| AI-007 | #166 | Prompt run trace API (`/api/v1/ai/prompt-runs`) | ✓ Merged |
+| AI-008 | #167 | Training example capture from prompt runs | ✓ Merged |
+| TEST-007 | #168 | AI Gateway and prompt traceability tests (140 new tests) | ✓ Merged |
+| DOC-013 | DOC-013 PR | AI architecture and prompt governance notes | ✓ Merged |
+
+---
+
 ## POC Feature Coverage
 
 | Feature | Sprint | Status |
@@ -131,6 +149,15 @@
 | AI Transparency Panel on webform success page (collapsible) | 5E | ✓ |
 | Room Availability Card on webform success page (status pills) | 5E | ✓ |
 | Tests: 353 backend, 84 frontend (437 total) | 5E | ✓ |
+| AI Gateway (single LLM execution entry point, all prompts routed through gateway) | 6 | ✓ |
+| Prompt registry (code-first frozen dataclasses, 5 prompt definitions, SHA-256 hashing) | 6 | ✓ |
+| Prompt renderer (Python string.Formatter, required/optional variable validation) | 6 | ✓ |
+| Structured output validation (DraftEmailOutput, EnquiryExtractionOutput, Pydantic) | 6 | ✓ |
+| AI run trace tables (ai_prompt_runs, ai_prompt_templates, ai_prompt_versions, etc.) | 6 | ✓ |
+| Prompt run trace API (`GET /api/v1/ai/prompt-runs`, `GET /api/v1/ai/prompt-runs/{id}`) | 6 | ✓ |
+| Training example capture (POST/GET `/api/v1/ai/training-examples`) | 6 | ✓ |
+| prompt_run_id exposed in draft response (AIContextOut) | 6 | ✓ |
+| Tests: 493 backend, 84 frontend (577 total) | 6 | ✓ |
 
 ---
 
@@ -158,4 +185,6 @@
 | `docs/sprints/sprint-005-completion-review.md` | Sprint 5A delivery review |
 | `docs/demo/poc-demo-guide.md` (updated) | Demo walkthrough including venue context and room selection |
 | `docs/sprints/sprint-005c-venue-context.md` | Sprint 5C delivery review |
+| `docs/sprints/sprint-006-ai-gateway-prompt-registry.md` | Sprint 6 plan: AI Gateway, Prompt Registry, Traceability |
+| `docs/development/ai-gateway.md` | AI Gateway architecture and prompt governance |
 | `CLAUDE.md` | Developer and AI assistant instructions |
