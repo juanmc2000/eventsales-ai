@@ -317,3 +317,70 @@ def _match_room(rooms: list, party_size: int | None, preferred_area: str | None)
 
     # 3. First room
     return rooms[0]
+
+
+# ── Training Example Service ───────────────────────────────────────────────────
+
+
+class TrainingExampleService:
+    """Manages creation and retrieval of AI training examples.
+
+    Training examples capture original LLM outputs alongside optional
+    human corrections for future evaluation or fine-tuning.
+
+    Every example must link to an existing ai_prompt_run.
+    No fine-tuning or dataset export is implemented in the POC.
+    """
+
+    def __init__(self, db: Session) -> None:
+        from app.modules.ai.repository import AIPromptRunRepository
+        self._repo = AIPromptRunRepository(db)
+        self._db = db
+
+    def create(self, data: dict) -> object:
+        """Create a training example for a given prompt run.
+
+        Validates that the prompt_run exists.
+        Populates original_output from the run's parsed_response where available.
+        Raises ValueError if the prompt_run does not exist.
+        """
+        run_id = data.get("prompt_run_id")
+        run = self._repo.get_run(run_id)
+        if run is None:
+            raise ValueError(f"Prompt run {run_id} not found.")
+
+        record = {
+            "prompt_run_id": run_id,
+            "tenant_id": run.tenant_id,
+            "prompt_key": run.prompt_key,
+            "original_output": run.parsed_response,
+            "corrected_output": data.get("corrected_output"),
+            "correction_reason": data.get("correction_reason"),
+            "quality_rating": data.get("quality_rating"),
+            "approved_for_training": data.get("approved_for_training", False),
+            "reviewed_by_user_id": data.get("reviewed_by_user_id"),
+        }
+        example = self._repo.create_training_example_from_data(record)
+        self._db.commit()
+        return example
+
+    def get(self, example_id) -> object | None:
+        """Return a training example by ID, or None."""
+        return self._repo.get_training_example(example_id)
+
+    def list(
+        self,
+        prompt_key: str | None = None,
+        prompt_run_id=None,
+        approved_only: bool = False,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> tuple[list, int]:
+        """Return paginated training examples with optional filters."""
+        return self._repo.list_training_examples(
+            prompt_key=prompt_key,
+            prompt_run_id=prompt_run_id,
+            approved_only=approved_only,
+            skip=skip,
+            limit=limit,
+        )

@@ -1,12 +1,16 @@
-"""Read-only API endpoints for AI prompt run traces.
+"""API endpoints for AI prompt runs and training examples.
 
-Endpoints:
-  GET /api/v1/ai/prompt-runs          — paginated list with filters
-  GET /api/v1/ai/prompt-runs/{id}     — full detail (admin/debugging only)
+Prompt run endpoints (read-only):
+  GET  /api/v1/ai/prompt-runs          — paginated list with filters
+  GET  /api/v1/ai/prompt-runs/{id}     — full detail (admin/debugging only)
+
+Training example endpoints:
+  POST /api/v1/ai/training-examples          — create a training example
+  GET  /api/v1/ai/training-examples          — paginated list with filters
+  GET  /api/v1/ai/training-examples/{id}     — single training example
 
 These endpoints are for internal debugging and quality review.
 They must not be exposed on the frontend or used by guest-facing flows.
-Rendered prompts and raw responses are only included in the detail endpoint.
 """
 
 import uuid
@@ -16,13 +20,25 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.modules.ai.repository import AIPromptRunRepository
-from app.modules.ai.schemas import PromptRunDetailOut, PromptRunListOut, PromptRunOut
+from app.modules.ai.schemas import (
+    PromptRunDetailOut,
+    PromptRunListOut,
+    PromptRunOut,
+    TrainingExampleCreate,
+    TrainingExampleListOut,
+    TrainingExampleOut,
+)
 
 router = APIRouter(prefix="/api/v1/ai", tags=["ai"])
 
 
 def get_repo(db: Session = Depends(get_db)) -> AIPromptRunRepository:
     return AIPromptRunRepository(db)
+
+
+def get_training_service(db: Session = Depends(get_db)):  # type: ignore[return]
+    from app.modules.ai.service import TrainingExampleService
+    return TrainingExampleService(db)
 
 
 @router.get("/prompt-runs", response_model=PromptRunListOut)
@@ -74,3 +90,60 @@ def get_prompt_run(
     if run is None:
         raise HTTPException(status_code=404, detail=f"Prompt run {prompt_run_id} not found")
     return PromptRunDetailOut.model_validate(run)
+
+
+# ── Training example endpoints ────────────────────────────────────────────────
+
+
+@router.post("/training-examples", response_model=TrainingExampleOut, status_code=201)
+def create_training_example(
+    data: TrainingExampleCreate,
+    service=Depends(get_training_service),
+) -> TrainingExampleOut:
+    """Create a training example linked to an existing prompt run.
+
+    The original_output is automatically populated from the run's parsed_response.
+    Raises 404 if the prompt run does not exist.
+    """
+    try:
+        example = service.create(data.model_dump())
+        return TrainingExampleOut.model_validate(example)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+
+
+@router.get("/training-examples", response_model=TrainingExampleListOut)
+def list_training_examples(
+    prompt_key: str | None = Query(default=None),
+    prompt_run_id: uuid.UUID | None = Query(default=None),
+    approved_only: bool = Query(default=False),
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=1, le=200),
+    service=Depends(get_training_service),
+) -> TrainingExampleListOut:
+    """List training examples with optional filters."""
+    examples, total = service.list(
+        prompt_key=prompt_key,
+        prompt_run_id=prompt_run_id,
+        approved_only=approved_only,
+        skip=skip,
+        limit=limit,
+    )
+    return TrainingExampleListOut(
+        items=[TrainingExampleOut.model_validate(e) for e in examples],
+        total=total,
+        skip=skip,
+        limit=limit,
+    )
+
+
+@router.get("/training-examples/{example_id}", response_model=TrainingExampleOut)
+def get_training_example(
+    example_id: uuid.UUID,
+    service=Depends(get_training_service),
+) -> TrainingExampleOut:
+    """Return a single training example by ID."""
+    example = service.get(example_id)
+    if example is None:
+        raise HTTPException(status_code=404, detail=f"Training example {example_id} not found")
+    return TrainingExampleOut.model_validate(example)

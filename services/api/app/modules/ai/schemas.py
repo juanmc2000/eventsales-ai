@@ -188,3 +188,44 @@ class PromptRunListOut(BaseModel):
     total: int
     skip: int
     limit: int
+
+
+# ── Training example schemas ──────────────────────────────────────────────────
+
+
+class TrainingExampleCreate(BaseModel):
+    """Request body for creating a training example."""
+
+    prompt_run_id: uuid.UUID
+    corrected_output: dict[str, Any] | None = None
+    correction_reason: str | None = None
+    quality_rating: int | None = None  # 1–5
+    approved_for_training: bool = False
+    reviewed_by_user_id: str | None = None
+
+
+class TrainingExampleOut(BaseModel):
+    """Response body for a training example."""
+
+    model_config = {"from_attributes": True}
+
+    id: uuid.UUID
+    prompt_run_id: uuid.UUID
+    tenant_id: str | None
+    prompt_key: str | None
+    original_output: dict[str, Any] | None
+    corrected_output: dict[str, Any] | None
+    correction_reason: str | None
+    reviewed_by_user_id: str | None
+    quality_rating: int | None
+    approved_for_training: bool
+    created_at: datetime
+
+
+class TrainingExampleListOut(BaseModel):
+    """Paginated list of training examples."""
+
+    items: list[TrainingExampleOut]
+    total: int
+    skip: int
+    limit: int
