@@ -103,3 +103,59 @@ class AIPromptRunRepository:
         self._db.add(example)
         self._db.flush()
         return example
+
+    def create_training_example_from_data(self, data: dict[str, Any]) -> AITrainingExample:
+        """Insert a training example from a caller-supplied data dict."""
+        example = AITrainingExample(id=uuid.uuid4(), **data)
+        self._db.add(example)
+        self._db.flush()
+        return example
+
+    def get_training_example(self, example_id: uuid.UUID) -> AITrainingExample | None:
+        """Return the training example for the given ID, or None."""
+        return self._db.get(AITrainingExample, example_id)
+
+    def get_training_example_by_run_id(self, run_id: uuid.UUID) -> AITrainingExample | None:
+        """Return the training example linked to the given run, or None."""
+        stmt = select(AITrainingExample).where(AITrainingExample.prompt_run_id == run_id)
+        return self._db.scalars(stmt).first()
+
+    def list_training_examples(
+        self,
+        prompt_key: str | None = None,
+        prompt_run_id: uuid.UUID | None = None,
+        approved_only: bool = False,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> tuple[list[AITrainingExample], int]:
+        """Return paginated training examples with optional filters."""
+        stmt = select(AITrainingExample)
+        count_stmt = select(AITrainingExample)
+
+        if prompt_key is not None:
+            stmt = stmt.where(AITrainingExample.prompt_key == prompt_key)
+            count_stmt = count_stmt.where(AITrainingExample.prompt_key == prompt_key)
+        if prompt_run_id is not None:
+            stmt = stmt.where(AITrainingExample.prompt_run_id == prompt_run_id)
+            count_stmt = count_stmt.where(AITrainingExample.prompt_run_id == prompt_run_id)
+        if approved_only:
+            stmt = stmt.where(AITrainingExample.approved_for_training.is_(True))
+            count_stmt = count_stmt.where(AITrainingExample.approved_for_training.is_(True))
+
+        total = len(self._db.scalars(count_stmt).all())
+        examples = list(
+            self._db.scalars(
+                stmt.order_by(AITrainingExample.created_at.desc()).offset(skip).limit(limit)
+            ).all()
+        )
+        return examples, total
+
+    def update_training_example(self, example_id: uuid.UUID, updates: dict[str, Any]) -> AITrainingExample:
+        """Apply field updates to an existing training example and flush."""
+        example = self._db.get(AITrainingExample, example_id)
+        if example is None:
+            raise ValueError(f"AITrainingExample {example_id} not found")
+        for key, value in updates.items():
+            setattr(example, key, value)
+        self._db.flush()
+        return example
