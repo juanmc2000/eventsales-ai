@@ -32,6 +32,7 @@ from app.modules.calendar.router import calendar_router, router as demand_events
 from app.modules.enquiries.router import router as enquiries_router
 from app.modules.dashboard.router import router as dashboard_router
 from app.modules.email.router import router as email_router
+from app.modules.ai.router import router as ai_router
 
 app.include_router(restaurants_router)
 app.include_router(personas_router)
@@ -42,3 +43,4 @@ app.include_router(calendar_router)
 app.include_router(enquiries_router)
 app.include_router(dashboard_router)
 app.include_router(email_router)
+app.include_router(ai_router)
