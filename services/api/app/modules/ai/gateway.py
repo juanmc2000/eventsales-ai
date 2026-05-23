@@ -34,6 +34,7 @@ from app.modules.ai.constants import (
     TRIGGER_SOURCE_API,
     VALIDATION_SKIPPED,
 )
+from app.modules.ai.validators import OutputValidator
 from app.modules.ai.prompt_registry import PromptRegistry
 from app.modules.ai.prompt_renderer import MissingPromptVariables, PromptRenderer
 from app.modules.ai.provider import make_provider
@@ -45,6 +46,7 @@ logger = logging.getLogger(__name__)
 # Module-level singletons — constructed once per process
 _registry = PromptRegistry()
 _renderer = PromptRenderer()
+_validator = OutputValidator()
 
 
 class AIGateway:
@@ -175,10 +177,20 @@ class AIGateway:
 
         latency_ms = int((time.monotonic() - start) * 1000)
 
-        # ── 6. Update run record with result ──────────────────────────────────
+        # ── 6. Validate structured output ─────────────────────────────────────
+        validation = _validator.validate(
+            raw_response=raw_response,
+            schema_name=defn.output_schema_name,
+            is_fallback=False,
+        )
+
+        # ── 7. Update run record with result ──────────────────────────────────
         try:
             self._repo.update_run(run.id, {
                 "raw_response": raw_response,
+                "parsed_response": validation.parsed,
+                "validation_status": validation.status,
+                "validation_errors": validation.errors,
                 "latency_ms": latency_ms,
                 "status": run_status,
                 "error_message": error_message,
@@ -186,7 +198,7 @@ class AIGateway:
         except Exception as exc:  # noqa: BLE001
             logger.error("Failed to update ai_prompt_run %s: %s", run.id, exc)
 
-        # ── 7. Return result ──────────────────────────────────────────────────
+        # ── 8. Return result ──────────────────────────────────────────────────
         return AIGatewayResult(
             run_id=run.id,
             prompt_key=defn.key,
@@ -198,7 +210,9 @@ class AIGateway:
             raw_response=raw_response,
             is_fallback=False,
             fallback_reason=None,
-            validation_status=VALIDATION_SKIPPED,
+            validation_status=validation.status,
+            parsed_response=validation.parsed,
+            validation_errors=validation.errors,
             latency_ms=latency_ms,
             status=run_status,
             error_message=error_message,

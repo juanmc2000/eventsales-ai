@@ -114,6 +114,8 @@ class AIGatewayResult:
     validation_status: str
     latency_ms: int
     status: str
+    parsed_response: dict | None = field(default=None)
+    validation_errors: list | None = field(default=None)
     error_message: str | None = field(default=None)
 
 
