@@ -15,6 +15,13 @@ from app.modules.enquiries.models import Enquiry, EnquiryMessage
 from app.modules.email.models import EmailEvent
 from app.modules.calendar.models import CalendarEvent
 from app.modules.insights.models import DemandEvent, InsightSnapshot
+from app.modules.ai.models import (
+    AIPromptTemplate,
+    AIPromptVersion,
+    TenantPromptConfig,
+    AIPromptRun,
+    AITrainingExample,
+)
 
 __all__ = [
     "Restaurant",
@@ -29,4 +36,9 @@ __all__ = [
     "CalendarEvent",
     "DemandEvent",
     "InsightSnapshot",
+    "AIPromptTemplate",
+    "AIPromptVersion",
+    "TenantPromptConfig",
+    "AIPromptRun",
+    "AITrainingExample",
 ]
