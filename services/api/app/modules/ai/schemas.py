@@ -72,6 +72,52 @@ class AIContextOut:
 
 
 @dataclass
+class AIGatewayRequest:
+    """Input to the AI Gateway for a single LLM call.
+
+    input_payload contains the template variables to be rendered into the
+    system and user prompt templates.  It must satisfy the required_variables
+    of the selected PromptDefinition.
+    """
+
+    prompt_key: str
+    input_payload: dict
+    tenant_id: str | None = field(default=None)
+    restaurant_id: uuid.UUID | None = field(default=None)
+    persona_id: uuid.UUID | None = field(default=None)
+    enquiry_id: uuid.UUID | None = field(default=None)
+    trigger_type: str | None = field(default=None)
+    trigger_source: str | None = field(default=None)
+    triggered_by_user_id: str | None = field(default=None)
+    # Optional: output schema class used for structured validation (AI-005)
+    output_schema: type | None = field(default=None)
+
+
+@dataclass
+class AIGatewayResult:
+    """Typed result returned by the AI Gateway after executing a prompt run.
+
+    Every run — including fallback runs — produces a result.
+    raw_response is None for fallback runs.
+    """
+
+    run_id: uuid.UUID
+    prompt_key: str
+    prompt_version: int
+    model_name: str
+    model_provider: str
+    rendered_system_prompt: str | None
+    rendered_user_prompt: str | None
+    raw_response: str | None
+    is_fallback: bool
+    fallback_reason: str | None
+    validation_status: str
+    latency_ms: int
+    status: str
+    error_message: str | None = field(default=None)
+
+
+@dataclass
 class DraftGenerationResult:
     """Structured output of the draft generation service.
 

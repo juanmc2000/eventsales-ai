@@ -36,6 +36,14 @@ class LLMProvider(Protocol):
         """
         ...
 
+    def generate_from_prompts(self, system_prompt: str, user_prompt: str) -> str:
+        """Generate a response from pre-rendered system and user prompts.
+
+        Used by the AI Gateway which renders prompts itself before calling
+        the provider.  Returns the raw response text.
+        """
+        ...
+
 
 # ── Fallback provider ──────────────────────────────────────────────────────────
 
@@ -48,6 +56,12 @@ class FallbackProvider:
     """
 
     model_name = "fallback"
+
+    def generate_from_prompts(self, system_prompt: str, user_prompt: str) -> str:
+        """Fallback does not use pre-rendered prompts; returns a minimal placeholder."""
+        return (
+            "Thank you for your enquiry. A member of our team will be in touch shortly."
+        )
 
     def generate(self, context: DraftContext) -> str:
         event_line = _format_event_line(context)
@@ -96,6 +110,22 @@ class AnthropicProvider:
     @property
     def model_name(self) -> str:
         return self._model
+
+    def generate_from_prompts(self, system_prompt: str, user_prompt: str) -> str:
+        """Call Anthropic with pre-rendered system and user prompts.
+
+        Used by the AI Gateway.  Raises on failure — the gateway handles errors.
+        """
+        import anthropic
+
+        client = anthropic.Anthropic(api_key=self._api_key)
+        response = client.messages.create(
+            model=self._model,
+            max_tokens=800,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_prompt}],
+        )
+        return response.content[0].text.strip()
 
     def generate(self, context: DraftContext) -> str:
         try:
