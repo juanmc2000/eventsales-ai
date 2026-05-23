@@ -63,9 +63,13 @@ RUN_STATUS_ERROR = "error"
 
 # ── Validation statuses ──────────────────────────────────────────────────────
 
-VALIDATION_PASSED = "passed"
-VALIDATION_FAILED = "failed"
-VALIDATION_SKIPPED = "skipped"
+VALIDATION_PENDING = "pending"
+VALIDATION_PASSED = "passed"          # JSON parsed + schema validated
+VALIDATION_FAILED = "invalid"         # JSON parsed but schema validation failed
+VALIDATION_PARSE_ERROR = "parse_error"  # Response could not be parsed as JSON
+VALIDATION_SKIPPED = "skipped"        # No schema declared or fallback run
+VALIDATION_FALLBACK_VALID = "fallback_valid"     # Fallback + schema OK
+VALIDATION_FALLBACK_INVALID = "fallback_invalid"  # Fallback + schema failed
 
 # ── Trigger types ────────────────────────────────────────────────────────────
 
