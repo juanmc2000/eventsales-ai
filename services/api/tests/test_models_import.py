@@ -43,6 +43,11 @@ def test_all_tables_in_metadata() -> None:
         "calendar_events",
         "demand_events",
         "insight_snapshots",
+        "ai_prompt_templates",
+        "ai_prompt_versions",
+        "tenant_prompt_configs",
+        "ai_prompt_runs",
+        "ai_training_examples",
     }
     actual_tables = set(Base.metadata.tables.keys())
     assert expected_tables == actual_tables, (
