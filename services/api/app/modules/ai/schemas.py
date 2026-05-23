@@ -12,6 +12,10 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Any
+
+from pydantic import BaseModel
 
 
 @dataclass
@@ -135,3 +139,52 @@ class DraftGenerationResult:
     is_fallback: bool               # True when generated without an LLM call
     model: str                      # Model name or "fallback"
     ai_context: AIContextOut | None = field(default=None)
+
+
+# ── API response schemas (Pydantic) ───────────────────────────────────────────
+
+
+class PromptRunOut(BaseModel):
+    """Summary of a single ai_prompt_run row, safe for list responses."""
+
+    model_config = {"from_attributes": True}
+
+    id: uuid.UUID
+    prompt_key: str | None
+    prompt_version: int | None
+    trigger_type: str | None
+    restaurant_id: uuid.UUID | None
+    enquiry_id: uuid.UUID | None
+    persona_id: uuid.UUID | None
+    model_provider: str | None
+    model_name: str | None
+    validation_status: str | None
+    fallback_used: bool
+    fallback_reason: str | None
+    status: str
+    latency_ms: int | None
+    created_at: datetime
+
+
+class PromptRunDetailOut(PromptRunOut):
+    """Full detail of a prompt run, including rendered prompts and raw response.
+
+    Intended for backend/admin debugging only — not for the frontend.
+    """
+
+    rendered_system_prompt: str | None
+    rendered_user_prompt: str | None
+    raw_response: str | None
+    parsed_response: dict[str, Any] | None
+    validation_errors: list[dict[str, Any]] | None
+    input_hash: str | None
+    error_message: str | None
+
+
+class PromptRunListOut(BaseModel):
+    """Paginated list of prompt run summaries."""
+
+    items: list[PromptRunOut]
+    total: int
+    skip: int
+    limit: int
