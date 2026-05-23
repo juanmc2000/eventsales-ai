@@ -1,17 +1,17 @@
 """Draft generation service.
 
-Orchestrates context assembly, LLM provider selection, draft generation,
+Orchestrates context assembly, AI Gateway invocation, draft generation,
 and persistence of the draft as an outbound EnquiryMessage.
 
 Responsibilities:
 - Load enquiry, persona, and restaurant from the database.
-- Assemble DraftContext from the loaded records.
-- Select the appropriate LLM provider (Anthropic or Fallback).
-- Generate the draft body.
+- Assemble DraftContext and input_payload from the loaded records.
+- Call AIGateway.run() — no direct provider calls.
+- Generate the fallback draft body when the gateway returns is_fallback=True.
 - Persist the draft as an outbound 'draft' channel EnquiryMessage.
 - Return a DraftGenerationResult to the caller.
 
-The raw prompt is never returned or stored.
+The AI Gateway handles all LLM calls, prompt resolution, and trace logging.
 """
 
 from __future__ import annotations
@@ -22,8 +22,19 @@ from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.modules.ai.provider import build_system_prompt, build_user_message, make_provider
-from app.modules.ai.schemas import AIContextOut, DraftContext, DraftGenerationResult
+from app.modules.ai.constants import (
+    PROMPT_KEY_DRAFT_RESPONSE,
+    TRIGGER_MANUAL_GENERATE_DRAFT,
+    TRIGGER_SOURCE_API,
+)
+from app.modules.ai.gateway import AIGateway
+from app.modules.ai.provider import FallbackProvider
+from app.modules.ai.schemas import (
+    AIContextOut,
+    AIGatewayRequest,
+    DraftContext,
+    DraftGenerationResult,
+)
 from app.modules.enquiries.repository import EnquiryRepository
 from app.modules.personas.repository import PersonaRepository
 from app.modules.restaurants.repository import RestaurantRepository, RoomRepository
@@ -37,8 +48,15 @@ class DraftGenerationService:
         self._restaurant_repo = RestaurantRepository(db)
         self._room_repo = RoomRepository(db)
 
-    def generate_draft(self, enquiry_id: uuid.UUID) -> DraftGenerationResult:
+    def generate_draft(
+        self,
+        enquiry_id: uuid.UUID,
+        trigger_type: str = TRIGGER_MANUAL_GENERATE_DRAFT,
+    ) -> DraftGenerationResult:
         """Generate and store a persona-based draft response for an enquiry.
+
+        Routes all LLM calls through AIGateway.run().
+        Falls back to template-based generation when no API key is configured.
 
         Raises ValueError if the enquiry does not exist.
         """
@@ -89,6 +107,7 @@ class DraftGenerationService:
             preferred_area=preferred_area,
         )
 
+        # Build DraftContext for fallback body generation (preserved behavior)
         context = DraftContext(
             enquiry_id=enquiry_id,
             guest_first_name=enquiry.first_name,
@@ -116,20 +135,35 @@ class DraftGenerationService:
             room_is_private_dining=room.is_private_dining if room else False,
         )
 
-        # Select provider based on configured API key
-        provider, is_fallback = make_provider(settings.anthropic_api_key)
+        # Build input_payload for the draft_response prompt template
+        input_payload = _build_draft_input_payload(context)
 
-        # Capture prompts before generating (only meaningful for AnthropicProvider)
-        system_prompt: str | None = None
-        user_message: str | None = None
-        if not is_fallback:
-            system_prompt = build_system_prompt(context)
-            user_message = build_user_message(context)
+        # ── Call AI Gateway (single entry point for all LLM calls) ────────────
+        gateway = AIGateway(db=self._db, api_key=settings.anthropic_api_key)
+        gateway_result = gateway.run(AIGatewayRequest(
+            prompt_key=PROMPT_KEY_DRAFT_RESPONSE,
+            input_payload=input_payload,
+            tenant_id="default",
+            restaurant_id=enquiry.restaurant_id,
+            persona_id=enquiry.persona_id,
+            enquiry_id=enquiry_id,
+            trigger_type=trigger_type,
+            trigger_source=TRIGGER_SOURCE_API,
+        ))
 
-        draft_body = provider.generate(context)
+        # ── Determine draft body ──────────────────────────────────────────────
+        is_fallback = gateway_result.is_fallback
+        model_name = gateway_result.model_name
 
+        if is_fallback or not gateway_result.raw_response:
+            # No LLM response — use template-based fallback (pure Python, no API call)
+            draft_body = FallbackProvider().generate(context)
+        else:
+            draft_body = gateway_result.raw_response
+
+        # ── Build AI transparency context ─────────────────────────────────────
         ai_context = AIContextOut(
-            model=provider.model_name,
+            model=model_name,
             is_fallback=is_fallback,
             persona_name=persona_name,
             persona_tone=persona_tone,
@@ -137,8 +171,9 @@ class DraftGenerationService:
             guest_message_used=guest_message,
             room_name=context.room_name,
             recommended_minimum_spend=recommended_minimum_spend,
-            system_prompt=system_prompt,
-            user_message=user_message,
+            system_prompt=gateway_result.rendered_system_prompt,
+            user_message=gateway_result.rendered_user_prompt,
+            prompt_run_id=gateway_result.run_id if not is_fallback else None,
         )
 
         subject = _build_subject(enquiry.first_name, enquiry.last_name, enquiry.event_type)
@@ -163,12 +198,70 @@ class DraftGenerationService:
             body=draft_body,
             persona_name=persona_name,
             is_fallback=is_fallback,
-            model=provider.model_name,
+            model=model_name,
             ai_context=ai_context,
         )
 
 
 # ── Internal helpers ───────────────────────────────────────────────────────────
+
+
+def _build_draft_input_payload(context: DraftContext) -> dict:
+    """Build the input_payload dict for the draft_response prompt template.
+
+    Converts DraftContext fields into the {variable} placeholders used by
+    the prompt template.  Optional line variables are pre-formatted so the
+    renderer can substitute them as complete lines.
+    """
+    payload: dict = {
+        # Required variables
+        "persona_system_prompt": context.persona_system_prompt or "",
+        "persona_name": context.persona_name,
+        "restaurant_name": context.restaurant_name,
+        "persona_tone": context.persona_tone,
+        "persona_style": context.persona_style,
+        "guest_first_name": context.guest_first_name,
+        "guest_last_name": context.guest_last_name,
+        # Optional line variables — empty string when absent
+        "event_type_line": (
+            f"Event type: {context.event_type.replace('_', ' ').title()}\n"
+            if context.event_type else ""
+        ),
+        "event_date_line": (
+            f"Event date: {context.event_date}\n" if context.event_date else ""
+        ),
+        "party_size_line": (
+            f"Party size: {context.party_size}\n" if context.party_size else ""
+        ),
+        "spend_line": (
+            f"Recommended minimum spend: £{context.recommended_minimum_spend:,.0f}\n"
+            if context.recommended_minimum_spend and context.recommended_minimum_spend > 0
+            else ""
+        ),
+        "guest_message_line": (
+            f'Guest message: "{context.guest_message}"\n' if context.guest_message else ""
+        ),
+        "room_lines": _build_room_lines(context),
+    }
+    return payload
+
+
+def _build_room_lines(context: DraftContext) -> str:
+    """Format room context as a multi-line string for the prompt template."""
+    if not context.room_name:
+        return ""
+    parts = [f"Suggested space: {context.room_name}"]
+    if context.room_seated_capacity:
+        parts.append(f"Seated capacity: {context.room_seated_capacity}")
+    if context.room_layouts:
+        parts.append(f"Available layouts: {', '.join(context.room_layouts)}")
+    if context.room_amenities:
+        parts.append(f"Amenities: {', '.join(context.room_amenities)}")
+    if context.room_suitability_notes:
+        parts.append(f"Suitability: {context.room_suitability_notes}")
+    if context.room_booking_url:
+        parts.append(f"Booking URL: {context.room_booking_url}")
+    return "\n".join(parts) + "\n"
 
 
 def _extract_guest_message(notes: str | None) -> str | None:

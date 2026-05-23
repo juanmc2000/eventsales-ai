@@ -69,6 +69,7 @@ class AIContextOut:
     recommended_minimum_spend: float | None
     system_prompt: str | None       # Exact system prompt sent to Claude; None for fallback
     user_message: str | None        # Exact user message sent to Claude; None for fallback
+    prompt_run_id: uuid.UUID | None = field(default=None)  # ai_prompt_runs.id for this call
 
 
 @dataclass
