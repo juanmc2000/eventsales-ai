@@ -65,6 +65,22 @@ class Enquiry(Base):
         onupdate=func.now(),
     )
 
+    @property
+    def recommended_minimum_spend(self) -> float | None:
+        """Expose recommended_minimum_spend stored in metadata_ as a first-class attribute.
+
+        Used by EnquiryOut (from_attributes=True) so Pydantic can read this field
+        directly from the ORM object without a custom validator.
+        """
+        if self.metadata_ and isinstance(self.metadata_, dict):
+            raw = self.metadata_.get("recommended_minimum_spend")
+            if raw is not None:
+                try:
+                    return float(raw)
+                except (TypeError, ValueError):
+                    pass
+        return None
+
     # Relationships
     restaurant: Mapped["Restaurant"] = relationship("Restaurant", back_populates="enquiries")
     persona: Mapped["Persona | None"] = relationship("Persona")

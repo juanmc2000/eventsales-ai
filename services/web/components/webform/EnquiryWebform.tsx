@@ -1030,7 +1030,7 @@ type FreeformResult = {
   persona_name: string | null;
   audience_type: string | null;
   draft: EnquiryDraft | null;
-  emailSent: boolean;
+  emailSent: boolean | null;
   smtpDisabled: boolean;
   reply_email: string;
   restaurantId: string;
@@ -1124,19 +1124,21 @@ function FreeformSuccessPanel({
               {draft?.subject ?? (draft ? "Generated" : "Generation failed")}
             </p>
           </div>
-          <div style={{ padding: "12px 16px", borderRadius: 10, background: "var(--surface-soft)", border: "1px solid var(--border)" }}>
-            <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>
-              Email Delivery
-            </p>
-            <div style={{ marginTop: 6 }}>
-              <EmailStatusBadge sent={result.emailSent} disabled={result.smtpDisabled} />
-            </div>
-            {result.emailSent && (
-              <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
-                Sent to {result.reply_email}
+          {(result.emailSent !== null || result.smtpDisabled) && (
+            <div style={{ padding: "12px 16px", borderRadius: 10, background: "var(--surface-soft)", border: "1px solid var(--border)" }}>
+              <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>
+                Email Delivery
               </p>
-            )}
-          </div>
+              <div style={{ marginTop: 6 }}>
+                <EmailStatusBadge sent={result.emailSent === true} disabled={result.smtpDisabled} />
+              </div>
+              {result.emailSent === true && (
+                <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
+                  Sent to {result.reply_email}
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Draft preview */}
@@ -1339,7 +1341,7 @@ function FreeformEnquiryForm({ restaurants }: { restaurants: Restaurant[] }) {
         : null;
 
       // Send via SMTP (best-effort)
-      let emailSent = false;
+      let emailSent: boolean | null = null;
       let smtpDisabled = false;
       if (draft) {
         setStep("Sending email…");
@@ -1356,9 +1358,11 @@ function FreeformEnquiryForm({ restaurants }: { restaurants: Restaurant[] }) {
             emailSent = true;
           } else if (sendRes.status === 503) {
             smtpDisabled = true;
+          } else {
+            emailSent = false;
           }
         } catch {
-          // network error — treat as not sent
+          emailSent = false;
         }
       }
 
