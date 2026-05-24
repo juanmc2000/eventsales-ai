@@ -75,12 +75,18 @@ VALIDATION_FALLBACK_INVALID = "fallback_invalid"  # Fallback + schema failed
 
 TRIGGER_TYPE_DRAFT_GENERATION = "draft_generation"
 TRIGGER_TYPE_INTAKE = "intake"
+TRIGGER_TYPE_EXTRACTION = "extraction"
 
 # Draft generation trigger sub-types
 TRIGGER_MANUAL_GENERATE_DRAFT = "manual_generate_draft"
 TRIGGER_REGENERATE_DRAFT = "regenerate_draft"
 TRIGGER_WEBFORM_INTAKE_AUTO_DRAFT = "webform_intake_auto_draft"
 TRIGGER_FREEFORM_WEBFORM_AUTO_DRAFT = "freeform_webform_auto_draft"
+
+# Extraction trigger sub-types (API-014)
+TRIGGER_FREEFORM_WEBFORM_SUBMITTED = "freeform_webform_submitted"
+TRIGGER_INBOUND_EMAIL_RECEIVED = "inbound_email_received"
+TRIGGER_MANUAL_REEXTRACT = "manual_reextract"
 
 TRIGGER_SOURCE_API = "api"
 TRIGGER_SOURCE_CELERY = "celery"
