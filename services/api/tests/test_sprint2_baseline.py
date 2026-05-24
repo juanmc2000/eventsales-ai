@@ -55,7 +55,8 @@ def test_all_models_registered() -> None:
 
     expected = {
         "restaurants", "rooms", "room_availability", "personas", "restaurant_personas", "pricing_rules",
-        "enquiries", "enquiry_messages", "email_events",
+        "enquiries", "enquiry_messages", "enquiry_extractions", "enquiry_processing_snapshots",
+        "email_events",
         "calendar_events", "demand_events", "insight_snapshots",
         "ai_prompt_templates", "ai_prompt_versions", "tenant_prompt_configs",
         "ai_prompt_runs", "ai_training_examples",

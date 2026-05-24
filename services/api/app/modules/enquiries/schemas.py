@@ -149,3 +149,39 @@ class DraftResponseOut(BaseModel):
     model: str | None = None
     generated_at: datetime
     ai_context: AIContextOut | None = None
+
+
+# ── Extraction and processing schemas ──────────────────────────────────────────
+
+
+class EnquiryExtractionOut(BaseModel):
+    """API response for a stored enquiry extraction row."""
+
+    id: uuid.UUID
+    enquiry_id: uuid.UUID
+    source_message_id: uuid.UUID | None = None
+    prompt_run_id: uuid.UUID | None = None
+    extracted_json: dict | None = None
+    normalized_json: dict | None = None
+    missing_fields: list[str] | None = None
+    confidence_json: dict | None = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class EnquiryProcessingSnapshotOut(BaseModel):
+    """API response for a stored enquiry processing snapshot row."""
+
+    id: uuid.UUID
+    enquiry_id: uuid.UUID
+    extraction_id: uuid.UUID
+    pricing_rule_id: uuid.UUID | None = None
+    availability_result_json: dict | None = None
+    room_suitability_json: dict | None = None
+    pricing_result_json: dict | None = None
+    missing_fields_json: list[str] | None = None
+    recommended_action: str | None = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}

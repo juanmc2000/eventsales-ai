@@ -39,6 +39,8 @@ def test_all_tables_in_metadata() -> None:
         "pricing_rules",
         "enquiries",
         "enquiry_messages",
+        "enquiry_extractions",
+        "enquiry_processing_snapshots",
         "email_events",
         "calendar_events",
         "demand_events",
