@@ -1,6 +1,6 @@
 # AI Gateway — Architecture and Prompt Governance
 
-**Sprint:** 6
+**Sprint:** 6 (architecture) · Sprint 7 (freeform extraction + processing split)
 **Status:** Implemented (POC)
 
 ---
@@ -214,6 +214,95 @@ Human review is required before `approved_for_training=True`.
 
 ---
 
+---
+
+## Freeform Enquiry Workflow (Sprint 7)
+
+Freeform (natural-language) enquiry submissions use a **two-call LLM architecture**. Structured webform submissions continue to use the original single-call draft path.
+
+### Two-call POC architecture
+
+```
+POST /api/v1/enquiries/intake/freeform
+  │
+  ├─ 1. Create enquiry + inbound message (DB, no LLM)
+  │
+  ├─ 2. LLM Call 1 — Extraction (prompt_key: "enquiry_extraction")
+  │      Input:  freeform_text, restaurant_name
+  │      Output: guest_count, event_date, event_type, occasion, budget,
+  │              allergens, special_requirements, missing_fields, confidence
+  │      Stored: enquiry_extractions table
+  │
+  ├─ 3. Deterministic Processing (no LLM)
+  │      Room matching → availability lookup → pricing calculation
+  │      → recommended_action selection
+  │      Stored: enquiry_processing_snapshots table
+  │
+  └─ 4. LLM Call 2 — Draft Generation (prompt_key: "draft_response")
+         Input:  DraftContext enriched from processing snapshot
+         Output: email subject + body
+         Stored: enquiry_messages (draft)
+```
+
+**Response** includes: extraction summary, recommended action, draft subject/body — in a single HTTP response.
+
+### Three-call MVP architecture (future)
+
+A third LLM call for **response planning** (e.g. availability conflict handling, multi-room comparison) is deliberately out of scope for the POC. The deterministic processing step is the placeholder for this logic.
+
+### Deterministic processing responsibilities
+
+`EnquiryProcessingService` (`enquiries/processing_service.py`) runs between extraction and drafting. It is **pure Python — no LLM calls**:
+
+| Responsibility | Output field |
+|----------------|-------------|
+| Match a suitable room (by preferred area / capacity / display order) | `room_suitability_json` |
+| Look up availability for the matched room and event date | `availability_result_json` |
+| Calculate minimum spend via `PricingRuleService` | `pricing_result_json` |
+| Identify missing critical fields (guest_count, event_date) | `missing_fields_json` |
+| Select a recommended action | `recommended_action` |
+
+### Recommended actions
+
+| Action | Trigger condition |
+|--------|-------------------|
+| `send_availability_confirmation` | Room available, no missing critical fields |
+| `send_availability_with_missing_info_question` | Room available, missing non-critical fields |
+| `request_missing_information` | Missing critical fields (guest_count or event_date) |
+| `suggest_alternative_room` | No room matched or preferred room not available |
+| `escalate_to_human` | Multiple conflicts, unusual requirements |
+| `unable_to_process` | Extraction failed, no usable data |
+
+### Storage tables (Sprint 7)
+
+| Table | Purpose |
+|-------|---------|
+| `enquiry_extractions` | One row per extraction run; stores extracted_json, normalized_json, missing_fields, confidence_json |
+| `enquiry_processing_snapshots` | One row per processing run; stores availability, room suitability, pricing, recommended_action |
+
+Both tables have `enquiry_id` foreign keys and are created by Alembic migration `20260524_000006`.
+
+### Draft context enrichment
+
+`DraftGenerationService.generate_draft()` loads the latest `EnquiryProcessingSnapshot` for the enquiry and enriches `DraftContext` using `dataclasses.replace()` (immutable pattern):
+
+- `availability_status`, `availability_date`, `availability_meal_period`
+- `confirmed_minimum_spend`, `pricing_explanation`
+- `missing_questions`, `recommended_action`
+
+These fields become optional variables in the `draft_response` prompt template (V2).
+
+### Prompt versioning (Sprint 7)
+
+| Prompt key | V1 | V2 |
+|------------|----|-----|
+| `enquiry_extraction` | Archived — old contact-info extraction schema | Active — freeform natural-language extraction with guest_count, occasion, budget, allergens |
+| `draft_response` | Archived — original single-context draft | Active — enriched with availability, pricing, missing_questions, recommended_action |
+
+Old versions are archived (not deleted) per the registry's historical record rule.
+
+---
+
 ## What Is Intentionally Not Built
 
 - Prompt editing or approval UI
@@ -224,3 +313,5 @@ Human review is required before `approved_for_training=True`.
 - Automatic prompt improvement loops
 - Production prompt approval workflows
 - Any prompt UI visible to end users
+- Third LLM call for response planning (planned for post-POC MVP)
+- Audience auto-detection from email content (manual selector is the current workaround)

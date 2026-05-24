@@ -2,7 +2,7 @@
 
 **Project:** EventSales AI
 **Phase:** POC (Proof of Concept)
-**Last Updated:** 2026-05-23
+**Last Updated:** 2026-05-24
 
 ---
 
@@ -20,6 +20,7 @@
 | Sprint 5D | Freeform Webform + Audience Routing | ✓ Complete | #138–#141 |
 | Sprint 5E | AI Transparency + Room Availability | ✓ Complete | #145, #148–#149 |
 | Sprint 6 | AI Gateway, Prompt Registry, and Traceability | ✓ Complete | #160–#168, DOC-013 |
+| Sprint 7 | Freeform Enquiry Extraction & Deterministic Processing | 🔄 In Progress | #181–#189 |
 
 ---
 
@@ -158,6 +159,30 @@
 | Training example capture (POST/GET `/api/v1/ai/training-examples`) | 6 | ✓ |
 | prompt_run_id exposed in draft response (AIContextOut) | 6 | ✓ |
 | Tests: 493 backend, 84 frontend (577 total) | 6 | ✓ |
+| Freeform extraction (LLM Call 1): guest_count, event_date, event_type, occasion, budget | 7 | 🔄 |
+| Deterministic processing: room match + availability + pricing + recommended_action | 7 | 🔄 |
+| Draft enrichment (LLM Call 2): context from processing snapshot | 7 | 🔄 |
+| POST /intake/freeform single-call endpoint (extraction → processing → draft) | 7 | 🔄 |
+| Extraction + processing summary section in enquiry detail drawer | 7 | 🔄 |
+| enquiry_extractions + enquiry_processing_snapshots tables | 7 | 🔄 |
+| Extraction tests, processing tests, orchestration tests | 7 | 🔄 |
+
+---
+
+## Sprint 7 Issues
+
+| Issue | PR | Title | Status |
+|-------|----|-------|--------|
+| DOC-014 | #181 | Sprint 7 plan: Freeform Extraction & Processing | ✓ Merged |
+| DATA-015 | #182 | Enquiry extraction + processing tables and models | Open |
+| AI-010 | #183 | Enquiry extraction prompt schema V2 (rich schema) | Open |
+| AI-011 | #184 | Draft prompt V2 with enriched extraction context | Open |
+| API-014 | #185 | EnquiryExtractionService (LLM Call 1) | Open |
+| WORKFLOW-007 | #186 | Deterministic enquiry processing (no LLM) | Open |
+| API-015 | #187 | Wire freeform intake to extraction → processing → draft | Open |
+| UI-019 | #188 | Extraction and processing summary in enquiry detail drawer | Open |
+| TEST-008 | #189 | Freeform extraction and processing tests | Open |
+| DOC-015 | — | Update AI workflow documentation | In Progress |
 
 ---
 
@@ -173,6 +198,7 @@
 | Audience auto-detection from email domain + CRM lookup | P2 | 6 |
 | Production email relay (SendGrid/Postmark) | P2 | Post-POC |
 | Room availability — replace seed with live booking system API | P3 | Post-POC |
+| Third LLM call for response planning | P2 | Post-POC |
 
 ---
 
@@ -186,5 +212,6 @@
 | `docs/demo/poc-demo-guide.md` (updated) | Demo walkthrough including venue context and room selection |
 | `docs/sprints/sprint-005c-venue-context.md` | Sprint 5C delivery review |
 | `docs/sprints/sprint-006-ai-gateway-prompt-registry.md` | Sprint 6 plan: AI Gateway, Prompt Registry, Traceability |
-| `docs/development/ai-gateway.md` | AI Gateway architecture and prompt governance |
+| `docs/development/ai-gateway.md` | AI Gateway architecture, freeform extraction workflow, prompt governance |
+| `docs/sprints/sprint-007-freeform-extraction-processing.md` | Sprint 7 plan and architecture |
 | `CLAUDE.md` | Developer and AI assistant instructions |
