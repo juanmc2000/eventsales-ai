@@ -3,9 +3,8 @@
 Validates that the OutputValidator correctly handles extraction responses
 and that schema validation works end-to-end through the gateway layer.
 
-These tests use the schemas that exist on main. When AI-010 is merged, the
-EnquiryExtractionOutput will gain Sprint 7 fields (guest_count, occasion, etc.)
-and the tests in test_prompt_registry.py will cover the upgraded schema.
+Uses the V2 EnquiryExtractionOutput schema (merged in AI-010) which uses
+guest_count, occasion, budget, allergens, special_requirements, freeform_notes.
 """
 
 from __future__ import annotations
@@ -37,21 +36,21 @@ class TestEnquiryExtractionOutputSchema:
         out = EnquiryExtractionOutput()
         assert out.event_type is None
         assert out.event_date is None
-        assert out.party_size is None
+        assert out.guest_count is None
 
-    def test_party_size_coerced_from_string(self):
-        """Numeric string party_size is coerced to int."""
-        out = EnquiryExtractionOutput(party_size="25")
-        assert out.party_size == 25
+    def test_guest_count_coerced_from_string(self):
+        """Numeric string guest_count is coerced to int."""
+        out = EnquiryExtractionOutput(guest_count="25")
+        assert out.guest_count == 25
 
-    def test_party_size_non_numeric_string_returns_none(self):
-        """Non-numeric party_size becomes None rather than raising."""
-        out = EnquiryExtractionOutput(party_size="twenty")
-        assert out.party_size is None
+    def test_guest_count_non_numeric_string_returns_none(self):
+        """Non-numeric guest_count becomes None rather than raising."""
+        out = EnquiryExtractionOutput(guest_count="twenty")
+        assert out.guest_count is None
 
-    def test_party_size_none_passes(self):
-        out = EnquiryExtractionOutput(party_size=None)
-        assert out.party_size is None
+    def test_guest_count_none_passes(self):
+        out = EnquiryExtractionOutput(guest_count=None)
+        assert out.guest_count is None
 
     def test_event_date_iso_string_accepted(self):
         out = EnquiryExtractionOutput(event_date="2026-08-15")
@@ -63,16 +62,14 @@ class TestEnquiryExtractionOutputSchema:
 
     def test_full_valid_extraction(self):
         out = EnquiryExtractionOutput(
-            first_name="Alice",
-            last_name="Smith",
-            email="alice@example.com",
+            occasion="Anniversary dinner",
             event_type="private_dining",
             event_date="2026-09-01",
-            party_size=15,
-            notes="Anniversary dinner, vegetarian options required",
+            guest_count=15,
+            freeform_notes="Vegetarian options required",
         )
-        assert out.first_name == "Alice"
-        assert out.party_size == 15
+        assert out.occasion == "Anniversary dinner"
+        assert out.guest_count == 15
 
 
 # ── DraftEmailOutput schema tests ─────────────────────────────────────────────
@@ -104,37 +101,36 @@ class TestOutputValidatorWithExtractionSchema:
 
     def test_valid_extraction_json_passes(self):
         payload = json.dumps({
-            "first_name": "Alice",
+            "occasion": "Corporate dinner",
             "event_type": "corporate_dinner",
             "event_date": "2026-08-15",
-            "party_size": 20,
+            "guest_count": 20,
         })
         result = self.validator.validate(payload, SCHEMA_ENQUIRY_EXTRACTION_OUTPUT)
         assert result.status == VALIDATION_PASSED
         assert result.parsed is not None
-        assert result.parsed["party_size"] == 20
+        assert result.parsed["guest_count"] == 20
 
     def test_extraction_with_all_nulls_passes(self):
         """All-null extraction is valid — LLM can return any subset of fields."""
         payload = json.dumps({
-            "first_name": None,
-            "last_name": None,
-            "email": None,
+            "occasion": None,
             "event_type": None,
             "event_date": None,
-            "party_size": None,
+            "guest_count": None,
+            "budget": None,
         })
         result = self.validator.validate(payload, SCHEMA_ENQUIRY_EXTRACTION_OUTPUT)
         assert result.status == VALIDATION_PASSED
 
-    def test_extraction_with_string_party_size_passes(self):
-        """String party_size is coerced by the schema validator."""
+    def test_extraction_with_string_guest_count_passes(self):
+        """String guest_count is coerced by the schema validator."""
         payload = json.dumps({
-            "party_size": "15",
+            "guest_count": "15",
         })
         result = self.validator.validate(payload, SCHEMA_ENQUIRY_EXTRACTION_OUTPUT)
         assert result.status == VALIDATION_PASSED
-        assert result.parsed["party_size"] == "15"  # raw JSON value before schema coerce
+        assert result.parsed["guest_count"] == "15"  # raw JSON value before schema coerce
 
     def test_non_json_extraction_returns_parse_error(self):
         result = self.validator.validate(
@@ -169,7 +165,7 @@ class TestOutputValidatorWithExtractionSchema:
     def test_fallback_run_always_skipped(self):
         """Fallback runs are never validated regardless of schema."""
         result = self.validator.validate(
-            '{"first_name": "Alice"}',
+            '{"guest_count": 10}',
             SCHEMA_ENQUIRY_EXTRACTION_OUTPUT,
             is_fallback=True,
         )
@@ -206,9 +202,8 @@ class TestExtractionAndDraftSchemaSeparation:
         """Extraction schema does not validate draft-specific fields (subject/body)."""
         from app.modules.ai.validators import get_schema
         extraction_cls = get_schema(SCHEMA_ENQUIRY_EXTRACTION_OUTPUT)
-        # Extra fields are allowed by default in Pydantic v2 (ignored)
-        # This test confirms extraction schema doesn't REQUIRE draft fields
-        obj = extraction_cls.model_validate({"subject": "ignored", "body": "ignored"})
+        # Extra fields are ignored in Pydantic v2 — extraction schema must not REQUIRE draft fields
+        obj = extraction_cls.model_validate({"guest_count": 10, "subject": "ignored", "body": "ignored"})
         assert not hasattr(obj, "subject") or getattr(obj, "subject", "NOT_THERE") == "NOT_THERE"
 
     def test_draft_schema_requires_body(self):
