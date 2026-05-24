@@ -76,6 +76,8 @@ class ExtractionResult:
     extraction_id is set when the row was persisted successfully.
     is_fallback is True when no LLM call was made.
     parsed holds the validated extraction dict, or None on parse/validation error.
+    rendered_system_prompt / rendered_user_prompt / raw_response are populated
+    from the gateway result so callers can surface them in transparency panels.
     """
 
     extraction_id: uuid.UUID | None
@@ -84,6 +86,9 @@ class ExtractionResult:
     validation_status: str
     parsed: dict | None = field(default=None)
     error_message: str | None = field(default=None)
+    rendered_system_prompt: str | None = field(default=None)
+    rendered_user_prompt: str | None = field(default=None)
+    raw_response: str | None = field(default=None)
 
 
 class EnquiryExtractionService:
@@ -142,6 +147,9 @@ class EnquiryExtractionService:
             validation_status=gateway_result.validation_status,
             parsed=gateway_result.parsed_response,
             error_message=gateway_result.error_message,
+            rendered_system_prompt=gateway_result.rendered_system_prompt,
+            rendered_user_prompt=gateway_result.rendered_user_prompt,
+            raw_response=gateway_result.raw_response,
         )
 
     def _persist_extraction(

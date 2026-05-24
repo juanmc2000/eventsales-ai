@@ -245,6 +245,7 @@ class FreeformIntakeService:
         draft_body: str | None = None
         draft_message_id = None
         draft_is_fallback: bool | None = None
+        draft_ai_context = None
 
         # 5. Extraction step (lazy — requires API-014 to be merged)
         extraction_result = None
@@ -270,6 +271,9 @@ class FreeformIntakeService:
                     event_date=parsed.get("event_date"),
                     event_type=parsed.get("event_type"),
                     missing_fields=parsed.get("missing_fields"),
+                    extraction_system_prompt=extraction_result.rendered_system_prompt if not extraction_result.is_fallback else None,
+                    extraction_user_prompt=extraction_result.rendered_user_prompt if not extraction_result.is_fallback else None,
+                    extraction_raw_response=extraction_result.raw_response if not extraction_result.is_fallback else None,
                 )
             except Exception as exc:  # noqa: BLE001
                 logger.warning("Extraction failed for enquiry %s: %s", enquiry_id, exc)
@@ -308,6 +312,7 @@ class FreeformIntakeService:
             draft_body = draft_result.body
             draft_message_id = draft_result.message_id
             draft_is_fallback = draft_result.is_fallback
+            draft_ai_context = draft_result.ai_context
         except Exception as exc:  # noqa: BLE001
             logger.warning("Draft generation failed for enquiry %s: %s", enquiry_id, exc)
 
@@ -326,4 +331,5 @@ class FreeformIntakeService:
             draft_body=draft_body,
             draft_message_id=draft_message_id,
             draft_is_fallback=draft_is_fallback,
+            draft_ai_context=draft_ai_context,
         )

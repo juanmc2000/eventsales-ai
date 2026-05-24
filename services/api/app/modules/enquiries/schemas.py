@@ -158,6 +158,10 @@ class ExtractionSummaryOut(BaseModel):
     event_date: str | None = None
     event_type: str | None = None
     missing_fields: list[str] | None = None
+    # AI transparency: prompts and raw model response for the extraction LLM call
+    extraction_system_prompt: str | None = None
+    extraction_user_prompt: str | None = None
+    extraction_raw_response: str | None = None
 
 
 class FreeformIntakeOut(BaseModel):
@@ -182,6 +186,8 @@ class FreeformIntakeOut(BaseModel):
     draft_body: str | None = None
     draft_message_id: uuid.UUID | None = None
     draft_is_fallback: bool | None = None
+    # AI transparency: context from the draft LLM call (model, persona, prompts)
+    draft_ai_context: AIContextOut | None = None
 
     model_config = {"from_attributes": False}
 

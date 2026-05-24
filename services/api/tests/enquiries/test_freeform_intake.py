@@ -200,6 +200,7 @@ class TestFreeformIntakeServiceNoDependencies:
             mock_draft_result.body = "Dear Alice..."
             mock_draft_result.message_id = uuid.uuid4()
             mock_draft_result.is_fallback = True
+            mock_draft_result.ai_context = None
             MockDraft.return_value.generate_draft.return_value = mock_draft_result
 
             result = svc.intake_freeform(req)
