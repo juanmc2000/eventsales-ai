@@ -71,7 +71,7 @@ class PromptDefinition:
 _DRAFT_RESPONSE_V1 = PromptDefinition(
     key=PROMPT_KEY_DRAFT_RESPONSE,
     version=1,
-    status=VERSION_STATUS_ACTIVE,
+    status=VERSION_STATUS_ARCHIVED,
     category=CATEGORY_DRAFT_GENERATION,
     system_template=(
         "{persona_system_prompt}\n\n"
@@ -111,7 +111,66 @@ _DRAFT_RESPONSE_V1 = PromptDefinition(
     }),
     output_schema_name=SCHEMA_DRAFT_EMAIL_OUTPUT,
     output_schema_version="1.0",
-    change_notes="Initial version — mirrors existing build_system_prompt/build_user_message logic.",
+    change_notes="Initial version — mirrors existing build_system_prompt/build_user_message logic. Archived in Sprint 7 — replaced by V2 (enriched context).",
+)
+
+_DRAFT_RESPONSE_V2 = PromptDefinition(
+    key=PROMPT_KEY_DRAFT_RESPONSE,
+    version=2,
+    status=VERSION_STATUS_ACTIVE,
+    category=CATEGORY_DRAFT_GENERATION,
+    system_template=(
+        "{persona_system_prompt}\n\n"
+        "You are {persona_name}, a hospitality sales professional at {restaurant_name}. "
+        "Your tone is {persona_tone} and your style is {persona_style}.\n\n"
+        "CRITICAL RULES — follow these exactly:\n"
+        "- Use ONLY the facts provided to you. Do NOT invent room availability.\n"
+        "- Do NOT invent or estimate pricing. Use the confirmed minimum spend if provided.\n"
+        "- Do NOT mention confidence scores, system logic, or internal processing.\n"
+        "- Do NOT expose extraction, processing, or AI decision fields.\n"
+        "- Ask ONLY the missing questions provided — do not add new questions.\n"
+        "- Write a warm, professional, commercially-minded response.\n"
+        "- Do not use chatbot language. Do not use bullet points unless naturally appropriate.\n"
+        "- Keep the response under 200 words."
+    ),
+    user_template=(
+        "Please draft a response to this event enquiry.\n"
+        "Guest: {guest_first_name} {guest_last_name}\n"
+        "{event_type_line}"
+        "{event_date_line}"
+        "{party_size_line}"
+        "{availability_line}"
+        "{spend_line}"
+        "{guest_message_line}"
+        "{room_lines}"
+        "{missing_questions_line}"
+    ),
+    required_variables=frozenset({
+        "persona_system_prompt",
+        "persona_name",
+        "restaurant_name",
+        "persona_tone",
+        "persona_style",
+        "guest_first_name",
+        "guest_last_name",
+    }),
+    optional_variables=frozenset({
+        "event_type_line",
+        "event_date_line",
+        "party_size_line",
+        "availability_line",
+        "spend_line",
+        "guest_message_line",
+        "room_lines",
+        "missing_questions_line",
+    }),
+    output_schema_name=SCHEMA_DRAFT_EMAIL_OUTPUT,
+    output_schema_version="2.0",
+    change_notes=(
+        "Sprint 7 — enriched context from extraction + processing snapshot. "
+        "Adds availability_line, confirmed spend line, missing questions line. "
+        "Explicit prohibitions on inventing availability, pricing, or room details."
+    ),
 )
 
 _ENQUIRY_EXTRACTION_V1 = PromptDefinition(
@@ -315,6 +374,7 @@ _AVAILABILITY_ALTERNATIVE_V1 = PromptDefinition(
 # version for each key when resolving.
 _ALL_DEFINITIONS: list[PromptDefinition] = [
     _DRAFT_RESPONSE_V1,
+    _DRAFT_RESPONSE_V2,
     _ENQUIRY_EXTRACTION_V1,
     _ENQUIRY_EXTRACTION_V2,
     _MISSING_INFO_REQUEST_V1,
