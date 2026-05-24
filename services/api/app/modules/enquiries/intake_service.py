@@ -228,6 +228,17 @@ class FreeformIntakeService:
         )
         self._db.commit()
 
+        # Capture enquiry fields into locals immediately after commit.
+        # SQLAlchemy expires all ORM attributes on commit; if a later pipeline
+        # step poisons the session, any subsequent lazy-load raises
+        # PendingRollbackError.  Reading the values here avoids that.
+        enquiry_id = enquiry.id
+        enquiry_reference = enquiry.reference
+        enquiry_status = enquiry.status
+        enquiry_restaurant_id = enquiry.restaurant_id
+        enquiry_created_at = enquiry.created_at
+        inbound_message_id = inbound_message.id
+
         extraction_summary: ExtractionSummaryOut | None = None
         recommended_action: str | None = None
         draft_subject: str | None = None
@@ -241,11 +252,11 @@ class FreeformIntakeService:
             try:
                 svc = EnquiryExtractionService(self._db)
                 extraction_result = svc.extract(ExtractionRequest(
-                    enquiry_id=enquiry.id,
+                    enquiry_id=enquiry_id,
                     freeform_text=request.freeform_text,
                     restaurant_name=restaurant.name,
                     restaurant_id=request.restaurant_id,
-                    source_message_id=inbound_message.id,
+                    source_message_id=inbound_message_id,
                     tenant_id="default",
                     api_key=settings.anthropic_api_key or "",
                 ))
@@ -261,7 +272,8 @@ class FreeformIntakeService:
                     missing_fields=parsed.get("missing_fields"),
                 )
             except Exception as exc:  # noqa: BLE001
-                logger.warning("Extraction failed for enquiry %s: %s", enquiry.id, exc)
+                logger.warning("Extraction failed for enquiry %s: %s", enquiry_id, exc)
+                self._db.rollback()
                 extraction_summary = ExtractionSummaryOut(
                     is_fallback=True,
                     validation_status="error",
@@ -273,7 +285,7 @@ class FreeformIntakeService:
             try:
                 proc_svc = EnquiryProcessingService(self._db)
                 processing_result = proc_svc.process(ProcessingRequest(
-                    enquiry_id=enquiry.id,
+                    enquiry_id=enquiry_id,
                     restaurant_id=request.restaurant_id,
                     extraction_id=extraction_result.extraction_id,
                     extraction_parsed=extraction_result.parsed or {},
@@ -281,14 +293,15 @@ class FreeformIntakeService:
                 ))
                 recommended_action = processing_result.recommended_action
             except Exception as exc:  # noqa: BLE001
-                logger.warning("Processing failed for enquiry %s: %s", enquiry.id, exc)
+                logger.warning("Processing failed for enquiry %s: %s", enquiry_id, exc)
+                self._db.rollback()
 
         # 7. Draft generation (always attempted — has its own fallback)
         try:
             from app.modules.ai.service import DraftGenerationService  # noqa: PLC0415
             draft_svc = DraftGenerationService(self._db)
             draft_result = draft_svc.generate_draft(
-                enquiry.id,
+                enquiry_id,
                 trigger_type=TRIGGER_FREEFORM_WEBFORM_AUTO_DRAFT,
             )
             draft_subject = draft_result.subject
@@ -296,17 +309,17 @@ class FreeformIntakeService:
             draft_message_id = draft_result.message_id
             draft_is_fallback = draft_result.is_fallback
         except Exception as exc:  # noqa: BLE001
-            logger.warning("Draft generation failed for enquiry %s: %s", enquiry.id, exc)
+            logger.warning("Draft generation failed for enquiry %s: %s", enquiry_id, exc)
 
         return FreeformIntakeOut(
-            enquiry_id=enquiry.id,
-            reference=enquiry.reference,
-            status=enquiry.status,
-            restaurant_id=enquiry.restaurant_id,
+            enquiry_id=enquiry_id,
+            reference=enquiry_reference,
+            status=enquiry_status,
+            restaurant_id=enquiry_restaurant_id,
             persona_id=persona.id if persona else None,
             persona_name=persona.name if persona else None,
             audience_type=request.audience_type,
-            created_at=enquiry.created_at,
+            created_at=enquiry_created_at,
             extraction=extraction_summary,
             recommended_action=recommended_action,
             draft_subject=draft_subject,
