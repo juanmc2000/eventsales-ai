@@ -111,6 +111,10 @@ export type ExtractionSummaryOut = {
   event_date: string | null;
   event_type: string | null;
   missing_fields: string[] | null;
+  // AI transparency: prompts and raw response from the extraction LLM call
+  extraction_system_prompt: string | null;
+  extraction_user_prompt: string | null;
+  extraction_raw_response: string | null;
 };
 
 /**
@@ -133,6 +137,7 @@ export type FreeformIntakeOut = {
   draft_body: string | null;
   draft_message_id: string | null;
   draft_is_fallback: boolean | null;
+  draft_ai_context: AIContextOut | null;
 };
 
 /**

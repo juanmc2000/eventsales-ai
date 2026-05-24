@@ -166,7 +166,7 @@ function StatusPill({ status }: { status: string }) {
   );
 }
 
-function AITransparencyPanel({ aiContext }: { aiContext: AIContextOut }) {
+function AITransparencyPanel({ aiContext, label = "AI Generation Details" }: { aiContext: AIContextOut; label?: string }) {
   const [open, setOpen] = useState(false);
 
   const rows: [string, string | null | undefined][] = [
@@ -206,7 +206,7 @@ function AITransparencyPanel({ aiContext }: { aiContext: AIContextOut }) {
           textTransform: "uppercase", letterSpacing: "0.05em",
         }}
       >
-        <span>AI Generation Details</span>
+        <span>{label}</span>
         <span style={{ fontSize: 10 }}>{open ? "▼" : "▶"}</span>
       </button>
 
@@ -256,6 +256,86 @@ function AITransparencyPanel({ aiContext }: { aiContext: AIContextOut }) {
                 </div>
               )}
             </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Extraction Transparency Panel ─────────────────────────────────────────────
+
+function ExtractionTransparencyPanel({ extraction }: { extraction: ExtractionSummaryOut }) {
+  const [open, setOpen] = useState(false);
+
+  if (extraction.is_fallback || !extraction.extraction_system_prompt) return null;
+
+  return (
+    <div style={{ borderRadius: 10, border: "1px solid var(--border)", overflow: "hidden" }}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        style={{
+          width: "100%",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "10px 14px",
+          background: "var(--surface-soft)",
+          border: "none", cursor: "pointer",
+          fontSize: 11, fontWeight: 600, color: "var(--text-muted)",
+          textTransform: "uppercase", letterSpacing: "0.05em",
+        }}
+      >
+        <span>LLM Call 1 — Extraction Details</span>
+        <span style={{ fontSize: 10 }}>{open ? "▼" : "▶"}</span>
+      </button>
+
+      {open && (
+        <div style={{
+          padding: "12px 14px",
+          background: "var(--surface-soft)",
+          borderTop: "1px solid var(--border)",
+          display: "flex", flexDirection: "column", gap: 10,
+          fontFamily: "monospace",
+          fontSize: 12,
+        }}>
+          <div>
+            <div style={{ color: "var(--text-muted)", marginBottom: 4 }}>System prompt</div>
+            <pre style={{
+              margin: 0, fontSize: 11, lineHeight: 1.5,
+              color: "var(--text-secondary)",
+              whiteSpace: "pre-wrap", wordBreak: "break-word",
+              maxHeight: 160, overflowY: "auto",
+              background: "var(--surface)", padding: "8px 10px", borderRadius: 6,
+              border: "1px solid var(--border)",
+            }}>{extraction.extraction_system_prompt}</pre>
+          </div>
+
+          {extraction.extraction_user_prompt && (
+            <div>
+              <div style={{ color: "var(--text-muted)", marginBottom: 4 }}>User message</div>
+              <pre style={{
+                margin: 0, fontSize: 11, lineHeight: 1.5,
+                color: "var(--text-secondary)",
+                whiteSpace: "pre-wrap", wordBreak: "break-word",
+                maxHeight: 120, overflowY: "auto",
+                background: "var(--surface)", padding: "8px 10px", borderRadius: 6,
+                border: "1px solid var(--border)",
+              }}>{extraction.extraction_user_prompt}</pre>
+            </div>
+          )}
+
+          {extraction.extraction_raw_response && (
+            <div>
+              <div style={{ color: "var(--text-muted)", marginBottom: 4 }}>Model response (extracted JSON)</div>
+              <pre style={{
+                margin: 0, fontSize: 11, lineHeight: 1.5,
+                color: "var(--text-secondary)",
+                whiteSpace: "pre-wrap", wordBreak: "break-word",
+                maxHeight: 140, overflowY: "auto",
+                background: "var(--surface)", padding: "8px 10px", borderRadius: 6,
+                border: "1px solid var(--border)",
+              }}>{extraction.extraction_raw_response}</pre>
+            </div>
           )}
         </div>
       )}
@@ -1228,9 +1308,12 @@ function FreeformSuccessPanel({
           />
         )}
 
-        {/* AI transparency */}
+        {/* AI transparency — extraction (LLM Call 1) then draft (LLM Call 2) */}
+        {result.extraction && (
+          <ExtractionTransparencyPanel extraction={result.extraction} />
+        )}
         {draft?.ai_context && (
-          <AITransparencyPanel aiContext={draft.ai_context} />
+          <AITransparencyPanel aiContext={draft.ai_context} label="LLM Call 2 — Draft Generation Details" />
         )}
 
         {/* Actions */}
@@ -1336,7 +1419,7 @@ function FreeformEnquiryForm({ restaurants }: { restaurants: Restaurant[] }) {
             is_fallback: intake.draft_is_fallback ?? null,
             model: null,
             persona_name: intake.persona_name ?? null,
-            ai_context: null,
+            ai_context: intake.draft_ai_context ?? null,
           }
         : null;
 
