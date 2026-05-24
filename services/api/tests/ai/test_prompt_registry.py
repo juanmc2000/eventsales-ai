@@ -164,14 +164,34 @@ class TestPromptRenderer:
 
     def test_render_enquiry_extraction(self) -> None:
         defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
+        # V2 uses freeform_text as the primary input variable
         ctx = {
             "restaurant_name": "The Grand",
-            "sender_email": "guest@example.com",
-            "email_subject": "Birthday Dinner",
-            "email_body": "I'd like to book a table for 10.",
+            "freeform_text": "Hi, I'd like to book a private room for a birthday dinner for 20 guests on Christmas Eve.",
         }
         system = self.renderer.render_system(defn, ctx)
         user = self.renderer.render_user(defn, ctx)
         assert "The Grand" in system
-        assert "guest@example.com" in user
-        assert "Birthday Dinner" in user
+        assert "birthday dinner" in user
+        assert "20 guests" in user
+
+    def test_enquiry_extraction_v2_prohibits_pricing(self) -> None:
+        defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
+        assert defn.version == 2
+        assert "pricing" in defn.system_template.lower() or "PRICING" in defn.system_template
+
+    def test_enquiry_extraction_v2_prohibits_availability(self) -> None:
+        defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
+        assert "availability" in defn.system_template.lower()
+
+    def test_enquiry_extraction_v2_prohibits_drafting(self) -> None:
+        defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
+        assert "customer-facing" in defn.system_template.lower() or "drafting" in defn.system_template.lower() or "response" in defn.system_template.lower()
+
+    def test_enquiry_extraction_v2_requires_freeform_text_variable(self) -> None:
+        defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
+        assert "freeform_text" in defn.required_variables
+
+    def test_enquiry_extraction_v2_low_temperature(self) -> None:
+        defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
+        assert float(defn.temperature) <= 0.3

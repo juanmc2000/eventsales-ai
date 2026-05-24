@@ -48,21 +48,47 @@ class DraftEmailOutput(BaseModel):
     body: str = Field(min_length=1)
 
 
+class ExtractionBudget(BaseModel):
+    """Budget details extracted from freeform enquiry text."""
+
+    amount: float | None = None
+    currency: str | None = None
+    budget_type: str | None = None  # "total" | "per_head" | null
+
+
+class ExtractionSpecialRequirements(BaseModel):
+    """Special facility requirements extracted from freeform enquiry text."""
+
+    children: bool | None = None
+    pets: bool | None = None
+    disabled_access: bool | None = None
+    music: bool | None = None
+    microphone: bool | None = None
+    screen_or_tv: bool | None = None
+
+
 class EnquiryExtractionOutput(BaseModel):
-    """Expected structured output for the enquiry_extraction prompt."""
+    """Expected structured output for the enquiry_extraction prompt (V2 — freeform).
 
-    first_name: str | None = None
-    last_name: str | None = None
-    email: str | None = None
-    phone: str | None = None
+    All fields are nullable.  Fields the model could not extract must be listed
+    in missing_fields.  Confidence is a per-field decimal (0.0–1.0).
+    """
+
+    occasion: str | None = None
+    guest_count: int | None = None
+    event_date: str | None = None  # ISO 8601 date or null
+    event_time: str | None = None  # HH:MM or null
     event_type: str | None = None
-    event_date: str | None = None  # ISO 8601 or null
-    party_size: int | None = None
-    notes: str | None = None
+    budget: ExtractionBudget | None = None
+    allergens: list[str] | None = None
+    special_requirements: ExtractionSpecialRequirements | None = None
+    freeform_notes: str | None = None
+    missing_fields: list[str] = Field(default_factory=list)
+    confidence: dict[str, float] = Field(default_factory=dict)
 
-    @field_validator("party_size", mode="before")
+    @field_validator("guest_count", mode="before")
     @classmethod
-    def coerce_party_size(cls, v: Any) -> int | None:
+    def coerce_guest_count(cls, v: Any) -> int | None:
         """Accept numeric strings from the LLM (e.g. "10" → 10)."""
         if v is None:
             return None

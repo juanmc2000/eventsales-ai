@@ -36,6 +36,7 @@ from app.modules.ai.constants import (
     SCHEMA_DRAFT_EMAIL_OUTPUT,
     SCHEMA_ENQUIRY_EXTRACTION_OUTPUT,
     VERSION_STATUS_ACTIVE,
+    VERSION_STATUS_ARCHIVED,
 )
 
 
@@ -116,7 +117,7 @@ _DRAFT_RESPONSE_V1 = PromptDefinition(
 _ENQUIRY_EXTRACTION_V1 = PromptDefinition(
     key=PROMPT_KEY_ENQUIRY_EXTRACTION,
     version=1,
-    status=VERSION_STATUS_ACTIVE,
+    status=VERSION_STATUS_ARCHIVED,
     category=CATEGORY_INTAKE,
     system_template=(
         "You are an intake specialist for {restaurant_name}, a hospitality venue. "
@@ -141,7 +142,67 @@ _ENQUIRY_EXTRACTION_V1 = PromptDefinition(
     }),
     output_schema_name=SCHEMA_ENQUIRY_EXTRACTION_OUTPUT,
     output_schema_version="1.0",
-    change_notes="Initial version for structured extraction from inbound emails.",
+    change_notes="Initial version for structured extraction from inbound emails. Archived in Sprint 7 — replaced by V2 (freeform text extraction).",
+)
+
+_ENQUIRY_EXTRACTION_V2 = PromptDefinition(
+    key=PROMPT_KEY_ENQUIRY_EXTRACTION,
+    version=2,
+    status=VERSION_STATUS_ACTIVE,
+    category=CATEGORY_INTAKE,
+    system_template=(
+        "You are a structured data extraction specialist for {restaurant_name}, a hospitality venue. "
+        "Your only task is to extract factual details from the guest's freeform enquiry text.\n\n"
+        "CRITICAL RULES — you must follow these exactly:\n"
+        "- Extract facts only. Do NOT make pricing decisions.\n"
+        "- Do NOT check or infer room availability.\n"
+        "- Do NOT write any customer-facing copy or response.\n"
+        "- Do NOT suggest whether the booking should proceed.\n"
+        "- If a field cannot be determined from the text, set it to null and add the field name to missing_fields.\n"
+        "- Report confidence as a decimal between 0.0 and 1.0 for each extracted field.\n\n"
+        "Return ONLY a valid JSON object matching this exact structure:\n"
+        "{{\n"
+        "  \"occasion\": string or null,\n"
+        "  \"guest_count\": integer or null,\n"
+        "  \"event_date\": ISO 8601 date string or null,\n"
+        "  \"event_time\": HH:MM string or null,\n"
+        "  \"event_type\": string or null,\n"
+        "  \"budget\": {{ \"amount\": number or null, \"currency\": string or null, \"budget_type\": \"total\" | \"per_head\" | null }} or null,\n"
+        "  \"allergens\": list of strings or null,\n"
+        "  \"special_requirements\": {{\n"
+        "    \"children\": boolean or null,\n"
+        "    \"pets\": boolean or null,\n"
+        "    \"disabled_access\": boolean or null,\n"
+        "    \"music\": boolean or null,\n"
+        "    \"microphone\": boolean or null,\n"
+        "    \"screen_or_tv\": boolean or null\n"
+        "  }} or null,\n"
+        "  \"freeform_notes\": string or null,\n"
+        "  \"missing_fields\": list of field name strings,\n"
+        "  \"confidence\": {{ field_name: confidence_value }}\n"
+        "}}\n\n"
+        "No explanation, no preamble, no markdown fences. Return the JSON object only."
+    ),
+    user_template=(
+        "Extract structured enquiry details from the following freeform text.\n\n"
+        "Restaurant: {restaurant_name}\n\n"
+        "Guest message:\n{freeform_text}"
+    ),
+    required_variables=frozenset({
+        "restaurant_name",
+        "freeform_text",
+    }),
+    output_schema_name=SCHEMA_ENQUIRY_EXTRACTION_OUTPUT,
+    output_schema_version="2.0",
+    model_name=DEFAULT_DRAFT_MODEL,
+    max_tokens=600,
+    temperature="0.1",
+    change_notes=(
+        "Sprint 7 — freeform webform extraction. "
+        "Extracts occasion, guest_count, event_date, event_time, event_type, budget, "
+        "allergens, special_requirements, freeform_notes, missing_fields, confidence. "
+        "Explicitly prohibits pricing, availability, and drafting decisions."
+    ),
 )
 
 _MISSING_INFO_REQUEST_V1 = PromptDefinition(
@@ -255,6 +316,7 @@ _AVAILABILITY_ALTERNATIVE_V1 = PromptDefinition(
 _ALL_DEFINITIONS: list[PromptDefinition] = [
     _DRAFT_RESPONSE_V1,
     _ENQUIRY_EXTRACTION_V1,
+    _ENQUIRY_EXTRACTION_V2,
     _MISSING_INFO_REQUEST_V1,
     _FOLLOW_UP_RESPONSE_V1,
     _AVAILABILITY_ALTERNATIVE_V1,
