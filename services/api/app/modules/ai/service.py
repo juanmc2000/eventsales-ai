@@ -324,7 +324,7 @@ def _enrich_context_from_snapshot(context: DraftContext, snapshot) -> DraftConte
     availability_status = None
     availability_date = None
     availability_meal_period = None
-    if snapshot.availability_result_json:
+    if isinstance(snapshot.availability_result_json, dict):
         avail = snapshot.availability_result_json
         availability_status = avail.get("status")
         availability_date = avail.get("date")
@@ -332,17 +332,17 @@ def _enrich_context_from_snapshot(context: DraftContext, snapshot) -> DraftConte
 
     confirmed_minimum_spend = None
     pricing_explanation = None
-    if snapshot.pricing_result_json:
+    if isinstance(snapshot.pricing_result_json, dict):
         pricing = snapshot.pricing_result_json
         confirmed_minimum_spend = pricing.get("minimum_spend")
         pricing_explanation = pricing.get("explanation")
 
     room_name = context.room_name
-    if snapshot.room_suitability_json and snapshot.room_suitability_json.get("matched"):
+    if isinstance(snapshot.room_suitability_json, dict) and snapshot.room_suitability_json.get("matched"):
         room_name = snapshot.room_suitability_json.get("room_name") or room_name
 
     missing_questions: list[str] | None = None
-    if snapshot.missing_fields_json:
+    if isinstance(snapshot.missing_fields_json, list):
         missing_questions = list(snapshot.missing_fields_json)
 
     recommended_action = getattr(snapshot, "recommended_action", None)

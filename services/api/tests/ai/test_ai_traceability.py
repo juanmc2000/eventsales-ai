@@ -19,6 +19,8 @@ from unittest.mock import MagicMock, call, patch
 
 import pytest
 
+import app.db.models  # noqa: F401 — registers all SQLAlchemy models before mapper init
+
 from app.modules.ai.constants import (
     PROMPT_KEY_DRAFT_RESPONSE,
     PROMPT_KEY_ENQUIRY_EXTRACTION,
