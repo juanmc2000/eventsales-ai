@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { StatusPill } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
-import type { Enquiry, EnquiryMessage } from "@/lib/types/enquiry";
+import type { Enquiry, EnquiryExtractionOut, EnquiryMessage, EnquiryProcessingSnapshotOut } from "@/lib/types/enquiry";
 import type { Persona, PersonaListOut } from "@/lib/types/persona";
 import { DraftSection } from "@/components/enquiries/DraftSection";
 import { EmailActivityTimeline } from "@/components/enquiries/EmailActivityTimeline";
@@ -125,6 +125,263 @@ function MessageBubble({ message }: { message: EnquiryMessage }) {
       >
         {message.body}
       </div>
+    </div>
+  );
+}
+
+// ─── Recommended action label map ─────────────────────────────────────────────
+const ACTION_LABELS: Record<string, string> = {
+  send_availability_confirmation: "Send availability confirmation",
+  send_availability_with_missing_info_question: "Confirm availability + request missing info",
+  request_missing_information: "Request missing information",
+  suggest_alternative_room: "Suggest alternative room",
+  escalate_to_human: "Escalate to team",
+  unable_to_process: "Unable to process automatically",
+};
+
+// ─── Extraction & processing summary section ──────────────────────────────────
+export function ExtractionProcessingSection({ enquiryId }: { enquiryId: string }) {
+  const [extraction, setExtraction] = useState<EnquiryExtractionOut | null>(null);
+  const [processing, setProcessing] = useState<EnquiryProcessingSnapshotOut | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      fetch(`${API_BASE}/api/v1/enquiries/${enquiryId}/extractions/latest`)
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null),
+      fetch(`${API_BASE}/api/v1/enquiries/${enquiryId}/processing/latest`)
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null),
+    ]).then(([ext, proc]) => {
+      setExtraction(ext);
+      setProcessing(proc);
+    }).finally(() => setLoading(false));
+  }, [enquiryId]);
+
+  if (loading) {
+    return <p style={{ fontSize: 13, color: "var(--text-muted)" }}>Loading…</p>;
+  }
+
+  if (!extraction && !processing) {
+    return (
+      <div
+        style={{
+          padding: "14px 16px",
+          borderRadius: 10,
+          background: "var(--surface-soft)",
+          border: "1px solid var(--border)",
+        }}
+      >
+        <p style={{ fontSize: 13, color: "var(--text-muted)" }}>No extraction has been run yet.</p>
+        <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>
+          Freeform enquiries submitted via the webform are automatically extracted.
+        </p>
+      </div>
+    );
+  }
+
+  const ext = extraction?.extracted_json ?? {};
+  const norm = extraction?.normalized_json ?? {};
+  const avail = processing?.availability_result_json ?? {};
+  const room = processing?.room_suitability_json ?? {};
+  const pricing = processing?.pricing_result_json ?? {};
+  const action = processing?.recommended_action ?? null;
+  const missing = extraction?.missing_fields ?? processing?.missing_fields_json ?? [];
+
+  const guestCount = (norm.guest_count ?? ext.guest_count) as number | undefined;
+  const eventDate = (norm.event_date ?? ext.event_date) as string | undefined;
+  const eventType = (norm.event_type ?? ext.event_type) as string | undefined;
+  const occasion = (norm.occasion ?? ext.occasion) as string | undefined;
+  const budget = (norm.budget ?? ext.budget) as Record<string, unknown> | undefined;
+
+  const roomName = (room.room_name ?? avail.room_name) as string | undefined;
+  const availStatus = avail.status as string | undefined;
+  const minSpend = pricing.recommended_minimum_spend as number | undefined;
+  const pricingExpl = pricing.explanation as string | undefined;
+
+  function AvailBadge({ status }: { status: string }) {
+    const colours: Record<string, { bg: string; color: string }> = {
+      available:   { bg: "rgba(22,166,106,0.1)",  color: "#16A66A" },
+      booked:      { bg: "rgba(239,68,68,0.1)",   color: "#dc2626" },
+      held:        { bg: "rgba(234,179,8,0.1)",   color: "#b45309" },
+      unavailable: { bg: "rgba(107,114,128,0.1)", color: "#6b7280" },
+    };
+    const style = colours[status] ?? colours.unavailable;
+    return (
+      <span
+        style={{
+          fontSize: 11,
+          fontWeight: 600,
+          padding: "2px 8px",
+          borderRadius: 6,
+          background: style.bg,
+          color: style.color,
+          textTransform: "capitalize",
+        }}
+      >
+        {status}
+      </span>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      {/* Extracted facts */}
+      {extraction && (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 10,
+            padding: "14px 16px",
+            borderRadius: 10,
+            background: "rgba(109,61,245,0.03)",
+            border: "1px solid rgba(109,61,245,0.12)",
+          }}
+        >
+          {guestCount != null && (
+            <div>
+              <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>
+                Guest Count
+              </p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>{guestCount}</p>
+            </div>
+          )}
+          {eventDate && (
+            <div>
+              <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>
+                Event Date
+              </p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>{eventDate}</p>
+            </div>
+          )}
+          {eventType && (
+            <div>
+              <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>
+                Event Type
+              </p>
+              <p style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", textTransform: "capitalize" }}>
+                {eventType.replace(/_/g, " ")}
+              </p>
+            </div>
+          )}
+          {occasion && (
+            <div>
+              <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>
+                Occasion
+              </p>
+              <p style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", textTransform: "capitalize" }}>{occasion}</p>
+            </div>
+          )}
+          {budget && (budget.amount != null) && (
+            <div>
+              <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>
+                Guest Budget
+              </p>
+              <p style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)" }}>
+                {String(budget.currency ?? "£")}{String(budget.amount)}
+                {budget.budget_type ? ` (${budget.budget_type})` : ""}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Processing results */}
+      {processing && (
+        <div
+          style={{
+            padding: "14px 16px",
+            borderRadius: 10,
+            background: "var(--surface-soft)",
+            border: "1px solid var(--border)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+          }}
+        >
+          {roomName && (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 6 }}>
+              <div>
+                <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>
+                  Matched Room
+                </p>
+                <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}>{roomName}</p>
+              </div>
+              {availStatus && <AvailBadge status={availStatus} />}
+            </div>
+          )}
+          {minSpend != null && (
+            <div>
+              <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>
+                Pricing Recommendation
+              </p>
+              <p style={{ fontSize: 15, fontWeight: 700, color: "var(--brand-purple)" }}>
+                £{Math.round(minSpend).toLocaleString()}
+              </p>
+              {pricingExpl && (
+                <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{pricingExpl}</p>
+              )}
+            </div>
+          )}
+          {!processing && !processing && null /* placeholder */}
+        </div>
+      )}
+
+      {/* Missing fields */}
+      {missing && missing.length > 0 && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 8,
+            padding: "10px 14px",
+            borderRadius: 8,
+            background: "rgba(234,179,8,0.06)",
+            border: "1px solid rgba(234,179,8,0.2)",
+          }}
+        >
+          <svg style={{ flexShrink: 0, marginTop: 1 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--warning, #b45309)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          <div>
+            <p style={{ fontSize: 12, fontWeight: 600, color: "var(--warning, #b45309)" }}>Missing information</p>
+            <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
+              {missing.join(", ")}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Recommended action */}
+      {action && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            padding: "10px 14px",
+            borderRadius: 8,
+            background: "rgba(109,61,245,0.06)",
+            border: "1px solid rgba(109,61,245,0.15)",
+          }}
+        >
+          <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", flexShrink: 0 }}>
+            Recommended Action
+          </span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "var(--brand-purple)", fontFamily: "inherit" }}>
+            {ACTION_LABELS[action] ?? action.replace(/_/g, " ")}
+          </span>
+        </div>
+      )}
+
+      {/* No processing snapshot state (extraction exists but no processing) */}
+      {extraction && !processing && (
+        <p style={{ fontSize: 12, color: "var(--text-muted)" }}>No processing snapshot available yet.</p>
+      )}
     </div>
   );
 }
@@ -370,6 +627,11 @@ export function EnquiryDetailDrawer({
                 <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>{enquiry.budget_indication}</p>
               </div>
             )}
+          </DrawerSection>
+
+          {/* AI extraction & processing summary */}
+          <DrawerSection title="AI Extraction Summary">
+            <ExtractionProcessingSection enquiryId={enquiry.id} />
           </DrawerSection>
 
           {/* Assigned persona */}
