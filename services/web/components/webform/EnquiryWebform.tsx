@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Card } from "@/components/layout/Card";
 import type { Restaurant, RestaurantListOut, Room } from "@/lib/types/restaurant";
-import type { AIContextOut, EnquiryDraft, EnquiryIntakeOut, RoomAvailabilityOut } from "@/lib/types/enquiry";
+import type { AIContextOut, EnquiryDraft, EnquiryIntakeOut, ExtractionSummaryOut, FreeformIntakeOut, RoomAvailabilityOut } from "@/lib/types/enquiry";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -1035,6 +1035,9 @@ type FreeformResult = {
   reply_email: string;
   restaurantId: string;
   rooms: Room[];
+  // Sprint 7 enrichments
+  extraction: ExtractionSummaryOut | null;
+  recommended_action: string | null;
 };
 
 function FreeformSuccessPanel({
@@ -1165,6 +1168,54 @@ function FreeformSuccessPanel({
           </div>
         )}
 
+        {/* Extraction + recommended action summary */}
+        {(result.extraction || result.recommended_action) && (
+          <div
+            style={{
+              padding: "14px 16px",
+              borderRadius: 10,
+              background: "rgba(109,61,245,0.04)",
+              border: "1px solid rgba(109,61,245,0.12)",
+            }}
+          >
+            <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 10px 0" }}>
+              AI Extraction Summary
+            </p>
+            {result.recommended_action && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>Recommended action:</span>
+                <span style={{ fontFamily: "monospace", fontSize: 12, color: "var(--brand-purple)", background: "rgba(109,61,245,0.08)", padding: "2px 8px", borderRadius: 6 }}>
+                  {result.recommended_action.replace(/_/g, " ")}
+                </span>
+              </div>
+            )}
+            {result.extraction && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {result.extraction.guest_count != null && (
+                  <span style={{ fontSize: 12, color: "var(--text-secondary)", background: "var(--surface-soft)", padding: "2px 8px", borderRadius: 6 }}>
+                    Guests: {result.extraction.guest_count}
+                  </span>
+                )}
+                {result.extraction.event_date && (
+                  <span style={{ fontSize: 12, color: "var(--text-secondary)", background: "var(--surface-soft)", padding: "2px 8px", borderRadius: 6 }}>
+                    Date: {result.extraction.event_date}
+                  </span>
+                )}
+                {result.extraction.event_type && (
+                  <span style={{ fontSize: 12, color: "var(--text-secondary)", background: "var(--surface-soft)", padding: "2px 8px", borderRadius: 6 }}>
+                    Type: {result.extraction.event_type}
+                  </span>
+                )}
+                {result.extraction.missing_fields && result.extraction.missing_fields.length > 0 && (
+                  <span style={{ fontSize: 12, color: "var(--warning, #b45309)", background: "rgba(180,83,9,0.06)", padding: "2px 8px", borderRadius: 6 }}>
+                    Missing: {result.extraction.missing_fields.join(", ")}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Room availability — only when a room was matched (no event date for freeform) */}
         {draft?.ai_context?.room_name && (
           <RoomAvailabilityCard
@@ -1248,21 +1299,18 @@ function FreeformEnquiryForm({ restaurants }: { restaurants: Restaurant[] }) {
     setSubmitting(true);
 
     try {
-      // Step 1: Create enquiry
-      setStep("Creating enquiry…");
+      // Single call: extraction → processing → draft
+      setStep("Processing enquiry…");
       const intakeBody: Record<string, unknown> = {
         restaurant_id: form.restaurant_id,
         first_name: form.first_name.trim(),
         last_name: form.last_name.trim(),
         email: form.reply_email.trim(),
-        message: form.message.trim(),
-        meal_period: "dinner",
-        source: "webform",
+        freeform_text: form.message.trim(),
       };
       if (form.audience_type) intakeBody.audience_type = form.audience_type;
-      if (form.preferred_area) intakeBody.preferred_area = form.preferred_area;
 
-      const intakeRes = await fetch(`${API_BASE}/api/v1/enquiries/intake`, {
+      const intakeRes = await fetch(`${API_BASE}/api/v1/enquiries/intake/freeform`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(intakeBody),
@@ -1273,26 +1321,24 @@ function FreeformEnquiryForm({ restaurants }: { restaurants: Restaurant[] }) {
         throw new Error(text || `Intake failed (${intakeRes.status})`);
       }
 
-      const intake: EnquiryIntakeOut = await intakeRes.json();
+      const intake: FreeformIntakeOut = await intakeRes.json();
 
-      // Step 2: Generate AI draft
-      setStep("Generating AI draft…");
-      let draft: EnquiryDraft | null = null;
-      try {
-        const draftRes = await fetch(
-          `${API_BASE}/api/v1/enquiries/${intake.enquiry_id}/draft`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({}),
+      // Map freeform response to EnquiryDraft shape for the success panel
+      const draft: EnquiryDraft | null = intake.draft_body
+        ? {
+            enquiry_id: intake.enquiry_id,
+            message_id: intake.draft_message_id ?? "",
+            subject: intake.draft_subject ?? null,
+            body: intake.draft_body,
+            generated_at: intake.created_at,
+            is_fallback: intake.draft_is_fallback ?? null,
+            model: null,
+            persona_name: intake.persona_name ?? null,
+            ai_context: null,
           }
-        );
-        if (draftRes.ok) draft = await draftRes.json();
-      } catch {
-        // best-effort — show the error in result
-      }
+        : null;
 
-      // Step 3: Send via SMTP
+      // Send via SMTP (best-effort)
       let emailSent = false;
       let smtpDisabled = false;
       if (draft) {
@@ -1327,6 +1373,8 @@ function FreeformEnquiryForm({ restaurants }: { restaurants: Restaurant[] }) {
         reply_email: form.reply_email.trim(),
         restaurantId: intake.restaurant_id,
         rooms,
+        extraction: intake.extraction,
+        recommended_action: intake.recommended_action,
       });
     } catch (err) {
       setApiError(err instanceof Error ? err.message : "Submission failed. Please try again.");

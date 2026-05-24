@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.modules.enquiries.intake_service import EnquiryIntakeService
+from app.modules.enquiries.intake_service import EnquiryIntakeService, FreeformIntakeService
 from app.modules.enquiries.repository import EnquiryRepository
 from app.modules.enquiries.schemas import (
     DraftResponseOut,
@@ -17,6 +17,8 @@ from app.modules.enquiries.schemas import (
     EnquiryOut,
     EnquiryStatusUpdate,
     EnquiryUpdate,
+    FreeformIntakeOut,
+    FreeformIntakeRequest,
     WebformIntakeRequest,
 )
 from app.modules.enquiries.service import EnquiryService
@@ -38,6 +40,10 @@ def get_draft_service(db: Session = Depends(get_db)):  # type: ignore[return]
     return DraftGenerationService(db)
 
 
+def get_freeform_intake_service(db: Session = Depends(get_db)) -> FreeformIntakeService:
+    return FreeformIntakeService(db)
+
+
 @router.post("/intake", response_model=EnquiryIntakeOut, status_code=201)
 def intake_enquiry(
     data: WebformIntakeRequest,
@@ -46,6 +52,22 @@ def intake_enquiry(
     """Accept a webform submission and return the created enquiry with persona and pricing context."""
     try:
         return service.intake(data)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+
+
+@router.post("/intake/freeform", response_model=FreeformIntakeOut, status_code=201)
+def intake_freeform_enquiry(
+    data: FreeformIntakeRequest,
+    service: FreeformIntakeService = Depends(get_freeform_intake_service),
+) -> FreeformIntakeOut:
+    """Accept a freeform natural-language enquiry and run extraction → processing → draft.
+
+    Returns the created enquiry with extraction summary, recommended action,
+    and generated draft body in a single response.
+    """
+    try:
+        return service.intake_freeform(data)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
 

@@ -132,6 +132,60 @@ class EnquiryIntakeOut(BaseModel):
     model_config = {"from_attributes": False}
 
 
+# ── Freeform intake ────────────────────────────────────────────────────────────
+
+
+class FreeformIntakeRequest(BaseModel):
+    """Input schema for freeform webform submission (natural language)."""
+
+    restaurant_id: uuid.UUID
+    first_name: str = Field(..., max_length=100)
+    last_name: str = Field(..., max_length=100)
+    email: EmailStr
+    phone: str | None = Field(default=None, max_length=50)
+    freeform_text: str = Field(..., min_length=10, max_length=5000)
+    audience_type: str | None = Field(default=None, max_length=20)
+
+
+class ExtractionSummaryOut(BaseModel):
+    """Summary of the extraction step included in FreeformIntakeOut."""
+
+    extraction_id: uuid.UUID | None = None
+    prompt_run_id: uuid.UUID | None = None
+    is_fallback: bool
+    validation_status: str | None = None
+    guest_count: int | None = None
+    event_date: str | None = None
+    event_type: str | None = None
+    missing_fields: list[str] | None = None
+
+
+class FreeformIntakeOut(BaseModel):
+    """Response schema for POST /enquiries/intake/freeform.
+
+    Includes extraction summary and recommended action from deterministic
+    processing, plus the generated draft body.
+    """
+
+    enquiry_id: uuid.UUID
+    reference: str
+    status: str
+    restaurant_id: uuid.UUID
+    persona_id: uuid.UUID | None = None
+    persona_name: str | None = None
+    audience_type: str | None = None
+    created_at: datetime
+    # Sprint 7 enrichments
+    extraction: ExtractionSummaryOut | None = None
+    recommended_action: str | None = None
+    draft_subject: str | None = None
+    draft_body: str | None = None
+    draft_message_id: uuid.UUID | None = None
+    draft_is_fallback: bool | None = None
+
+    model_config = {"from_attributes": False}
+
+
 # ── Draft response ─────────────────────────────────────────────────────────────
 
 
