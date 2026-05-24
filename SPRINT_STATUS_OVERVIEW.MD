@@ -2,7 +2,7 @@
 
 **Project:** EventSales AI
 **Phase:** POC (Proof of Concept)
-**Last Updated:** 2026-05-24
+**Last Updated:** 2026-05-24 (post-Sprint-7 hotfix)
 
 ---
 
@@ -20,7 +20,8 @@
 | Sprint 5D | Freeform Webform + Audience Routing | ✓ Complete | #138–#141 |
 | Sprint 5E | AI Transparency + Room Availability | ✓ Complete | #145, #148–#149 |
 | Sprint 6 | AI Gateway, Prompt Registry, and Traceability | ✓ Complete | #160–#168, DOC-013 |
-| Sprint 7 | Freeform Enquiry Extraction & Deterministic Processing | 🔄 In Progress | #181–#189 |
+| Sprint 7 | Freeform Enquiry Extraction & Deterministic Processing | ✓ Complete | #181–#190 |
+| Hotfix | Fix generation failed and send failed errors in freeform webform | ✓ Complete | #192 |
 
 ---
 
@@ -159,13 +160,17 @@
 | Training example capture (POST/GET `/api/v1/ai/training-examples`) | 6 | ✓ |
 | prompt_run_id exposed in draft response (AIContextOut) | 6 | ✓ |
 | Tests: 493 backend, 84 frontend (577 total) | 6 | ✓ |
-| Freeform extraction (LLM Call 1): guest_count, event_date, event_type, occasion, budget | 7 | 🔄 |
-| Deterministic processing: room match + availability + pricing + recommended_action | 7 | 🔄 |
-| Draft enrichment (LLM Call 2): context from processing snapshot | 7 | 🔄 |
-| POST /intake/freeform single-call endpoint (extraction → processing → draft) | 7 | 🔄 |
-| Extraction + processing summary section in enquiry detail drawer | 7 | 🔄 |
-| enquiry_extractions + enquiry_processing_snapshots tables | 7 | 🔄 |
-| Extraction tests, processing tests, orchestration tests | 7 | 🔄 |
+| Freeform extraction (LLM Call 1): guest_count, event_date, event_type, occasion, budget | 7 | ✓ |
+| Deterministic processing: room match + availability + pricing + recommended_action | 7 | ✓ |
+| Draft enrichment (LLM Call 2): context from processing snapshot | 7 | ✓ |
+| POST /intake/freeform single-call endpoint (extraction → processing → draft) | 7 | ✓ |
+| Extraction + processing summary section in enquiry detail drawer | 7 | ✓ |
+| enquiry_extractions + enquiry_processing_snapshots tables | 7 | ✓ |
+| Extraction tests, processing tests, orchestration tests | 7 | ✓ |
+| Tests: 628 backend, 102 frontend (730 total) | 7 | ✓ |
+| Fix: Enquiry model recommended_minimum_spend property (Pydantic from_attributes) | Hotfix | ✓ |
+| Fix: get_db() rollback on exception (prevents PendingRollbackError across requests) | Hotfix | ✓ |
+| Fix: Freeform emailSent null-safe (no false "Send failed" badge when send not attempted) | Hotfix | ✓ |
 
 ---
 
@@ -174,15 +179,16 @@
 | Issue | PR | Title | Status |
 |-------|----|-------|--------|
 | DOC-014 | #181 | Sprint 7 plan: Freeform Extraction & Processing | ✓ Merged |
-| DATA-015 | #182 | Enquiry extraction + processing tables and models | Open |
-| AI-010 | #183 | Enquiry extraction prompt schema V2 (rich schema) | Open |
-| AI-011 | #184 | Draft prompt V2 with enriched extraction context | Open |
-| API-014 | #185 | EnquiryExtractionService (LLM Call 1) | Open |
-| WORKFLOW-007 | #186 | Deterministic enquiry processing (no LLM) | Open |
-| API-015 | #187 | Wire freeform intake to extraction → processing → draft | Open |
-| UI-019 | #188 | Extraction and processing summary in enquiry detail drawer | Open |
-| TEST-008 | #189 | Freeform extraction and processing tests | Open |
-| DOC-015 | — | Update AI workflow documentation | In Progress |
+| DATA-015 | #182 | Enquiry extraction + processing tables and models | ✓ Merged |
+| AI-010 | #183 | Enquiry extraction prompt schema V2 (rich schema) | ✓ Merged |
+| AI-011 | #184 | Draft prompt V2 with enriched extraction context | ✓ Merged |
+| API-014 | #185 | EnquiryExtractionService (LLM Call 1) | ✓ Merged |
+| WORKFLOW-007 | #186 | Deterministic enquiry processing (no LLM) | ✓ Merged |
+| API-015 | #187 | Wire freeform intake to extraction → processing → draft | ✓ Merged |
+| UI-019 | #188 | Extraction and processing summary in enquiry detail drawer | ✓ Merged |
+| TEST-008 | #189 | Freeform extraction and processing tests | ✓ Merged |
+| DOC-015 | #190 | Update AI workflow documentation | ✓ Merged |
+| — | #192 | Hotfix: generation failed + send failed errors | ✓ Merged |
 
 ---
 
