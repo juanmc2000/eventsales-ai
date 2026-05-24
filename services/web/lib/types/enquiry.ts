@@ -152,6 +152,39 @@ export type EnquiryDraft = {
 };
 
 /**
+ * Latest extraction record for an enquiry.
+ * Mirrors EnquiryExtractionOut in services/api/app/modules/enquiries/schemas.py.
+ * Returned by GET /enquiries/{id}/extractions/latest.
+ */
+export type EnquiryExtractionOut = {
+  id: string;
+  enquiry_id: string;
+  tenant_id: string | null;
+  extracted_json: Record<string, unknown> | null;
+  normalized_json: Record<string, unknown> | null;
+  missing_fields: string[] | null;
+  confidence_json: Record<string, unknown> | null;
+  created_at: string;
+};
+
+/**
+ * Latest processing snapshot for an enquiry.
+ * Mirrors EnquiryProcessingSnapshotOut in services/api/app/modules/enquiries/schemas.py.
+ * Returned by GET /enquiries/{id}/processing/latest.
+ */
+export type EnquiryProcessingSnapshotOut = {
+  id: string;
+  enquiry_id: string;
+  extraction_id: string | null;
+  recommended_action: string | null;
+  availability_result_json: Record<string, unknown> | null;
+  room_suitability_json: Record<string, unknown> | null;
+  pricing_result_json: Record<string, unknown> | null;
+  missing_fields_json: string[] | null;
+  created_at: string;
+};
+
+/**
  * Email delivery event record from email_events table.
  * Mirrors the backend EmailEvent model.
  */
