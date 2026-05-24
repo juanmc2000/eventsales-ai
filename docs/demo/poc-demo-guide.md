@@ -363,5 +363,37 @@ The IMAP reader is disabled; no inbox polling occurs. Show the existing seed enq
 | **Full demo loop completable without live credentials** | ✓ **Yes** | Fallback + seed data |
 | **Full demo loop completable with Gmail credentials** | ✓ **Yes** | SMTP + IMAP active |
 | **Room/PDR context visible in webform and draft generation** | ✓ **Yes** | Sprint 5C |
+| Freeform intake → extraction → processing → draft (single call) | 🔄 Sprint 7 | Requires Sprint 7 PRs merged |
+| Extraction summary in freeform success response | 🔄 Sprint 7 | guest_count, event_date, event_type, missing_fields |
+| Recommended action in freeform success response | 🔄 Sprint 7 | Deterministic from processing snapshot |
+| Enquiry detail drawer shows extraction + processing summary | 🔄 Sprint 7 | UI-019 |
 
 **POC verdict:** The complete operational loop — webform intake (with room selection) → enquiry creation → persona/pricing attachment → room-context draft generation → email send → inbound reply threading — is implemented and demonstrable. The system requires Gmail App Password credentials for live email and optionally an Anthropic API key for LLM-quality drafts; all other flows operate fully with seeded data and deterministic fallbacks.
+
+---
+
+## 13. Sprint 7 Demo Script — Freeform Extraction Flow
+
+> This section applies when Sprint 7 PRs are merged.
+
+### What the freeform flow now demonstrates
+
+The **Freeform Enquiry** tab (`/webform → Freeform Enquiry`) now runs a three-step backend pipeline in a single HTTP request:
+
+1. **Extraction (LLM Call 1):** The Anthropic model reads the guest's natural-language message and extracts structured facts — guest count, event date, event type, occasion, budget — into a JSON record.
+2. **Deterministic processing (no LLM):** The system matches a room, checks availability for the extracted date, calculates a minimum spend, and selects a recommended action.
+3. **Draft generation (LLM Call 2):** The draft is written using the enriched context from steps 1–2, not just the raw guest message.
+
+### Talking points
+
+**On the two-call split:**
+> "We deliberately separate extraction from drafting. If the guest gives us vague text, the extraction step tells us what's missing before we even attempt to write a response. The draft is only generated with the best available context — including room availability and confirmed pricing."
+
+**On the recommended action:**
+> "The recommended action is fully deterministic — no LLM needed. If the extracted date is available and we have a room match, we send a confirmation. If critical info is missing, we flag it before drafting. This makes the system auditable and debuggable."
+
+**On the enquiry detail drawer:**
+> "In the enquiry detail view, the AI Extraction Summary section shows exactly what was extracted from the guest's message, what was missing, which room was matched, what the availability was, and what pricing applied. Nothing is a black box."
+
+**On the fallback path:**
+> "If no Anthropic API key is set, or if extraction fails, the system gracefully falls back to the original single-call draft path. The enquiry is always created — nothing crashes."
