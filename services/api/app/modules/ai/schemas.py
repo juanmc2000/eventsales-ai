@@ -52,6 +52,18 @@ class DraftContext:
     room_suitability_notes: str | None = field(default=None)
     room_booking_url: str | None = field(default=None)
     room_is_private_dining: bool = field(default=False)
+    # Sprint 7 enrichment — populated from processing snapshot when available (AI-011)
+    # Deterministic availability from room_availability table
+    availability_status: str | None = field(default=None)   # "available"|"booked"|"held"|"unavailable"|"unknown"
+    availability_date: str | None = field(default=None)     # ISO date
+    availability_meal_period: str | None = field(default=None)
+    # Deterministic pricing from pricing rules
+    confirmed_minimum_spend: float | None = field(default=None)
+    pricing_explanation: str | None = field(default=None)
+    # Missing fields to ask the guest about
+    missing_questions: list[str] | None = field(default=None)
+    # Recommended action from processing service
+    recommended_action: str | None = field(default=None)
 
 
 @dataclass

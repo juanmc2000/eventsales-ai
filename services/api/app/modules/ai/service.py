@@ -16,9 +16,11 @@ The AI Gateway handles all LLM calls, prompt resolution, and trace logging.
 
 from __future__ import annotations
 
+import logging
 import uuid
 from datetime import datetime, timezone
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -38,6 +40,17 @@ from app.modules.ai.schemas import (
 from app.modules.enquiries.repository import EnquiryRepository
 from app.modules.personas.repository import PersonaRepository
 from app.modules.restaurants.repository import RestaurantRepository, RoomRepository
+
+# EnquiryProcessingSnapshot is added by DATA-015 / WORKFLOW-007.  Lazy import so
+# this service is importable on deployments that haven't applied those migrations.
+try:
+    from app.modules.enquiries.models import EnquiryProcessingSnapshot
+    _PROCESSING_MODEL_AVAILABLE = True
+except ImportError:  # pragma: no cover
+    EnquiryProcessingSnapshot = None  # type: ignore[assignment,misc]
+    _PROCESSING_MODEL_AVAILABLE = False
+
+logger = logging.getLogger(__name__)
 
 
 class DraftGenerationService:
@@ -134,6 +147,11 @@ class DraftGenerationService:
             room_booking_url=room.booking_url if room else None,
             room_is_private_dining=room.is_private_dining if room else False,
         )
+
+        # ── Sprint 7: Load processing snapshot for enriched context ──────────
+        snapshot = _load_latest_processing_snapshot(self._db, enquiry_id)
+        if snapshot is not None:
+            context = _enrich_context_from_snapshot(context, snapshot)
 
         # Build input_payload for the draft_response prompt template
         input_payload = _build_draft_input_payload(context)
@@ -233,17 +251,113 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
         "party_size_line": (
             f"Party size: {context.party_size}\n" if context.party_size else ""
         ),
-        "spend_line": (
-            f"Recommended minimum spend: £{context.recommended_minimum_spend:,.0f}\n"
-            if context.recommended_minimum_spend and context.recommended_minimum_spend > 0
-            else ""
-        ),
+        "spend_line": _build_spend_line(context),
         "guest_message_line": (
             f'Guest message: "{context.guest_message}"\n' if context.guest_message else ""
         ),
         "room_lines": _build_room_lines(context),
+        # Sprint 7 enrichment variables (present only when processing snapshot is available)
+        "availability_line": _build_availability_line(context),
+        "missing_questions_line": _build_missing_questions_line(context),
     }
     return payload
+
+
+def _build_spend_line(context: DraftContext) -> str:
+    """Build spend line — prefer confirmed_minimum_spend from snapshot over metadata."""
+    spend = context.confirmed_minimum_spend or context.recommended_minimum_spend
+    if spend and spend > 0:
+        return f"Confirmed minimum spend: £{spend:,.0f}\n"
+    return ""
+
+
+def _build_availability_line(context: DraftContext) -> str:
+    """Build availability line from deterministic availability result."""
+    if not context.availability_status:
+        return ""
+    status = context.availability_status
+    date_str = context.availability_date or ""
+    period = context.availability_meal_period or ""
+    if status == "available":
+        return f"Availability: Room is available for {date_str} {period}.\n"
+    if status in ("booked", "held", "unavailable"):
+        return f"Availability: The requested slot ({date_str} {period}) is not available.\n"
+    return ""  # unknown → don't mention availability
+
+
+def _build_missing_questions_line(context: DraftContext) -> str:
+    """Format missing questions as a prompt instruction for the model."""
+    if not context.missing_questions:
+        return ""
+    questions = ", ".join(context.missing_questions)
+    return f"Please ask the guest for the following missing information: {questions}.\n"
+
+
+def _load_latest_processing_snapshot(db: Session, enquiry_id: uuid.UUID):
+    """Return the most recent processing snapshot for an enquiry, or None.
+
+    Returns None safely when EnquiryProcessingSnapshot model is unavailable
+    (DATA-015 not yet applied).
+    """
+    if not _PROCESSING_MODEL_AVAILABLE or EnquiryProcessingSnapshot is None:
+        return None
+    try:
+        stmt = (
+            select(EnquiryProcessingSnapshot)
+            .where(EnquiryProcessingSnapshot.enquiry_id == enquiry_id)
+            .order_by(EnquiryProcessingSnapshot.created_at.desc())
+            .limit(1)
+        )
+        return db.scalars(stmt).first()
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Could not load processing snapshot for %s: %s", enquiry_id, exc)
+        return None
+
+
+def _enrich_context_from_snapshot(context: DraftContext, snapshot) -> DraftContext:
+    """Return a copy of DraftContext enriched with processing snapshot data.
+
+    Uses dataclass replace-style construction — does NOT mutate the original.
+    """
+    from dataclasses import replace
+
+    availability_status = None
+    availability_date = None
+    availability_meal_period = None
+    if snapshot.availability_result_json:
+        avail = snapshot.availability_result_json
+        availability_status = avail.get("status")
+        availability_date = avail.get("date")
+        availability_meal_period = avail.get("meal_period")
+
+    confirmed_minimum_spend = None
+    pricing_explanation = None
+    if snapshot.pricing_result_json:
+        pricing = snapshot.pricing_result_json
+        confirmed_minimum_spend = pricing.get("minimum_spend")
+        pricing_explanation = pricing.get("explanation")
+
+    room_name = context.room_name
+    if snapshot.room_suitability_json and snapshot.room_suitability_json.get("matched"):
+        room_name = snapshot.room_suitability_json.get("room_name") or room_name
+
+    missing_questions: list[str] | None = None
+    if snapshot.missing_fields_json:
+        missing_questions = list(snapshot.missing_fields_json)
+
+    recommended_action = getattr(snapshot, "recommended_action", None)
+
+    return replace(
+        context,
+        room_name=room_name,
+        availability_status=availability_status,
+        availability_date=availability_date,
+        availability_meal_period=availability_meal_period,
+        confirmed_minimum_spend=confirmed_minimum_spend,
+        pricing_explanation=pricing_explanation,
+        missing_questions=missing_questions,
+        recommended_action=recommended_action,
+    )
 
 
 def _build_room_lines(context: DraftContext) -> str:
