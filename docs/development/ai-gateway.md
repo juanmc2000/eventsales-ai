@@ -1,6 +1,6 @@
 # AI Gateway — Architecture and Prompt Governance
 
-**Sprint:** 6 (architecture) · Sprint 7 (freeform extraction + processing split)
+**Sprint:** 6 (architecture) · Sprint 7 (freeform extraction + processing split) · Sprint 8 (LLM parameters, experiments, quality scoring)
 **Status:** Implemented (POC)
 
 ---
@@ -47,27 +47,45 @@ For the POC, prompt templates are owned in code in `prompt_registry.py`. This av
 
 Each `PromptDefinition` is a frozen dataclass containing:
 
-| Field | Description |
-|-------|-------------|
-| `key` | Stable logical identifier (e.g. `"draft_response"`) |
-| `version` | Integer, auto-incremented per key |
-| `status` | `"active"`, `"archived"`, or `"draft"` |
-| `system_template` | Jinja2-compatible `{variable}` template string |
-| `user_template` | Jinja2-compatible `{variable}` template string |
-| `required_variables` | Frozenset of variable names that must be present |
-| `optional_variables` | Frozenset of variables that default to `""` if absent |
-| `output_schema_name` | Logical name of the expected Pydantic output schema |
-| `model_provider`, `model_name` | Target provider and model |
+| Field | Type | Description |
+|-------|------|-------------|
+| `key` | `str` | Stable logical identifier (e.g. `"draft_response"`) |
+| `version` | `int` | Integer, auto-incremented per key |
+| `status` | `str` | `"active"`, `"archived"`, or `"draft"` |
+| `name` | `str` | Human-readable prompt name (e.g. `"Draft Response v2"`) |
+| `goal` | `str` | Purpose statement for documentation and tracing |
+| `system_template` | `str` | `{variable}` template string for system turn |
+| `user_template` | `str` | `{variable}` template string for user turn |
+| `required_variables` | `frozenset` | Variable names that must be present |
+| `optional_variables` | `frozenset` | Variables that default to `""` if absent |
+| `output_schema_name` | `str` | Logical name of the expected Pydantic output schema |
+| `model_provider`, `model_name` | `str` | Target provider and model |
+| `temperature` | `float` | Configured sampling temperature (stored as float, not string) |
+| `top_p` | `float \| None` | Nucleus sampling probability (optional) |
+| `top_k` | `int \| None` | Top-k sampling limit (optional; not forwarded to Anthropic API) |
+| `max_tokens` | `int \| None` | Maximum response tokens (optional) |
+
+### Configured vs actual parameter distinction
+
+`PromptDefinition` holds the **configured** (intended) parameters.
+`AIPromptRun` records hold the **actual** (runtime) parameters that were used.
+
+For the POC these are always identical, but the schema separation allows:
+- Detecting configuration drift (e.g. after a registry edit)
+- Comparing multiple runs of the same prompt with different configurations
+- Informing experiment analysis
+
+> **Important:** `temperature` is stored as a Python `float`, never as a string. A type coercion bug (e.g. `"0.7"` instead of `0.7`) would break numerical comparisons and is guarded by tests.
 
 ### Registered prompt keys
 
-| Key | Category | Output schema |
-|-----|----------|---------------|
-| `draft_response` | `draft_generation` | `DraftEmailOutput` |
-| `enquiry_extraction` | `intake` | `EnquiryExtractionOutput` |
-| `missing_info_request` | `intake` | — |
-| `follow_up_response` | `follow_up` | — |
-| `availability_alternative_response` | `draft_generation` | — |
+| Key | Category | Output schema | Temperature | Notes |
+|-----|----------|---------------|-------------|-------|
+| `draft_response` | `draft_generation` | `DraftEmailOutput` | 0.7 | Main venue response draft |
+| `enquiry_extraction` | `intake` | `EnquiryExtractionOutput` | 0.1 | Low temp for factual accuracy |
+| `missing_info_request` | `intake` | — | 0.5 | Polite follow-up questions |
+| `follow_up_response` | `follow_up` | — | 0.5 | Proactive re-engagement |
+| `availability_alternative_response` | `draft_generation` | — | 0.7 | Alternative date/room suggestion |
 
 ---
 
@@ -140,6 +158,15 @@ Every `AIGateway.run()` call — including fallback runs — creates an `ai_prom
 | `fallback_used` | True when no LLM call was made |
 | `latency_ms` | Wall-clock LLM call duration |
 | `status` | `success`, `fallback`, `error` |
+| `prompt_name` | Human-readable prompt name from the definition |
+| `prompt_goal` | Purpose statement from the definition |
+| `temperature` | Actual temperature used at runtime (Numeric 4,2) |
+| `top_p` | Actual top_p used at runtime (Numeric 4,2; nullable) |
+| `top_k` | Actual top_k used at runtime (Integer; nullable) |
+| `max_tokens` | Actual max_tokens used at runtime (Integer; nullable) |
+| `token_input_count` | Input token count from provider response (nullable) |
+| `token_output_count` | Output token count from provider response (nullable) |
+| `estimated_cost` | Cost string for audit (nullable; not calculated in POC) |
 
 ### Trace API
 
@@ -303,15 +330,164 @@ Old versions are archived (not deleted) per the registry's historical record rul
 
 ---
 
+## Prompt Experiments (Sprint 8)
+
+Prompt experiments group multiple prompt runs for parameter comparison. They provide a lightweight structure for manual A/B testing without a dedicated experimentation UI.
+
+### Tables
+
+| Table | Purpose |
+|-------|---------|
+| `ai_prompt_experiments` | Groups runs for comparison (status: `active`, `completed`, `archived`) |
+| `ai_prompt_experiment_runs` | Links a prompt run to an experiment with variant metadata |
+
+### AIPromptExperiment fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | String | Tenant (nullable in POC) |
+| `prompt_key` | String | The prompt being experimented on |
+| `name` | String | Short experiment label |
+| `goal` | Text | What the experiment is trying to determine |
+| `baseline_prompt_version_id` | UUID FK (nullable) | Reference run (control) |
+| `status` | String | `active`, `completed`, `archived` |
+| `notes` | Text | Freeform experimenter notes |
+| `created_at` | Timestamp | — |
+
+### AIPromptExperimentRun fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | UUID | Primary key |
+| `experiment_id` | UUID FK | Parent experiment |
+| `prompt_run_id` | UUID FK | The actual `ai_prompt_runs` row |
+| `variant_name` | String | Short label for this variant (e.g. `"temp=0.3"`) |
+| `temperature` | Numeric(4,2) | Parameter used for this variant |
+| `top_p`, `top_k`, `max_tokens` | Numeric/Integer | Other parameters |
+| `evaluator_score` | Numeric(4,2) | Human-assigned overall score (0–5) |
+| `reviewer_notes` | Text | Evaluation notes |
+| `selected_as_winner` | Boolean | True if this variant was chosen (default False, non-nullable) |
+| `created_at` | Timestamp | — |
+
+### Experiment API
+
+```
+POST /api/v1/ai/prompt-experiments                                  — create experiment
+GET  /api/v1/ai/prompt-experiments                                  — list (filter by prompt_key, status)
+GET  /api/v1/ai/prompt-experiments/{id}                             — detail
+POST /api/v1/ai/prompt-experiments/{id}/runs                        — link a prompt run as a variant
+GET  /api/v1/ai/prompt-experiments/{id}/runs                        — list variants
+PATCH /api/v1/ai/prompt-experiments/{experiment_id}/runs/{run_id}   — update score/winner flag
+```
+
+### Experiment workflow (POC)
+
+The POC requires manual steps:
+1. Create an experiment via the API with a goal statement
+2. Run the gateway with different prompt definitions in `prompt_registry.py`
+3. Link the resulting `ai_prompt_runs` rows to the experiment via `POST .../runs`
+4. Score each variant using `PATCH .../runs/{run_id}` with `evaluator_score`
+5. Mark the winner with `selected_as_winner: true`
+
+There is no automated parameter sweep, scheduled runner, or experiment UI.
+
+### Recommended parameter test matrix (draft generation)
+
+| Variable | Values to test |
+|----------|---------------|
+| `temperature` | 0.3, 0.5, 0.7 |
+| `top_p` | 0.8, 0.9, 1.0 |
+| `top_k` | 40, 80, unset |
+| `max_tokens` | 600, 900, 1200 |
+
+Run each combination for the same enquiry context; score using the quality review dimensions below.
+
+### Recommended extraction parameter ranges
+
+Extraction prompts require factual accuracy over creativity. Use conservative settings:
+
+| Parameter | Recommended range |
+|-----------|------------------|
+| `temperature` | 0.0–0.2 (currently 0.1) |
+| `top_p` | 0.8–1.0 |
+| `top_k` | Low or unset |
+| `max_tokens` | Enough for JSON output only (not full prose) |
+
+---
+
+## Quality Scoring (Sprint 8)
+
+Reviewers can rate any prompt run using `ai_prompt_run_reviews`. This supports the manual improvement loop without requiring an automated evaluator.
+
+### AIPromptRunReview fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | UUID | Primary key |
+| `prompt_run_id` | UUID FK | The reviewed `ai_prompt_runs` row |
+| `tenant_id` | String | Tenant (nullable in POC) |
+| `reviewer_user_id` | String | Who performed the review |
+| `accuracy_score` | Numeric(4,2) | Factual correctness 0–5 |
+| `tone_fit_score` | Numeric(4,2) | Tone matches persona and context 0–5 |
+| `persona_fit_score` | Numeric(4,2) | Response feels like the assigned persona 0–5 |
+| `commercial_quality_score` | Numeric(4,2) | Sells the venue effectively 0–5 |
+| `completeness_score` | Numeric(4,2) | Addresses all guest questions 0–5 |
+| `hallucination_risk_score` | Numeric(4,2) | Absence of fabricated facts 0–5 |
+| `ready_to_send` | Boolean (nullable) | Reviewer judgment — does not trigger any automated action |
+| `reviewer_notes` | Text | Freeform feedback |
+| `created_at`, `updated_at` | Timestamp | — |
+
+All score fields are nullable; a review can be submitted with partial scores.
+
+> **POC guardrail:** `ready_to_send` is reviewer intent only. It does **not** trigger automated email sending. No automated evaluator or ML scoring field exists in this schema.
+
+### Quality review API
+
+```
+POST  /api/v1/ai/prompt-runs/{id}/reviews          — create review
+GET   /api/v1/ai/prompt-runs/{id}/reviews          — list reviews (newest-first)
+PATCH /api/v1/ai/prompt-run-reviews/{review_id}    — update scores, notes, or ready_to_send
+```
+
+Score validation: all score values must be between 0.0 and 5.0 (inclusive). Out-of-range values return HTTP 422.
+
+`prompt_run_id` cannot be changed via PATCH — it is immutable after creation.
+
+### Quality review UI
+
+`PromptRunReviewPanel` (`services/web/components/enquiries/PromptRunReviewPanel.tsx`) renders inside the enquiry detail drawer when a draft was produced by the live LLM (i.e. `ai_context.prompt_run_id` is non-null). It is **collapsed by default** to keep the main enquiry workflow clean.
+
+The panel is not shown when the fallback provider was used (`is_fallback=true`).
+
+---
+
+## POC Limitations (updated Sprint 8)
+
+| Limitation | Planned resolution |
+|------------|-------------------|
+| Prompt templates in code (not DB-editable) | Add prompt editor admin UI in post-POC |
+| No tenant override activation (`tenant_prompt_configs` table exists but not wired) | Wire in multi-tenant auth sprint |
+| No automated A/B parameter sweep | Post-POC experimentation framework |
+| No automated retention on `ai_prompt_runs` | Post-POC data governance |
+| Rendered prompts may contain guest PII | Post-POC PII scrubbing |
+| No retry logic for failed provider calls | Post-POC reliability hardening |
+| Training example review is manual (API-only, no UI) | Post-POC review UI |
+| `token_input_count`, `token_output_count`, `estimated_cost` not populated | Requires Anthropic usage API wiring (post-POC) |
+| Experiment runner is manual (no scheduled or automated sweep) | Post-POC experimentation framework |
+| `top_k` stored in `ai_prompt_runs` but not forwarded to Anthropic API (not supported) | Use with other providers |
+
+---
+
 ## What Is Intentionally Not Built
 
-- Prompt editing or approval UI
-- A/B testing or experimentation framework
+- Prompt editing or approval UI (any prompt UI visible to users or reviewers)
+- Automated A/B testing or experiment parameter sweep
+- Automated evaluator or ML scoring (all review scores are human-entered)
 - Fine-tuning pipeline or dataset export
 - Multi-provider cost optimisation
 - Real-time streaming responses
 - Automatic prompt improvement loops
 - Production prompt approval workflows
-- Any prompt UI visible to end users
 - Third LLM call for response planning (planned for post-POC MVP)
 - Audience auto-detection from email content (manual selector is the current workaround)
