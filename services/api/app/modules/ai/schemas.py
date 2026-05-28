@@ -163,6 +163,8 @@ class PromptRunOut(BaseModel):
 
     id: uuid.UUID
     prompt_key: str | None
+    prompt_name: str | None
+    prompt_goal: str | None
     prompt_version: int | None
     trigger_type: str | None
     restaurant_id: uuid.UUID | None
@@ -170,6 +172,10 @@ class PromptRunOut(BaseModel):
     persona_id: uuid.UUID | None
     model_provider: str | None
     model_name: str | None
+    temperature: float | None
+    top_p: float | None
+    top_k: int | None
+    max_tokens: int | None
     validation_status: str | None
     fallback_used: bool
     fallback_reason: str | None

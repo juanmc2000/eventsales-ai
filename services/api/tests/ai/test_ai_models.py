@@ -57,12 +57,19 @@ def test_ai_prompt_version_columns() -> None:
     cols = {c.name for c in AIPromptVersion.__table__.columns}
     assert "id" in cols
     assert "prompt_template_id" in cols
+    assert "prompt_key" in cols
+    assert "prompt_name" in cols
+    assert "goal" in cols
     assert "version" in cols
     assert "status" in cols
     assert "system_prompt" in cols
     assert "user_prompt_template" in cols
     assert "model_provider" in cols
     assert "model_name" in cols
+    assert "temperature" in cols
+    assert "top_p" in cols
+    assert "top_k" in cols
+    assert "max_tokens" in cols
 
 
 def test_tenant_prompt_config_columns() -> None:
@@ -86,6 +93,8 @@ def test_ai_prompt_run_columns() -> None:
     assert "tenant_id" in cols
     assert "enquiry_id" in cols
     assert "prompt_version_id" in cols
+    assert "prompt_name" in cols
+    assert "prompt_goal" in cols
     assert "rendered_system_prompt" in cols
     assert "rendered_user_prompt" in cols
     assert "input_payload" in cols
@@ -95,6 +104,10 @@ def test_ai_prompt_run_columns() -> None:
     assert "validation_errors" in cols
     assert "fallback_used" in cols
     assert "fallback_reason" in cols
+    assert "temperature" in cols
+    assert "top_p" in cols
+    assert "top_k" in cols
+    assert "max_tokens" in cols
     assert "latency_ms" in cols
     assert "status" in cols
 

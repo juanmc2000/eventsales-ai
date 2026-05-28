@@ -37,6 +37,12 @@ def _make_mock_run(
     run.persona_id = uuid.uuid4()
     run.model_provider = "anthropic"
     run.model_name = "claude-haiku-4-5-20251001"
+    run.prompt_name = None
+    run.prompt_goal = None
+    run.temperature = None
+    run.top_p = None
+    run.top_k = None
+    run.max_tokens = None
     run.validation_status = validation_status
     run.fallback_used = fallback_used
     run.fallback_reason = None
