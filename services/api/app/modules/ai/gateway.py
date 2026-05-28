@@ -106,9 +106,16 @@ class AIGateway:
             "trigger_source": request.trigger_source or TRIGGER_SOURCE_API,
             "triggered_by_user_id": request.triggered_by_user_id,
             "prompt_key": defn.key,
+            "prompt_name": defn.name or None,
+            "prompt_goal": defn.goal or None,
             "prompt_version": defn.version,
             "model_provider": MODEL_PROVIDER_FALLBACK if self._is_fallback else MODEL_PROVIDER_ANTHROPIC,
             "model_name": self._provider.model_name,
+            # Actual runtime LLM parameters from the prompt definition
+            "temperature": defn.temperature,
+            "top_p": defn.top_p,
+            "top_k": defn.top_k,
+            "max_tokens": defn.max_tokens,
             "rendered_system_prompt": rendered_system,
             "rendered_user_prompt": rendered_user,
             "input_payload": request.input_payload,
@@ -169,6 +176,9 @@ class AIGateway:
             raw_response = self._provider.generate_from_prompts(
                 rendered_system,  # type: ignore[arg-type]
                 rendered_user,    # type: ignore[arg-type]
+                max_tokens=defn.max_tokens,
+                temperature=defn.temperature,
+                top_p=defn.top_p,
             )
         except Exception as exc:  # noqa: BLE001
             logger.warning("Provider call failed for %s: %s", request.prompt_key, exc)
