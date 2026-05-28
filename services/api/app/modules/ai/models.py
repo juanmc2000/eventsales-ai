@@ -12,7 +12,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, Numeric, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -73,6 +73,10 @@ class AIPromptVersion(Base):
         nullable=False,
         index=True,
     )
+    # Denormalised from template for fast querying without joins
+    prompt_key: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
+    prompt_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    goal: Mapped[str | None] = mapped_column(Text, nullable=True)
     # Auto-incremented per template; assigned by the application on insert
     version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     # "draft" | "active" | "archived"
@@ -87,7 +91,10 @@ class AIPromptVersion(Base):
     model_provider: Mapped[str | None] = mapped_column(String(50), nullable=True)
     # e.g. "claude-sonnet-4-6"
     model_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    temperature: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    # LLM generation parameters (configured values for this version)
+    temperature: Mapped[float | None] = mapped_column(Numeric(4, 2), nullable=True)
+    top_p: Mapped[float | None] = mapped_column(Numeric(4, 2), nullable=True)
+    top_k: Mapped[int | None] = mapped_column(Integer, nullable=True)
     max_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
     change_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     # User reference; nullable — system seed has no human author
@@ -198,9 +205,16 @@ class AIPromptRun(Base):
     )
     # Denormalised for fast querying without joins
     prompt_key: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
+    prompt_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    prompt_goal: Mapped[str | None] = mapped_column(Text, nullable=True)
     prompt_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
     model_provider: Mapped[str | None] = mapped_column(String(50), nullable=True)
     model_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    # Actual LLM runtime parameters used for this run
+    temperature: Mapped[float | None] = mapped_column(Numeric(4, 2), nullable=True)
+    top_p: Mapped[float | None] = mapped_column(Numeric(4, 2), nullable=True)
+    top_k: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    max_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
     # Exact strings sent to the LLM
     rendered_system_prompt: Mapped[str | None] = mapped_column(Text, nullable=True)
     rendered_user_prompt: Mapped[str | None] = mapped_column(Text, nullable=True)
