@@ -16,6 +16,7 @@ from app.modules.ai.models import (
     AIPromptExperiment,
     AIPromptExperimentRun,
     AIPromptRun,
+    AIPromptRunReview,
     AITrainingExample,
 )
 
@@ -254,3 +255,54 @@ class AIPromptExperimentRepository:
             setattr(run, key, value)
         self._db.flush()
         return run
+
+
+class AIPromptRunReviewRepository:
+    """Persistence layer for ai_prompt_run_reviews."""
+
+    def __init__(self, db: Session) -> None:
+        self._db = db
+
+    def create_review(self, data: dict[str, Any]) -> AIPromptRunReview:
+        """Insert a new review row and flush."""
+        review = AIPromptRunReview(id=uuid.uuid4(), **data)
+        self._db.add(review)
+        self._db.flush()
+        return review
+
+    def get_review(self, review_id: uuid.UUID) -> AIPromptRunReview | None:
+        """Return the review row for the given ID, or None."""
+        return self._db.get(AIPromptRunReview, review_id)
+
+    def list_reviews_for_run(
+        self,
+        prompt_run_id: uuid.UUID,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> tuple[list[AIPromptRunReview], int]:
+        """Return paginated reviews for a prompt run, newest-first."""
+        stmt = (
+            select(AIPromptRunReview)
+            .where(AIPromptRunReview.prompt_run_id == prompt_run_id)
+        )
+        count_stmt = (
+            select(AIPromptRunReview)
+            .where(AIPromptRunReview.prompt_run_id == prompt_run_id)
+        )
+        total = len(self._db.scalars(count_stmt).all())
+        reviews = list(
+            self._db.scalars(
+                stmt.order_by(AIPromptRunReview.created_at.desc()).offset(skip).limit(limit)
+            ).all()
+        )
+        return reviews, total
+
+    def update_review(self, review_id: uuid.UUID, updates: dict[str, Any]) -> AIPromptRunReview:
+        """Apply field updates to an existing review and flush."""
+        review = self._db.get(AIPromptRunReview, review_id)
+        if review is None:
+            raise ValueError(f"AIPromptRunReview {review_id} not found")
+        for key, value in updates.items():
+            setattr(review, key, value)
+        self._db.flush()
+        return review
