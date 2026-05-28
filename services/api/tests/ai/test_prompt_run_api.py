@@ -9,7 +9,7 @@ import uuid
 from datetime import datetime, timezone
 from unittest.mock import MagicMock
 
-import pytest
+import pytest  # noqa: F401 (used in test assertions)
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -48,6 +48,9 @@ def _make_mock_run(
     run.fallback_reason = None
     run.status = status
     run.latency_ms = 150
+    run.token_input_count = None
+    run.token_output_count = None
+    run.estimated_cost = None
     run.created_at = datetime.now(timezone.utc)
     run.rendered_system_prompt = "System prompt text"
     run.rendered_user_prompt = "User prompt text"
@@ -179,6 +182,46 @@ class TestPromptRunListEndpoint:
             assert "fallback_used" in item
             assert "status" in item
             assert "created_at" in item
+        finally:
+            app.dependency_overrides.clear()
+
+    def test_list_items_include_llm_parameters(self) -> None:
+        run = _make_mock_run()
+        run.temperature = 0.7
+        run.top_p = None
+        run.top_k = None
+        run.max_tokens = 800
+        run.prompt_name = "Draft Response Generator"
+        run.prompt_goal = "Generate a persona-based draft response."
+        run.token_input_count = 512
+        run.token_output_count = 128
+        run.estimated_cost = "0.0003"
+        mock_repo = self._mock_repo([run])
+        app.dependency_overrides[get_repo] = lambda: mock_repo
+        try:
+            response = self.client.get("/api/v1/ai/prompt-runs")
+            item = response.json()["items"][0]
+            assert item["temperature"] == pytest.approx(0.7)
+            assert item["max_tokens"] == 800
+            assert item["prompt_name"] == "Draft Response Generator"
+            assert item["prompt_goal"] == "Generate a persona-based draft response."
+            assert item["token_input_count"] == 512
+            assert item["token_output_count"] == 128
+            assert item["estimated_cost"] == "0.0003"
+        finally:
+            app.dependency_overrides.clear()
+
+    def test_list_items_null_llm_params_are_serialised(self) -> None:
+        mock_repo = self._mock_repo([_make_mock_run()])
+        app.dependency_overrides[get_repo] = lambda: mock_repo
+        try:
+            response = self.client.get("/api/v1/ai/prompt-runs")
+            item = response.json()["items"][0]
+            # All LLM parameter fields present; null is acceptable
+            for field in ("temperature", "top_p", "top_k", "max_tokens",
+                          "prompt_name", "prompt_goal",
+                          "token_input_count", "token_output_count", "estimated_cost"):
+                assert field in item
         finally:
             app.dependency_overrides.clear()
 
