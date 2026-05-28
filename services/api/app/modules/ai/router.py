@@ -21,6 +21,13 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.modules.ai.repository import AIPromptRunRepository
 from app.modules.ai.schemas import (
+    PromptExperimentCreate,
+    PromptExperimentListOut,
+    PromptExperimentOut,
+    PromptExperimentRunCreate,
+    PromptExperimentRunListOut,
+    PromptExperimentRunOut,
+    PromptExperimentRunUpdate,
     PromptRunDetailOut,
     PromptRunListOut,
     PromptRunOut,
@@ -39,6 +46,11 @@ def get_repo(db: Session = Depends(get_db)) -> AIPromptRunRepository:
 def get_training_service(db: Session = Depends(get_db)):  # type: ignore[return]
     from app.modules.ai.service import TrainingExampleService
     return TrainingExampleService(db)
+
+
+def get_experiment_service(db: Session = Depends(get_db)):  # type: ignore[return]
+    from app.modules.ai.service import PromptExperimentService
+    return PromptExperimentService(db)
 
 
 @router.get("/prompt-runs", response_model=PromptRunListOut)
@@ -147,3 +159,120 @@ def get_training_example(
     if example is None:
         raise HTTPException(status_code=404, detail=f"Training example {example_id} not found")
     return TrainingExampleOut.model_validate(example)
+
+
+# ── Prompt experiment endpoints ────────────────────────────────────────────────
+
+
+@router.post("/prompt-experiments", response_model=PromptExperimentOut, status_code=201)
+def create_prompt_experiment(
+    data: PromptExperimentCreate,
+    service=Depends(get_experiment_service),
+) -> PromptExperimentOut:
+    """Create a new prompt experiment.
+
+    Experiments group prompt runs for parameter comparison.
+    """
+    try:
+        experiment = service.create_experiment(data.model_dump())
+        return PromptExperimentOut.model_validate(experiment)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+
+@router.get("/prompt-experiments", response_model=PromptExperimentListOut)
+def list_prompt_experiments(
+    prompt_key: str | None = Query(default=None),
+    status: str | None = Query(default=None),
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=1, le=200),
+    service=Depends(get_experiment_service),
+) -> PromptExperimentListOut:
+    """List prompt experiments with optional filters."""
+    experiments, total = service.list_experiments(
+        prompt_key=prompt_key,
+        status=status,
+        skip=skip,
+        limit=limit,
+    )
+    return PromptExperimentListOut(
+        items=[PromptExperimentOut.model_validate(e) for e in experiments],
+        total=total,
+        skip=skip,
+        limit=limit,
+    )
+
+
+@router.get("/prompt-experiments/{experiment_id}", response_model=PromptExperimentOut)
+def get_prompt_experiment(
+    experiment_id: uuid.UUID,
+    service=Depends(get_experiment_service),
+) -> PromptExperimentOut:
+    """Return a single prompt experiment by ID."""
+    experiment = service.get_experiment(experiment_id)
+    if experiment is None:
+        raise HTTPException(status_code=404, detail=f"Experiment {experiment_id} not found")
+    return PromptExperimentOut.model_validate(experiment)
+
+
+@router.post(
+    "/prompt-experiments/{experiment_id}/runs",
+    response_model=PromptExperimentRunOut,
+    status_code=201,
+)
+def add_experiment_run(
+    experiment_id: uuid.UUID,
+    data: PromptExperimentRunCreate,
+    service=Depends(get_experiment_service),
+) -> PromptExperimentRunOut:
+    """Add a prompt run variant to an experiment.
+
+    The prompt_run_id must reference an existing ai_prompt_runs record.
+    """
+    try:
+        run = service.add_run(experiment_id, data.model_dump())
+        return PromptExperimentRunOut.model_validate(run)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+
+
+@router.get(
+    "/prompt-experiments/{experiment_id}/runs",
+    response_model=PromptExperimentRunListOut,
+)
+def list_experiment_runs(
+    experiment_id: uuid.UUID,
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=1, le=200),
+    service=Depends(get_experiment_service),
+) -> PromptExperimentRunListOut:
+    """List all variant runs for a prompt experiment."""
+    runs, total = service.list_runs(experiment_id, skip=skip, limit=limit)
+    return PromptExperimentRunListOut(
+        items=[PromptExperimentRunOut.model_validate(r) for r in runs],
+        total=total,
+        skip=skip,
+        limit=limit,
+    )
+
+
+@router.patch(
+    "/prompt-experiments/{experiment_id}/runs/{run_id}",
+    response_model=PromptExperimentRunOut,
+)
+def update_experiment_run(
+    experiment_id: uuid.UUID,
+    run_id: uuid.UUID,
+    data: PromptExperimentRunUpdate,
+    service=Depends(get_experiment_service),
+) -> PromptExperimentRunOut:
+    """Update an experiment run — score, notes, or winner selection."""
+    try:
+        run = service.update_run(
+            experiment_id,
+            run_id,
+            data.model_dump(exclude_none=True),
+        )
+        return PromptExperimentRunOut.model_validate(run)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))

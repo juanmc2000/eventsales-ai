@@ -324,6 +324,19 @@ class PromptExperimentListOut(BaseModel):
     limit: int
 
 
+class PromptExperimentRunUpdate(BaseModel):
+    """Request body for updating an experiment run (PATCH)."""
+
+    evaluator_score: int | None = None  # 1–5
+    reviewer_notes: str | None = None
+    selected_as_winner: bool | None = None
+    variant_name: str | None = None
+    temperature: float | None = None
+    top_p: float | None = None
+    top_k: int | None = None
+    max_tokens: int | None = None
+
+
 class PromptExperimentRunListOut(BaseModel):
     """Paginated list of experiment runs."""
 
