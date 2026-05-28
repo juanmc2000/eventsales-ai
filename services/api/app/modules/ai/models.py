@@ -250,6 +250,86 @@ class AIPromptRun(Base):
     )
 
 
+class AIPromptExperiment(Base):
+    """Groups a set of prompt run variants for comparison.
+
+    An experiment targets a single prompt_key and compares different
+    prompt versions or generation parameter settings.  Each variant
+    run is recorded in ai_prompt_experiment_runs.
+    """
+
+    __tablename__ = "ai_prompt_experiments"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tenant_id: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
+    # The prompt key being evaluated, e.g. "draft_response"
+    prompt_key: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    goal: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    # Optional reference to the version used as the control/baseline
+    baseline_prompt_version_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("ai_prompt_versions.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    # "active" | "completed" | "archived"
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="active")
+    notes: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+    experiment_runs: Mapped[list["AIPromptExperimentRun"]] = relationship(
+        "AIPromptExperimentRun", back_populates="experiment", cascade="all, delete-orphan"
+    )
+
+
+class AIPromptExperimentRun(Base):
+    """A single variant run within a prompt experiment.
+
+    Links an ai_prompt_run to an experiment and records which parameter
+    variant was tested.  Does not duplicate the run's payload or response.
+    """
+
+    __tablename__ = "ai_prompt_experiment_runs"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    experiment_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("ai_prompt_experiments.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    prompt_run_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("ai_prompt_runs.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    # Human-readable label for this variant, e.g. "baseline", "temperature_0.3"
+    variant_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    # Variant-specific LLM parameters (may differ from the run's actual values)
+    temperature: Mapped[float | None] = mapped_column(Numeric(4, 2), nullable=True)
+    top_p: Mapped[float | None] = mapped_column(Numeric(4, 2), nullable=True)
+    top_k: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    max_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # Manual quality evaluation (1–5); null until reviewed
+    evaluator_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    reviewer_notes: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    selected_as_winner: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+    experiment: Mapped["AIPromptExperiment"] = relationship(
+        "AIPromptExperiment", back_populates="experiment_runs"
+    )
+
+
 class AITrainingExample(Base):
     """Curated training / evaluation examples linked to prompt run traces.
 

@@ -25,6 +25,8 @@ from app.modules.ai.models import (
     AIPromptVersion,
     TenantPromptConfig,
     AIPromptRun,
+    AIPromptExperiment,
+    AIPromptExperimentRun,
     AITrainingExample,
 )
 
@@ -47,5 +49,7 @@ __all__ = [
     "AIPromptVersion",
     "TenantPromptConfig",
     "AIPromptRun",
+    "AIPromptExperiment",
+    "AIPromptExperimentRun",
     "AITrainingExample",
 ]

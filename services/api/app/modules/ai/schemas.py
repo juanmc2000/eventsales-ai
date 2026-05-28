@@ -250,3 +250,84 @@ class TrainingExampleListOut(BaseModel):
     total: int
     skip: int
     limit: int
+
+
+# ── Prompt experiment schemas ──────────────────────────────────────────────────
+
+
+class PromptExperimentCreate(BaseModel):
+    """Request body for creating a prompt experiment."""
+
+    prompt_key: str
+    name: str
+    goal: str | None = None
+    baseline_prompt_version_id: uuid.UUID | None = None
+    notes: str | None = None
+    tenant_id: str | None = None
+
+
+class PromptExperimentOut(BaseModel):
+    """Summary of a single ai_prompt_experiment row."""
+
+    model_config = {"from_attributes": True}
+
+    id: uuid.UUID
+    tenant_id: str | None
+    prompt_key: str
+    name: str
+    goal: str | None
+    baseline_prompt_version_id: uuid.UUID | None
+    status: str
+    notes: str | None
+    created_at: datetime
+
+
+class PromptExperimentRunCreate(BaseModel):
+    """Request body for adding a run to an experiment."""
+
+    prompt_run_id: uuid.UUID
+    variant_name: str
+    temperature: float | None = None
+    top_p: float | None = None
+    top_k: int | None = None
+    max_tokens: int | None = None
+    evaluator_score: int | None = None  # 1–5
+    reviewer_notes: str | None = None
+    selected_as_winner: bool = False
+
+
+class PromptExperimentRunOut(BaseModel):
+    """Summary of a single ai_prompt_experiment_run row."""
+
+    model_config = {"from_attributes": True}
+
+    id: uuid.UUID
+    experiment_id: uuid.UUID
+    prompt_run_id: uuid.UUID
+    variant_name: str
+    temperature: float | None
+    top_p: float | None
+    top_k: int | None
+    max_tokens: int | None
+    evaluator_score: int | None
+    reviewer_notes: str | None
+    selected_as_winner: bool
+    created_at: datetime
+
+
+class PromptExperimentListOut(BaseModel):
+    """Paginated list of experiments."""
+
+    items: list[PromptExperimentOut]
+    total: int
+    skip: int
+    limit: int
+
+
+class PromptExperimentRunListOut(BaseModel):
+    """Paginated list of experiment runs."""
+
+    items: list[PromptExperimentRunOut]
+    total: int
+    skip: int
+    limit: int
