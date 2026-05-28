@@ -2,7 +2,7 @@
 
 **Project:** EventSales AI
 **Phase:** POC (Proof of Concept)
-**Last Updated:** 2026-05-24 (post-Sprint-7 hotfix)
+**Last Updated:** 2026-05-28 (post-Sprint-8)
 
 ---
 
@@ -22,6 +22,7 @@
 | Sprint 6 | AI Gateway, Prompt Registry, and Traceability | ✓ Complete | #160–#168, DOC-013 |
 | Sprint 7 | Freeform Enquiry Extraction & Deterministic Processing | ✓ Complete | #181–#190 |
 | Hotfix | Fix generation failed and send failed errors in freeform webform | ✓ Complete | #192 |
+| Sprint 8 | Prompt Run Experimentation & Quality Scoring | ✓ Complete | #207–#216 |
 
 ---
 
@@ -171,6 +172,17 @@
 | Fix: Enquiry model recommended_minimum_spend property (Pydantic from_attributes) | Hotfix | ✓ |
 | Fix: get_db() rollback on exception (prevents PendingRollbackError across requests) | Hotfix | ✓ |
 | Fix: Freeform emailSent null-safe (no false "Send failed" badge when send not attempted) | Hotfix | ✓ |
+| LLM parameter fields on PromptDefinition (name, goal, temperature as float, top_p, top_k) | 8 | ✓ |
+| LLM parameter persistence in AIGateway (written to ai_prompt_runs before provider call) | 8 | ✓ |
+| AIPromptRun: temperature/top_p Numeric(4,2), prompt_name/goal, token counts | 8 | ✓ |
+| Prompt run trace API exposes all LLM parameter fields | 8 | ✓ |
+| ai_prompt_experiments table + API (6 endpoints, status lifecycle, goal/notes) | 8 | ✓ |
+| ai_prompt_experiment_runs table + API (variant metadata, evaluator_score, winner flag) | 8 | ✓ |
+| ai_prompt_run_reviews table (6 Numeric score fields, ready_to_send, reviewer_notes) | 8 | ✓ |
+| Quality review API (create/list/update, 0.0–5.0 validation, prompt_run_id immutable) | 8 | ✓ |
+| PromptRunReviewPanel UI (collapsed, 6 scores, toggle, notes, saved state) | 8 | ✓ |
+| AIContextOut.prompt_run_id in TypeScript types | 8 | ✓ |
+| Tests: 734 backend, 111 frontend (845 total) | 8 | ✓ |
 
 ---
 
@@ -192,6 +204,23 @@
 
 ---
 
+## Sprint 8 Issues
+
+| Issue | PR | Title | Status |
+|-------|----|-------|--------|
+| DATA-016 | #207 | Add LLM parameter fields to prompt versions and runs | ✓ Merged |
+| AI-012 | #208 | Persist exact LLM runtime configuration in AI Gateway | ✓ Merged |
+| API-016 | #209 | Expose LLM parameters in prompt run trace API | ✓ Merged |
+| DATA-017 | #210 | Add prompt experiment tables | ✓ Merged |
+| API-017 | #211 | Add prompt experiment backend API | ✓ Merged |
+| DATA-018 | #212 | Add prompt run quality scoring | ✓ Merged |
+| API-018 | #213 | Add prompt run quality review API | ✓ Merged |
+| UI-021 | #214 | Add prompt run quality review panel | ✓ Merged |
+| TEST-009 | #215 | Add prompt parameter and quality scoring tests | ✓ Merged |
+| DOC-016 | #216 | Update prompt experimentation documentation | ✓ Merged |
+
+---
+
 ## Remaining Gaps
 
 | Gap | Priority | Sprint |
@@ -205,6 +234,9 @@
 | Production email relay (SendGrid/Postmark) | P2 | Post-POC |
 | Room availability — replace seed with live booking system API | P3 | Post-POC |
 | Third LLM call for response planning | P2 | Post-POC |
+| token_input_count / token_output_count population (Anthropic usage API) | P3 | Post-POC |
+| Automated experiment parameter sweep | P3 | Post-POC |
+| Experiment comparison dashboard UI | P3 | Post-POC |
 
 ---
 
@@ -218,6 +250,7 @@
 | `docs/demo/poc-demo-guide.md` (updated) | Demo walkthrough including venue context and room selection |
 | `docs/sprints/sprint-005c-venue-context.md` | Sprint 5C delivery review |
 | `docs/sprints/sprint-006-ai-gateway-prompt-registry.md` | Sprint 6 plan: AI Gateway, Prompt Registry, Traceability |
-| `docs/development/ai-gateway.md` | AI Gateway architecture, freeform extraction workflow, prompt governance |
+| `docs/development/ai-gateway.md` | AI Gateway architecture, freeform extraction workflow, prompt governance, experiments, quality scoring |
 | `docs/sprints/sprint-007-freeform-extraction-processing.md` | Sprint 7 plan and architecture |
+| `docs/sprints/sprint-008-prompt-experimentation-quality-scoring.md` | Sprint 8 plan and architecture |
 | `CLAUDE.md` | Developer and AI assistant instructions |
