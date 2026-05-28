@@ -285,3 +285,134 @@ class TestAIGatewayLiveProvider:
         result = gateway.run(request)
         assert isinstance(result.latency_ms, int)
         assert result.latency_ms >= 0
+
+
+# ── LLM parameter persistence ────────────────────────────────────────────
+
+class TestAIGatewayParameterPersistence:
+    """Verify that LLM generation parameters from the prompt definition are
+    stored in the run record and forwarded to the provider."""
+
+    _DRAFT_PAYLOAD = {
+        "persona_name": "Eleanor",
+        "restaurant_name": "The Grand",
+        "persona_tone": "warm",
+        "persona_style": "concise",
+        "guest_first_name": "Alice",
+        "guest_last_name": "Smith",
+        "persona_system_prompt": "You are a professional.",
+    }
+
+    def test_run_record_includes_temperature_from_definition(self) -> None:
+        """Gateway stores temperature from prompt definition in the run row."""
+        db, mock_run = _mock_db()
+
+        with patch("app.modules.ai.gateway.make_provider") as mock_make:
+            mock_provider = MagicMock()
+            mock_provider.model_name = "claude-haiku-4-5-20251001"
+            mock_provider.generate_from_prompts.return_value = "OK"
+            mock_make.return_value = (mock_provider, False)
+            gateway = AIGateway(db=db, api_key="fake_key")
+
+        gateway.run(AIGatewayRequest(
+            prompt_key="draft_response",
+            input_payload=self._DRAFT_PAYLOAD,
+        ))
+
+        # Inspect the object added to the session
+        added = db.add.call_args[0][0]
+        assert hasattr(added, "temperature")
+        assert added.temperature is not None
+        assert float(added.temperature) >= 0.0
+
+    def test_run_record_includes_max_tokens_from_definition(self) -> None:
+        """Gateway stores max_tokens from prompt definition in the run row."""
+        db, mock_run = _mock_db()
+
+        with patch("app.modules.ai.gateway.make_provider") as mock_make:
+            mock_provider = MagicMock()
+            mock_provider.model_name = "claude-haiku-4-5-20251001"
+            mock_provider.generate_from_prompts.return_value = "OK"
+            mock_make.return_value = (mock_provider, False)
+            gateway = AIGateway(db=db, api_key="fake_key")
+
+        gateway.run(AIGatewayRequest(
+            prompt_key="draft_response",
+            input_payload=self._DRAFT_PAYLOAD,
+        ))
+
+        added = db.add.call_args[0][0]
+        assert hasattr(added, "max_tokens")
+        assert added.max_tokens is not None
+        assert added.max_tokens > 0
+
+    def test_run_record_includes_prompt_name_and_goal(self) -> None:
+        """Gateway stores prompt name and goal in the run row."""
+        db, mock_run = _mock_db()
+
+        with patch("app.modules.ai.gateway.make_provider") as mock_make:
+            mock_provider = MagicMock()
+            mock_provider.model_name = "claude-haiku-4-5-20251001"
+            mock_provider.generate_from_prompts.return_value = "OK"
+            mock_make.return_value = (mock_provider, False)
+            gateway = AIGateway(db=db, api_key="fake_key")
+
+        gateway.run(AIGatewayRequest(
+            prompt_key="draft_response",
+            input_payload=self._DRAFT_PAYLOAD,
+        ))
+
+        added = db.add.call_args[0][0]
+        assert hasattr(added, "prompt_name")
+        assert hasattr(added, "prompt_goal")
+        assert added.prompt_name is not None
+        assert added.prompt_goal is not None
+
+    def test_provider_called_with_runtime_params(self) -> None:
+        """Provider.generate_from_prompts receives max_tokens and temperature."""
+        db, mock_run = _mock_db()
+
+        with patch("app.modules.ai.gateway.make_provider") as mock_make:
+            mock_provider = MagicMock()
+            mock_provider.model_name = "claude-haiku-4-5-20251001"
+            mock_provider.generate_from_prompts.return_value = "OK"
+            mock_make.return_value = (mock_provider, False)
+            gateway = AIGateway(db=db, api_key="fake_key")
+
+        gateway.run(AIGatewayRequest(
+            prompt_key="draft_response",
+            input_payload=self._DRAFT_PAYLOAD,
+        ))
+
+        call_kwargs = mock_provider.generate_from_prompts.call_args.kwargs
+        assert "max_tokens" in call_kwargs
+        assert "temperature" in call_kwargs
+        assert call_kwargs["max_tokens"] > 0
+        assert 0.0 <= call_kwargs["temperature"] <= 2.0
+
+    def test_fallback_run_still_stores_llm_params(self) -> None:
+        """Fallback runs log the configured parameters even though no LLM is called."""
+        db, mock_run = _mock_db()
+        gateway = AIGateway(db=db, api_key="")  # fallback
+
+        gateway.run(AIGatewayRequest(
+            prompt_key="draft_response",
+            input_payload=self._DRAFT_PAYLOAD,
+        ))
+
+        added = db.add.call_args[0][0]
+        assert added.temperature is not None
+        assert added.max_tokens is not None
+
+    def test_extraction_prompt_uses_low_temperature(self) -> None:
+        """Enquiry extraction prompt has temperature=0.1 for deterministic output."""
+        db, mock_run = _mock_db()
+        gateway = AIGateway(db=db, api_key="")  # fallback — just check run_data
+
+        gateway.run(AIGatewayRequest(
+            prompt_key="enquiry_extraction",
+            input_payload={"restaurant_name": "The Grand", "freeform_text": "Birthday for 20"},
+        ))
+
+        added = db.add.call_args[0][0]
+        assert float(added.temperature) == pytest.approx(0.1)

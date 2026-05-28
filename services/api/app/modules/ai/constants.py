@@ -34,7 +34,7 @@ MODEL_CLAUDE_SONNET = "claude-sonnet-4-6"
 
 DEFAULT_DRAFT_MODEL = MODEL_CLAUDE_HAIKU
 DEFAULT_DRAFT_MAX_TOKENS = 800
-DEFAULT_DRAFT_TEMPERATURE = "0.7"
+DEFAULT_DRAFT_TEMPERATURE = 0.7  # float; used as Numeric(4,2) in DB
 
 # ── Output schema names ──────────────────────────────────────────────────────
 # Logical names for declared output schemas.  Matched by the AI Gateway

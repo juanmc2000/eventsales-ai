@@ -36,11 +36,23 @@ class LLMProvider(Protocol):
         """
         ...
 
-    def generate_from_prompts(self, system_prompt: str, user_prompt: str) -> str:
+    def generate_from_prompts(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        *,
+        max_tokens: int = 800,
+        temperature: float = 0.7,
+        top_p: float | None = None,
+    ) -> str:
         """Generate a response from pre-rendered system and user prompts.
 
         Used by the AI Gateway which renders prompts itself before calling
         the provider.  Returns the raw response text.
+
+        max_tokens, temperature, and top_p are the exact runtime values used
+        for the call.  top_k is not supported by the Anthropic Messages API
+        and is therefore not passed — but it is still logged by the gateway.
         """
         ...
 
@@ -57,7 +69,15 @@ class FallbackProvider:
 
     model_name = "fallback"
 
-    def generate_from_prompts(self, system_prompt: str, user_prompt: str) -> str:
+    def generate_from_prompts(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        *,
+        max_tokens: int = 800,
+        temperature: float = 0.7,
+        top_p: float | None = None,
+    ) -> str:
         """Fallback does not use pre-rendered prompts; returns a minimal placeholder."""
         return (
             "Thank you for your enquiry. A member of our team will be in touch shortly."
@@ -111,20 +131,35 @@ class AnthropicProvider:
     def model_name(self) -> str:
         return self._model
 
-    def generate_from_prompts(self, system_prompt: str, user_prompt: str) -> str:
+    def generate_from_prompts(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        *,
+        max_tokens: int = 800,
+        temperature: float = 0.7,
+        top_p: float | None = None,
+    ) -> str:
         """Call Anthropic with pre-rendered system and user prompts.
 
         Used by the AI Gateway.  Raises on failure — the gateway handles errors.
+        max_tokens and temperature are passed to the API exactly as provided.
+        top_p is forwarded when set; top_k is not supported by the Anthropic
+        Messages API and is therefore never forwarded.
         """
         import anthropic
 
         client = anthropic.Anthropic(api_key=self._api_key)
-        response = client.messages.create(
-            model=self._model,
-            max_tokens=800,
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_prompt}],
-        )
+        call_kwargs: dict = {
+            "model": self._model,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "system": system_prompt,
+            "messages": [{"role": "user", "content": user_prompt}],
+        }
+        if top_p is not None:
+            call_kwargs["top_p"] = top_p
+        response = client.messages.create(**call_kwargs)
         return response.content[0].text.strip()
 
     def generate(self, context: DraftContext) -> str:

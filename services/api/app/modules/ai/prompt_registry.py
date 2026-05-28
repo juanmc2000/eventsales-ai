@@ -47,6 +47,13 @@ class PromptDefinition:
     system_template and user_template use {variable} placeholder syntax
     (Python str.format_map compatible).  Required variables are declared in
     required_variables; optional variables are not validated for presence.
+
+    name and goal are human-readable labels persisted to ai_prompt_runs for
+    searchability without joining to the registry.
+
+    temperature, top_p, top_k, and max_tokens represent the configured LLM
+    generation parameters for this prompt version.  The gateway stores them
+    as actual runtime values in ai_prompt_runs.
     """
 
     key: str
@@ -61,8 +68,12 @@ class PromptDefinition:
     output_schema_version: str | None = None
     model_provider: str = MODEL_PROVIDER_ANTHROPIC
     model_name: str = DEFAULT_DRAFT_MODEL
-    temperature: str = DEFAULT_DRAFT_TEMPERATURE
+    temperature: float = DEFAULT_DRAFT_TEMPERATURE
+    top_p: float | None = None
+    top_k: int | None = None
     max_tokens: int = DEFAULT_DRAFT_MAX_TOKENS
+    name: str = ""
+    goal: str = ""
     change_notes: str = ""
 
 
@@ -73,6 +84,8 @@ _DRAFT_RESPONSE_V1 = PromptDefinition(
     version=1,
     status=VERSION_STATUS_ARCHIVED,
     category=CATEGORY_DRAFT_GENERATION,
+    name="Draft Response Generator",
+    goal="Generate a persona-based draft email response to a guest event enquiry.",
     system_template=(
         "{persona_system_prompt}\n\n"
         "You are {persona_name}, a hospitality sales professional at {restaurant_name}. "
@@ -119,6 +132,8 @@ _DRAFT_RESPONSE_V2 = PromptDefinition(
     version=2,
     status=VERSION_STATUS_ACTIVE,
     category=CATEGORY_DRAFT_GENERATION,
+    name="Draft Response Generator",
+    goal="Generate a persona-based draft email response enriched with availability and pricing context.",
     system_template=(
         "{persona_system_prompt}\n\n"
         "You are {persona_name}, a hospitality sales professional at {restaurant_name}. "
@@ -178,6 +193,8 @@ _ENQUIRY_EXTRACTION_V1 = PromptDefinition(
     version=1,
     status=VERSION_STATUS_ARCHIVED,
     category=CATEGORY_INTAKE,
+    name="Enquiry Extraction",
+    goal="Extract structured enquiry details from an inbound email.",
     system_template=(
         "You are an intake specialist for {restaurant_name}, a hospitality venue. "
         "Your task is to extract structured enquiry details from an inbound email. "
@@ -209,6 +226,8 @@ _ENQUIRY_EXTRACTION_V2 = PromptDefinition(
     version=2,
     status=VERSION_STATUS_ACTIVE,
     category=CATEGORY_INTAKE,
+    name="Enquiry Extraction",
+    goal="Extract structured enquiry details from a freeform webform submission.",
     system_template=(
         "You are a structured data extraction specialist for {restaurant_name}, a hospitality venue. "
         "Your only task is to extract factual details from the guest's freeform enquiry text.\n\n"
@@ -255,7 +274,7 @@ _ENQUIRY_EXTRACTION_V2 = PromptDefinition(
     output_schema_version="2.0",
     model_name=DEFAULT_DRAFT_MODEL,
     max_tokens=600,
-    temperature="0.1",
+    temperature=0.1,
     change_notes=(
         "Sprint 7 — freeform webform extraction. "
         "Extracts occasion, guest_count, event_date, event_time, event_type, budget, "
@@ -269,6 +288,8 @@ _MISSING_INFO_REQUEST_V1 = PromptDefinition(
     version=1,
     status=VERSION_STATUS_ACTIVE,
     category=CATEGORY_INTAKE,
+    name="Missing Information Request",
+    goal="Draft a polite message asking the guest for missing enquiry details.",
     system_template=(
         "{persona_system_prompt}\n\n"
         "You are {persona_name} at {restaurant_name}. "
@@ -298,6 +319,8 @@ _FOLLOW_UP_RESPONSE_V1 = PromptDefinition(
     version=1,
     status=VERSION_STATUS_ACTIVE,
     category=CATEGORY_FOLLOW_UP,
+    name="Follow-Up Response",
+    goal="Generate a gentle follow-up message when a guest has not responded to the initial draft.",
     system_template=(
         "{persona_system_prompt}\n\n"
         "You are {persona_name} at {restaurant_name}. "
@@ -336,6 +359,8 @@ _AVAILABILITY_ALTERNATIVE_V1 = PromptDefinition(
     version=1,
     status=VERSION_STATUS_ACTIVE,
     category=CATEGORY_DRAFT_GENERATION,
+    name="Availability Alternative Response",
+    goal="Propose alternative dates or rooms when the guest's requested option is unavailable.",
     system_template=(
         "{persona_system_prompt}\n\n"
         "You are {persona_name} at {restaurant_name}. "
