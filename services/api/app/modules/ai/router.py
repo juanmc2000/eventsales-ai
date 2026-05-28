@@ -31,6 +31,10 @@ from app.modules.ai.schemas import (
     PromptRunDetailOut,
     PromptRunListOut,
     PromptRunOut,
+    PromptRunReviewCreate,
+    PromptRunReviewListOut,
+    PromptRunReviewOut,
+    PromptRunReviewUpdate,
     TrainingExampleCreate,
     TrainingExampleListOut,
     TrainingExampleOut,
@@ -51,6 +55,11 @@ def get_training_service(db: Session = Depends(get_db)):  # type: ignore[return]
 def get_experiment_service(db: Session = Depends(get_db)):  # type: ignore[return]
     from app.modules.ai.service import PromptExperimentService
     return PromptExperimentService(db)
+
+
+def get_review_service(db: Session = Depends(get_db)):  # type: ignore[return]
+    from app.modules.ai.service import PromptRunReviewService
+    return PromptRunReviewService(db)
 
 
 @router.get("/prompt-runs", response_model=PromptRunListOut)
@@ -274,5 +283,72 @@ def update_experiment_run(
             data.model_dump(exclude_none=True),
         )
         return PromptExperimentRunOut.model_validate(run)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+
+
+# ── Prompt run review endpoints ────────────────────────────────────────────────
+
+
+@router.post(
+    "/prompt-runs/{prompt_run_id}/reviews",
+    response_model=PromptRunReviewOut,
+    status_code=201,
+)
+def create_prompt_run_review(
+    prompt_run_id: uuid.UUID,
+    data: PromptRunReviewCreate,
+    service=Depends(get_review_service),
+) -> PromptRunReviewOut:
+    """Create a quality review for a prompt run.
+
+    All score fields are optional.  Score values must be between 0.0 and 5.0.
+    ready_to_send is reviewer judgment only — it does not trigger automated send.
+    """
+    try:
+        payload = data.model_dump()
+        payload["prompt_run_id"] = prompt_run_id
+        review = service.create_review(payload)
+        return PromptRunReviewOut.model_validate(review)
+    except ValueError as exc:
+        raise HTTPException(status_code=404 if "not found" in str(exc) else 422, detail=str(exc))
+
+
+@router.get(
+    "/prompt-runs/{prompt_run_id}/reviews",
+    response_model=PromptRunReviewListOut,
+)
+def list_prompt_run_reviews(
+    prompt_run_id: uuid.UUID,
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=1, le=200),
+    service=Depends(get_review_service),
+) -> PromptRunReviewListOut:
+    """List all quality reviews for a prompt run, newest-first."""
+    reviews, total = service.list_reviews(prompt_run_id, skip=skip, limit=limit)
+    return PromptRunReviewListOut(
+        items=[PromptRunReviewOut.model_validate(r) for r in reviews],
+        total=total,
+        skip=skip,
+        limit=limit,
+    )
+
+
+@router.patch(
+    "/prompt-run-reviews/{review_id}",
+    response_model=PromptRunReviewOut,
+)
+def update_prompt_run_review(
+    review_id: uuid.UUID,
+    data: PromptRunReviewUpdate,
+    service=Depends(get_review_service),
+) -> PromptRunReviewOut:
+    """Update score fields, ready_to_send, or reviewer_notes on a quality review.
+
+    Cannot change the linked prompt_run_id.
+    """
+    try:
+        review = service.update_review(review_id, data.model_dump(exclude_none=True))
+        return PromptRunReviewOut.model_validate(review)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc))

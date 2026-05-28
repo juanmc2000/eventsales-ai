@@ -592,3 +592,75 @@ class PromptExperimentService:
         exp_run = self._repo.update_experiment_run(run_id, safe_updates)
         self._db.commit()
         return exp_run
+
+
+# ── Prompt Run Review Service ──────────────────────────────────────────────────
+
+# Valid score range for all Numeric quality score fields
+_SCORE_MIN = 0.0
+_SCORE_MAX = 5.0
+_SCORE_FIELDS = {
+    "accuracy_score", "tone_fit_score", "persona_fit_score",
+    "commercial_quality_score", "completeness_score", "hallucination_risk_score",
+}
+
+
+class PromptRunReviewService:
+    """Manages creation and retrieval of prompt run quality reviews.
+
+    Reviews capture structured human scoring of LLM outputs.
+    They must link to existing ai_prompt_runs and must not mutate
+    the run's output or trigger new LLM calls.
+    """
+
+    def __init__(self, db: Session) -> None:
+        from app.modules.ai.repository import AIPromptRunRepository, AIPromptRunReviewRepository
+        self._repo = AIPromptRunReviewRepository(db)
+        self._run_repo = AIPromptRunRepository(db)
+        self._db = db
+
+    def _validate_scores(self, data: dict) -> None:
+        """Raise ValueError if any score field is outside the valid range."""
+        for field in _SCORE_FIELDS:
+            value = data.get(field)
+            if value is not None and not (_SCORE_MIN <= float(value) <= _SCORE_MAX):
+                raise ValueError(
+                    f"{field} must be between {_SCORE_MIN} and {_SCORE_MAX}, got {value}."
+                )
+
+    def create_review(self, data: dict) -> object:
+        """Create a quality review for a prompt run.
+
+        Validates that the prompt run exists and all scores are in range.
+        Raises ValueError on invalid input.
+        """
+        run_id = data.get("prompt_run_id")
+        run = self._run_repo.get_run(run_id)
+        if run is None:
+            raise ValueError(f"Prompt run {run_id} not found.")
+        self._validate_scores(data)
+        review = self._repo.create_review(data)
+        self._db.commit()
+        return review
+
+    def get_review(self, review_id) -> object | None:
+        """Return a review by ID, or None."""
+        return self._repo.get_review(review_id)
+
+    def list_reviews(self, prompt_run_id, skip: int = 0, limit: int = 50) -> tuple[list, int]:
+        """Return paginated reviews for a prompt run, newest-first."""
+        return self._repo.list_reviews_for_run(prompt_run_id, skip=skip, limit=limit)
+
+    def update_review(self, review_id, updates: dict) -> object:
+        """Update score fields, ready_to_send, or reviewer_notes.
+
+        Does not allow changing prompt_run_id.
+        Validates score ranges.
+        Raises ValueError if not found.
+        """
+        allowed = _SCORE_FIELDS | {"ready_to_send", "reviewer_notes", "reviewer_user_id"}
+        safe_updates = {k: v for k, v in updates.items() if k in allowed}
+        self._validate_scores(safe_updates)
+        review = self._repo.update_review(review_id, safe_updates)
+        self._db.commit()
+        return review
