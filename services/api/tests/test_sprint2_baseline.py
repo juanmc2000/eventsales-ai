@@ -59,7 +59,8 @@ def test_all_models_registered() -> None:
         "email_events",
         "calendar_events", "demand_events", "insight_snapshots",
         "ai_prompt_templates", "ai_prompt_versions", "tenant_prompt_configs",
-        "ai_prompt_runs", "ai_prompt_experiments", "ai_prompt_experiment_runs",
+        "ai_prompt_runs", "ai_prompt_run_reviews",
+        "ai_prompt_experiments", "ai_prompt_experiment_runs",
         "ai_training_examples",
     }
     actual = set(Base.metadata.tables.keys())

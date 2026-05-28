@@ -250,6 +250,49 @@ class AIPromptRun(Base):
     )
 
 
+class AIPromptRunReview(Base):
+    """Structured quality review of a single AI prompt run output.
+
+    Reviewers score each output across multiple operational criteria.
+    Scores are nullable — reviewers may score only the dimensions they
+    are able to evaluate.  ready_to_send is human judgment, not an
+    automated send trigger.
+    """
+
+    __tablename__ = "ai_prompt_run_reviews"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    prompt_run_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("ai_prompt_runs.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    tenant_id: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
+    reviewer_user_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # Quality scores (0.00–5.00 scale)
+    accuracy_score: Mapped[float | None] = mapped_column(Numeric(4, 2), nullable=True)
+    tone_fit_score: Mapped[float | None] = mapped_column(Numeric(4, 2), nullable=True)
+    persona_fit_score: Mapped[float | None] = mapped_column(Numeric(4, 2), nullable=True)
+    commercial_quality_score: Mapped[float | None] = mapped_column(Numeric(4, 2), nullable=True)
+    completeness_score: Mapped[float | None] = mapped_column(Numeric(4, 2), nullable=True)
+    hallucination_risk_score: Mapped[float | None] = mapped_column(Numeric(4, 2), nullable=True)
+    # Reviewer judgment — not an automatic send trigger
+    ready_to_send: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    reviewer_notes: Mapped[str | None] = mapped_column(String(2000), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+
 class AIPromptExperiment(Base):
     """Groups a set of prompt run variants for comparison.
 
