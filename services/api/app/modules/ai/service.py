@@ -498,3 +498,97 @@ class TrainingExampleService:
             skip=skip,
             limit=limit,
         )
+
+
+# ── Prompt Experiment Service ──────────────────────────────────────────────────
+
+
+class PromptExperimentService:
+    """Manages creation and retrieval of prompt experiments and their run variants.
+
+    Experiments group ai_prompt_runs for parameter comparison without
+    re-running LLM calls.  The service validates that linked prompt runs exist
+    before creating experiment run records.
+    """
+
+    def __init__(self, db: Session) -> None:
+        from app.modules.ai.repository import AIPromptExperimentRepository, AIPromptRunRepository
+        self._repo = AIPromptExperimentRepository(db)
+        self._run_repo = AIPromptRunRepository(db)
+        self._db = db
+
+    def create_experiment(self, data: dict) -> object:
+        """Create a new prompt experiment.
+
+        Raises ValueError if prompt_key is missing.
+        """
+        if not data.get("prompt_key"):
+            raise ValueError("prompt_key is required.")
+        if not data.get("name"):
+            raise ValueError("name is required.")
+        experiment = self._repo.create_experiment(data)
+        self._db.commit()
+        return experiment
+
+    def get_experiment(self, experiment_id) -> object | None:
+        """Return an experiment by ID, or None."""
+        return self._repo.get_experiment(experiment_id)
+
+    def list_experiments(
+        self,
+        prompt_key: str | None = None,
+        status: str | None = None,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> tuple[list, int]:
+        """Return paginated experiments with optional filters."""
+        return self._repo.list_experiments(
+            prompt_key=prompt_key,
+            status=status,
+            skip=skip,
+            limit=limit,
+        )
+
+    def add_run(self, experiment_id, data: dict) -> object:
+        """Add a prompt run variant to an experiment.
+
+        Validates that both the experiment and the linked prompt run exist.
+        Raises ValueError on missing entities.
+        """
+        experiment = self._repo.get_experiment(experiment_id)
+        if experiment is None:
+            raise ValueError(f"Experiment {experiment_id} not found.")
+
+        prompt_run_id = data.get("prompt_run_id")
+        prompt_run = self._run_repo.get_run(prompt_run_id)
+        if prompt_run is None:
+            raise ValueError(f"Prompt run {prompt_run_id} not found.")
+
+        record = {**data, "experiment_id": experiment_id}
+        exp_run = self._repo.create_experiment_run(record)
+        self._db.commit()
+        return exp_run
+
+    def list_runs(self, experiment_id, skip: int = 0, limit: int = 50) -> tuple[list, int]:
+        """Return paginated experiment runs for the given experiment."""
+        return self._repo.list_experiment_runs(experiment_id, skip=skip, limit=limit)
+
+    def update_run(self, experiment_id, run_id, updates: dict) -> object:
+        """Update evaluator_score, reviewer_notes, or selected_as_winner on an experiment run.
+
+        Validates that the experiment run belongs to the given experiment.
+        Raises ValueError if not found or not in the experiment.
+        """
+        exp_run = self._repo.get_experiment_run(run_id)
+        if exp_run is None:
+            raise ValueError(f"Experiment run {run_id} not found.")
+        if str(exp_run.experiment_id) != str(experiment_id):
+            raise ValueError(f"Experiment run {run_id} does not belong to experiment {experiment_id}.")
+
+        # Only allow safe update fields — never mutate prompt_run_id or experiment_id
+        allowed = {"evaluator_score", "reviewer_notes", "selected_as_winner",
+                   "variant_name", "temperature", "top_p", "top_k", "max_tokens"}
+        safe_updates = {k: v for k, v in updates.items() if k in allowed}
+        exp_run = self._repo.update_experiment_run(run_id, safe_updates)
+        self._db.commit()
+        return exp_run

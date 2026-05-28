@@ -12,7 +12,12 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.modules.ai.models import AIPromptRun, AITrainingExample
+from app.modules.ai.models import (
+    AIPromptExperiment,
+    AIPromptExperimentRun,
+    AIPromptRun,
+    AITrainingExample,
+)
 
 
 class AIPromptRunRepository:
@@ -159,3 +164,93 @@ class AIPromptRunRepository:
             setattr(example, key, value)
         self._db.flush()
         return example
+
+
+class AIPromptExperimentRepository:
+    """Persistence layer for ai_prompt_experiments and ai_prompt_experiment_runs."""
+
+    def __init__(self, db: Session) -> None:
+        self._db = db
+
+    def create_experiment(self, data: dict[str, Any]) -> AIPromptExperiment:
+        """Insert a new experiment row and flush."""
+        experiment = AIPromptExperiment(id=uuid.uuid4(), **data)
+        self._db.add(experiment)
+        self._db.flush()
+        return experiment
+
+    def get_experiment(self, experiment_id: uuid.UUID) -> AIPromptExperiment | None:
+        """Return the experiment row for the given ID, or None."""
+        return self._db.get(AIPromptExperiment, experiment_id)
+
+    def list_experiments(
+        self,
+        prompt_key: str | None = None,
+        status: str | None = None,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> tuple[list[AIPromptExperiment], int]:
+        """Return paginated experiments with optional filters, newest-first."""
+        stmt = select(AIPromptExperiment)
+        count_stmt = select(AIPromptExperiment)
+
+        if prompt_key is not None:
+            stmt = stmt.where(AIPromptExperiment.prompt_key == prompt_key)
+            count_stmt = count_stmt.where(AIPromptExperiment.prompt_key == prompt_key)
+        if status is not None:
+            stmt = stmt.where(AIPromptExperiment.status == status)
+            count_stmt = count_stmt.where(AIPromptExperiment.status == status)
+
+        total = len(self._db.scalars(count_stmt).all())
+        experiments = list(
+            self._db.scalars(
+                stmt.order_by(AIPromptExperiment.created_at.desc()).offset(skip).limit(limit)
+            ).all()
+        )
+        return experiments, total
+
+    def create_experiment_run(self, data: dict[str, Any]) -> AIPromptExperimentRun:
+        """Insert a new experiment run row and flush."""
+        run = AIPromptExperimentRun(id=uuid.uuid4(), **data)
+        self._db.add(run)
+        self._db.flush()
+        return run
+
+    def get_experiment_run(self, run_id: uuid.UUID) -> AIPromptExperimentRun | None:
+        """Return the experiment run row for the given ID, or None."""
+        return self._db.get(AIPromptExperimentRun, run_id)
+
+    def list_experiment_runs(
+        self,
+        experiment_id: uuid.UUID,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> tuple[list[AIPromptExperimentRun], int]:
+        """Return paginated runs for the given experiment, oldest-first."""
+        stmt = (
+            select(AIPromptExperimentRun)
+            .where(AIPromptExperimentRun.experiment_id == experiment_id)
+        )
+        count_stmt = (
+            select(AIPromptExperimentRun)
+            .where(AIPromptExperimentRun.experiment_id == experiment_id)
+        )
+        total = len(self._db.scalars(count_stmt).all())
+        runs = list(
+            self._db.scalars(
+                stmt.order_by(AIPromptExperimentRun.created_at.asc()).offset(skip).limit(limit)
+            ).all()
+        )
+        return runs, total
+
+    def update_experiment_run(
+        self, run_id: uuid.UUID, updates: dict[str, Any]
+    ) -> AIPromptExperimentRun:
+        """Apply field updates to an existing experiment run and flush."""
+        run = self._db.get(AIPromptExperimentRun, run_id)
+        if run is None:
+            raise ValueError(f"AIPromptExperimentRun {run_id} not found")
+        for key, value in updates.items():
+            setattr(run, key, value)
+        self._db.flush()
+        return run
