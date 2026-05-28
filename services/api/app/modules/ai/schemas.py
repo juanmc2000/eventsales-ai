@@ -181,6 +181,9 @@ class PromptRunOut(BaseModel):
     fallback_reason: str | None
     status: str
     latency_ms: int | None
+    token_input_count: int | None
+    token_output_count: int | None
+    estimated_cost: str | None
     created_at: datetime
 
 
