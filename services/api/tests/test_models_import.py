@@ -49,6 +49,7 @@ def test_all_tables_in_metadata() -> None:
         "ai_prompt_versions",
         "tenant_prompt_configs",
         "ai_prompt_runs",
+        "ai_prompt_run_reviews",
         "ai_prompt_experiments",
         "ai_prompt_experiment_runs",
         "ai_training_examples",

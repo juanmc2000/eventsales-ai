@@ -344,3 +344,65 @@ class PromptExperimentRunListOut(BaseModel):
     total: int
     skip: int
     limit: int
+
+
+# ── Prompt run review schemas ──────────────────────────────────────────────────
+
+
+class PromptRunReviewCreate(BaseModel):
+    """Request body for creating a quality review of a prompt run."""
+
+    prompt_run_id: uuid.UUID
+    tenant_id: str | None = None
+    reviewer_user_id: str | None = None
+    accuracy_score: float | None = None
+    tone_fit_score: float | None = None
+    persona_fit_score: float | None = None
+    commercial_quality_score: float | None = None
+    completeness_score: float | None = None
+    hallucination_risk_score: float | None = None
+    ready_to_send: bool | None = None
+    reviewer_notes: str | None = None
+
+
+class PromptRunReviewUpdate(BaseModel):
+    """Request body for updating an existing quality review."""
+
+    accuracy_score: float | None = None
+    tone_fit_score: float | None = None
+    persona_fit_score: float | None = None
+    commercial_quality_score: float | None = None
+    completeness_score: float | None = None
+    hallucination_risk_score: float | None = None
+    ready_to_send: bool | None = None
+    reviewer_notes: str | None = None
+
+
+class PromptRunReviewOut(BaseModel):
+    """Full detail of a single ai_prompt_run_reviews row."""
+
+    model_config = {"from_attributes": True}
+
+    id: uuid.UUID
+    prompt_run_id: uuid.UUID
+    tenant_id: str | None
+    reviewer_user_id: str | None
+    accuracy_score: float | None
+    tone_fit_score: float | None
+    persona_fit_score: float | None
+    commercial_quality_score: float | None
+    completeness_score: float | None
+    hallucination_risk_score: float | None
+    ready_to_send: bool | None
+    reviewer_notes: str | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class PromptRunReviewListOut(BaseModel):
+    """Paginated list of quality reviews."""
+
+    items: list[PromptRunReviewOut]
+    total: int
+    skip: int
+    limit: int
