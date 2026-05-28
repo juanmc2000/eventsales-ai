@@ -69,6 +69,7 @@ export type EnquiryMessage = {
 export type AIContextOut = {
   model: string;
   is_fallback: boolean;
+  prompt_run_id: string | null;
   persona_name: string | null;
   persona_tone: string | null;
   persona_style: string | null;
@@ -77,6 +78,42 @@ export type AIContextOut = {
   recommended_minimum_spend: number | null;
   system_prompt: string | null;   // null when fallback provider was used
   user_message: string | null;    // null when fallback provider was used
+};
+
+/**
+ * Prompt run quality review record.
+ * Mirrors PromptRunReviewOut in services/api/app/modules/ai/schemas.py.
+ */
+export type PromptRunReviewOut = {
+  id: string;
+  prompt_run_id: string;
+  reviewer_user_id: string | null;
+  accuracy_score: number | null;
+  tone_fit_score: number | null;
+  persona_fit_score: number | null;
+  commercial_quality_score: number | null;
+  completeness_score: number | null;
+  hallucination_risk_score: number | null;
+  ready_to_send: boolean | null;
+  reviewer_notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+/**
+ * Payload for creating a prompt run quality review.
+ * Mirrors PromptRunReviewCreate in services/api/app/modules/ai/schemas.py.
+ */
+export type PromptRunReviewCreate = {
+  prompt_run_id: string;
+  accuracy_score?: number | null;
+  tone_fit_score?: number | null;
+  persona_fit_score?: number | null;
+  commercial_quality_score?: number | null;
+  completeness_score?: number | null;
+  hallucination_risk_score?: number | null;
+  ready_to_send?: boolean | null;
+  reviewer_notes?: string | null;
 };
 
 /**

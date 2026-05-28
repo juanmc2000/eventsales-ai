@@ -8,6 +8,7 @@ import type { Enquiry, EnquiryExtractionOut, EnquiryMessage, EnquiryProcessingSn
 import type { Persona, PersonaListOut } from "@/lib/types/persona";
 import { DraftSection } from "@/components/enquiries/DraftSection";
 import { EmailActivityTimeline } from "@/components/enquiries/EmailActivityTimeline";
+import { PromptRunReviewPanel } from "@/components/enquiries/PromptRunReviewPanel";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -404,6 +405,7 @@ export function EnquiryDetailDrawer({
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [statusValue, setStatusValue] = useState(enquiry.status);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [promptRunId, setPromptRunId] = useState<string | null>(null);
 
   // Escape to close
   useEffect(() => {
@@ -731,7 +733,16 @@ export function EnquiryDetailDrawer({
 
           {/* Draft response with send action */}
           <DrawerSection title="Draft Response">
-            <DraftSection enquiryId={enquiry.id} toEmail={enquiry.email} />
+            <DraftSection
+              enquiryId={enquiry.id}
+              toEmail={enquiry.email}
+              onPromptRunId={setPromptRunId}
+            />
+            {promptRunId && (
+              <div style={{ marginTop: 10 }}>
+                <PromptRunReviewPanel promptRunId={promptRunId} />
+              </div>
+            )}
           </DrawerSection>
 
           {/* Notes */}

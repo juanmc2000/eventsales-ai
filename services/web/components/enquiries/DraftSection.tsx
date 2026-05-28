@@ -33,23 +33,31 @@ type SendState =
 export function DraftSection({
   enquiryId,
   toEmail,
+  onPromptRunId,
 }: {
   enquiryId: string;
   toEmail: string;
+  onPromptRunId?: (id: string | null) => void;
 }) {
   const [draft, setDraft] = useState<EnquiryDraft | null>(null);
   const [generating, setGenerating] = useState(false);
   const [sendState, setSendState] = useState<SendState>({ kind: "idle" });
+
+  function applyDraft(data: EnquiryDraft | null) {
+    setDraft(data);
+    onPromptRunId?.(data?.ai_context?.prompt_run_id ?? null);
+  }
 
   const fetchDraft = useCallback(async () => {
     try {
       const data = await api.get<EnquiryDraft>(
         `/api/v1/enquiries/${enquiryId}/draft`
       );
-      if (data?.body) setDraft(data);
+      if (data?.body) applyDraft(data);
     } catch {
       // No draft found or endpoint unavailable — stay in no-draft state
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enquiryId]);
 
   useEffect(() => {
@@ -62,7 +70,7 @@ export function DraftSection({
       const data = await api.post<EnquiryDraft>(
         `/api/v1/enquiries/${enquiryId}/draft`
       );
-      if (data?.body) setDraft(data);
+      if (data?.body) applyDraft(data);
     } catch {
       // Generation not available yet — no-op, stays in no_draft state
     } finally {
