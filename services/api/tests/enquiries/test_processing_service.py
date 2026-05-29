@@ -273,3 +273,113 @@ class TestEnquiryProcessingService:
         result = _run_process(service, _make_request())
         assert result.availability_result_json is not None
         assert result.availability_result_json["status"] == "unknown"
+
+
+# ── Candidate date processing (WORKFLOW-009) ──────────────────────────────────
+
+
+class TestCandidateDateProcessing:
+    """Tests for Step 5: processing candidate dates from a date request."""
+
+    def _build_service_with_candidates(
+        self,
+        candidates: list,
+        *,
+        requires_clarification: bool = False,
+    ) -> tuple[EnquiryProcessingService, uuid.UUID]:
+        service, _ = _build_service()
+
+        date_request_row = MagicMock()
+        date_request_row.id = uuid.uuid4()
+        date_request_row.requires_date_clarification = requires_clarification
+        date_request_row.clarification_question = None
+
+        service._date_request_repo = MagicMock()
+        service._date_request_repo.get_latest_date_request.return_value = date_request_row
+        service._date_request_repo.list_candidate_dates_for_request.return_value = candidates
+        service._date_request_repo.update_candidate_date.return_value = None
+
+        return service, date_request_row.id
+
+    def _make_candidate(self, candidate_date: date = date(2026, 12, 25)) -> MagicMock:
+        c = MagicMock()
+        c.id = uuid.uuid4()
+        c.candidate_date = candidate_date
+        return c
+
+    def test_candidate_date_summary_populated_when_date_request_exists(self) -> None:
+        candidate = self._make_candidate()
+        service, _ = self._build_service_with_candidates([candidate])
+        result = _run_process(service, _make_request())
+        assert result.candidate_date_summary is not None
+        assert "candidate_dates_checked" in result.candidate_date_summary
+        assert result.candidate_date_summary["candidate_dates_checked"] == 1
+
+    def test_candidate_date_summary_none_when_no_date_request(self) -> None:
+        service, _ = _build_service()
+        service._date_request_repo = MagicMock()
+        service._date_request_repo.get_latest_date_request.return_value = None
+        result = _run_process(service, _make_request())
+        assert result.candidate_date_summary is None
+
+    def test_available_candidate_listed_when_room_available(self) -> None:
+        candidate = self._make_candidate(date(2026, 12, 25))
+        service, _ = self._build_service_with_candidates([candidate])
+        # avail_repo returns available slot for candidate date
+        result = _run_process(service, _make_request())
+        summary = result.candidate_date_summary
+        assert summary is not None
+        assert len(summary["available_candidate_dates"]) == 1
+        assert "2026-12-25" in summary["available_candidate_dates"]
+
+    def test_unavailable_candidate_listed_when_room_booked(self) -> None:
+        candidate = self._make_candidate(date(2026, 12, 25))
+        service, _ = self._build_service_with_candidates([candidate])
+        # Override availability to return booked slot
+        booked_slot = _make_availability_slot(status="booked")
+        service._avail_repo.get_for_room_date.return_value = [booked_slot]
+        result = _run_process(service, _make_request())
+        summary = result.candidate_date_summary
+        assert "2026-12-25" in summary["unavailable_candidate_dates"]
+        assert "2026-12-25" not in summary["available_candidate_dates"]
+
+    def test_clarification_required_adds_event_date_to_missing(self) -> None:
+        service, _ = self._build_service_with_candidates(
+            [], requires_clarification=True
+        )
+        result = _run_process(service, _make_request())
+        assert result.missing_fields_json is not None
+        assert "event_date" in result.missing_fields_json
+
+    def test_clarification_required_overrides_action_to_request_info(self) -> None:
+        service, _ = self._build_service_with_candidates(
+            [], requires_clarification=True
+        )
+        result = _run_process(service, _make_request())
+        assert result.recommended_action == ACTION_REQUEST_INFO
+
+    def test_recommended_candidate_date_is_first_available(self) -> None:
+        candidates = [
+            self._make_candidate(date(2026, 12, 24)),
+            self._make_candidate(date(2026, 12, 25)),
+        ]
+        service, _ = self._build_service_with_candidates(candidates)
+        result = _run_process(service, _make_request())
+        summary = result.candidate_date_summary
+        assert summary["recommended_candidate_date"] is not None
+
+    def test_empty_candidates_returns_summary_with_zero_checked(self) -> None:
+        service, _ = self._build_service_with_candidates([])
+        result = _run_process(service, _make_request())
+        assert result.candidate_date_summary is not None
+        assert result.candidate_date_summary["candidate_dates_checked"] == 0
+        assert result.candidate_date_summary["available_candidate_dates"] == []
+
+    def test_candidate_date_update_called_per_candidate(self) -> None:
+        candidates = [
+            self._make_candidate(date(2026, 12, 25)),
+            self._make_candidate(date(2026, 12, 26)),
+        ]
+        service, _ = self._build_service_with_candidates(candidates)
+        _run_process(service, _make_request())
+        assert service._date_request_repo.update_candidate_date.call_count == 2
