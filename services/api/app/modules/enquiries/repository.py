@@ -9,6 +9,15 @@ from sqlalchemy.orm import Session
 
 from app.modules.enquiries.models import Enquiry, EnquiryMessage
 
+# Lazy imports for models added in DATA-019
+try:
+    from app.modules.enquiries.models import EnquiryDateRequest, EnquiryCandidateDate
+    _DATE_MODELS_AVAILABLE = True
+except ImportError:  # pragma: no cover
+    _DATE_MODELS_AVAILABLE = False
+    EnquiryDateRequest = None  # type: ignore[assignment,misc]
+    EnquiryCandidateDate = None  # type: ignore[assignment,misc]
+
 
 class EnquiryRepository:
     def __init__(self, db: Session) -> None:
@@ -89,3 +98,57 @@ class EnquiryRepository:
             .limit(1)
         )
         return self._db.scalars(stmt).first()
+
+
+class DateRequestRepository:
+    """Read/write access for EnquiryDateRequest and EnquiryCandidateDate rows."""
+
+    def __init__(self, db: Session) -> None:
+        self._db = db
+
+    def get_latest_date_request(self, enquiry_id: uuid.UUID):
+        """Return the most recently created EnquiryDateRequest for an enquiry, or None."""
+        if not _DATE_MODELS_AVAILABLE or EnquiryDateRequest is None:
+            return None
+        stmt = (
+            select(EnquiryDateRequest)
+            .where(EnquiryDateRequest.enquiry_id == enquiry_id)
+            .order_by(EnquiryDateRequest.created_at.desc())
+            .limit(1)
+        )
+        return self._db.scalars(stmt).first()
+
+    def list_candidate_dates(self, enquiry_id: uuid.UUID) -> list:
+        """Return all EnquiryCandidateDate rows for an enquiry ordered by candidate_date."""
+        if not _DATE_MODELS_AVAILABLE or EnquiryCandidateDate is None:
+            return []
+        stmt = (
+            select(EnquiryCandidateDate)
+            .where(EnquiryCandidateDate.enquiry_id == enquiry_id)
+            .order_by(EnquiryCandidateDate.candidate_date)
+        )
+        return list(self._db.scalars(stmt).all())
+
+    def list_candidate_dates_for_request(self, date_request_id: uuid.UUID) -> list:
+        """Return all candidate dates for a specific date_request row."""
+        if not _DATE_MODELS_AVAILABLE or EnquiryCandidateDate is None:
+            return []
+        stmt = (
+            select(EnquiryCandidateDate)
+            .where(EnquiryCandidateDate.date_request_id == date_request_id)
+            .order_by(EnquiryCandidateDate.candidate_date)
+        )
+        return list(self._db.scalars(stmt).all())
+
+    def update_candidate_date(
+        self,
+        candidate: Any,
+        availability_status: str | None,
+        pricing_checked: bool,
+        recommended_minimum_spend: float | None,
+    ) -> None:
+        """Update availability and pricing fields on an EnquiryCandidateDate row."""
+        candidate.availability_status = availability_status
+        candidate.pricing_checked = pricing_checked
+        candidate.recommended_minimum_spend = recommended_minimum_spend
+        self._db.flush()
