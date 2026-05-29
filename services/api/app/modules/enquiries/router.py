@@ -7,9 +7,12 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.modules.enquiries.intake_service import EnquiryIntakeService, FreeformIntakeService
 from app.modules.enquiries.repository import EnquiryRepository
+from app.modules.enquiries.repository import DateRequestRepository
 from app.modules.enquiries.schemas import (
     DraftResponseOut,
+    EnquiryCandidateDateOut,
     EnquiryCreate,
+    EnquiryDateRequestOut,
     EnquiryIntakeOut,
     EnquiryListOut,
     EnquiryMessageCreate,
@@ -252,3 +255,49 @@ def get_email_events(
     )
     events = db.scalars(stmt).all()
     return [EmailEventOut.model_validate(e) for e in events]
+
+
+# ── Date request and candidate dates (API-019) ─────────────────────────────────
+
+
+@router.get("/{enquiry_id}/date-request/latest", response_model=EnquiryDateRequestOut)
+def get_latest_date_request(
+    enquiry_id: uuid.UUID,
+    db: Session = Depends(get_db),
+) -> EnquiryDateRequestOut:
+    """Return the latest extracted date request for an enquiry.
+
+    Returns 404 when no date request has been run for this enquiry.
+    Does not trigger date resolution.
+    """
+    repo = EnquiryRepository(db)
+    enquiry = repo.get_by_id(enquiry_id)
+    if not enquiry:
+        raise HTTPException(status_code=404, detail="Enquiry not found")
+
+    date_repo = DateRequestRepository(db)
+    date_request = date_repo.get_latest_date_request(enquiry_id)
+    if not date_request:
+        raise HTTPException(status_code=404, detail="No date request found for this enquiry")
+
+    return EnquiryDateRequestOut.model_validate(date_request)
+
+
+@router.get("/{enquiry_id}/candidate-dates", response_model=list[EnquiryCandidateDateOut])
+def list_candidate_dates(
+    enquiry_id: uuid.UUID,
+    db: Session = Depends(get_db),
+) -> list[EnquiryCandidateDateOut]:
+    """Return all candidate dates for an enquiry ordered by date.
+
+    Returns an empty list when no candidate dates exist.
+    Does not trigger availability or pricing checks.
+    """
+    repo = EnquiryRepository(db)
+    enquiry = repo.get_by_id(enquiry_id)
+    if not enquiry:
+        raise HTTPException(status_code=404, detail="Enquiry not found")
+
+    date_repo = DateRequestRepository(db)
+    candidates = date_repo.list_candidate_dates(enquiry_id)
+    return [EnquiryCandidateDateOut.model_validate(c) for c in candidates]
