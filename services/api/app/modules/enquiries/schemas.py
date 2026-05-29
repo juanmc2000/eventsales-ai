@@ -211,6 +211,46 @@ class DraftResponseOut(BaseModel):
     ai_context: AIContextOut | None = None
 
 
+# ── Date request and candidate date schemas ────────────────────────────────────
+
+
+class EnquiryDateRequestOut(BaseModel):
+    """API response for a stored enquiry_date_requests row."""
+
+    model_config = {"from_attributes": True}
+
+    id: uuid.UUID
+    enquiry_id: uuid.UUID
+    extraction_id: uuid.UUID | None = None
+    prompt_run_id: uuid.UUID | None = None
+    raw_text: str | None = None
+    date_request_type: str
+    anchor_date: date | None = None
+    timezone: str | None = None
+    extracted_json: dict | None = None
+    requires_date_clarification: bool
+    clarification_question: str | None = None
+    confidence: float | None = None
+    created_at: datetime
+
+
+class EnquiryCandidateDateOut(BaseModel):
+    """API response for a stored enquiry_candidate_dates row."""
+
+    model_config = {"from_attributes": True}
+
+    id: uuid.UUID
+    enquiry_id: uuid.UUID
+    date_request_id: uuid.UUID
+    candidate_date: date
+    source_type: str
+    availability_status: str | None = None
+    pricing_checked: bool
+    recommended_minimum_spend: float | None = None
+    ranking_score: float | None = None
+    created_at: datetime
+
+
 # ── Extraction and processing schemas ──────────────────────────────────────────
 
 
