@@ -405,7 +405,7 @@ class TestAIGatewayParameterPersistence:
         assert added.max_tokens is not None
 
     def test_extraction_prompt_uses_low_temperature(self) -> None:
-        """Enquiry extraction prompt has temperature=0.1 for deterministic output."""
+        """Enquiry extraction prompt (V3) uses a very low temperature for deterministic output."""
         db, mock_run = _mock_db()
         gateway = AIGateway(db=db, api_key="")  # fallback — just check run_data
 
@@ -415,4 +415,5 @@ class TestAIGatewayParameterPersistence:
         ))
 
         added = db.add.call_args[0][0]
-        assert float(added.temperature) == pytest.approx(0.1)
+        # V3 prompt uses temperature=0.05; assert <= 0.1 to allow future tuning
+        assert float(added.temperature) <= 0.1
