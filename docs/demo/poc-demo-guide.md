@@ -2,7 +2,7 @@
 
 **EventSales AI — Sprint 5C**
 **Status:** POC (Proof of Concept) — not production-ready
-**Date:** 2026-05-21
+**Date:** 2026-05-29 (updated for Sprint 8B)
 
 ---
 
@@ -254,7 +254,45 @@ The IMAP reader is disabled; no inbox polling occurs. Show the existing seed enq
 
 ---
 
-## 9. Known Limitations
+## 9. Freeform Enquiry Demo Flow (Sprint 8B)
+
+**What this shows:** A guest submitting a natural-language enquiry. The system extracts structured data including date intent, generates candidate dates, checks availability, and produces a draft — in a single response.
+
+1. Navigate to http://localhost:3001/webform
+2. Select the **Freeform** tab
+3. Select a restaurant and audience type
+4. Enter a natural-language message, for example:
+
+   > "Hi, I'm looking to book a private dining room for a corporate dinner for 20 people, sometime in August. Any Fridays or Saturdays would work — we're quite flexible on the exact date."
+
+5. Fill in guest details (name, email)
+6. Submit
+
+**What happens behind the scenes:**
+
+1. `POST /api/v1/enquiries/intake/freeform` triggers:
+   - **LLM Call 1** (extraction V3): extracts guest_count, event_type, audience_type, and a `date_request` object classifying the intent as `month_flexible` with `weekdays: ["friday", "saturday"]`
+   - **Date resolution** (no LLM): generates all matching Fridays and Saturdays in August — up to 60 candidate dates
+   - **Deterministic processing** (no LLM): checks room availability and pricing per candidate date, selects `recommended_candidate_date`
+   - **LLM Call 2** (draft): generates the response draft using enriched context
+
+2. The confirmation page shows:
+   - Extraction transparency panel (LLM Call 1 prompts)
+   - Draft response with AI transparency panel (LLM Call 2 prompts)
+
+**In the enquiry detail drawer:**
+Open the created enquiry. The **Date Resolution** section shows:
+- Date intent type: `month flexible` (or whatever was classified)
+- Raw text from the guest message
+- Candidate dates as compact rows with availability status pills (available / booked / held) and minimum spend where available
+
+**If date is ambiguous:** For inputs like "05/06 or 04/07", the section shows a **Needs clarification** badge and the system's proposed clarification question.
+
+**Talking point:** "The system never guesses a date — the LLM only extracts the guest's intent. The backend deterministically calculates which calendar dates that intent covers, then checks availability on each one. The guest's date flexibility is preserved through the entire flow."
+
+---
+
+## 10. Known Limitations
 
 | Limitation | Impact | Planned Resolution |
 |---|---|---|
@@ -270,10 +308,13 @@ The IMAP reader is disabled; no inbox polling occurs. Show the existing seed enq
 | No room asset management | Room images/floor plans not stored | Out of POC scope |
 | Personas are restaurant-level | No per-room persona configuration | Intentional — keeps model simple |
 | Room matching is deterministic | No ML ranking of rooms by suitability | Intentional — no ML in POC |
+| Date resolution uses Europe/London timezone | Candidate dates may be off by 1 day for guests in other timezones | Post-POC — derive from guest locale |
+| Candidate date ranking score is null | No ML ranking of candidate dates | Post-POC |
+| Candidate date availability uses seed data | Not a live booking engine | Expected for POC |
 
 ---
 
-## 10. Demo Script
+## 11. Demo Script
 
 ### Opening (1 min)
 
@@ -303,7 +344,7 @@ The IMAP reader is disabled; no inbox polling occurs. Show the existing seed enq
 
 ---
 
-## 11. Stakeholder Talking Points
+## 12. Stakeholder Talking Points
 
 **On AI and pricing:**
 > "Pricing is deterministic — rules-based, not ML. The operator controls the minimum spend for each event type, meal period, and day of week. No black box."

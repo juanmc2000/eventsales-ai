@@ -1,6 +1,6 @@
 # AI Gateway — Architecture and Prompt Governance
 
-**Sprint:** 6 (architecture) · Sprint 7 (freeform extraction + processing split) · Sprint 8 (LLM parameters, experiments, quality scoring)
+**Sprint:** 6 (architecture) · Sprint 7 (freeform extraction + processing split) · Sprint 8 (LLM parameters, experiments, quality scoring) · Sprint 8B (extraction schema hardening, deterministic date resolution)
 **Status:** Implemented (POC)
 
 ---
@@ -82,7 +82,7 @@ For the POC these are always identical, but the schema separation allows:
 | Key | Category | Output schema | Temperature | Notes |
 |-----|----------|---------------|-------------|-------|
 | `draft_response` | `draft_generation` | `DraftEmailOutput` | 0.7 | Main venue response draft |
-| `enquiry_extraction` | `intake` | `EnquiryExtractionOutput` | 0.1 | Low temp for factual accuracy |
+| `enquiry_extraction` | `intake` | `EnquiryExtractionOutput` | 0.05 | V3 — explicit JSON contract with `date_request` object; very low temp for structured JSON fidelity |
 | `missing_info_request` | `intake` | — | 0.5 | Polite follow-up questions |
 | `follow_up_response` | `follow_up` | — | 0.5 | Proactive re-engagement |
 | `availability_alternative_response` | `draft_generation` | — | 0.7 | Alternative date/room suggestion |
@@ -254,18 +254,27 @@ POST /api/v1/enquiries/intake/freeform
   │
   ├─ 1. Create enquiry + inbound message (DB, no LLM)
   │
-  ├─ 2. LLM Call 1 — Extraction (prompt_key: "enquiry_extraction")
+  ├─ 2. LLM Call 1 — Extraction (prompt_key: "enquiry_extraction", V3)
   │      Input:  freeform_text, restaurant_name
-  │      Output: guest_count, event_date, event_type, occasion, budget,
-  │              allergens, special_requirements, missing_fields, confidence
+  │      Output: guest_count, event_type, occasion, budget, allergens,
+  │              special_requirements, customer_tone, audience_type,
+  │              preferred_room, missing_fields, confidence
+  │              + date_request object (see Sprint 8B below)
   │      Stored: enquiry_extractions table
   │
-  ├─ 3. Deterministic Processing (no LLM)
-  │      Room matching → availability lookup → pricing calculation
+  ├─ 3. Deterministic Date Resolution (no LLM)
+  │      Expand date_request → EnquiryCandidateDate rows
+  │      source_type: "explicit" or "deterministic", cap: 60 dates
+  │      Stored: enquiry_date_requests, enquiry_candidate_dates tables
+  │
+  ├─ 4. Deterministic Processing (no LLM)
+  │      Room matching → availability lookup per candidate date
+  │      → pricing calculation per available date
   │      → recommended_action selection
   │      Stored: enquiry_processing_snapshots table
+  │              (availability_result_json includes candidate_date_summary)
   │
-  └─ 4. LLM Call 2 — Draft Generation (prompt_key: "draft_response")
+  └─ 5. LLM Call 2 — Draft Generation (prompt_key: "draft_response")
          Input:  DraftContext enriched from processing snapshot
          Output: email subject + body
          Stored: enquiry_messages (draft)
@@ -306,8 +315,11 @@ A third LLM call for **response planning** (e.g. availability conflict handling,
 |-------|---------|
 | `enquiry_extractions` | One row per extraction run; stores extracted_json, normalized_json, missing_fields, confidence_json |
 | `enquiry_processing_snapshots` | One row per processing run; stores availability, room suitability, pricing, recommended_action |
+| `enquiry_date_requests` | One row per extraction; stores extracted date intent, date_request_type, anchor_date, requires_date_clarification |
+| `enquiry_candidate_dates` | One row per candidate date; stores candidate_date, source_type, availability_status, recommended_minimum_spend |
 
-Both tables have `enquiry_id` foreign keys and are created by Alembic migration `20260524_000006`.
+`enquiry_extractions` and `enquiry_processing_snapshots` are created by migration `20260524_000006`.
+`enquiry_date_requests` and `enquiry_candidate_dates` are created by migration `20260527_000010`.
 
 ### Draft context enrichment
 
@@ -321,10 +333,10 @@ These fields become optional variables in the `draft_response` prompt template (
 
 ### Prompt versioning (Sprint 7)
 
-| Prompt key | V1 | V2 |
-|------------|----|-----|
-| `enquiry_extraction` | Archived — old contact-info extraction schema | Active — freeform natural-language extraction with guest_count, occasion, budget, allergens |
-| `draft_response` | Archived — original single-context draft | Active — enriched with availability, pricing, missing_questions, recommended_action |
+| Prompt key | V1 | V2 | V3 |
+|------------|----|----|----|
+| `enquiry_extraction` | Archived — contact-info extraction schema | Archived — freeform extraction with guest_count, occasion, budget, allergens | **Active** — explicit JSON contract with `date_request` object, NULL convention, schema version 3.0, temperature 0.05 |
+| `draft_response` | Archived — original single-context draft | **Active** — enriched with availability, pricing, missing_questions, recommended_action | — |
 
 Old versions are archived (not deleted) per the registry's historical record rule.
 
@@ -476,6 +488,83 @@ The panel is not shown when the fallback provider was used (`is_fallback=true`).
 | `token_input_count`, `token_output_count`, `estimated_cost` not populated | Requires Anthropic usage API wiring (post-POC) |
 | Experiment runner is manual (no scheduled or automated sweep) | Post-POC experimentation framework |
 | `top_k` stored in `ai_prompt_runs` but not forwarded to Anthropic API (not supported) | Use with other providers |
+| Date resolution uses `Europe/London` timezone by default | Timezone stored on `enquiry_date_requests`; override in production from guest locale |
+| `ranking_score` on candidate dates is null | Post-POC — requires a scoring model |
+| Candidate date availability uses seed `room_availability` table, not a live calendar | Post-POC — wire to booking system |
+
+---
+
+## Extraction Schema Hardening (Sprint 8B)
+
+### Explicit JSON contract
+
+Extraction prompt V3 instructs the LLM to return **only** a valid JSON object matching `schema_name: enquiry_extraction_output, schema_version: 3.0`. No markdown fences, no preamble, no explanation.
+
+The prompt explicitly prohibits the LLM from:
+- Calculating candidate dates
+- Checking availability
+- Performing pricing
+- Writing any customer-facing draft copy
+
+### NULL placeholder convention
+
+| Field type | Missing value placeholder |
+|-----------|--------------------------|
+| String fields | `"NULL"` (string) |
+| Numeric fields | `null` (JSON null) |
+| Object fields | `null` (JSON null) |
+| Array fields | `[]` (empty array) |
+| Unknown enum values | `"unknown"` where schema permits |
+
+`EnquiryExtractionOutput` (`validators.py`) normalises `"NULL"` string values to Python `None` using `mode="before"` Pydantic validators.
+
+### date_request object
+
+The `date_request` sub-object captures guest date intent as stated. Supported `date_request_type` values:
+
+| Type | Description |
+|------|-------------|
+| `exact` | Single unambiguous date |
+| `date_range` | Start and end date |
+| `multiple_choice` | Two or more explicit options |
+| `month_flexible` | Any date within a month |
+| `weekday_range_over_relative_period` | Specific weekday(s) within a period |
+| `recurring_window` | Repeating pattern |
+| `mixed_relative_dates` | Combination of relative references |
+| `ambiguous_numeric_date` | Date with multiple interpretations — sets `requires_date_clarification = true` |
+| `unknown` | Cannot classify — sets `requires_date_clarification = true` |
+
+The LLM records the raw date text, classifies the type, and populates sub-fields. It does **not** expand relative dates into explicit calendar dates — that is done deterministically by the backend.
+
+### Deterministic date resolution service
+
+`EnquiryDateResolutionService` (`enquiries/date_resolution_service.py`) expands the extracted `date_request` into `EnquiryCandidateDate` rows:
+
+- No LLM calls.
+- Uses `anchor_date` from extraction (defaults to today).
+- Default timezone: `Europe/London`.
+- Candidate date cap: **60 dates**.
+- `source_type = "explicit"` for directly provided dates; `"deterministic"` for expanded dates.
+
+Expansion is deterministic and fully covered by unit tests.
+
+### Recommended extraction parameters (V3)
+
+| Parameter | Recommended starting value | Notes |
+|-----------|---------------------------|-------|
+| `temperature` | 0.05 (current) | Very low — structured JSON fidelity over creativity |
+| `top_p` | 0.8 | Reduces vocabulary range |
+| `top_k` | null | Omit unless provider supports cleanly |
+| `max_tokens` | 1200 | Allow for full `date_request` object |
+
+### Date request and candidate date API
+
+```
+GET /api/v1/enquiries/{id}/date-request/latest  — latest EnquiryDateRequest for the enquiry (404 if none)
+GET /api/v1/enquiries/{id}/candidate-dates      — all EnquiryCandidateDate rows, ordered by date
+```
+
+Neither endpoint triggers date resolution, availability checks, or pricing.
 
 ---
 

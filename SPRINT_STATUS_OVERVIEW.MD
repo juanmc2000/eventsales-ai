@@ -2,7 +2,7 @@
 
 **Project:** EventSales AI
 **Phase:** POC (Proof of Concept)
-**Last Updated:** 2026-05-28 (post-Sprint-8)
+**Last Updated:** 2026-05-29 (post-Sprint-8B)
 
 ---
 
@@ -23,6 +23,7 @@
 | Sprint 7 | Freeform Enquiry Extraction & Deterministic Processing | ✓ Complete | #181–#190 |
 | Hotfix | Fix generation failed and send failed errors in freeform webform | ✓ Complete | #192 |
 | Sprint 8 | Prompt Run Experimentation & Quality Scoring | ✓ Complete | #207–#216 |
+| Sprint 8B | Extraction Schema Hardening & Deterministic Date Resolution | ✓ Complete | #217–#236 |
 
 ---
 
@@ -183,6 +184,16 @@
 | PromptRunReviewPanel UI (collapsed, 6 scores, toggle, notes, saved state) | 8 | ✓ |
 | AIContextOut.prompt_run_id in TypeScript types | 8 | ✓ |
 | Tests: 734 backend, 111 frontend (845 total) | 8 | ✓ |
+| Enquiry extraction prompt V3 — explicit JSON contract, date_request object, schema version 3.0, temperature 0.05 | 8B | ✓ |
+| EnquiryExtractionOutput extended with date_request, customer_name, email, phone, preferred_room, customer_tone, audience_type, meal_period | 8B | ✓ |
+| NULL placeholder convention — `"NULL"` string coercion in Pydantic validators | 8B | ✓ |
+| enquiry_date_requests table (Alembic migration 20260527_000010) | 8B | ✓ |
+| enquiry_candidate_dates table (same migration) | 8B | ✓ |
+| EnquiryDateResolutionService — deterministic expansion for all 8 date_request_type values, cap 60, Europe/London default | 8B | ✓ |
+| EnquiryProcessingService extended — candidate date availability + pricing per date, candidate_date_summary in snapshot | 8B | ✓ |
+| GET /enquiries/{id}/date-request/latest and GET /enquiries/{id}/candidate-dates endpoints | 8B | ✓ |
+| DateResolutionSection in enquiry detail drawer — date intent, clarification badge, candidate date rows with availability pills and pricing | 8B | ✓ |
+| Tests: 828 backend, 126 frontend (954 total) | 8B | ✓ |
 
 ---
 
@@ -221,6 +232,23 @@
 
 ---
 
+## Sprint 8B Issues
+
+| Issue | PR | Title | Status |
+|-------|----|-------|--------|
+| DOC-017 | #217 | Sprint 8B planning document | ✓ Merged |
+| AI-013 | #218 | Enquiry extraction prompt V3 — explicit JSON contract | ✓ Merged |
+| AI-014 | #219 | Extend EnquiryExtractionOutput schema for date_request | ✓ Merged |
+| DATA-019 | #220 | Add EnquiryDateRequest and EnquiryCandidateDate models + migration | ✓ Merged |
+| WORKFLOW-008 | #221 | Deterministic date resolution service | ✓ Merged |
+| WORKFLOW-009 | #222 | Wire candidate dates into availability and pricing processing | ✓ Merged |
+| API-019 | #223 | Expose date request and candidate date endpoints | ✓ Merged |
+| UI-022 | #235 | Show date resolution summary in enquiry detail | ✓ PR open |
+| TEST-010 | #236 | Add extraction schema and date resolution tests | ✓ PR open |
+| DOC-018 | — | Update freeform extraction and date processing documentation | ✓ In progress |
+
+---
+
 ## Remaining Gaps
 
 | Gap | Priority | Sprint |
@@ -253,4 +281,5 @@
 | `docs/development/ai-gateway.md` | AI Gateway architecture, freeform extraction workflow, prompt governance, experiments, quality scoring |
 | `docs/sprints/sprint-007-freeform-extraction-processing.md` | Sprint 7 plan and architecture |
 | `docs/sprints/sprint-008-prompt-experimentation-quality-scoring.md` | Sprint 8 plan and architecture |
+| `docs/sprints/sprint-008b-extraction-schema-date-resolution.md` | Sprint 8B plan: extraction schema hardening, date resolution, candidate dates |
 | `CLAUDE.md` | Developer and AI assistant instructions |
