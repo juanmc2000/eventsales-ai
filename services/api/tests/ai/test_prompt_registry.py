@@ -175,23 +175,59 @@ class TestPromptRenderer:
         assert "birthday dinner" in user
         assert "20 guests" in user
 
-    def test_enquiry_extraction_v2_prohibits_pricing(self) -> None:
+    def test_enquiry_extraction_is_v3(self) -> None:
         defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
-        assert defn.version == 2
-        assert "pricing" in defn.system_template.lower() or "PRICING" in defn.system_template
+        assert defn.version == 3
 
-    def test_enquiry_extraction_v2_prohibits_availability(self) -> None:
+    def test_enquiry_extraction_v3_prohibits_pricing(self) -> None:
+        defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
+        assert "pricing" in defn.system_template.lower()
+
+    def test_enquiry_extraction_v3_prohibits_availability(self) -> None:
         defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
         assert "availability" in defn.system_template.lower()
 
-    def test_enquiry_extraction_v2_prohibits_drafting(self) -> None:
+    def test_enquiry_extraction_v3_prohibits_drafting(self) -> None:
         defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
-        assert "customer-facing" in defn.system_template.lower() or "drafting" in defn.system_template.lower() or "response" in defn.system_template.lower()
+        template = defn.system_template.lower()
+        assert "customer-facing" in template or "draft" in template or "response" in template
 
-    def test_enquiry_extraction_v2_requires_freeform_text_variable(self) -> None:
+    def test_enquiry_extraction_v3_prohibits_candidate_date_expansion(self) -> None:
+        defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
+        template = defn.system_template.lower()
+        assert "candidate" in template or "expand" in template
+
+    def test_enquiry_extraction_v3_requires_freeform_text_variable(self) -> None:
         defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
         assert "freeform_text" in defn.required_variables
 
-    def test_enquiry_extraction_v2_low_temperature(self) -> None:
+    def test_enquiry_extraction_v3_very_low_temperature(self) -> None:
         defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
-        assert float(defn.temperature) <= 0.3
+        assert float(defn.temperature) <= 0.1
+
+    def test_enquiry_extraction_v3_contains_json_contract(self) -> None:
+        defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
+        # Explicit JSON structure must be in the system template
+        assert "date_request" in defn.system_template
+        assert "date_request_type" in defn.system_template
+        assert "requires_date_clarification" in defn.system_template
+
+    def test_enquiry_extraction_v3_contains_null_placeholder_convention(self) -> None:
+        defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
+        # NULL placeholder convention must be documented in the template
+        assert "NULL" in defn.system_template
+        assert "null" in defn.system_template.lower()
+
+    def test_enquiry_extraction_v3_sufficient_max_tokens(self) -> None:
+        defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
+        # date_request object requires more tokens than the V2 600 limit
+        assert defn.max_tokens >= 900
+
+    def test_enquiry_extraction_v3_schema_version(self) -> None:
+        defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
+        assert defn.output_schema_version == "3.0"
+
+    def test_enquiry_extraction_v3_contains_schema_name(self) -> None:
+        defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
+        assert "schema_name" in defn.system_template
+        assert "enquiry_extraction_output" in defn.system_template

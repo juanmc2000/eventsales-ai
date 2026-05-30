@@ -224,7 +224,7 @@ _ENQUIRY_EXTRACTION_V1 = PromptDefinition(
 _ENQUIRY_EXTRACTION_V2 = PromptDefinition(
     key=PROMPT_KEY_ENQUIRY_EXTRACTION,
     version=2,
-    status=VERSION_STATUS_ACTIVE,
+    status=VERSION_STATUS_ARCHIVED,
     category=CATEGORY_INTAKE,
     name="Enquiry Extraction",
     goal="Extract structured enquiry details from a freeform webform submission.",
@@ -279,7 +279,126 @@ _ENQUIRY_EXTRACTION_V2 = PromptDefinition(
         "Sprint 7 — freeform webform extraction. "
         "Extracts occasion, guest_count, event_date, event_time, event_type, budget, "
         "allergens, special_requirements, freeform_notes, missing_fields, confidence. "
-        "Explicitly prohibits pricing, availability, and drafting decisions."
+        "Explicitly prohibits pricing, availability, and drafting decisions. "
+        "Archived in Sprint 8B — replaced by V3 (explicit JSON contract, date_request object)."
+    ),
+)
+
+_ENQUIRY_EXTRACTION_V3 = PromptDefinition(
+    key=PROMPT_KEY_ENQUIRY_EXTRACTION,
+    version=3,
+    status=VERSION_STATUS_ACTIVE,
+    category=CATEGORY_INTAKE,
+    name="Enquiry Extraction",
+    goal="Extract structured enquiry facts from a freeform submission using an explicit JSON contract.",
+    system_template=(
+        "You are a structured data extraction specialist for {restaurant_name}, a hospitality venue.\n"
+        "Your ONLY task is to extract factual details from the guest's freeform enquiry text.\n\n"
+        "CRITICAL RULES — follow these exactly with no exceptions:\n"
+        "- Extract facts only. Do NOT make pricing decisions.\n"
+        "- Do NOT check, infer, or calculate room availability.\n"
+        "- Do NOT write any customer-facing copy or draft a response.\n"
+        "- Do NOT suggest whether the booking should proceed.\n"
+        "- Do NOT expand flexible date requests into specific candidate dates.\n"
+        "  The backend will expand dates deterministically — your job is fact extraction only.\n"
+        "- Do NOT calculate availability across candidate dates.\n"
+        "- Do NOT choose or rank dates.\n\n"
+        "NULL PLACEHOLDER CONVENTION — use these exactly:\n"
+        "- Missing string value: use the string \"NULL\" (not JSON null)\n"
+        "- Missing numeric value: use JSON null\n"
+        "- Missing object value: use JSON null\n"
+        "- Missing array value: use [] (empty array)\n"
+        "- Unknown enum value: use \"unknown\" where the schema permits it\n\n"
+        "schema_name: enquiry_extraction_output\n"
+        "schema_version: 3.0\n\n"
+        "Return ONLY a valid JSON object matching this exact structure.\n"
+        "No explanation. No preamble. No markdown fences. No trailing text.\n\n"
+        "{{\n"
+        "  \"customer_name\": \"<string or NULL>\",\n"
+        "  \"email\": \"<string or NULL>\",\n"
+        "  \"phone\": \"<string or NULL>\",\n"
+        "  \"event_type\": \"<string or NULL>\",\n"
+        "  \"occasion\": \"<string or NULL>\",\n"
+        "  \"date_request\": {{\n"
+        "    \"raw_text\": \"<exact date phrase from guest message, or NULL>\",\n"
+        "    \"date_request_type\": \"<exact|date_range|multiple_choice|month_flexible"
+        "|weekday_range_over_relative_period|recurring_window|mixed_relative_dates"
+        "|ambiguous_numeric_date|unknown>\",\n"
+        "    \"anchor_date\": \"<ISO 8601 date or null>\",\n"
+        "    \"timezone\": \"<timezone string or null>\",\n"
+        "    \"explicit_dates\": [\"<ISO 8601 date>\"],\n"
+        "    \"date_range\": {{\n"
+        "      \"start_date\": \"<ISO 8601 date or null>\",\n"
+        "      \"end_date\": \"<ISO 8601 date or null>\",\n"
+        "      \"flexibility_notes\": \"<string or null>\"\n"
+        "    }},\n"
+        "    \"relative_period\": {{\n"
+        "      \"amount\": \"<integer or null>\",\n"
+        "      \"unit\": \"<day|week|month|year or null>\",\n"
+        "      \"direction\": \"<next|last|this or null>\"\n"
+        "    }},\n"
+        "    \"weekdays\": [\"<monday|tuesday|wednesday|thursday|friday|saturday|sunday>\"],\n"
+        "    \"month\": \"<integer 1-12 or null>\",\n"
+        "    \"year\": \"<integer or null>\",\n"
+        "    \"ambiguous_dates\": [\n"
+        "      {{\n"
+        "        \"raw_value\": \"<string>\",\n"
+        "        \"possible_dates\": [\"<ISO 8601 date>\"],\n"
+        "        \"reason\": \"<string>\"\n"
+        "      }}\n"
+        "    ],\n"
+        "    \"requires_date_clarification\": false,\n"
+        "    \"clarification_question\": \"<string or null>\",\n"
+        "    \"confidence\": 0.9\n"
+        "  }},\n"
+        "  \"event_time\": \"<HH:MM or NULL>\",\n"
+        "  \"guest_count\": null,\n"
+        "  \"meal_period\": \"<lunch|dinner|unknown or NULL>\",\n"
+        "  \"budget\": {{\n"
+        "    \"amount\": null,\n"
+        "    \"currency\": \"<string or null>\",\n"
+        "    \"budget_type\": \"<total|per_head|null>\"\n"
+        "  }},\n"
+        "  \"preferred_room\": \"<string or NULL>\",\n"
+        "  \"special_requirements\": {{\n"
+        "    \"children\": null,\n"
+        "    \"pets\": null,\n"
+        "    \"disabled_access\": null,\n"
+        "    \"music\": null,\n"
+        "    \"microphone\": null,\n"
+        "    \"screen_or_tv\": null\n"
+        "  }},\n"
+        "  \"dietary_requirements\": [],\n"
+        "  \"customer_tone\": \"<formal|informal|casual|unknown>\",\n"
+        "  \"audience_type\": \"<social|corporate|agency|unknown>\",\n"
+        "  \"missing_fields\": [],\n"
+        "  \"confidence\": {{}},\n"
+        "  \"freeform_notes\": \"<string or NULL>\"\n"
+        "}}"
+    ),
+    user_template=(
+        "Extract structured enquiry details from the following freeform text.\n\n"
+        "Restaurant: {restaurant_name}\n\n"
+        "Guest message:\n{freeform_text}"
+    ),
+    required_variables=frozenset({
+        "restaurant_name",
+        "freeform_text",
+    }),
+    output_schema_name=SCHEMA_ENQUIRY_EXTRACTION_OUTPUT,
+    output_schema_version="3.0",
+    model_name=DEFAULT_DRAFT_MODEL,
+    max_tokens=1200,
+    temperature=0.05,
+    top_p=0.8,
+    change_notes=(
+        "Sprint 8B — explicit JSON contract. "
+        "Adds date_request object for structured date intent capture. "
+        "Uses NULL string placeholder convention for missing string fields. "
+        "Explicitly prohibits candidate date expansion, availability calculation, "
+        "pricing decisions, and customer-facing drafting. "
+        "Increases max_tokens to 1200 to accommodate date_request object. "
+        "Reduces temperature to 0.05 for deterministic structured output."
     ),
 )
 
@@ -402,6 +521,7 @@ _ALL_DEFINITIONS: list[PromptDefinition] = [
     _DRAFT_RESPONSE_V2,
     _ENQUIRY_EXTRACTION_V1,
     _ENQUIRY_EXTRACTION_V2,
+    _ENQUIRY_EXTRACTION_V3,
     _MISSING_INFO_REQUEST_V1,
     _FOLLOW_UP_RESPONSE_V1,
     _AVAILABILITY_ALTERNATIVE_V1,
