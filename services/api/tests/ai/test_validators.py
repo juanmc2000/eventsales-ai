@@ -20,9 +20,21 @@ from app.modules.ai.constants import (
     VALIDATION_SKIPPED,
 )
 from app.modules.ai.validators import (
+    ALL_DATE_REQUEST_TYPES,
+    DATE_REQUEST_TYPE_AMBIGUOUS_NUMERIC,
+    DATE_REQUEST_TYPE_DATE_RANGE,
+    DATE_REQUEST_TYPE_EXACT,
+    DATE_REQUEST_TYPE_MONTH_FLEXIBLE,
+    DATE_REQUEST_TYPE_MULTIPLE_CHOICE,
+    DATE_REQUEST_TYPE_UNKNOWN,
+    DATE_REQUEST_TYPE_WEEKDAY_RANGE_RELATIVE,
     DraftEmailOutput,
     EnquiryExtractionOutput,
     ExtractionBudget,
+    ExtractionAmbiguousDate,
+    ExtractionDateRange,
+    ExtractionDateRequest,
+    ExtractionRelativePeriod,
     ExtractionSpecialRequirements,
     OutputValidator,
     ValidationResult,
@@ -61,7 +73,7 @@ class TestEnquiryExtractionOutput:
         assert out.event_time is None
         assert out.event_type is None
         assert out.budget is None
-        assert out.allergens is None
+        assert out.allergens == []   # V3: missing arrays default to [] per NULL convention
         assert out.special_requirements is None
         assert out.freeform_notes is None
 
@@ -275,3 +287,192 @@ class TestGatewayWithValidation:
         assert result.validation_status == VALIDATION_PASSED
         assert result.parsed_response == {"subject": "Hi", "body": "Hello"}
         assert result.validation_errors is None
+
+
+# ── ExtractionDateRequest schema (AI-014) ─────────────────────────────────
+
+
+class TestExtractionDateRequest:
+    def test_defaults(self) -> None:
+        dr = ExtractionDateRequest()
+        assert dr.date_request_type == "unknown"
+        assert dr.requires_date_clarification is False
+        assert dr.explicit_dates == []
+        assert dr.weekdays == []
+        assert dr.ambiguous_dates == []
+        assert dr.confidence == 0.0
+
+    def test_exact_date(self) -> None:
+        dr = ExtractionDateRequest(
+            raw_text="15th August 2026",
+            date_request_type=DATE_REQUEST_TYPE_EXACT,
+            explicit_dates=["2026-08-15"],
+            confidence=0.95,
+        )
+        assert dr.date_request_type == DATE_REQUEST_TYPE_EXACT
+        assert dr.explicit_dates == ["2026-08-15"]
+        assert dr.confidence == 0.95
+
+    def test_date_range(self) -> None:
+        dr = ExtractionDateRequest(
+            raw_text="3rd to 5th September",
+            date_request_type=DATE_REQUEST_TYPE_DATE_RANGE,
+            date_range=ExtractionDateRange(start_date="2026-09-03", end_date="2026-09-05"),
+            confidence=0.9,
+        )
+        assert dr.date_range is not None
+        assert dr.date_range.start_date == "2026-09-03"
+        assert dr.date_range.end_date == "2026-09-05"
+
+    def test_multiple_choice(self) -> None:
+        dr = ExtractionDateRequest(
+            raw_text="next Friday or Saturday",
+            date_request_type=DATE_REQUEST_TYPE_MULTIPLE_CHOICE,
+            explicit_dates=["2026-06-05", "2026-06-06"],
+        )
+        assert len(dr.explicit_dates) == 2
+
+    def test_month_flexible(self) -> None:
+        dr = ExtractionDateRequest(
+            raw_text="sometime in July",
+            date_request_type=DATE_REQUEST_TYPE_MONTH_FLEXIBLE,
+            month=7,
+            year=2026,
+        )
+        assert dr.month == 7
+        assert dr.year == 2026
+
+    def test_weekday_range_over_relative_period(self) -> None:
+        dr = ExtractionDateRequest(
+            raw_text="any Saturday in the next three weeks",
+            date_request_type=DATE_REQUEST_TYPE_WEEKDAY_RANGE_RELATIVE,
+            weekdays=["saturday"],
+            relative_period=ExtractionRelativePeriod(amount=3, unit="week", direction="next"),
+        )
+        assert "saturday" in dr.weekdays
+        assert dr.relative_period is not None
+        assert dr.relative_period.amount == 3
+
+    def test_ambiguous_numeric_date_requires_clarification(self) -> None:
+        dr = ExtractionDateRequest(
+            raw_text="05/06",
+            date_request_type=DATE_REQUEST_TYPE_AMBIGUOUS_NUMERIC,
+            ambiguous_dates=[
+                ExtractionAmbiguousDate(
+                    raw_value="05/06",
+                    possible_dates=["2026-05-06", "2026-06-05"],
+                    reason="Could be May 6 (MM/DD) or June 5 (DD/MM)",
+                )
+            ],
+            requires_date_clarification=True,
+            clarification_question="Did you mean 5th June or 6th May?",
+        )
+        assert dr.requires_date_clarification is True
+        assert len(dr.ambiguous_dates) == 1
+        assert len(dr.ambiguous_dates[0].possible_dates) == 2
+
+    def test_unknown_type_no_dates(self) -> None:
+        dr = ExtractionDateRequest(
+            raw_text="sometime soon",
+            date_request_type=DATE_REQUEST_TYPE_UNKNOWN,
+            requires_date_clarification=True,
+            clarification_question="Could you specify a preferred date?",
+        )
+        assert dr.date_request_type == DATE_REQUEST_TYPE_UNKNOWN
+        assert dr.requires_date_clarification is True
+        assert dr.explicit_dates == []
+
+    def test_null_string_coercion(self) -> None:
+        dr = ExtractionDateRequest.model_validate({
+            "raw_text": "NULL",
+            "timezone": "NULL",
+            "clarification_question": "NULL",
+            "anchor_date": "NULL",
+        })
+        assert dr.raw_text is None
+        assert dr.timezone is None
+        assert dr.clarification_question is None
+        assert dr.anchor_date is None
+
+    def test_confidence_clamped_to_zero_on_none(self) -> None:
+        dr = ExtractionDateRequest.model_validate({"confidence": None})
+        assert dr.confidence == 0.0
+
+    def test_all_date_request_types_known(self) -> None:
+        assert len(ALL_DATE_REQUEST_TYPES) == 9
+
+    def test_month_out_of_range_becomes_none(self) -> None:
+        dr = ExtractionDateRequest.model_validate({"month": 13})
+        assert dr.month is None
+
+    def test_month_valid(self) -> None:
+        dr = ExtractionDateRequest.model_validate({"month": 6})
+        assert dr.month == 6
+
+
+class TestEnquiryExtractionOutputV3:
+    """Tests for V3 schema fields: date_request, NULL coercion, dietary_requirements."""
+
+    def test_date_request_accepted(self) -> None:
+        out = EnquiryExtractionOutput(
+            date_request=ExtractionDateRequest(
+                raw_text="next Friday",
+                date_request_type=DATE_REQUEST_TYPE_MULTIPLE_CHOICE,
+                explicit_dates=["2026-06-05"],
+                confidence=0.88,
+            )
+        )
+        assert out.date_request is not None
+        assert out.date_request.date_request_type == DATE_REQUEST_TYPE_MULTIPLE_CHOICE
+
+    def test_null_string_coercion_on_string_fields(self) -> None:
+        out = EnquiryExtractionOutput.model_validate({
+            "customer_name": "NULL",
+            "email": "NULL",
+            "phone": "NULL",
+            "event_type": "NULL",
+            "occasion": "NULL",
+            "freeform_notes": "NULL",
+        })
+        assert out.customer_name is None
+        assert out.email is None
+        assert out.phone is None
+        assert out.event_type is None
+        assert out.occasion is None
+        assert out.freeform_notes is None
+
+    def test_dietary_requirements_defaults_to_empty_list(self) -> None:
+        out = EnquiryExtractionOutput()
+        assert out.dietary_requirements == []
+
+    def test_dietary_requirements_null_coerced_to_empty_list(self) -> None:
+        out = EnquiryExtractionOutput.model_validate({"dietary_requirements": None})
+        assert out.dietary_requirements == []
+
+    def test_allergens_null_coerced_to_empty_list(self) -> None:
+        out = EnquiryExtractionOutput.model_validate({"allergens": None})
+        assert out.allergens == []
+
+    def test_v3_full_extraction(self) -> None:
+        out = EnquiryExtractionOutput.model_validate({
+            "customer_name": "Alice Smith",
+            "email": "alice@example.com",
+            "event_type": "birthday",
+            "occasion": "30th birthday dinner",
+            "date_request": {
+                "raw_text": "15th August 2026",
+                "date_request_type": "exact",
+                "explicit_dates": ["2026-08-15"],
+                "requires_date_clarification": False,
+                "confidence": 0.97,
+            },
+            "guest_count": 25,
+            "meal_period": "dinner",
+            "audience_type": "social",
+            "missing_fields": [],
+            "confidence": {"event_type": 0.92},
+        })
+        assert out.customer_name == "Alice Smith"
+        assert out.date_request is not None
+        assert out.date_request.date_request_type == DATE_REQUEST_TYPE_EXACT
+        assert out.guest_count == 25
