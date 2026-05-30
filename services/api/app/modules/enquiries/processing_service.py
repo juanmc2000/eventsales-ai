@@ -24,6 +24,7 @@ from sqlalchemy.orm import Session
 from app.modules.pricing.schemas import PricingRecommendationRequest
 from app.modules.pricing.service import PricingRuleService
 from app.modules.restaurants.repository import RoomAvailabilityRepository, RoomRepository
+from app.modules.enquiries.repository import DateRequestRepository
 
 # EnquiryProcessingSnapshot is added by DATA-015.  Use a lazy import.
 try:
@@ -79,6 +80,7 @@ class ProcessingResult:
 
     snapshot_id is set when the row was persisted successfully.
     All JSON fields mirror the enquiry_processing_snapshots columns.
+    candidate_date_summary is populated when candidate dates were processed.
     """
 
     snapshot_id: uuid.UUID | None
@@ -88,6 +90,8 @@ class ProcessingResult:
     pricing_result_json: dict | None = field(default=None)
     missing_fields_json: list[str] | None = field(default=None)
     error_message: str | None = field(default=None)
+    # Populated when candidate dates exist
+    candidate_date_summary: dict | None = field(default=None)
 
 
 # ── Service ───────────────────────────────────────────────────────────────────
@@ -112,6 +116,7 @@ class EnquiryProcessingService:
         self._room_repo = RoomRepository(db)
         self._avail_repo = RoomAvailabilityRepository(db)
         self._pricing_svc = PricingRuleService(db)
+        self._date_request_repo = DateRequestRepository(db)
 
     def process(self, request: ProcessingRequest) -> ProcessingResult:
         """Run deterministic processing and persist the snapshot.
@@ -166,14 +171,68 @@ class EnquiryProcessingService:
                 guest_count=guest_count,
             )
 
-        # ── 5. Recommended action ─────────────────────────────────────────────
-        recommended_action = self._recommend_action(
-            missing_fields=missing_fields,
-            matched_room=matched_room,
-            availability_result=availability_result,
+        # ── 5. Candidate date processing ───────────────────────────────────────
+        candidate_date_summary: dict | None = None
+        date_request_row = self._date_request_repo.get_latest_date_request(
+            request.enquiry_id
         )
 
-        # ── 6. Persist snapshot ────────────────────────────────────────────────
+        if date_request_row is not None:
+            candidate_date_summary = self._process_candidate_dates(
+                date_request_row=date_request_row,
+                matched_room=matched_room,
+                event_time=event_time,
+                restaurant_id=request.restaurant_id,
+            )
+            # If clarification is required due to date ambiguity, override action
+            if isinstance(date_request_row.requires_date_clarification, bool) and date_request_row.requires_date_clarification:
+                missing_fields = list(missing_fields)
+                if "event_date" not in missing_fields:
+                    missing_fields.append("event_date")
+
+        # ── 6. Recommended action ─────────────────────────────────────────────
+        # When candidate dates exist and one is available, refine availability_result
+        if candidate_date_summary is not None:
+            available_dates = candidate_date_summary.get("available_candidate_dates") or []
+            recommended_candidate = candidate_date_summary.get("recommended_candidate_date")
+            requires_clarification = candidate_date_summary.get("requires_date_clarification", False)
+
+            if requires_clarification:
+                # Ambiguous date — must ask guest to clarify
+                recommended_action = ACTION_REQUEST_INFO
+            elif recommended_candidate and matched_room:
+                # We have an available candidate date and a room — synthesize availability
+                availability_result = {
+                    "status": "available",
+                    "date": recommended_candidate,
+                    "meal_period": self._infer_meal_period(event_time),
+                    "source": "candidate_date_check",
+                }
+                recommended_action = self._recommend_action(
+                    missing_fields=missing_fields,
+                    matched_room=matched_room,
+                    availability_result=availability_result,
+                )
+            elif available_dates:
+                recommended_action = self._recommend_action(
+                    missing_fields=missing_fields,
+                    matched_room=matched_room,
+                    availability_result={"status": "available"},
+                )
+            else:
+                recommended_action = self._recommend_action(
+                    missing_fields=missing_fields,
+                    matched_room=matched_room,
+                    availability_result=availability_result,
+                )
+        else:
+            recommended_action = self._recommend_action(
+                missing_fields=missing_fields,
+                matched_room=matched_room,
+                availability_result=availability_result,
+            )
+
+        # ── 7. Persist snapshot ────────────────────────────────────────────────
         snapshot = self._persist_snapshot(
             request=request,
             pricing_rule_id=pricing_rule_id,
@@ -182,6 +241,7 @@ class EnquiryProcessingService:
             pricing_result_json=pricing_result,
             missing_fields_json=missing_fields if missing_fields else None,
             recommended_action=recommended_action,
+            candidate_date_summary=candidate_date_summary,
         )
 
         return ProcessingResult(
@@ -191,6 +251,7 @@ class EnquiryProcessingService:
             room_suitability_json=room_suitability,
             pricing_result_json=pricing_result,
             missing_fields_json=missing_fields if missing_fields else None,
+            candidate_date_summary=candidate_date_summary,
         )
 
     # ── Private helpers ───────────────────────────────────────────────────────
@@ -299,6 +360,96 @@ class EnquiryProcessingService:
             return ACTION_REQUEST_INFO
         return ACTION_ESCALATE
 
+    def _process_candidate_dates(
+        self,
+        date_request_row,
+        matched_room,
+        event_time: str | None,
+        restaurant_id: uuid.UUID,
+    ) -> dict:
+        """Check availability and pricing for all candidate dates.
+
+        Updates EnquiryCandidateDate rows in place.
+        Returns a summary dict for inclusion in the processing snapshot.
+        """
+        candidates = self._date_request_repo.list_candidate_dates_for_request(
+            date_request_row.id
+        )
+
+        if not candidates:
+            return {
+                "candidate_dates_checked": 0,
+                "available_candidate_dates": [],
+                "unavailable_candidate_dates": [],
+                "recommended_candidate_date": None,
+                "requires_date_clarification": bool(
+                    isinstance(date_request_row.requires_date_clarification, bool)
+                    and date_request_row.requires_date_clarification
+                ),
+                "clarification_question": date_request_row.clarification_question,
+            }
+
+        meal_period = self._infer_meal_period(event_time)
+        available: list[str] = []
+        unavailable: list[str] = []
+        recommended: str | None = None
+
+        for candidate in candidates:
+            candidate_date = candidate.candidate_date
+            avail_status: str | None = None
+            spend: float | None = None
+            pricing_checked = False
+
+            if matched_room is not None:
+                avail = self._check_availability(matched_room.id, candidate_date, meal_period)
+                avail_status = avail.get("status")
+
+                if avail_status == "available":
+                    available.append(candidate_date.isoformat())
+                    # Calculate pricing for available dates
+                    pricing_result, _ = self._calculate_pricing(
+                        restaurant_id=restaurant_id,
+                        event_date=candidate_date,
+                        meal_period=meal_period,
+                        guest_count=None,
+                    )
+                    pricing_checked = True
+                    if pricing_result:
+                        spend = pricing_result.get("minimum_spend")
+                    # Track the first available date as recommended
+                    if recommended is None:
+                        recommended = candidate_date.isoformat()
+                else:
+                    unavailable.append(candidate_date.isoformat())
+            else:
+                avail_status = "unknown"
+                unavailable.append(candidate_date.isoformat())
+
+            # Update the candidate row
+            try:
+                self._date_request_repo.update_candidate_date(
+                    candidate=candidate,
+                    availability_status=avail_status,
+                    pricing_checked=pricing_checked,
+                    recommended_minimum_spend=spend,
+                )
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("Failed to update candidate date %s: %s", candidate.id, exc)
+
+        requires_clarification = bool(
+            isinstance(date_request_row.requires_date_clarification, bool)
+            and date_request_row.requires_date_clarification
+        )
+
+        return {
+            "candidate_dates_checked": len(candidates),
+            "available_candidate_dates": available,
+            "unavailable_candidate_dates": unavailable,
+            "recommended_candidate_date": recommended,
+            "requires_date_clarification": requires_clarification,
+            "clarification_question": date_request_row.clarification_question,
+        }
+
     def _persist_snapshot(
         self,
         request: ProcessingRequest,
@@ -308,6 +459,7 @@ class EnquiryProcessingService:
         pricing_result_json: dict | None,
         missing_fields_json: list[str] | None,
         recommended_action: str,
+        candidate_date_summary: dict | None = None,
     ):
         try:
             if EnquiryProcessingSnapshot is None:  # DATA-015 not yet applied
@@ -315,13 +467,19 @@ class EnquiryProcessingService:
                     "EnquiryProcessingSnapshot model not available — skipping persistence"
                 )
                 return None
+
+            # Merge candidate date summary into availability_result_json when present
+            merged_avail = dict(availability_result_json) if availability_result_json else {}
+            if candidate_date_summary:
+                merged_avail["candidate_date_summary"] = candidate_date_summary
+
             snapshot = EnquiryProcessingSnapshot(
                 id=uuid.uuid4(),
                 tenant_id=request.tenant_id,
                 enquiry_id=request.enquiry_id,
                 extraction_id=request.extraction_id,
                 pricing_rule_id=pricing_rule_id,
-                availability_result_json=availability_result_json,
+                availability_result_json=merged_avail if merged_avail else None,
                 room_suitability_json=room_suitability_json,
                 pricing_result_json=pricing_result_json,
                 missing_fields_json=missing_fields_json,
