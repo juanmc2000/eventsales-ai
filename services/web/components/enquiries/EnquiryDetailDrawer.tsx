@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { StatusPill } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
-import type { Enquiry, EnquiryExtractionOut, EnquiryMessage, EnquiryProcessingSnapshotOut } from "@/lib/types/enquiry";
+import type { Enquiry, EnquiryCandidateDateOut, EnquiryDateRequestOut, EnquiryExtractionOut, EnquiryMessage, EnquiryProcessingSnapshotOut } from "@/lib/types/enquiry";
 import type { Persona, PersonaListOut } from "@/lib/types/persona";
 import { DraftSection } from "@/components/enquiries/DraftSection";
 import { EmailActivityTimeline } from "@/components/enquiries/EmailActivityTimeline";
@@ -387,6 +387,193 @@ export function ExtractionProcessingSection({ enquiryId }: { enquiryId: string }
   );
 }
 
+// ─── Date resolution section ──────────────────────────────────────────────────
+export function DateResolutionSection({ enquiryId }: { enquiryId: string }) {
+  const [dateRequest, setDateRequest] = useState<EnquiryDateRequestOut | null>(null);
+  const [candidates, setCandidates] = useState<EnquiryCandidateDateOut[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      fetch(`${API_BASE}/api/v1/enquiries/${enquiryId}/date-request/latest`)
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null),
+      fetch(`${API_BASE}/api/v1/enquiries/${enquiryId}/candidate-dates`)
+        .then((r) => (r.ok ? r.json() : []))
+        .catch(() => []),
+    ]).then(([dr, cands]) => {
+      setDateRequest(dr);
+      setCandidates(cands ?? []);
+    }).finally(() => setLoading(false));
+  }, [enquiryId]);
+
+  if (loading) {
+    return <p style={{ fontSize: 13, color: "var(--text-muted)" }}>Loading…</p>;
+  }
+
+  if (!dateRequest) {
+    return (
+      <div
+        style={{
+          padding: "14px 16px",
+          borderRadius: 10,
+          background: "var(--surface-soft)",
+          border: "1px solid var(--border)",
+        }}
+      >
+        <p style={{ fontSize: 13, color: "var(--text-muted)" }}>No date resolution has been run yet.</p>
+        <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>
+          Date resolution runs automatically for freeform enquiries.
+        </p>
+      </div>
+    );
+  }
+
+  function CandidateAvailBadge({ status }: { status: string | null }) {
+    if (!status) return null;
+    const colours: Record<string, { bg: string; color: string }> = {
+      available:   { bg: "rgba(22,166,106,0.1)",  color: "#16A66A" },
+      booked:      { bg: "rgba(239,68,68,0.1)",   color: "#dc2626" },
+      held:        { bg: "rgba(234,179,8,0.1)",   color: "#b45309" },
+      unavailable: { bg: "rgba(107,114,128,0.1)", color: "#6b7280" },
+      unknown:     { bg: "rgba(107,114,128,0.1)", color: "#6b7280" },
+    };
+    const style = colours[status] ?? colours.unknown;
+    return (
+      <span
+        style={{
+          fontSize: 11,
+          fontWeight: 600,
+          padding: "2px 8px",
+          borderRadius: 6,
+          background: style.bg,
+          color: style.color,
+          textTransform: "capitalize",
+        }}
+      >
+        {status}
+      </span>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      {/* Intent summary */}
+      <div
+        style={{
+          padding: "14px 16px",
+          borderRadius: 10,
+          background: "rgba(109,61,245,0.03)",
+          border: "1px solid rgba(109,61,245,0.12)",
+          display: "flex",
+          flexDirection: "column",
+          gap: 8,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            Date Intent
+          </span>
+          <span
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: "var(--brand-purple)",
+              background: "rgba(109,61,245,0.08)",
+              padding: "2px 8px",
+              borderRadius: 6,
+            }}
+          >
+            {dateRequest.date_request_type.replace(/_/g, " ")}
+          </span>
+          {dateRequest.requires_date_clarification && (
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                padding: "2px 8px",
+                borderRadius: 6,
+                background: "rgba(234,179,8,0.1)",
+                color: "#b45309",
+              }}
+            >
+              Needs clarification
+            </span>
+          )}
+        </div>
+        {dateRequest.raw_text && (
+          <p style={{ fontSize: 12, color: "var(--text-secondary)", fontStyle: "italic" }}>
+            &ldquo;{dateRequest.raw_text}&rdquo;
+          </p>
+        )}
+        {dateRequest.requires_date_clarification && dateRequest.clarification_question && (
+          <p
+            style={{
+              fontSize: 12,
+              color: "var(--text-muted)",
+              padding: "8px 10px",
+              borderRadius: 6,
+              background: "rgba(234,179,8,0.06)",
+              border: "1px solid rgba(234,179,8,0.2)",
+            }}
+          >
+            <strong>Question to ask:</strong> {dateRequest.clarification_question}
+          </p>
+        )}
+      </div>
+
+      {/* Candidate dates */}
+      {candidates.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+            Candidate Dates ({candidates.length})
+          </p>
+          {candidates.map((c) => (
+            <div
+              key={c.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "8px 12px",
+                borderRadius: 8,
+                background: "var(--surface-soft)",
+                border: "1px solid var(--border)",
+                gap: 8,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", fontFamily: "monospace" }}>
+                  {new Date(c.candidate_date + "T00:00:00").toLocaleDateString("en-GB", {
+                    weekday: "short",
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </span>
+                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>({c.source_type})</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                {c.recommended_minimum_spend != null && (
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "var(--brand-purple)" }}>
+                    £{Math.round(c.recommended_minimum_spend).toLocaleString()}
+                  </span>
+                )}
+                <CandidateAvailBadge status={c.availability_status} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {candidates.length === 0 && (
+        <p style={{ fontSize: 12, color: "var(--text-muted)" }}>No candidate dates generated.</p>
+      )}
+    </div>
+  );
+}
+
 // ─── Drawer component ─────────────────────────────────────────────────────────
 export function EnquiryDetailDrawer({
   enquiry: initialEnquiry,
@@ -634,6 +821,11 @@ export function EnquiryDetailDrawer({
           {/* AI extraction & processing summary */}
           <DrawerSection title="AI Extraction Summary">
             <ExtractionProcessingSection enquiryId={enquiry.id} />
+          </DrawerSection>
+
+          {/* Date resolution summary */}
+          <DrawerSection title="Date Resolution">
+            <DateResolutionSection enquiryId={enquiry.id} />
           </DrawerSection>
 
           {/* Assigned persona */}

@@ -227,6 +227,45 @@ export type EnquiryProcessingSnapshotOut = {
 };
 
 /**
+ * Extracted date intent from an enquiry (Sprint 8B).
+ * Mirrors EnquiryDateRequestOut in services/api/app/modules/enquiries/schemas.py.
+ * Returned by GET /enquiries/{id}/date-request/latest.
+ */
+export type EnquiryDateRequestOut = {
+  id: string;
+  enquiry_id: string;
+  extraction_id: string | null;
+  prompt_run_id: string | null;
+  raw_text: string | null;
+  date_request_type: string;
+  anchor_date: string | null;         // ISO 8601 date
+  timezone: string | null;
+  extracted_json: Record<string, unknown> | null;
+  requires_date_clarification: boolean;
+  clarification_question: string | null;
+  confidence: number | null;
+  created_at: string;
+};
+
+/**
+ * A single deterministically generated candidate date.
+ * Mirrors EnquiryCandidateDateOut in services/api/app/modules/enquiries/schemas.py.
+ * Returned by GET /enquiries/{id}/candidate-dates.
+ */
+export type EnquiryCandidateDateOut = {
+  id: string;
+  enquiry_id: string;
+  date_request_id: string;
+  candidate_date: string;             // ISO 8601 date
+  source_type: string;                // "explicit" | "deterministic"
+  availability_status: string | null; // "available" | "booked" | "held" | "unavailable" | "unknown" | null
+  pricing_checked: boolean;
+  recommended_minimum_spend: number | null;
+  ranking_score: number | null;
+  created_at: string;
+};
+
+/**
  * Email delivery event record from email_events table.
  * Mirrors the backend EmailEvent model.
  */
