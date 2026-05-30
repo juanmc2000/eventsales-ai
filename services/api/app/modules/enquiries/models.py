@@ -2,7 +2,7 @@ import uuid
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, Numeric, String, Text, func
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -98,6 +98,12 @@ class Enquiry(Base):
     )
     processing_snapshots: Mapped[list["EnquiryProcessingSnapshot"]] = relationship(
         "EnquiryProcessingSnapshot", back_populates="enquiry", cascade="all, delete-orphan"
+    )
+    date_requests: Mapped[list["EnquiryDateRequest"]] = relationship(
+        "EnquiryDateRequest", back_populates="enquiry", cascade="all, delete-orphan"
+    )
+    candidate_dates: Mapped[list["EnquiryCandidateDate"]] = relationship(
+        "EnquiryCandidateDate", back_populates="enquiry", cascade="all, delete-orphan"
     )
 
 
@@ -237,6 +243,126 @@ class EnquiryProcessingSnapshot(Base):
     )
     extraction: Mapped["EnquiryExtraction"] = relationship(
         "EnquiryExtraction", back_populates="processing_snapshots"
+    )
+
+
+class EnquiryDateRequest(Base):
+    """Extracted date intent from a guest enquiry (DATA-019).
+
+    Stores what the guest said about dates as structured intent — not expanded
+    candidate dates.  The date resolution service (WORKFLOW-008) reads this row
+    and deterministically generates EnquiryCandidateDate rows from it.
+
+    Rows are immutable after insert.  Re-extraction creates a new row.
+    """
+
+    __tablename__ = "enquiry_date_requests"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tenant_id: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
+    enquiry_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("enquiries.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    # Nullable: may be created during extraction or as a standalone step
+    extraction_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("enquiry_extractions.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    prompt_run_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("ai_prompt_runs.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    # Raw date phrase as stated by the guest
+    raw_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Classified date intent type (see DateRequestType in validators.py)
+    date_request_type: Mapped[str] = mapped_column(
+        String(60), nullable=False, default="unknown", index=True
+    )
+    # Reference date used during deterministic expansion (defaults to today when absent)
+    anchor_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    timezone: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    # Full date_request JSON from the LLM output
+    extracted_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    # Whether the date is ambiguous and requires clarification from the guest
+    requires_date_clarification: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False
+    )
+    clarification_question: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # LLM confidence for the date extraction (0.0–1.0)
+    confidence: Mapped[float | None] = mapped_column(Numeric(4, 3), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now(), index=True
+    )
+
+    # Relationships
+    enquiry: Mapped["Enquiry"] = relationship("Enquiry", back_populates="date_requests")
+    extraction: Mapped["EnquiryExtraction | None"] = relationship("EnquiryExtraction")
+    candidate_dates: Mapped[list["EnquiryCandidateDate"]] = relationship(
+        "EnquiryCandidateDate",
+        back_populates="date_request",
+        cascade="all, delete-orphan",
+    )
+
+
+class EnquiryCandidateDate(Base):
+    """A single deterministically generated candidate date for an enquiry (DATA-019).
+
+    Candidate dates are always produced by backend Python logic, never trusted
+    directly from LLM output.  Rows are updated in place by WORKFLOW-009
+    after availability and pricing checks.
+    """
+
+    __tablename__ = "enquiry_candidate_dates"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tenant_id: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
+    enquiry_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("enquiries.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    date_request_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("enquiry_date_requests.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    # The resolved calendar date for this candidate
+    candidate_date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
+    # How the candidate was produced: "explicit" (provided by LLM) or "deterministic" (backend)
+    source_type: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="deterministic"
+    )
+    # Populated by WORKFLOW-009 after availability check
+    availability_status: Mapped[str | None] = mapped_column(
+        String(20), nullable=True
+    )  # available | booked | held | unavailable | unknown
+    # Set to True after WORKFLOW-009 runs pricing check for this date
+    pricing_checked: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    # Populated by WORKFLOW-009 after pricing check
+    recommended_minimum_spend: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
+    # Optional ranking score — null in POC; populated by future ranking logic
+    ranking_score: Mapped[float | None] = mapped_column(Numeric(6, 4), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+    # Relationships
+    enquiry: Mapped["Enquiry"] = relationship("Enquiry", back_populates="candidate_dates")
+    date_request: Mapped["EnquiryDateRequest"] = relationship(
+        "EnquiryDateRequest", back_populates="candidate_dates"
     )
 
 
