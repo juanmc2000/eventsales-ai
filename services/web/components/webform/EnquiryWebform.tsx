@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Card } from "@/components/layout/Card";
 import type { Restaurant, RestaurantListOut, Room } from "@/lib/types/restaurant";
-import type { AIContextOut, EnquiryCandidateDateOut, EnquiryDraft, EnquiryIntakeOut, ExtractionSummaryOut, FreeformIntakeOut, RoomAvailabilityOut } from "@/lib/types/enquiry";
+import type { AIContextOut, EnquiryCandidateDateOut, EnquiryDateRequestOut, EnquiryDraft, EnquiryIntakeOut, ExtractionSummaryOut, FreeformIntakeOut, RoomAvailabilityOut } from "@/lib/types/enquiry";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -415,54 +415,40 @@ function ExtractionParsedJsonPanel({ rawResponse }: { rawResponse: string }) {
 // ── Date Resolution Panel ──────────────────────────────────────────────────────
 
 function DateResolutionPanel({
-  extraction,
+  dateRequestRecord,
   candidateDates,
 }: {
-  extraction: ExtractionSummaryOut | null;
+  dateRequestRecord: EnquiryDateRequestOut | null;
   candidateDates: EnquiryCandidateDateOut[];
 }) {
-  let dateRequest: Record<string, unknown> | null = null;
-  if (extraction?.extraction_raw_response) {
-    try {
-      const parsed = JSON.parse(extraction.extraction_raw_response);
-      if (parsed?.date_request && typeof parsed.date_request === "object") {
-        dateRequest = parsed.date_request as Record<string, unknown>;
-      }
-    } catch {
-      // ignore parse errors
-    }
-  }
+  if (!dateRequestRecord && candidateDates.length === 0) return null;
 
-  if (!dateRequest && candidateDates.length === 0) return null;
-
-  const dateRequestType = dateRequest?.date_request_type as string | undefined;
-  const rawText = dateRequest?.raw_text as string | undefined;
-  const confidence = dateRequest?.confidence as number | undefined;
-  const requiresClarification = dateRequest?.requires_date_clarification as boolean | undefined;
-  const clarificationQuestion = dateRequest?.clarification_question as string | undefined;
+  const rawText = dateRequestRecord?.raw_text;
+  const dateRequestType = dateRequestRecord?.date_request_type;
+  const confidence = dateRequestRecord?.confidence;
+  const requiresClarification = dateRequestRecord?.requires_date_clarification ?? false;
+  const clarificationQuestion = dateRequestRecord?.clarification_question;
 
   return (
     <div style={{
       padding: "14px 16px",
       borderRadius: 10,
       background: "rgba(22,166,106,0.04)",
-      border: "1px solid rgba(22,166,106,0.18)",
+      border: "1px solid rgba(22,166,106,0.2)",
     }}>
       <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 10px 0" }}>
         Date Resolution
       </p>
 
-      {/* Intent summary */}
-      {dateRequest && (
+      {/* Intent: raw text → calculated date(s) → type → confidence */}
+      {dateRequestRecord && (
         <div style={{ marginBottom: candidateDates.length > 0 ? 12 : 0, display: "flex", flexDirection: "column", gap: 8 }}>
-          {/* Row 1: raw text → calculated dates → type pill → confidence */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             {rawText && rawText !== "NULL" && (
               <span style={{ fontSize: 13, color: "var(--text-secondary)", fontStyle: "italic" }}>
                 &ldquo;{rawText}&rdquo;
               </span>
             )}
-            {/* Resolved / calculated dates inline */}
             {candidateDates.length > 0 && (
               <>
                 <span style={{ fontSize: 13, color: "var(--text-muted)" }}>→</span>
@@ -480,9 +466,9 @@ function DateResolutionPanel({
                 {dateRequestType}
               </span>
             )}
-            {confidence !== undefined && confidence !== null && (
+            {confidence != null && (
               <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                {Math.round((confidence as number) * 100)}% confidence
+                {Math.round(confidence * 100)}% confidence
               </span>
             )}
             {requiresClarification && (
@@ -499,7 +485,7 @@ function DateResolutionPanel({
         </div>
       )}
 
-      {/* Candidate date detail rows — availability + pricing per date */}
+      {/* Candidate date rows — availability + pricing */}
       {candidateDates.length > 0 ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 6, borderTop: "1px solid rgba(22,166,106,0.12)", paddingTop: 10 }}>
           <p style={{ fontSize: 10, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 4px 0" }}>
@@ -522,9 +508,9 @@ function DateResolutionPanel({
             </div>
           ))}
         </div>
-      ) : dateRequest ? (
+      ) : dateRequestRecord ? (
         <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0 }}>
-          No candidate dates resolved.
+          No candidate dates resolved — the extraction type may not have produced explicit dates.
         </p>
       ) : null}
     </div>
@@ -1307,6 +1293,7 @@ type FreeformResult = {
   extraction: ExtractionSummaryOut | null;
   recommended_action: string | null;
   // Sprint 8B enrichments
+  dateRequestRecord: EnquiryDateRequestOut | null;
   candidateDates: EnquiryCandidateDateOut[];
 };
 
@@ -1489,7 +1476,7 @@ function FreeformSuccessPanel({
         )}
 
         {/* Date resolution — intent + candidate dates with availability */}
-        <DateResolutionPanel extraction={result.extraction} candidateDates={result.candidateDates} />
+        <DateResolutionPanel dateRequestRecord={result.dateRequestRecord} candidateDates={result.candidateDates} />
 
         {/* Parsed extraction JSON contract */}
         {result.extraction?.extraction_raw_response && (
@@ -1621,10 +1608,15 @@ function FreeformEnquiryForm({ restaurants }: { restaurants: Restaurant[] }) {
           }
         : null;
 
-      // Fetch candidate dates (best-effort)
+      // Fetch date resolution data (best-effort, parallel)
+      let dateRequestRecord: EnquiryDateRequestOut | null = null;
       let candidateDates: EnquiryCandidateDateOut[] = [];
       try {
-        const cdRes = await fetch(`${API_BASE}/api/v1/enquiries/${intake.enquiry_id}/candidate-dates`);
+        const [drRes, cdRes] = await Promise.all([
+          fetch(`${API_BASE}/api/v1/enquiries/${intake.enquiry_id}/date-request/latest`),
+          fetch(`${API_BASE}/api/v1/enquiries/${intake.enquiry_id}/candidate-dates`),
+        ]);
+        if (drRes.ok) dateRequestRecord = await drRes.json();
         if (cdRes.ok) candidateDates = await cdRes.json();
       } catch {
         // best-effort
@@ -1669,6 +1661,7 @@ function FreeformEnquiryForm({ restaurants }: { restaurants: Restaurant[] }) {
         rooms,
         extraction: intake.extraction,
         recommended_action: intake.recommended_action,
+        dateRequestRecord,
         candidateDates,
       });
     } catch (err) {
