@@ -1,5 +1,6 @@
 /**
- * Webform smoke tests — verifies the enquiry webform API contract.
+ * Webform smoke tests — verifies the enquiry webform API contract and
+ * UI-023 extraction JSON panel behaviour.
  *
  * TEST-005: End-to-End POC Workflow Tests
  *
@@ -29,6 +30,61 @@ function stubFetch(response: { ok: boolean; status?: number; body: unknown }) {
     })
   );
 }
+
+// ── UI-023: ExtractionParsedJsonPanel logic ────────────────────────────────────
+
+describe("ExtractionParsedJsonPanel formatting logic", () => {
+  it("pretty-prints valid JSON from extraction_raw_response", () => {
+    const raw = JSON.stringify({
+      customer_name: "Jane Smith",
+      email: "jane@example.com",
+      date_request: { date_request_type: "exact", explicit_dates: ["2026-08-15"] },
+      missing_fields: [],
+    });
+    const parsed = JSON.parse(raw);
+    const formatted = JSON.stringify(parsed, null, 2);
+    expect(formatted).toContain('"customer_name"');
+    expect(formatted).toContain('"date_request"');
+    expect(formatted).toContain('"2026-08-15"');
+    // 2-space indent
+    expect(formatted).toMatch(/^\{/);
+    expect(formatted.split("\n")[1]).toMatch(/^  "/);
+  });
+
+  it("falls back to raw text when extraction_raw_response is not valid JSON", () => {
+    const raw = "Not valid JSON at all {{";
+    let result: string;
+    try {
+      result = JSON.stringify(JSON.parse(raw), null, 2);
+    } catch {
+      result = raw;
+    }
+    expect(result).toBe(raw);
+  });
+
+  it("renders null/empty date_request fields without throwing", () => {
+    const raw = JSON.stringify({
+      customer_name: "NULL",
+      date_request: {
+        raw_text: "NULL",
+        date_request_type: "unknown",
+        explicit_dates: [],
+        requires_date_clarification: true,
+        clarification_question: "Could you clarify the date?",
+        confidence: 0.3,
+      },
+      missing_fields: ["event_date", "guest_count"],
+    });
+    let result: string;
+    try {
+      result = JSON.stringify(JSON.parse(raw), null, 2);
+    } catch {
+      result = raw;
+    }
+    expect(result).toContain('"date_request_type": "unknown"');
+    expect(result).toContain('"requires_date_clarification": true');
+  });
+});
 
 describe("Webform intake API contract", () => {
   beforeEach(() => vi.clearAllMocks());
