@@ -106,6 +106,46 @@ class TestExactExpansion:
         })
         assert result.candidate_dates == []
 
+    def test_exact_resolves_next_wednesday_from_monday(self) -> None:
+        # "next Wednesday" from Monday 2026-06-01 → next calendar week's Wednesday
+        result = _resolve(
+            {
+                "date_request_type": "exact",
+                "explicit_dates": [],
+                "anchor_date": None,
+                "weekdays": ["wednesday"],
+                "relative_period": {"direction": "next", "unit": "week", "amount": 1},
+            },
+            anchor=date(2026, 6, 1),  # Monday
+        )
+        assert result.candidate_dates == [date(2026, 6, 10)]
+
+    def test_exact_next_wednesday_from_wednesday(self) -> None:
+        # "next Wednesday" from Wednesday itself → NEXT week's Wednesday, not today
+        result = _resolve(
+            {
+                "date_request_type": "exact",
+                "explicit_dates": [],
+                "weekdays": ["wednesday"],
+                "relative_period": {"direction": "next", "unit": "week", "amount": 1},
+            },
+            anchor=date(2026, 6, 3),  # Wednesday
+        )
+        assert result.candidate_dates == [date(2026, 6, 10)]
+
+    def test_exact_this_wednesday_from_monday(self) -> None:
+        # "this Wednesday" from Monday → current week's Wednesday
+        result = _resolve(
+            {
+                "date_request_type": "exact",
+                "explicit_dates": [],
+                "weekdays": ["wednesday"],
+                "relative_period": {"direction": "this", "unit": "week", "amount": 1},
+            },
+            anchor=date(2026, 6, 1),  # Monday
+        )
+        assert result.candidate_dates == [date(2026, 6, 3)]
+
 
 # ── Date range expansion ──────────────────────────────────────────────────────
 
@@ -268,6 +308,34 @@ class TestAmbiguousNumericDate:
 
 
 # ── Unknown type ──────────────────────────────────────────────────────────────
+
+
+class TestRelativePeriodType:
+    """The LLM sometimes emits date_request_type='relative_period' (not in schema)."""
+
+    def test_relative_period_single_weekday_resolves_to_next_calendar_week(self) -> None:
+        # "next Wednesday" from Monday 2026-06-01 → Wednesday of next calendar week
+        result = _resolve(
+            {
+                "date_request_type": "relative_period",
+                "weekdays": ["wednesday"],
+                "relative_period": {"direction": "next", "unit": "week", "amount": 1},
+            },
+            anchor=date(2026, 6, 1),  # Monday
+        )
+        assert result.candidate_dates == [date(2026, 6, 10)]
+
+    def test_relative_period_multiple_weekdays_uses_range(self) -> None:
+        result = _resolve(
+            {
+                "date_request_type": "relative_period",
+                "weekdays": ["friday", "saturday"],
+                "relative_period": {"direction": "next", "unit": "week", "amount": 1},
+            },
+            anchor=date(2026, 6, 1),
+        )
+        assert all(d.weekday() in (4, 5) for d in result.candidate_dates)
+        assert len(result.candidate_dates) > 0
 
 
 class TestUnknownType:

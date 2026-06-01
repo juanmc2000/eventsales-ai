@@ -173,7 +173,7 @@ class EnquiryDateResolutionService:
         """
         try:
             if date_request_type == "exact":
-                return self._expand_exact(dr), SOURCE_TYPE_EXPLICIT
+                return self._expand_exact(dr, anchor_date), SOURCE_TYPE_EXPLICIT
 
             if date_request_type == "date_range":
                 return self._expand_date_range(dr, anchor_date), SOURCE_TYPE_DETERMINISTIC
@@ -197,6 +197,19 @@ class EnquiryDateResolutionService:
                 # Store possible interpretations but require clarification — no expansion
                 return self._expand_ambiguous(dr), SOURCE_TYPE_EXPLICIT
 
+            if date_request_type == "relative_period":
+                # The LLM occasionally uses this type instead of the canonical
+                # "weekday_range_over_relative_period" or "exact".
+                # When a single weekday is given, resolve to that weekday in the
+                # next/this calendar week.  Multiple weekdays fall back to range.
+                weekdays: list = dr.get("weekdays") or []
+                if len(weekdays) == 1:
+                    resolved = self._resolve_weekday_relative(
+                        weekdays, dr.get("relative_period") or {}, anchor_date
+                    )
+                    return resolved[:1], SOURCE_TYPE_DETERMINISTIC
+                return self._expand_weekday_range(dr, anchor_date), SOURCE_TYPE_DETERMINISTIC
+
             # unknown or unrecognised — no candidate dates
             return [], SOURCE_TYPE_DETERMINISTIC
 
@@ -204,14 +217,69 @@ class EnquiryDateResolutionService:
             logger.warning("Date expansion failed for type %r: %s", date_request_type, exc)
             return [], SOURCE_TYPE_DETERMINISTIC
 
-    def _expand_exact(self, dr: dict) -> list[date]:
+    def _expand_exact(self, dr: dict, anchor_date: date) -> list[date]:
+        # 1. Explicit ISO dates
         explicit: list = dr.get("explicit_dates") or []
         if explicit:
             parsed = [self._parse_date(d) for d in explicit]
             return [d for d in parsed if d is not None][:1]  # single date
-        # Fallback: parse anchor_date if explicit_dates is empty
+        # 2. anchor_date embedded in the extraction JSON
         anchor = self._parse_date(dr.get("anchor_date"))
-        return [anchor] if anchor else []
+        if anchor:
+            return [anchor]
+        # 3. Weekday + relative_period fallback — e.g. "next Wednesday"
+        #    The LLM sometimes sets type="exact" but expresses the date via
+        #    weekdays + relative_period instead of explicit_dates.
+        weekdays: list = dr.get("weekdays") or []
+        relative_period = dr.get("relative_period") or {}
+        if weekdays:
+            resolved = self._resolve_weekday_relative(
+                weekdays, relative_period, anchor_date
+            )
+            if resolved:
+                return resolved[:1]
+        return []
+
+    def _resolve_weekday_relative(
+        self,
+        weekdays: list,
+        relative_period: dict,
+        anchor_date: date,
+    ) -> list[date]:
+        """Resolve a single weekday + relative_period to a concrete date.
+
+        "next Wednesday" semantics: Wednesday of the NEXT calendar week
+        (i.e. Monday-anchored week following the anchor date's week).
+        This matches British English convention where "next Wednesday"
+        always means the week after the current one.
+        """
+        target_weekday = self._parse_weekday(weekdays[0] if weekdays else None)
+        if target_weekday is None:
+            return []
+
+        direction = (relative_period.get("direction") or "next").lower()
+
+        if direction == "next":
+            # Advance to the Monday that starts NEXT week, then add weekday offset.
+            # anchor.weekday() == 0 (Mon) → +7 days to reach next Monday.
+            days_to_next_monday = 7 - anchor_date.weekday()
+            start_of_next_week = anchor_date + timedelta(days=days_to_next_monday)
+            return [start_of_next_week + timedelta(days=target_weekday)]
+
+        if direction == "this":
+            # Monday of the CURRENT week, then add weekday offset.
+            start_of_this_week = anchor_date - timedelta(days=anchor_date.weekday())
+            target = start_of_this_week + timedelta(days=target_weekday)
+            return [target] if target >= anchor_date else []
+
+        # last / other — fall back to range search
+        start, end = self._resolve_relative_period(relative_period, anchor_date)
+        current = start
+        while current <= end:
+            if current.weekday() == target_weekday:
+                return [current]
+            current += timedelta(days=1)
+        return []
 
     def _expand_date_range(self, dr: dict, anchor_date: date) -> list[date]:
         date_range = dr.get("date_range") or {}
