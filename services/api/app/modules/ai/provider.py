@@ -23,6 +23,21 @@ logger = logging.getLogger(__name__)
 _DEFAULT_MODEL = "claude-haiku-4-5-20251001"
 
 
+def _strip_markdown_fences(text: str) -> str:
+    """Remove leading/trailing markdown code fences from an LLM response.
+
+    Some models wrap JSON output in ```json ... ``` despite instructions not to.
+    This ensures downstream JSON parsing works regardless.
+    """
+    if not text.startswith("```"):
+        return text
+    lines = text.splitlines()
+    # Drop first line (``` or ```json) and last line (```) when present
+    start = 1
+    end = len(lines) - 1 if lines[-1].strip() == "```" else len(lines)
+    return "\n".join(lines[start:end]).strip()
+
+
 class LLMProvider(Protocol):
     """Interface that all LLM provider implementations must satisfy."""
 
@@ -137,15 +152,19 @@ class AnthropicProvider:
         user_prompt: str,
         *,
         max_tokens: int = 800,
-        temperature: float = 0.7,
+        temperature: float | None = None,
         top_p: float | None = None,
     ) -> str:
         """Call Anthropic with pre-rendered system and user prompts.
 
         Used by the AI Gateway.  Raises on failure — the gateway handles errors.
-        max_tokens and temperature are passed to the API exactly as provided.
-        top_p is forwarded when set; top_k is not supported by the Anthropic
-        Messages API and is therefore never forwarded.
+        max_tokens is passed to the API exactly as provided.
+
+        Anthropic does not accept both temperature and top_p simultaneously.
+        When temperature is provided it takes precedence and top_p is omitted.
+        When only top_p is provided it is used instead.
+        When neither is provided Anthropic applies its own defaults.
+        top_k is not supported by the Anthropic Messages API and is never forwarded.
         """
         import anthropic
 
@@ -153,14 +172,15 @@ class AnthropicProvider:
         call_kwargs: dict = {
             "model": self._model,
             "max_tokens": max_tokens,
-            "temperature": temperature,
             "system": system_prompt,
             "messages": [{"role": "user", "content": user_prompt}],
         }
-        if top_p is not None:
+        if temperature is not None:
+            call_kwargs["temperature"] = temperature
+        elif top_p is not None:
             call_kwargs["top_p"] = top_p
         response = client.messages.create(**call_kwargs)
-        return response.content[0].text.strip()
+        return _strip_markdown_fences(response.content[0].text.strip())
 
     def generate(self, context: DraftContext) -> str:
         try:
