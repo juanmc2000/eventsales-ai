@@ -454,12 +454,26 @@ function DateResolutionPanel({
 
       {/* Intent summary */}
       {dateRequest && (
-        <div style={{ marginBottom: candidateDates.length > 0 ? 12 : 0, display: "flex", flexDirection: "column", gap: 6 }}>
+        <div style={{ marginBottom: candidateDates.length > 0 ? 12 : 0, display: "flex", flexDirection: "column", gap: 8 }}>
+          {/* Row 1: raw text → calculated dates → type pill → confidence */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             {rawText && rawText !== "NULL" && (
-              <span style={{ fontSize: 12, color: "var(--text-secondary)", fontStyle: "italic" }}>
+              <span style={{ fontSize: 13, color: "var(--text-secondary)", fontStyle: "italic" }}>
                 &ldquo;{rawText}&rdquo;
               </span>
+            )}
+            {/* Resolved / calculated dates inline */}
+            {candidateDates.length > 0 && (
+              <>
+                <span style={{ fontSize: 13, color: "var(--text-muted)" }}>→</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>
+                  {candidateDates.map((cd) =>
+                    new Date(cd.candidate_date + "T12:00:00").toLocaleDateString("en-GB", {
+                      weekday: "short", day: "numeric", month: "short", year: "numeric",
+                    })
+                  ).join(", ")}
+                </span>
+              </>
             )}
             {dateRequestType && (
               <span style={{ fontFamily: "monospace", fontSize: 11, color: "var(--success, #16A66A)", background: "rgba(22,166,106,0.1)", padding: "2px 8px", borderRadius: 6, fontWeight: 600 }}>
@@ -485,15 +499,16 @@ function DateResolutionPanel({
         </div>
       )}
 
-      {/* Candidate dates */}
+      {/* Candidate date detail rows — availability + pricing per date */}
       {candidateDates.length > 0 ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6, borderTop: "1px solid rgba(22,166,106,0.12)", paddingTop: 10 }}>
+          <p style={{ fontSize: 10, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 4px 0" }}>
+            Availability check
+          </p>
           {candidateDates.map((cd) => (
             <div key={cd.id} style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", minWidth: 140 }}>
-                {new Date(cd.candidate_date + "T12:00:00").toLocaleDateString("en-GB", {
-                  weekday: "short", day: "numeric", month: "short", year: "numeric",
-                })}
+              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", minWidth: 160, fontFamily: "monospace" }}>
+                {cd.candidate_date}
               </span>
               <span style={{ fontSize: 11, color: "var(--text-muted)", background: "var(--surface-soft)", padding: "2px 7px", borderRadius: 4, border: "1px solid var(--border)" }}>
                 {cd.source_type}
