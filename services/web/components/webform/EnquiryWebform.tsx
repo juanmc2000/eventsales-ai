@@ -343,6 +343,75 @@ function ExtractionTransparencyPanel({ extraction }: { extraction: ExtractionSum
   );
 }
 
+// ── Extraction Parsed JSON Panel ───────────────────────────────────────────────
+
+function ExtractionParsedJsonPanel({ rawResponse }: { rawResponse: string }) {
+  const [open, setOpen] = useState(true);
+
+  let formatted: string;
+  try {
+    formatted = JSON.stringify(JSON.parse(rawResponse), null, 2);
+  } catch {
+    formatted = rawResponse;
+  }
+
+  return (
+    <div style={{
+      borderRadius: 10,
+      border: "1px solid rgba(109,61,245,0.18)",
+      overflow: "hidden",
+    }}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        style={{
+          width: "100%",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "10px 14px",
+          background: "rgba(109,61,245,0.04)",
+          border: "none", cursor: "pointer",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{
+            fontSize: 11, fontWeight: 600, color: "var(--text-muted)",
+            textTransform: "uppercase", letterSpacing: "0.05em",
+          }}>
+            Extracted Data — V3 JSON Contract
+          </span>
+          <span style={{
+            fontFamily: "monospace", fontSize: 10, color: "var(--brand-purple)",
+            background: "rgba(109,61,245,0.08)", padding: "1px 7px", borderRadius: 4,
+          }}>
+            enquiry_extraction_output · v3.0
+          </span>
+        </div>
+        <span style={{ fontSize: 10, color: "var(--text-muted)" }}>{open ? "▼" : "▶"}</span>
+      </button>
+
+      {open && (
+        <div style={{
+          background: "rgba(109,61,245,0.02)",
+          borderTop: "1px solid rgba(109,61,245,0.12)",
+          padding: "12px 14px",
+        }}>
+          <pre style={{
+            margin: 0, fontSize: 11, lineHeight: 1.6,
+            color: "var(--text-secondary)",
+            whiteSpace: "pre-wrap", wordBreak: "break-all",
+            maxHeight: 400, overflowY: "auto",
+            background: "var(--surface)", padding: "10px 12px", borderRadius: 6,
+            border: "1px solid var(--border)",
+            fontFamily: "monospace",
+          }}>
+            {formatted}
+          </pre>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Room Availability Card ─────────────────────────────────────────────────────
 
 function RoomAvailabilityCard({
@@ -1296,6 +1365,11 @@ function FreeformSuccessPanel({
               </div>
             )}
           </div>
+        )}
+
+        {/* Parsed extraction JSON contract */}
+        {result.extraction?.extraction_raw_response && (
+          <ExtractionParsedJsonPanel rawResponse={result.extraction.extraction_raw_response} />
         )}
 
         {/* Room availability — only when a room was matched (no event date for freeform) */}
