@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Card } from "@/components/layout/Card";
 import type { Restaurant, RestaurantListOut, Room } from "@/lib/types/restaurant";
-import type { AIContextOut, EnquiryDraft, EnquiryIntakeOut, ExtractionSummaryOut, FreeformIntakeOut, RoomAvailabilityOut } from "@/lib/types/enquiry";
+import type { AIContextOut, EnquiryCandidateDateOut, EnquiryDraft, EnquiryIntakeOut, ExtractionSummaryOut, FreeformIntakeOut, RoomAvailabilityOut } from "@/lib/types/enquiry";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -408,6 +408,110 @@ function ExtractionParsedJsonPanel({ rawResponse }: { rawResponse: string }) {
           </pre>
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Date Resolution Panel ──────────────────────────────────────────────────────
+
+function DateResolutionPanel({
+  extraction,
+  candidateDates,
+}: {
+  extraction: ExtractionSummaryOut | null;
+  candidateDates: EnquiryCandidateDateOut[];
+}) {
+  let dateRequest: Record<string, unknown> | null = null;
+  if (extraction?.extraction_raw_response) {
+    try {
+      const parsed = JSON.parse(extraction.extraction_raw_response);
+      if (parsed?.date_request && typeof parsed.date_request === "object") {
+        dateRequest = parsed.date_request as Record<string, unknown>;
+      }
+    } catch {
+      // ignore parse errors
+    }
+  }
+
+  if (!dateRequest && candidateDates.length === 0) return null;
+
+  const dateRequestType = dateRequest?.date_request_type as string | undefined;
+  const rawText = dateRequest?.raw_text as string | undefined;
+  const confidence = dateRequest?.confidence as number | undefined;
+  const requiresClarification = dateRequest?.requires_date_clarification as boolean | undefined;
+  const clarificationQuestion = dateRequest?.clarification_question as string | undefined;
+
+  return (
+    <div style={{
+      padding: "14px 16px",
+      borderRadius: 10,
+      background: "rgba(22,166,106,0.04)",
+      border: "1px solid rgba(22,166,106,0.18)",
+    }}>
+      <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 10px 0" }}>
+        Date Resolution
+      </p>
+
+      {/* Intent summary */}
+      {dateRequest && (
+        <div style={{ marginBottom: candidateDates.length > 0 ? 12 : 0, display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            {rawText && rawText !== "NULL" && (
+              <span style={{ fontSize: 12, color: "var(--text-secondary)", fontStyle: "italic" }}>
+                &ldquo;{rawText}&rdquo;
+              </span>
+            )}
+            {dateRequestType && (
+              <span style={{ fontFamily: "monospace", fontSize: 11, color: "var(--success, #16A66A)", background: "rgba(22,166,106,0.1)", padding: "2px 8px", borderRadius: 6, fontWeight: 600 }}>
+                {dateRequestType}
+              </span>
+            )}
+            {confidence !== undefined && confidence !== null && (
+              <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                {Math.round((confidence as number) * 100)}% confidence
+              </span>
+            )}
+            {requiresClarification && (
+              <span style={{ fontSize: 11, color: "#B45309", background: "rgba(180,83,9,0.08)", padding: "2px 8px", borderRadius: 6, fontWeight: 600 }}>
+                Needs clarification
+              </span>
+            )}
+          </div>
+          {requiresClarification && clarificationQuestion && (
+            <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: 0, fontStyle: "italic" }}>
+              {clarificationQuestion}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Candidate dates */}
+      {candidateDates.length > 0 ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {candidateDates.map((cd) => (
+            <div key={cd.id} style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", minWidth: 140 }}>
+                {new Date(cd.candidate_date + "T12:00:00").toLocaleDateString("en-GB", {
+                  weekday: "short", day: "numeric", month: "short", year: "numeric",
+                })}
+              </span>
+              <span style={{ fontSize: 11, color: "var(--text-muted)", background: "var(--surface-soft)", padding: "2px 7px", borderRadius: 4, border: "1px solid var(--border)" }}>
+                {cd.source_type}
+              </span>
+              {cd.availability_status && <StatusPill status={cd.availability_status} />}
+              {cd.recommended_minimum_spend != null && cd.recommended_minimum_spend > 0 && (
+                <span style={{ fontSize: 12, color: "var(--brand-purple)", fontWeight: 600 }}>
+                  £{Math.round(cd.recommended_minimum_spend).toLocaleString()}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : dateRequest ? (
+        <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0 }}>
+          No candidate dates resolved.
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -1187,6 +1291,8 @@ type FreeformResult = {
   // Sprint 7 enrichments
   extraction: ExtractionSummaryOut | null;
   recommended_action: string | null;
+  // Sprint 8B enrichments
+  candidateDates: EnquiryCandidateDateOut[];
 };
 
 function FreeformSuccessPanel({
@@ -1367,6 +1473,9 @@ function FreeformSuccessPanel({
           </div>
         )}
 
+        {/* Date resolution — intent + candidate dates with availability */}
+        <DateResolutionPanel extraction={result.extraction} candidateDates={result.candidateDates} />
+
         {/* Parsed extraction JSON contract */}
         {result.extraction?.extraction_raw_response && (
           <ExtractionParsedJsonPanel rawResponse={result.extraction.extraction_raw_response} />
@@ -1497,6 +1606,15 @@ function FreeformEnquiryForm({ restaurants }: { restaurants: Restaurant[] }) {
           }
         : null;
 
+      // Fetch candidate dates (best-effort)
+      let candidateDates: EnquiryCandidateDateOut[] = [];
+      try {
+        const cdRes = await fetch(`${API_BASE}/api/v1/enquiries/${intake.enquiry_id}/candidate-dates`);
+        if (cdRes.ok) candidateDates = await cdRes.json();
+      } catch {
+        // best-effort
+      }
+
       // Send via SMTP (best-effort)
       let emailSent: boolean | null = null;
       let smtpDisabled = false;
@@ -1536,6 +1654,7 @@ function FreeformEnquiryForm({ restaurants }: { restaurants: Restaurant[] }) {
         rooms,
         extraction: intake.extraction,
         recommended_action: intake.recommended_action,
+        candidateDates,
       });
     } catch (err) {
       setApiError(err instanceof Error ? err.message : "Submission failed. Please try again.");
