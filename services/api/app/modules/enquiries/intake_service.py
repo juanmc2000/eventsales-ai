@@ -57,6 +57,15 @@ try:
 except ImportError:
     _PROCESSING_AVAILABLE = False
 
+try:
+    from app.modules.enquiries.date_resolution_service import (  # noqa: PLC0415
+        DateResolutionRequest,
+        EnquiryDateResolutionService,
+    )
+    _DATE_RESOLUTION_AVAILABLE = True
+except ImportError:
+    _DATE_RESOLUTION_AVAILABLE = False
+
 
 class EnquiryIntakeService:
     def __init__(self, db: Session) -> None:
@@ -283,7 +292,29 @@ class FreeformIntakeService:
                     validation_status="error",
                 )
 
-        # 6. Processing step (lazy — requires WORKFLOW-007 to be merged)
+        # 6. Date resolution step — expand date_request into candidate dates
+        if (
+            _DATE_RESOLUTION_AVAILABLE
+            and extraction_result is not None
+            and not extraction_result.is_fallback
+            and extraction_result.parsed
+        ):
+            date_request_dict = extraction_result.parsed.get("date_request")
+            if date_request_dict and isinstance(date_request_dict, dict):
+                try:
+                    dr_svc = EnquiryDateResolutionService(self._db)
+                    dr_svc.resolve(DateResolutionRequest(
+                        enquiry_id=enquiry_id,
+                        date_request_dict=date_request_dict,
+                        tenant_id="default",
+                        extraction_id=extraction_result.extraction_id,
+                        prompt_run_id=extraction_result.prompt_run_id,
+                    ))
+                except Exception as exc:  # noqa: BLE001
+                    logger.warning("Date resolution failed for enquiry %s: %s", enquiry_id, exc)
+                    self._db.rollback()
+
+        # 7. Processing step (lazy — requires WORKFLOW-007 to be merged)
         processing_result = None
         if _PROCESSING_AVAILABLE and extraction_result is not None and extraction_result.extraction_id is not None:
             try:
@@ -300,7 +331,7 @@ class FreeformIntakeService:
                 logger.warning("Processing failed for enquiry %s: %s", enquiry_id, exc)
                 self._db.rollback()
 
-        # 7. Draft generation (always attempted — has its own fallback)
+        # 8. Draft generation (always attempted — has its own fallback)
         try:
             from app.modules.ai.service import DraftGenerationService  # noqa: PLC0415
             draft_svc = DraftGenerationService(self._db)
