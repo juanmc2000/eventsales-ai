@@ -157,6 +157,9 @@ class ExtractionSummaryOut(BaseModel):
     guest_count: int | None = None
     event_date: str | None = None
     event_type: str | None = None
+    # ENQ-001: occasion fields — raw LLM value preserved alongside canonical
+    occasion_raw: str | None = None
+    occasion_canonical: str | None = None
     missing_fields: list[str] | None = None
     # AI transparency: prompts and raw model response for the extraction LLM call
     extraction_system_prompt: str | None = None
