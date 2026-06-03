@@ -323,12 +323,24 @@ class EnquiryDateResolutionService:
             return self._expand_mixed_relative(dr, anchor_date)
 
         if len(weekdays) == 1:
-            # "next Wednesday" type patterns: resolve to single weekday in next week
-            resolved = self._resolve_weekday_relative(
-                weekdays, dr.get("relative_period") or {}, anchor_date
+            # "next Wednesday" type patterns: resolve to single weekday in next week.
+            # ENQ-006: skip this short-circuit when relative_period has no direction
+            # but date_range bounds are available — _expand_weekday_range will use
+            # the date_range window instead of defaulting to next-week resolution.
+            relative_period = dr.get("relative_period") or {}
+            rp_direction = (relative_period.get("direction") or "").strip().lower()
+            date_range_obj = dr.get("date_range") or {}
+            use_date_range_fallback = (
+                not rp_direction
+                and bool(date_range_obj.get("start_date"))
+                and bool(date_range_obj.get("end_date"))
             )
-            if resolved:
-                return resolved[:1]
+            if not use_date_range_fallback:
+                resolved = self._resolve_weekday_relative(
+                    weekdays, relative_period, anchor_date
+                )
+                if resolved:
+                    return resolved[:1]
 
         if weekdays:
             return self._expand_weekday_range(dr, anchor_date)
@@ -382,15 +394,29 @@ class EnquiryDateResolutionService:
             return []
 
         relative_period = dr.get("relative_period") or {}
-        start, end = self._resolve_relative_period(relative_period, anchor_date)
 
-        results: list[date] = []
-        current = start
-        while current <= end and len(results) < MAX_CANDIDATE_DATES:
-            if current.weekday() in target_weekdays:
-                results.append(current)
-            current += timedelta(days=1)
-        return results
+        # ENQ-006: When relative_period has no direction, fall back to date_range
+        # bounds (start_date + end_date) as the expansion window.  This handles LLM
+        # output where the date window is expressed via date_range only (e.g.
+        # "any Friday in August" → date_range=2026-08-01..2026-08-31) without a
+        # relative_period direction that the resolver can use for window calculation.
+        rp_direction = (relative_period.get("direction") or "").strip().lower()
+        if not rp_direction:
+            date_range = dr.get("date_range") or {}
+            range_start = self._parse_date(date_range.get("start_date"))
+            range_end = self._parse_date(date_range.get("end_date"))
+            if range_start is not None and range_end is not None:
+                # Clamp to anchor_date — never return dates in the past.
+                # Always return from this branch; do not fall through to
+                # _resolve_relative_period when date_range bounds are present.
+                start = max(range_start, anchor_date)
+                end = range_end
+                if start > end:
+                    return []
+                return self._collect_weekdays_in_window(target_weekdays, start, end)
+
+        start, end = self._resolve_relative_period(relative_period, anchor_date)
+        return self._collect_weekdays_in_window(target_weekdays, start, end)
 
     def _expand_recurring_window(self, dr: dict, anchor_date: date) -> list[date]:
         # Treat like weekday_range — recurring windows are defined by weekday + period
@@ -587,5 +613,23 @@ class EnquiryDateResolutionService:
         current = start
         while current <= end and len(results) < MAX_CANDIDATE_DATES:
             results.append(current)
+            current += timedelta(days=1)
+        return results
+
+    @staticmethod
+    def _collect_weekdays_in_window(
+        target_weekdays: set[int],
+        start: date,
+        end: date,
+    ) -> list[date]:
+        """Return all dates in [start, end] whose weekday is in target_weekdays.
+
+        Capped at MAX_CANDIDATE_DATES.
+        """
+        results: list[date] = []
+        current = start
+        while current <= end and len(results) < MAX_CANDIDATE_DATES:
+            if current.weekday() in target_weekdays:
+                results.append(current)
             current += timedelta(days=1)
         return results
