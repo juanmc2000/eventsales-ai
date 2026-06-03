@@ -457,7 +457,7 @@ class TestWeekdayRangeDateRangeFallback:
             },
             anchor=date(2026, 7, 20),  # Monday
         )
-        # Fri/Sat in next 2 weeks from 2026-07-21: Jul 24, 25, Jul 31, Aug 1
+        # Fri/Sat in next 2 calendar weeks from Mon 2026-07-27: Jul 31, Aug 1, Aug 7, Aug 8
         assert all(d.weekday() in (4, 5) for d in result.candidate_dates)
         assert date(2026, 9, 4) not in result.candidate_dates  # Sep date not used
 
@@ -587,12 +587,13 @@ class TestStaticHelpers:
         assert EnquiryDateResolutionService._parse_weekday("funday") is None
 
     def test_resolve_relative_period_next_week(self) -> None:
+        # anchor = Monday 2026-07-20; "next week" = Mon 2026-07-27 – Sun 2026-08-02
         start, end = EnquiryDateResolutionService._resolve_relative_period(
             {"direction": "next", "unit": "week", "amount": 1},
             date(2026, 7, 20),
         )
-        assert start == date(2026, 7, 21)
-        assert end == date(2026, 7, 27)
+        assert start == date(2026, 7, 27)
+        assert end == date(2026, 8, 2)
 
     def test_resolve_relative_period_last_week(self) -> None:
         start, end = EnquiryDateResolutionService._resolve_relative_period(
@@ -613,6 +614,90 @@ class TestStaticHelpers:
             date(2026, 1, 1), date(2027, 12, 31)
         )
         assert len(dates) == MAX_CANDIDATE_DATES
+
+
+# ── Calendar-week boundary snapping ───────────────────────────────────────────
+
+
+class TestCalendarWeekBoundaries:
+    """_resolve_relative_period snaps to Mon–Sun calendar-week boundaries for
+    direction in (next, this, last) when unit='week'.
+    """
+
+    def test_next_week_from_wednesday_is_following_mon_to_sun(self) -> None:
+        # anchor = Wed 2026-06-03; "next week" = Mon 2026-06-08 – Sun 2026-06-14
+        start, end = EnquiryDateResolutionService._resolve_relative_period(
+            {"direction": "next", "unit": "week", "amount": 1},
+            date(2026, 6, 3),
+        )
+        assert start == date(2026, 6, 8)
+        assert end == date(2026, 6, 14)
+
+    def test_next_week_from_monday_is_following_mon_to_sun(self) -> None:
+        # anchor = Mon 2026-07-20; "next week" must be the NEXT week, not the same week
+        start, end = EnquiryDateResolutionService._resolve_relative_period(
+            {"direction": "next", "unit": "week", "amount": 1},
+            date(2026, 7, 20),
+        )
+        assert start == date(2026, 7, 27)
+        assert end == date(2026, 8, 2)
+
+    def test_this_week_from_wednesday_is_current_mon_to_sun(self) -> None:
+        # anchor = Wed 2026-06-03; "this week" = Mon 2026-06-01 – Sun 2026-06-07
+        start, end = EnquiryDateResolutionService._resolve_relative_period(
+            {"direction": "this", "unit": "week", "amount": 1},
+            date(2026, 6, 3),
+        )
+        assert start == date(2026, 6, 1)
+        assert end == date(2026, 6, 7)
+
+    def test_last_week_from_wednesday_is_previous_mon_to_sun(self) -> None:
+        # anchor = Wed 2026-06-03; "last week" = Mon 2026-05-25 – Sun 2026-05-31
+        start, end = EnquiryDateResolutionService._resolve_relative_period(
+            {"direction": "last", "unit": "week", "amount": 1},
+            date(2026, 6, 3),
+        )
+        assert start == date(2026, 5, 25)
+        assert end == date(2026, 5, 31)
+
+    def test_next_3_weeks_from_wednesday_spans_3_full_calendar_weeks(self) -> None:
+        # anchor = Wed 2026-06-03; "next 3 weeks" = Mon 2026-06-08 – Sun 2026-06-28
+        start, end = EnquiryDateResolutionService._resolve_relative_period(
+            {"direction": "next", "unit": "week", "amount": 3},
+            date(2026, 6, 3),
+        )
+        assert start == date(2026, 6, 8)
+        assert end == date(2026, 6, 28)
+
+    def test_next_week_mon_to_fri_from_wednesday(self) -> None:
+        # email_39 end-to-end: "any morning next week" from anchor Wed 2026-06-03
+        # LLM extracts weekdays=mon-fri, direction=next, unit=week
+        # Resolver should give Mon-Fri of Jun 8-14
+        result = _resolve(
+            {
+                "date_request_type": "weekday_range_over_relative_period",
+                "weekdays": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+                "relative_period": {"direction": "next", "unit": "week", "amount": 1},
+            },
+            anchor=date(2026, 6, 3),
+        )
+        assert result.candidate_dates == [
+            date(2026, 6, 8),   # Monday
+            date(2026, 6, 9),   # Tuesday
+            date(2026, 6, 10),  # Wednesday
+            date(2026, 6, 11),  # Thursday
+            date(2026, 6, 12),  # Friday
+        ]
+
+    def test_future_direction_unchanged_uses_rolling_window(self) -> None:
+        # direction='future' is not next/this/last so uses rolling window
+        start, end = EnquiryDateResolutionService._resolve_relative_period(
+            {"direction": "future", "unit": "week", "amount": 2},
+            date(2026, 6, 3),
+        )
+        # rolling: start = Jun 4, end = Jun 4 + 13 = Jun 17
+        assert start == date(2026, 6, 4)
+        assert end == date(2026, 6, 17)
 
 
 # ── Default constants ─────────────────────────────────────────────────────────

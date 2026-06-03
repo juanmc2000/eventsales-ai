@@ -591,6 +591,23 @@ class EnquiryDateResolutionService:
             relative_period.get("amount")
         ) or 1
 
+        # For "next/this/last week" snap to calendar-week (Mon–Sun) boundaries so
+        # that "next week" always means the following Mon–Sun regardless of what
+        # day of the week the anchor falls on.  All other units use the rolling
+        # window below.
+        if unit == "week" and direction in ("next", "this", "last"):
+            monday_of_this_week = anchor_date - timedelta(days=anchor_date.weekday())
+            if direction == "next":
+                start = monday_of_this_week + timedelta(weeks=1)
+                end = start + timedelta(weeks=amount) - timedelta(days=1)
+            elif direction == "this":
+                start = monday_of_this_week
+                end = start + timedelta(weeks=amount) - timedelta(days=1)
+            else:  # last
+                end = monday_of_this_week - timedelta(days=1)
+                start = end - timedelta(weeks=amount) + timedelta(days=1)
+            return start, end
+
         unit_days = {"day": 1, "week": 7, "month": 30, "year": 365}
         delta_days = unit_days.get(unit, 7) * amount
 
