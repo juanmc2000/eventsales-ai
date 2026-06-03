@@ -303,6 +303,17 @@ class EnquiryDateRequest(Base):
     clarification_question: Mapped[str | None] = mapped_column(Text, nullable=True)
     # LLM confidence for the date extraction (0.0–1.0)
     confidence: Mapped[float | None] = mapped_column(Numeric(4, 3), nullable=True)
+    # HOTFIX-001: numeric date disambiguation fields (null for non-numeric dates)
+    # One of: resolved | resolved_with_confirmation | unresolved_ambiguity
+    ambiguity_type: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    # The date the system will use for availability checks (DD/MM default or Rule-5 override)
+    assumed_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    # The alternative interpretation (null for unambiguous dates)
+    alternative_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    # True when the guest must confirm which interpretation was intended
+    clarification_required: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    # Machine-readable reason code for why clarification is needed
+    clarification_reason: Mapped[str | None] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now(), index=True
     )
