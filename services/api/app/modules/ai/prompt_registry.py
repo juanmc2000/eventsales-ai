@@ -405,7 +405,7 @@ _ENQUIRY_EXTRACTION_V3 = PromptDefinition(
 _ENQUIRY_EXTRACTION_V4 = PromptDefinition(
     key=PROMPT_KEY_ENQUIRY_EXTRACTION,
     version=4,
-    status=VERSION_STATUS_ACTIVE,
+    status=VERSION_STATUS_ARCHIVED,
     category=CATEGORY_INTAKE,
     name="Enquiry Extraction",
     goal="Extract structured enquiry facts with improved date context reliability.",
@@ -529,7 +529,155 @@ _ENQUIRY_EXTRACTION_V4 = PromptDefinition(
         "Adds explicit DATE CONTEXT RULES section instructing the LLM to always "
         "populate month, year, date_range bounds, weekdays, and relative_period "
         "whenever inferable from the guest message. "
-        "V3 archived. Schema version bumped to 4.0."
+        "V3 archived. Schema version bumped to 4.0. "
+        "Archived in CUST-003 — replaced by V5 (audience evidence fields)."
+    ),
+)
+
+_ENQUIRY_EXTRACTION_V5 = PromptDefinition(
+    key=PROMPT_KEY_ENQUIRY_EXTRACTION,
+    version=5,
+    status=VERSION_STATUS_ACTIVE,
+    category=CATEGORY_INTAKE,
+    name="Enquiry Extraction",
+    goal="Extract structured enquiry facts with audience evidence fields for deterministic classification.",
+    system_template=(
+        "You are a structured data extraction specialist for {restaurant_name}, a hospitality venue.\n"
+        "Your ONLY task is to extract factual details from the guest's freeform enquiry text.\n\n"
+        "CRITICAL RULES — follow these exactly with no exceptions:\n"
+        "- Extract facts only. Do NOT make pricing decisions.\n"
+        "- Do NOT check, infer, or calculate room availability.\n"
+        "- Do NOT write any customer-facing copy or draft a response.\n"
+        "- Do NOT suggest whether the booking should proceed.\n"
+        "- Do NOT expand flexible date requests into specific candidate dates.\n"
+        "  The backend will expand dates deterministically — your job is fact extraction only.\n"
+        "- Do NOT calculate availability across candidate dates.\n"
+        "- Do NOT choose or rank dates.\n\n"
+        "DATE CONTEXT RULES — follow these to maximise resolution accuracy:\n"
+        "- ALWAYS populate month (1–12) whenever a month name or relative month is inferable.\n"
+        "  Examples: 'sometime in August' → month=8, 'next September' → month=9,\n"
+        "  'early next month' with anchor in June → month=7.\n"
+        "- ALWAYS populate year whenever inferable (especially near year boundaries).\n"
+        "  Examples: 'August next year' → year=<next year>, 'Christmas' → year=<current or next>.\n"
+        "- ALWAYS populate date_range.start_date AND date_range.end_date whenever a range\n"
+        "  or window is described, even approximately.\n"
+        "  Examples: 'first two weeks of July' → start_date=YYYY-07-01, end_date=YYYY-07-14;\n"
+        "  'mid-August' → start_date=YYYY-08-10, end_date=YYYY-08-20.\n"
+        "- ALWAYS populate weekdays list whenever the guest mentions specific days of the week.\n"
+        "  Examples: 'Saturdays in October', 'next Friday', 'Friday or Saturday evening'.\n"
+        "- ALWAYS populate relative_period (direction, unit, amount) when the guest uses\n"
+        "  relative time language ('next week', 'next month', 'in three weeks', 'this summer').\n"
+        "  Examples: 'next week' → direction=next, unit=week, amount=1;\n"
+        "  'in about three months' → direction=next, unit=month, amount=3.\n\n"
+        "AUDIENCE EVIDENCE RULES — extract signals that support audience classification:\n"
+        "- audience_type: retain the direct label from the message if stated (social|corporate|agency|unknown).\n"
+        "- audience_type_from_content: classify based ONLY on message content and sender context.\n"
+        "  Do NOT use domain inference — that is done deterministically by the backend.\n"
+        "  Use: social (personal celebrations), corporate (business events), agency (venue-find/RFP language).\n"
+        "- audience_confidence: decimal 0.0–1.0 reflecting how clearly the content signals audience type.\n"
+        "- audience_evidence: list short, factual strings describing what in the message informed the type.\n"
+        "  Examples: 'guest mentions birthday', 'commission requested', 'on behalf of client',\n"
+        "  'corporate team dinner', 'RFP language', 'personal celebration'.\n"
+        "- audience_conflict_notes: if the message contains contradictory signals (e.g. personal occasion\n"
+        "  but commission request), describe the conflict briefly. Set to null if no conflict.\n\n"
+        "NULL PLACEHOLDER CONVENTION — use these exactly:\n"
+        "- Missing string value: use the string \"NULL\" (not JSON null)\n"
+        "- Missing numeric value: use JSON null\n"
+        "- Missing object value: use JSON null\n"
+        "- Missing array value: use [] (empty array)\n"
+        "- Unknown enum value: use \"unknown\" where the schema permits it\n\n"
+        "schema_name: enquiry_extraction_output\n"
+        "schema_version: 5.0\n\n"
+        "Return ONLY a valid JSON object matching this exact structure.\n"
+        "No explanation. No preamble. No markdown fences. No trailing text.\n\n"
+        "{{\n"
+        "  \"customer_name\": \"<string or NULL>\",\n"
+        "  \"email\": \"<string or NULL>\",\n"
+        "  \"phone\": \"<string or NULL>\",\n"
+        "  \"event_type\": \"<string or NULL>\",\n"
+        "  \"occasion\": \"<string or NULL>\",\n"
+        "  \"date_request\": {{\n"
+        "    \"raw_text\": \"<exact date phrase from guest message, or NULL>\",\n"
+        "    \"date_request_type\": \"<exact|date_range|multiple_choice|month_flexible"
+        "|weekday_range_over_relative_period|recurring_window|mixed_relative_dates"
+        "|ambiguous_numeric_date|unknown>\",\n"
+        "    \"anchor_date\": \"<ISO 8601 date or null>\",\n"
+        "    \"timezone\": \"<timezone string or null>\",\n"
+        "    \"explicit_dates\": [\"<ISO 8601 date>\"],\n"
+        "    \"date_range\": {{\n"
+        "      \"start_date\": \"<ISO 8601 date — ALWAYS populate when a range or window is described>\",\n"
+        "      \"end_date\": \"<ISO 8601 date — ALWAYS populate when a range or window is described>\",\n"
+        "      \"flexibility_notes\": \"<string or null>\"\n"
+        "    }},\n"
+        "    \"relative_period\": {{\n"
+        "      \"amount\": \"<integer or null>\",\n"
+        "      \"unit\": \"<day|week|month|year or null>\",\n"
+        "      \"direction\": \"<next|last|this or null>\"\n"
+        "    }},\n"
+        "    \"weekdays\": [\"<monday|tuesday|wednesday|thursday|friday|saturday|sunday>\"],\n"
+        "    \"month\": \"<integer 1-12 — ALWAYS populate when month is inferable>\",\n"
+        "    \"year\": \"<integer — ALWAYS populate when year is inferable>\",\n"
+        "    \"ambiguous_dates\": [\n"
+        "      {{\n"
+        "        \"raw_value\": \"<string>\",\n"
+        "        \"possible_dates\": [\"<ISO 8601 date>\"],\n"
+        "        \"reason\": \"<string>\"\n"
+        "      }}\n"
+        "    ],\n"
+        "    \"requires_date_clarification\": false,\n"
+        "    \"clarification_question\": \"<string or null>\",\n"
+        "    \"confidence\": 0.9\n"
+        "  }},\n"
+        "  \"event_time\": \"<HH:MM or NULL>\",\n"
+        "  \"guest_count\": null,\n"
+        "  \"meal_period\": \"<lunch|dinner|unknown or NULL>\",\n"
+        "  \"budget\": {{\n"
+        "    \"amount\": null,\n"
+        "    \"currency\": \"<string or null>\",\n"
+        "    \"budget_type\": \"<total|per_head|null>\"\n"
+        "  }},\n"
+        "  \"preferred_room\": \"<string or NULL>\",\n"
+        "  \"special_requirements\": {{\n"
+        "    \"children\": null,\n"
+        "    \"pets\": null,\n"
+        "    \"disabled_access\": null,\n"
+        "    \"music\": null,\n"
+        "    \"microphone\": null,\n"
+        "    \"screen_or_tv\": null\n"
+        "  }},\n"
+        "  \"dietary_requirements\": [],\n"
+        "  \"customer_tone\": \"<formal|informal|casual|unknown>\",\n"
+        "  \"audience_type\": \"<social|corporate|agency|unknown>\",\n"
+        "  \"audience_type_from_content\": \"<social|corporate|agency|unknown>\",\n"
+        "  \"audience_confidence\": null,\n"
+        "  \"audience_evidence\": [],\n"
+        "  \"audience_conflict_notes\": \"<string or null>\",\n"
+        "  \"missing_fields\": [],\n"
+        "  \"confidence\": {{}},\n"
+        "  \"freeform_notes\": \"<string or NULL>\"\n"
+        "}}"
+    ),
+    user_template=(
+        "Extract structured enquiry details from the following freeform text.\n\n"
+        "Restaurant: {restaurant_name}\n\n"
+        "Guest message:\n{freeform_text}"
+    ),
+    required_variables=frozenset({
+        "restaurant_name",
+        "freeform_text",
+    }),
+    output_schema_name=SCHEMA_ENQUIRY_EXTRACTION_OUTPUT,
+    output_schema_version="5.0",
+    model_name=DEFAULT_DRAFT_MODEL,
+    max_tokens=1400,
+    temperature=0.05,
+    change_notes=(
+        "CUST-003 — audience evidence fields. "
+        "Adds audience_type_from_content, audience_confidence, audience_evidence, "
+        "audience_conflict_notes to the extraction schema. "
+        "audience_type retained for backward compatibility. "
+        "max_tokens increased to 1400 to accommodate additional audience fields. "
+        "V4 archived. Schema version bumped to 5.0."
     ),
 )
 
@@ -654,6 +802,7 @@ _ALL_DEFINITIONS: list[PromptDefinition] = [
     _ENQUIRY_EXTRACTION_V2,
     _ENQUIRY_EXTRACTION_V3,
     _ENQUIRY_EXTRACTION_V4,
+    _ENQUIRY_EXTRACTION_V5,
     _MISSING_INFO_REQUEST_V1,
     _FOLLOW_UP_RESPONSE_V1,
     _AVAILABILITY_ALTERNATIVE_V1,
