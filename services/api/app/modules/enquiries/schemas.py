@@ -214,6 +214,24 @@ class DraftResponseOut(BaseModel):
     ai_context: AIContextOut | None = None
 
 
+# ── Readiness evaluation schema (ENQ-004) ──────────────────────────────────────
+
+
+class ReadinessEvaluationOut(BaseModel):
+    """API response for enquiry readiness evaluation."""
+
+    status: str
+    date_understood: bool
+    guest_count_present: bool
+    occasion_understood: bool
+    meal_period_present: bool
+    audience_identified: bool
+    date_clarification_required: bool
+    availability_check_possible: bool
+    missing_for_availability: list[str]
+    notes: str
+
+
 # ── Date request and candidate date schemas ────────────────────────────────────
 
 
