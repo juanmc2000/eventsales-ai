@@ -33,6 +33,7 @@ from app.modules.ai.gateway import AIGateway
 from app.modules.ai.schemas import AIGatewayRequest
 from app.modules.enquiries.date_context_validator import DateContextValidator
 from app.modules.enquiries.occasion_normalisation_service import OccasionNormalisationService
+from app.modules.enquiries.readiness_evaluator import EnquiryReadinessEvaluator
 
 # EnquiryExtraction is added by DATA-015.  Use a lazy import so the service
 # module is importable in test environments that run against the unpatched schema.
@@ -96,6 +97,8 @@ class ExtractionResult:
     occasion_canonical: str | None = field(default=None)
     # ENQ-003: date context warnings from post-extraction validation
     date_context_warnings: list[str] = field(default_factory=list)
+    # ENQ-004: deterministic readiness status for this extraction
+    readiness_status: str | None = field(default=None)
 
 
 class EnquiryExtractionService:
@@ -159,6 +162,11 @@ class EnquiryExtractionService:
                 gateway_result.parsed_response.get("date_request")
             )
 
+        # ENQ-004: surface readiness status on the result
+        _readiness_eval = EnquiryReadinessEvaluator().evaluate(
+            gateway_result.parsed_response
+        )
+
         return ExtractionResult(
             extraction_id=extraction.id if extraction is not None else None,
             prompt_run_id=gateway_result.run_id,
@@ -171,6 +179,7 @@ class EnquiryExtractionService:
             raw_response=gateway_result.raw_response,
             occasion_canonical=_occasion_canonical,
             date_context_warnings=_date_warnings,
+            readiness_status=_readiness_eval.status,
         )
 
     def _persist_extraction(
@@ -187,7 +196,8 @@ class EnquiryExtractionService:
         confidence_json: dict = parsed.get("confidence", {}) if parsed else {}
 
         # normalized_json: a copy of parsed_response with type-safe guest_count,
-        # canonical occasion (ENQ-001), and date context warnings (ENQ-003).
+        # canonical occasion (ENQ-001), date context warnings (ENQ-003),
+        # and readiness evaluation result (ENQ-004).
         normalized: dict | None = None
         if parsed:
             normalized = dict(parsed)
@@ -208,6 +218,9 @@ class EnquiryExtractionService:
                 enquiry_id=request.enquiry_id,
             )
             normalized["date_context_warnings"] = _date_warnings
+            # ENQ-004: run readiness evaluation and store result in normalized_json
+            _readiness = EnquiryReadinessEvaluator().evaluate(parsed)
+            normalized["readiness_evaluation"] = _readiness.to_dict()
 
         try:
             if EnquiryExtraction is None:  # DATA-015 not yet applied
