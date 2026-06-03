@@ -228,6 +228,8 @@ class EnquiryDateRequestOut(BaseModel):
     prompt_run_id: uuid.UUID | None = None
     raw_text: str | None = None
     date_request_type: str
+    # ENQ-002: simplified normalized type alongside the raw LLM classification
+    date_request_type_normalized: str | None = None
     anchor_date: date | None = None
     timezone: str | None = None
     extracted_json: dict | None = None
