@@ -22,6 +22,7 @@ from app.modules.enquiries.schemas import (
     EnquiryUpdate,
     FreeformIntakeOut,
     FreeformIntakeRequest,
+    ReadinessEvaluationOut,
     WebformIntakeRequest,
 )
 from app.modules.enquiries.service import EnquiryService
@@ -281,6 +282,50 @@ def get_latest_date_request(
         raise HTTPException(status_code=404, detail="No date request found for this enquiry")
 
     return EnquiryDateRequestOut.model_validate(date_request)
+
+
+@router.get("/{enquiry_id}/readiness", response_model=ReadinessEvaluationOut)
+def get_enquiry_readiness(
+    enquiry_id: uuid.UUID,
+    db: Session = Depends(get_db),
+) -> ReadinessEvaluationOut:
+    """Return the readiness evaluation for an enquiry (ENQ-004).
+
+    Reads the readiness evaluation stored in the latest extraction's
+    normalized_json and returns it.  If no extraction exists, returns a
+    deterministically computed INSUFFICIENT_INFORMATION result.
+
+    Does not trigger extraction or re-evaluation.
+    """
+    from sqlalchemy import select  # noqa: PLC0415
+    from app.modules.enquiries.models import EnquiryExtraction  # noqa: PLC0415
+    from app.modules.enquiries.readiness_evaluator import EnquiryReadinessEvaluator  # noqa: PLC0415
+
+    repo = EnquiryRepository(db)
+    enquiry = repo.get_by_id(enquiry_id)
+    if not enquiry:
+        raise HTTPException(status_code=404, detail="Enquiry not found")
+
+    # Look for stored readiness evaluation in the latest extraction's normalized_json
+    latest_extraction = db.scalars(
+        select(EnquiryExtraction)
+        .where(EnquiryExtraction.enquiry_id == enquiry_id)
+        .order_by(EnquiryExtraction.created_at.desc())
+        .limit(1)
+    ).first()
+
+    if latest_extraction is not None:
+        normalized = latest_extraction.normalized_json or {}
+        stored = normalized.get("readiness_evaluation")
+        if stored and isinstance(stored, dict):
+            return ReadinessEvaluationOut(**stored)
+        # Extraction exists but no readiness stored — re-evaluate from extracted_json
+        evaluation = EnquiryReadinessEvaluator().evaluate(latest_extraction.extracted_json)
+        return ReadinessEvaluationOut(**evaluation.to_dict())
+
+    # No extraction at all — return INSUFFICIENT_INFORMATION
+    evaluation = EnquiryReadinessEvaluator().evaluate(None)
+    return ReadinessEvaluationOut(**evaluation.to_dict())
 
 
 @router.get("/{enquiry_id}/candidate-dates", response_model=list[EnquiryCandidateDateOut])

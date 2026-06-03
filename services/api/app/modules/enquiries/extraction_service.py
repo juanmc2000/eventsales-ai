@@ -31,6 +31,7 @@ from app.modules.ai.constants import (
 )
 from app.modules.ai.gateway import AIGateway
 from app.modules.ai.schemas import AIGatewayRequest
+from app.modules.enquiries.readiness_evaluator import EnquiryReadinessEvaluator
 
 # EnquiryExtraction is added by DATA-015.  Use a lazy import so the service
 # module is importable in test environments that run against the unpatched schema.
@@ -89,6 +90,8 @@ class ExtractionResult:
     rendered_system_prompt: str | None = field(default=None)
     rendered_user_prompt: str | None = field(default=None)
     raw_response: str | None = field(default=None)
+    # ENQ-004: deterministic readiness status for this extraction
+    readiness_status: str | None = field(default=None)
 
 
 class EnquiryExtractionService:
@@ -140,6 +143,11 @@ class EnquiryExtractionService:
         # Build the extraction row from the gateway result
         extraction = self._persist_extraction(request, gateway_result)
 
+        # ENQ-004: surface readiness status on the result
+        _readiness_eval = EnquiryReadinessEvaluator().evaluate(
+            gateway_result.parsed_response
+        )
+
         return ExtractionResult(
             extraction_id=extraction.id if extraction is not None else None,
             prompt_run_id=gateway_result.run_id,
@@ -150,6 +158,7 @@ class EnquiryExtractionService:
             rendered_system_prompt=gateway_result.rendered_system_prompt,
             rendered_user_prompt=gateway_result.rendered_user_prompt,
             raw_response=gateway_result.raw_response,
+            readiness_status=_readiness_eval.status,
         )
 
     def _persist_extraction(
@@ -166,6 +175,7 @@ class EnquiryExtractionService:
         confidence_json: dict = parsed.get("confidence", {}) if parsed else {}
 
         # normalized_json: a copy of parsed_response with type-safe guest_count
+        # plus readiness evaluation result (ENQ-004).
         normalized: dict | None = None
         if parsed:
             normalized = dict(parsed)
@@ -174,6 +184,9 @@ class EnquiryExtractionService:
                     normalized["guest_count"] = int(normalized["guest_count"])
                 except (TypeError, ValueError):
                     normalized["guest_count"] = None
+            # ENQ-004: run readiness evaluation and store result in normalized_json
+            _readiness = EnquiryReadinessEvaluator().evaluate(parsed)
+            normalized["readiness_evaluation"] = _readiness.to_dict()
 
         try:
             if EnquiryExtraction is None:  # DATA-015 not yet applied
