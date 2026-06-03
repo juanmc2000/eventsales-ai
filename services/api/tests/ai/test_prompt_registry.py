@@ -175,9 +175,10 @@ class TestPromptRenderer:
         assert "birthday dinner" in user
         assert "20 guests" in user
 
-    def test_enquiry_extraction_is_v3(self) -> None:
+    def test_enquiry_extraction_is_v4(self) -> None:
+        # ENQ-003: V4 is now the active extraction prompt
         defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
-        assert defn.version == 3
+        assert defn.version == 4
 
     def test_enquiry_extraction_v3_prohibits_pricing(self) -> None:
         defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
@@ -223,9 +224,10 @@ class TestPromptRenderer:
         # date_request object requires more tokens than the V2 600 limit
         assert defn.max_tokens >= 900
 
-    def test_enquiry_extraction_v3_schema_version(self) -> None:
+    def test_enquiry_extraction_v4_schema_version(self) -> None:
+        # ENQ-003: V4 bumped schema version
         defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
-        assert defn.output_schema_version == "3.0"
+        assert defn.output_schema_version == "4.0"
 
     def test_enquiry_extraction_v3_contains_schema_name(self) -> None:
         defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
