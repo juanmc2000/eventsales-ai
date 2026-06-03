@@ -2,7 +2,7 @@
 
 **Project:** EventSales AI
 **Phase:** POC (Proof of Concept)
-**Last Updated:** 2026-05-29 (post-Sprint-8B)
+**Last Updated:** 2026-06-03 (post-Sprint-8C)
 
 ---
 
@@ -24,6 +24,7 @@
 | Hotfix | Fix generation failed and send failed errors in freeform webform | ✓ Complete | #192 |
 | Sprint 8 | Prompt Run Experimentation & Quality Scoring | ✓ Complete | #207–#216 |
 | Sprint 8B | Extraction Schema Hardening & Deterministic Date Resolution | ✓ Complete | #217–#236 |
+| Sprint 8C | Extraction Quality & Deterministic Enrichment | ✓ Complete | #247–#252 |
 
 ---
 
@@ -194,6 +195,18 @@
 | GET /enquiries/{id}/date-request/latest and GET /enquiries/{id}/candidate-dates endpoints | 8B | ✓ |
 | DateResolutionSection in enquiry detail drawer — date intent, clarification badge, candidate date rows with availability pills and pricing | 8B | ✓ |
 | Tests: 828 backend, 126 frontend (954 total) | 8B | ✓ |
+| Canonical occasion normalisation — OccasionNormalisationService, 10 canonical values (birthday, anniversary, engagement_party, baby_shower, hen_party, stag_party, graduation, retirement, christmas, corporate_event), keyword-first-match mapping | 8C | ✓ |
+| occasion_canonical stored in normalized_json and surfaced in ExtractionSummaryOut (occasion_raw alongside canonical) | 8C | ✓ |
+| Simplified date intent model — DateIntentNormalizer collapses LLM raw types into 5 categories: exact / range / recurring / ambiguous / unknown | 8C | ✓ |
+| date_request_type_normalized column on enquiry_date_requests (Alembic migration 20260602_000012, indexed) | 8C | ✓ |
+| EnquiryDateResolutionService extended — dispatches _expand() on normalized type; structural heuristics inside _expand_range() and _expand_recurring() preserve all existing sub-type expansion logic | 8C | ✓ |
+| Enquiry extraction prompt V4 — DATE CONTEXT RULES section instructs LLM to always populate month, year, date_range bounds, weekdays, and relative_period when inferable; V3 archived | 8C | ✓ |
+| DateContextValidator — post-extraction validation of date_request block; emits human-readable warnings for missing month/year, absent date_range bounds, missing weekdays, incomplete relative_period; stored in normalized_json['date_context_warnings'] | 8C | ✓ |
+| EnquiryReadinessEvaluator — deterministic READY_FOR_AVAILABILITY / NEEDS_CLARIFICATION / WEBFORM_REQUIRED / INSUFFICIENT_INFORMATION assessment; evaluates date_understood, guest_count_present, occasion_understood, meal_period_present, audience_identified, availability_check_possible | 8C | ✓ |
+| Readiness evaluation stored in normalized_json['readiness_evaluation'] and exposed via GET /enquiries/{id}/readiness | 8C | ✓ |
+| DiagnosticsAggregator — unified per-enquiry diagnostic view aggregated from stored normalized_json; covers missing critical fields, occasion normalisation, date context warnings, date ambiguity, date clarification flag, and readiness outcome; graceful on-the-fly fallback when stored values absent | 8C | ✓ |
+| GET /enquiries/{id}/diagnostics endpoint returning EnquiryDiagnosticsOut; returns INSUFFICIENT_INFORMATION when no extraction exists | 8C | ✓ |
+| Tests: 998 backend, 126 frontend (1,124 total) | 8C | ✓ |
 
 ---
 
@@ -249,10 +262,75 @@
 
 ---
 
+## Sprint 8C Issues
+
+Sprint 8C — **Extraction Quality & Deterministic Enrichment** — focused on closing the accuracy gaps identified in Sprint 8B's three-layer accuracy run (87.1% weighted POC score). All five issues address the LLM-vs-deterministic boundary: push more normalisation and quality assessment into the deterministic layer so the system's behaviour is auditable and testable independent of model variation.
+
+| Issue | PR | Title | Status |
+|-------|----|-------|--------|
+| ENQ-001 | #247 | Canonical occasion normalisation (OccasionNormalisationService) | ✓ Merged |
+| ENQ-002 | #248 | Simplify date intent model (DateIntentNormalizer, migration 20260602_000012) | ✓ Merged |
+| ENQ-003 | #249 | Improve date context extraction reliability (DateContextValidator, prompt V4) | ✓ Merged |
+| ENQ-004 | #250 | Enquiry readiness evaluation service (EnquiryReadinessEvaluator, /readiness endpoint) | ✓ Merged |
+| ENQ-005 | #252 | Extraction quality diagnostics (DiagnosticsAggregator, /diagnostics endpoint) | ✓ Merged |
+
+### What was delivered
+
+**ENQ-001 — Canonical Occasion Normalisation**
+
+The LLM was returning highly variable occasion strings ("sister's birthday dinner", "joint celebration", "leaving do") that downstream code could not match deterministically. `OccasionNormalisationService` maps any raw string to one of 10 canonical values using a keyword-first-match table. The canonical value is written into `normalized_json['occasion_canonical']` at persistence time and exposed alongside the raw value in `ExtractionSummaryOut`. Intake service populates both `occasion_raw` and `occasion_canonical` in the freeform response. 58 unit tests.
+
+**ENQ-002 — Simplified Date Intent Model**
+
+The V3 extraction schema had 9+ fine-grained `date_request_type` values. The LLM conflated them frequently (68% accuracy in the accuracy run). `DateIntentNormalizer` collapses the raw LLM type into 5 stable categories: `exact`, `range`, `recurring`, `ambiguous`, `unknown`. The normalized type is stored in a new `date_request_type_normalized` column (`enquiry_date_requests`, Alembic migration `20260602_000012`, indexed). `EnquiryDateResolutionService._expand()` now dispatches on the normalized type via new `_expand_range()` and `_expand_recurring()` methods that use structural heuristics (presence of `date_range`, `explicit_dates`, `month`, `weekdays`) to route to the correct existing expander — preserving all sub-type expansion logic while making the top-level dispatch stable. 15 unit tests.
+
+**ENQ-003 — Date Context Extraction Reliability**
+
+The accuracy run showed that the LLM left `month`, `year`, `date_range.start_date/end_date`, and `weekdays` null in ~30–40% of applicable cases — the resolver then had no window to expand. Two complementary fixes:
+
+1. **Prompt V4** — `_ENQUIRY_EXTRACTION_V4` adds a `DATE CONTEXT RULES` section instructing the model to always populate month when inferable, year when inferable, `date_range.start_date/end_date` when a range is described, `weekdays` when specific days are mentioned, and `relative_period` when relative language is used. V3 archived.
+2. **DateContextValidator** — deterministic post-extraction validation of the `date_request` block. Emits structured warning strings for each missing or inconsistent field. Warnings stored in `normalized_json['date_context_warnings']` and surfaced on `ExtractionResult.date_context_warnings`. 32 unit tests.
+
+**ENQ-004 — Enquiry Readiness Evaluation Service**
+
+`EnquiryReadinessEvaluator` answers "can the system proceed with this enquiry?" deterministically after extraction. Evaluates six criteria (date_understood, guest_count_present, occasion_understood, meal_period_present, audience_identified, availability_check_possible) and maps them to four statuses:
+
+- `READY_FOR_AVAILABILITY` — date + guest count both present, no clarification required
+- `NEEDS_CLARIFICATION` — date ambiguous, or guest count missing, or date clarification flagged by LLM
+- `WEBFORM_REQUIRED` — date and guest count absent but some context captured (occasion, audience, meal period)
+- `INSUFFICIENT_INFORMATION` — nothing critical extracted; cannot determine enquiry intent
+
+The full evaluation (all criteria + status + notes) is stored in `normalized_json['readiness_evaluation']` at persistence time. `GET /enquiries/{id}/readiness` reads the stored evaluation or re-evaluates on the fly for older extractions. 21 unit tests.
+
+**ENQ-005 — Extraction Quality Diagnostics**
+
+`DiagnosticsAggregator` assembles a unified per-enquiry diagnostic view from a stored `EnquiryExtraction` row, reading from `missing_fields`, `extracted_json`, and `normalized_json`. Aggregated signals:
+
+- **Missing critical fields** — `date` and `guest_count` filtered from `extraction.missing_fields`
+- **Occasion normalisation** — `occasion_raw` vs `occasion_canonical`, `occasion_normalised` flag
+- **Date context warnings** — full list from `normalized_json['date_context_warnings']`, `date_ambiguity_detected` flag
+- **Date clarification** — `requires_date_clarification` and `clarification_question` from `extracted_json.date_request`
+- **Readiness outcome** — `readiness_status`, `readiness_missing_for_availability`, `readiness_notes` from stored evaluation
+
+The aggregator falls back to on-the-fly computation (via lazy imports of ENQ-001/003/004 services) when stored values are absent, ensuring the endpoint is backward-compatible with pre-Sprint-8C extractions. `GET /enquiries/{id}/diagnostics` returns `EnquiryDiagnosticsOut`; returns `INSUFFICIENT_INFORMATION` when no extraction has been run. 36 unit tests.
+
+UI display for the diagnostics endpoint is deferred — the ENQ-005 issue lacks the mandatory `## UI/UX Reference Requirements` section required by CLAUDE.md.
+
+### Test count summary
+
+| Scope | Before 8C | After 8C | Delta |
+|-------|-----------|----------|-------|
+| Backend (pytest) | 836 | 998 | +162 |
+| Frontend (vitest) | 126 | 126 | 0 |
+| **Total** | **962** | **1,124** | **+162** |
+
+---
+
 ## Remaining Gaps
 
 | Gap | Priority | Sprint |
 |-----|----------|--------|
+| ENQ-005 UI — diagnostics display in enquiry detail view (blocked: no UI/UX Reference Requirements in issue) | P2 | 8C |
 | Gmail App Password not in CI/CD | P1 | 6 |
 | Celery send-draft dispatch not wired in main.py | P1 | 6 |
 | Inbound email Celery beat schedule | P2 | 6 |
