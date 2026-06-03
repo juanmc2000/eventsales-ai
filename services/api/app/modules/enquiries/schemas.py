@@ -229,6 +229,44 @@ class ReadinessEvaluationOut(BaseModel):
     notes: str
 
 
+# ── Extraction quality diagnostics (ENQ-005) ──────────────────────────────────
+
+
+class EnquiryDiagnosticsOut(BaseModel):
+    """API response for per-enquiry extraction quality diagnostics."""
+
+    enquiry_id: uuid.UUID
+    extraction_id: uuid.UUID | None = None
+    prompt_run_id: uuid.UUID | None = None
+
+    # Missing critical fields
+    missing_critical_fields: list[str]
+    has_missing_critical_fields: bool
+
+    # Occasion normalisation
+    occasion_raw: str | None = None
+    occasion_canonical: str | None = None
+    occasion_normalised: bool
+
+    # Date context warnings
+    date_context_warnings: list[str]
+    date_ambiguity_detected: bool
+
+    # Date clarification
+    date_clarification_required: bool
+    clarification_question: str | None = None
+
+    # Readiness outcome
+    readiness_status: str
+    readiness_missing_for_availability: list[str]
+    readiness_notes: str
+
+    # Extraction metadata
+    validation_status: str | None = None
+    is_fallback: bool
+    created_at: datetime | None = None
+
+
 # ── Date request and candidate date schemas ────────────────────────────────────
 
 

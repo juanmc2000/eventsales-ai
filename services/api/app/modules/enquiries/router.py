@@ -13,6 +13,7 @@ from app.modules.enquiries.schemas import (
     EnquiryCandidateDateOut,
     EnquiryCreate,
     EnquiryDateRequestOut,
+    EnquiryDiagnosticsOut,
     EnquiryIntakeOut,
     EnquiryListOut,
     EnquiryMessageCreate,
@@ -326,6 +327,63 @@ def get_enquiry_readiness(
     # No extraction at all — return INSUFFICIENT_INFORMATION
     evaluation = EnquiryReadinessEvaluator().evaluate(None)
     return ReadinessEvaluationOut(**evaluation.to_dict())
+
+
+@router.get("/{enquiry_id}/diagnostics", response_model=EnquiryDiagnosticsOut)
+def get_enquiry_diagnostics(
+    enquiry_id: uuid.UUID,
+    db: Session = Depends(get_db),
+) -> EnquiryDiagnosticsOut:
+    """Return extraction quality diagnostics for an enquiry (ENQ-005).
+
+    Aggregates missing-field signals, occasion normalisation, date context
+    warnings, date ambiguity, and readiness outcome from the latest stored
+    extraction.  Returns a deterministic INSUFFICIENT_INFORMATION result when
+    no extraction has been run.
+
+    Does not trigger extraction or re-evaluation.
+    """
+    from sqlalchemy import select  # noqa: PLC0415
+    from app.modules.enquiries.models import EnquiryExtraction  # noqa: PLC0415
+    from app.modules.enquiries.diagnostics_aggregator import DiagnosticsAggregator  # noqa: PLC0415
+
+    repo = EnquiryRepository(db)
+    enquiry = repo.get_by_id(enquiry_id)
+    if not enquiry:
+        raise HTTPException(status_code=404, detail="Enquiry not found")
+
+    latest_extraction = db.scalars(
+        select(EnquiryExtraction)
+        .where(EnquiryExtraction.enquiry_id == enquiry_id)
+        .order_by(EnquiryExtraction.created_at.desc())
+        .limit(1)
+    ).first()
+
+    diag = DiagnosticsAggregator().aggregate(
+        enquiry_id=enquiry_id,
+        extraction=latest_extraction,
+    )
+
+    return EnquiryDiagnosticsOut(
+        enquiry_id=diag.enquiry_id,
+        extraction_id=diag.extraction_id,
+        prompt_run_id=diag.prompt_run_id,
+        missing_critical_fields=diag.missing_critical_fields,
+        has_missing_critical_fields=diag.has_missing_critical_fields,
+        occasion_raw=diag.occasion_raw,
+        occasion_canonical=diag.occasion_canonical,
+        occasion_normalised=diag.occasion_normalised,
+        date_context_warnings=diag.date_context_warnings,
+        date_ambiguity_detected=diag.date_ambiguity_detected,
+        date_clarification_required=diag.date_clarification_required,
+        clarification_question=diag.clarification_question,
+        readiness_status=diag.readiness_status,
+        readiness_missing_for_availability=diag.readiness_missing_for_availability,
+        readiness_notes=diag.readiness_notes,
+        validation_status=diag.validation_status,
+        is_fallback=diag.is_fallback,
+        created_at=diag.created_at,
+    )
 
 
 @router.get("/{enquiry_id}/candidate-dates", response_model=list[EnquiryCandidateDateOut])
