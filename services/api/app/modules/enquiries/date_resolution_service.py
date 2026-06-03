@@ -274,6 +274,22 @@ class EnquiryDateResolutionService:
                     )
                     if resolved:
                         return resolved[:1]
+            # HOTFIX-003 Fix 1: "a week tomorrow" off-by-one.
+            # British English "a week tomorrow" / "week tomorrow" means tomorrow + 7
+            # days, but the LLM sometimes computes it as anchor + 7 (omitting the +1
+            # for "tomorrow").  Detect this when:
+            #   • no weekdays are present (HOTFIX-002 already handled the weekday case)
+            #   • relative_period.unit == "week" and direction in ("next", "future")
+            #   • the explicit date is exactly anchor + 7
+            # In that case shift the result forward by one day.
+            if (
+                parsed
+                and not weekdays_check
+                and (rp_check.get("unit") or "").lower() == "week"
+                and (rp_check.get("direction") or "").lower() in ("next", "future")
+                and parsed[0] == anchor_date + timedelta(days=7)
+            ):
+                return [parsed[0] + timedelta(days=1)]
             if parsed:
                 return parsed[:1]  # single date
         # 2. anchor_date embedded in the extraction JSON
@@ -472,6 +488,21 @@ class EnquiryDateResolutionService:
                 return self._collect_weekdays_in_window(target_weekdays, start, end)
 
         start, end = self._resolve_relative_period(relative_period, anchor_date)
+
+        # HOTFIX-003 Fix 2: when a valid date_range is also present, clamp the
+        # relative-period window to the narrower date_range bounds.  This handles
+        # end-of-month phrasing like "last Sat or Sun of the month" where the LLM
+        # sets direction="this"/unit="month" (broad window) but also supplies a
+        # tighter date_range (e.g. start=2026-06-20, end=2026-06-30).
+        date_range_obj = dr.get("date_range") or {}
+        range_start = self._parse_date(date_range_obj.get("start_date"))
+        range_end = self._parse_date(date_range_obj.get("end_date"))
+        if range_start is not None and range_end is not None:
+            clamped_start = max(start, range_start)
+            clamped_end = min(end, range_end)
+            if clamped_start <= clamped_end:
+                start, end = clamped_start, clamped_end
+
         return self._collect_weekdays_in_window(target_weekdays, start, end)
 
     def _expand_recurring_window(self, dr: dict, anchor_date: date) -> list[date]:

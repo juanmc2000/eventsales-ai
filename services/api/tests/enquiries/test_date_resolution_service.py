@@ -821,6 +821,169 @@ class TestCalendarMonthBoundaries:
         assert end == date(2026, 7, 3)
 
 
+# ── HOTFIX-003 — "a week tomorrow" and end-of-month clamping ──────────────────
+
+
+class TestWeekTomorrowResolution:
+    """'A week tomorrow' must resolve to tomorrow + 7, not anchor + 7.
+
+    Anchor used: 2026-06-03 (Wednesday).
+    tomorrow = Jun 4; a week tomorrow = Jun 11.
+    """
+
+    ANCHOR = date(2026, 6, 3)
+
+    def test_a_week_tomorrow_resolves_to_anchor_plus_8(self) -> None:
+        # LLM outputs explicit_dates=["2026-06-10"] (anchor+7), direction=next, unit=week
+        result = _resolve(
+            {
+                "date_request_type": "exact",
+                "explicit_dates": ["2026-06-10"],
+                "relative_period": {"direction": "next", "unit": "week", "amount": 1},
+            },
+            anchor=self.ANCHOR,
+        )
+        assert result.candidate_dates == [date(2026, 6, 11)]
+
+    def test_week_tomorrow_with_future_direction(self) -> None:
+        # direction='future' should also trigger the fix
+        result = _resolve(
+            {
+                "date_request_type": "exact",
+                "explicit_dates": ["2026-06-10"],
+                "relative_period": {"direction": "future", "unit": "week", "amount": 1},
+            },
+            anchor=self.ANCHOR,
+        )
+        assert result.candidate_dates == [date(2026, 6, 11)]
+
+    def test_explicit_date_not_anchor_plus_7_is_kept(self) -> None:
+        # explicit date is NOT anchor+7 → no offset applied, returned as-is
+        result = _resolve(
+            {
+                "date_request_type": "exact",
+                "explicit_dates": ["2026-06-15"],
+                "relative_period": {"direction": "next", "unit": "week", "amount": 1},
+            },
+            anchor=self.ANCHOR,
+        )
+        assert result.candidate_dates == [date(2026, 6, 15)]
+
+    def test_explicit_date_with_weekdays_not_offset(self) -> None:
+        # weekdays present → HOTFIX-002 path, not HOTFIX-003 path
+        result = _resolve(
+            {
+                "date_request_type": "exact",
+                "explicit_dates": ["2026-06-06"],
+                "weekdays": ["saturday"],
+                "relative_period": {"direction": "next", "unit": "week", "amount": 1},
+            },
+            anchor=self.ANCHOR,
+        )
+        # HOTFIX-002 fires: returns next Saturday (Jun 13), not Jun 7
+        assert result.candidate_dates == [date(2026, 6, 13)]
+
+    def test_explicit_date_with_month_unit_not_offset(self) -> None:
+        # unit='month' → fix does NOT apply, date returned as-is
+        result = _resolve(
+            {
+                "date_request_type": "exact",
+                "explicit_dates": ["2026-06-10"],
+                "relative_period": {"direction": "next", "unit": "month", "amount": 1},
+            },
+            anchor=self.ANCHOR,
+        )
+        assert result.candidate_dates == [date(2026, 6, 10)]
+
+
+class TestEndOfMonthDateRangeClamping:
+    """_expand_weekday_range must clamp the relative-period window to a narrower
+    date_range when both are supplied.
+
+    Anchor: 2026-06-03 (Wednesday).
+    """
+
+    ANCHOR = date(2026, 6, 3)
+
+    def test_end_of_month_last_weekend_only(self) -> None:
+        # email_58: "last Sat or Sun of June" — direction=this/month but date_range
+        # start=2026-06-20, end=2026-06-30 → only last two weekends inside that range
+        result = _resolve(
+            {
+                "date_request_type": "weekday_range_over_relative_period",
+                "weekdays": ["saturday", "sunday"],
+                "relative_period": {"direction": "this", "unit": "month", "amount": 1},
+                "date_range": {"start_date": "2026-06-20", "end_date": "2026-06-30"},
+            },
+            anchor=self.ANCHOR,
+        )
+        assert result.candidate_dates == [
+            date(2026, 6, 20),  # Saturday
+            date(2026, 6, 21),  # Sunday
+            date(2026, 6, 27),  # Saturday
+            date(2026, 6, 28),  # Sunday
+        ]
+
+    def test_date_range_clamp_does_not_widen_window(self) -> None:
+        # date_range wider than relative-period window → no expansion, period wins
+        result = _resolve(
+            {
+                "date_request_type": "weekday_range_over_relative_period",
+                "weekdays": ["saturday", "sunday"],
+                "relative_period": {"direction": "this", "unit": "month", "amount": 1},
+                # date_range wider than Jun 3–30 — should be ignored (clamped to period)
+                "date_range": {"start_date": "2026-06-01", "end_date": "2026-07-31"},
+            },
+            anchor=self.ANCHOR,
+        )
+        # Period window: Jun 3 – Jun 30. Clamp: max(Jun 3, Jun 1)=Jun 3; min(Jun 30, Jul 31)=Jun 30
+        # All weekends in Jun 3–30
+        assert date(2026, 6, 6) in result.candidate_dates
+        assert date(2026, 6, 28) in result.candidate_dates
+        # July dates must NOT appear
+        assert date(2026, 7, 4) not in result.candidate_dates
+
+    def test_no_date_range_leaves_full_period_window(self) -> None:
+        # No date_range → clamping does not fire, all month weekends returned
+        result = _resolve(
+            {
+                "date_request_type": "weekday_range_over_relative_period",
+                "weekdays": ["saturday", "sunday"],
+                "relative_period": {"direction": "next", "unit": "month", "amount": 1},
+            },
+            anchor=self.ANCHOR,
+        )
+        # Next month = July; all Sat/Sun in July
+        assert result.candidate_dates == [
+            date(2026, 7, 4),
+            date(2026, 7, 5),
+            date(2026, 7, 11),
+            date(2026, 7, 12),
+            date(2026, 7, 18),
+            date(2026, 7, 19),
+            date(2026, 7, 25),
+            date(2026, 7, 26),
+        ]
+
+    def test_clamp_with_next_month_direction(self) -> None:
+        # direction=next (July) + date_range clamped to first two weeks of July
+        result = _resolve(
+            {
+                "date_request_type": "weekday_range_over_relative_period",
+                "weekdays": ["saturday", "sunday"],
+                "relative_period": {"direction": "next", "unit": "month", "amount": 1},
+                "date_range": {"start_date": "2026-07-01", "end_date": "2026-07-14"},
+            },
+            anchor=self.ANCHOR,
+        )
+        assert result.candidate_dates == [
+            date(2026, 7, 4),
+            date(2026, 7, 5),
+            date(2026, 7, 11),
+            date(2026, 7, 12),
+        ]
+
+
 # ── HOTFIX-002 — next Saturday / next Sunday resolution ───────────────────────
 
 
