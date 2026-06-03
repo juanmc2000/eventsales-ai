@@ -279,6 +279,9 @@ class FreeformIntakeService:
                     guest_count=parsed.get("guest_count"),
                     event_date=parsed.get("event_date"),
                     event_type=parsed.get("event_type"),
+                    # ENQ-001: occasion fields — raw from LLM, canonical from normaliser
+                    occasion_raw=parsed.get("occasion"),
+                    occasion_canonical=extraction_result.occasion_canonical,
                     missing_fields=parsed.get("missing_fields"),
                     extraction_system_prompt=extraction_result.rendered_system_prompt if not extraction_result.is_fallback else None,
                     extraction_user_prompt=extraction_result.rendered_user_prompt if not extraction_result.is_fallback else None,

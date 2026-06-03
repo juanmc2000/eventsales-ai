@@ -31,6 +31,7 @@ from app.modules.ai.constants import (
 )
 from app.modules.ai.gateway import AIGateway
 from app.modules.ai.schemas import AIGatewayRequest
+from app.modules.enquiries.occasion_normalisation_service import OccasionNormalisationService
 
 # EnquiryExtraction is added by DATA-015.  Use a lazy import so the service
 # module is importable in test environments that run against the unpatched schema.
@@ -78,6 +79,7 @@ class ExtractionResult:
     parsed holds the validated extraction dict, or None on parse/validation error.
     rendered_system_prompt / rendered_user_prompt / raw_response are populated
     from the gateway result so callers can surface them in transparency panels.
+    occasion_canonical is the deterministically normalised occasion value (ENQ-001).
     """
 
     extraction_id: uuid.UUID | None
@@ -89,6 +91,8 @@ class ExtractionResult:
     rendered_system_prompt: str | None = field(default=None)
     rendered_user_prompt: str | None = field(default=None)
     raw_response: str | None = field(default=None)
+    # ENQ-001: canonical occasion derived deterministically from parsed.occasion
+    occasion_canonical: str | None = field(default=None)
 
 
 class EnquiryExtractionService:
@@ -140,6 +144,11 @@ class EnquiryExtractionService:
         # Build the extraction row from the gateway result
         extraction = self._persist_extraction(request, gateway_result)
 
+        # ENQ-001: derive canonical occasion from raw LLM output
+        _occasion_svc = OccasionNormalisationService()
+        _occasion_raw = (gateway_result.parsed_response or {}).get("occasion")
+        _occasion_canonical = _occasion_svc.normalise(_occasion_raw)
+
         return ExtractionResult(
             extraction_id=extraction.id if extraction is not None else None,
             prompt_run_id=gateway_result.run_id,
@@ -150,6 +159,7 @@ class EnquiryExtractionService:
             rendered_system_prompt=gateway_result.rendered_system_prompt,
             rendered_user_prompt=gateway_result.rendered_user_prompt,
             raw_response=gateway_result.raw_response,
+            occasion_canonical=_occasion_canonical,
         )
 
     def _persist_extraction(
@@ -166,6 +176,7 @@ class EnquiryExtractionService:
         confidence_json: dict = parsed.get("confidence", {}) if parsed else {}
 
         # normalized_json: a copy of parsed_response with type-safe guest_count
+        # and canonical occasion added by OccasionNormalisationService (ENQ-001).
         normalized: dict | None = None
         if parsed:
             normalized = dict(parsed)
@@ -174,6 +185,11 @@ class EnquiryExtractionService:
                     normalized["guest_count"] = int(normalized["guest_count"])
                 except (TypeError, ValueError):
                     normalized["guest_count"] = None
+            # ENQ-001: add occasion_canonical alongside the raw occasion string
+            _occasion_svc = OccasionNormalisationService()
+            normalized["occasion_canonical"] = _occasion_svc.normalise(
+                normalized.get("occasion")
+            )
 
         try:
             if EnquiryExtraction is None:  # DATA-015 not yet applied
