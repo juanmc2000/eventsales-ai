@@ -251,8 +251,30 @@ class EnquiryDateResolutionService:
         # 1. Explicit ISO dates
         explicit: list = dr.get("explicit_dates") or []
         if explicit:
-            parsed = [self._parse_date(d) for d in explicit]
-            return [d for d in parsed if d is not None][:1]  # single date
+            parsed = [d for d in (self._parse_date(x) for x in explicit) if d is not None]
+            # HOTFIX-002: When the LLM sets direction="next" + weekdays, it sometimes
+            # pre-computes explicit_dates as the CURRENT week's occurrence rather than
+            # next week's (e.g. "next Saturday" from Wed Jun 3 → LLM gives Jun 6 which
+            # is this Saturday, but British "next" means the following week = Jun 13).
+            # If the explicit date falls inside the current calendar week AND weekdays +
+            # direction="next" are also present, override with _resolve_weekday_relative.
+            weekdays_check: list = dr.get("weekdays") or []
+            rp_check = dr.get("relative_period") or {}
+            if (
+                parsed
+                and weekdays_check
+                and (rp_check.get("direction") or "").lower() == "next"
+            ):
+                monday_of_this_week = anchor_date - timedelta(days=anchor_date.weekday())
+                sunday_of_this_week = monday_of_this_week + timedelta(days=6)
+                if monday_of_this_week <= parsed[0] <= sunday_of_this_week:
+                    resolved = self._resolve_weekday_relative(
+                        weekdays_check, rp_check, anchor_date
+                    )
+                    if resolved:
+                        return resolved[:1]
+            if parsed:
+                return parsed[:1]  # single date
         # 2. anchor_date embedded in the extraction JSON
         anchor = self._parse_date(dr.get("anchor_date"))
         if anchor:

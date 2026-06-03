@@ -700,6 +700,103 @@ class TestCalendarWeekBoundaries:
         assert end == date(2026, 6, 17)
 
 
+# ── HOTFIX-002 — next Saturday / next Sunday resolution ───────────────────────
+
+
+class TestNextWeekdayOverride:
+    """_expand_exact must return NEXT calendar week's occurrence when the LLM
+    pre-computes explicit_dates to the CURRENT week but also sets
+    weekdays + relative_period.direction='next'.
+
+    Anchor used throughout: 2026-06-03 (Wednesday).
+    Current calendar week: Mon 2026-06-01 – Sun 2026-06-07.
+    Next calendar week starts: Mon 2026-06-08.
+    """
+
+    ANCHOR = date(2026, 6, 3)
+
+    def test_next_saturday_with_explicit_date_in_current_week(self) -> None:
+        # LLM outputs explicit_dates=["2026-06-06"] (this Saturday) + direction=next
+        # Resolver must return Jun 13 (next Saturday), not Jun 6.
+        result = _resolve(
+            {
+                "date_request_type": "exact",
+                "explicit_dates": ["2026-06-06"],
+                "weekdays": ["saturday"],
+                "relative_period": {"direction": "next", "unit": "week", "amount": 1},
+            },
+            anchor=self.ANCHOR,
+        )
+        assert result.candidate_dates == [date(2026, 6, 13)]
+
+    def test_next_sunday_with_explicit_date_in_current_week(self) -> None:
+        # LLM outputs explicit_dates=["2026-06-07"] (this Sunday) + direction=next
+        # Resolver must return Jun 14 (next Sunday), not Jun 7.
+        result = _resolve(
+            {
+                "date_request_type": "exact",
+                "explicit_dates": ["2026-06-07"],
+                "weekdays": ["sunday"],
+                "relative_period": {"direction": "next", "unit": "week", "amount": 1},
+            },
+            anchor=self.ANCHOR,
+        )
+        assert result.candidate_dates == [date(2026, 6, 14)]
+
+    def test_next_monday_with_explicit_date_in_current_week(self) -> None:
+        # Anchor is Wed — Monday of the current week (Jun 1) is before anchor.
+        # LLM gives explicit_dates=["2026-06-01"] (this Monday) + direction=next.
+        # Resolver must return Jun 8 (next Monday).
+        result = _resolve(
+            {
+                "date_request_type": "exact",
+                "explicit_dates": ["2026-06-01"],
+                "weekdays": ["monday"],
+                "relative_period": {"direction": "next", "unit": "week", "amount": 1},
+            },
+            anchor=self.ANCHOR,
+        )
+        assert result.candidate_dates == [date(2026, 6, 8)]
+
+    def test_explicit_date_already_in_next_week_is_kept(self) -> None:
+        # LLM correctly gives Jun 13 (already in next week) — no override needed.
+        result = _resolve(
+            {
+                "date_request_type": "exact",
+                "explicit_dates": ["2026-06-13"],
+                "weekdays": ["saturday"],
+                "relative_period": {"direction": "next", "unit": "week", "amount": 1},
+            },
+            anchor=self.ANCHOR,
+        )
+        assert result.candidate_dates == [date(2026, 6, 13)]
+
+    def test_explicit_date_without_weekdays_is_kept(self) -> None:
+        # No weekdays → override logic does NOT fire; explicit date stands.
+        result = _resolve(
+            {
+                "date_request_type": "exact",
+                "explicit_dates": ["2026-06-06"],
+                "relative_period": {"direction": "next", "unit": "week", "amount": 1},
+            },
+            anchor=self.ANCHOR,
+        )
+        assert result.candidate_dates == [date(2026, 6, 6)]
+
+    def test_explicit_date_with_this_direction_is_kept(self) -> None:
+        # direction='this', not 'next' → override does NOT fire.
+        result = _resolve(
+            {
+                "date_request_type": "exact",
+                "explicit_dates": ["2026-06-06"],
+                "weekdays": ["saturday"],
+                "relative_period": {"direction": "this", "unit": "week", "amount": 1},
+            },
+            anchor=self.ANCHOR,
+        )
+        assert result.candidate_dates == [date(2026, 6, 6)]
+
+
 # ── Default constants ─────────────────────────────────────────────────────────
 
 
