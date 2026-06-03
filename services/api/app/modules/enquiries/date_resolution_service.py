@@ -26,6 +26,10 @@ from datetime import date, timedelta
 from sqlalchemy.orm import Session
 
 from app.modules.enquiries.date_intent_normalizer import DateIntentNormalizer
+from app.modules.enquiries.numeric_date_disambiguation_service import (
+    DisambiguationResult,
+    NumericDateDisambiguationService,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +89,13 @@ class DateResolutionResult:
     error_message: str | None = field(default=None)
     # ENQ-002: simplified normalized type (exact/range/recurring/ambiguous/unknown)
     date_request_type_normalized: str | None = field(default=None)
+    # HOTFIX-001: numeric date disambiguation (None for non-numeric date types)
+    ambiguity_type: str | None = field(default=None)
+    assumed_date: date | None = field(default=None)
+    alternative_date: date | None = field(default=None)
+    ambiguity_clarification_required: bool = field(default=False)
+    ambiguity_clarification_reason: str | None = field(default=None)
+    ambiguity_clarification_question: str | None = field(default=None)
 
 
 # ── Service ───────────────────────────────────────────────────────────────────
@@ -131,15 +142,25 @@ class EnquiryDateResolutionService:
         clarification_question: str | None = self._null_str(dr.get("clarification_question"))
         confidence: float = self._coerce_float(dr.get("confidence"), default=0.0)
 
-        # ── 2. Expand candidate dates ──────────────────────────────────────────
+        # ── 2. Numeric date disambiguation (HOTFIX-001) ────────────────────────
+        # Run before candidate expansion so the assumed_date can be used as the
+        # primary candidate for ambiguous numeric dates.
+        disambiguation: DisambiguationResult | None = None
+        if date_request_type_normalized == "ambiguous":
+            disambiguation = NumericDateDisambiguationService.from_raw_text(
+                raw_text, anchor_date
+            )
+
+        # ── 3. Expand candidate dates ──────────────────────────────────────────
         # ENQ-002: resolver dispatches on normalized type for cleaner branching;
         # within each branch, structure of the dict (explicit_dates, date_range,
         # weekdays, month) determines the exact expansion strategy.
         candidate_dates, source_type = self._expand(
-            dr, date_request_type, date_request_type_normalized, anchor_date
+            dr, date_request_type, date_request_type_normalized, anchor_date,
+            disambiguation=disambiguation,
         )
 
-        # ── 3. Persist EnquiryDateRequest ──────────────────────────────────────
+        # ── 4. Persist EnquiryDateRequest ──────────────────────────────────────
         date_request_row = self._persist_date_request(
             request=request,
             raw_text=raw_text,
@@ -151,10 +172,11 @@ class EnquiryDateResolutionService:
             requires_date_clarification=requires_clarification,
             clarification_question=clarification_question,
             confidence=confidence,
+            disambiguation=disambiguation,
         )
         date_request_id = date_request_row.id if date_request_row is not None else None
 
-        # ── 4. Persist EnquiryCandidateDate rows ──────────────────────────────
+        # ── 5. Persist EnquiryCandidateDate rows ──────────────────────────────
         if date_request_row is not None and candidate_dates:
             self._persist_candidate_dates(
                 enquiry_id=request.enquiry_id,
@@ -171,6 +193,12 @@ class EnquiryDateResolutionService:
             candidate_dates=candidate_dates,
             requires_date_clarification=requires_clarification,
             clarification_question=clarification_question,
+            ambiguity_type=disambiguation.ambiguity_type if disambiguation else None,
+            assumed_date=disambiguation.assumed_date if disambiguation else None,
+            alternative_date=disambiguation.alternative_date if disambiguation else None,
+            ambiguity_clarification_required=disambiguation.clarification_required if disambiguation else False,
+            ambiguity_clarification_reason=disambiguation.clarification_reason if disambiguation else None,
+            ambiguity_clarification_question=disambiguation.clarification_question if disambiguation else None,
         )
 
     # ── Expansion logic ───────────────────────────────────────────────────────
@@ -181,6 +209,7 @@ class EnquiryDateResolutionService:
         date_request_type: str,
         date_request_type_normalized: str,
         anchor_date: date,
+        disambiguation: DisambiguationResult | None = None,
     ) -> tuple[list[date], str]:
         """Expand the date_request dict into a list of candidate dates.
 
@@ -202,6 +231,10 @@ class EnquiryDateResolutionService:
                 return self._expand_recurring(dr, anchor_date), SOURCE_TYPE_DETERMINISTIC
 
             if date_request_type_normalized == "ambiguous":
+                # HOTFIX-001: if numeric disambiguation resolved to an assumed date,
+                # use that as the single candidate so availability can be checked.
+                if disambiguation is not None and disambiguation.assumed_date is not None:
+                    return [disambiguation.assumed_date], SOURCE_TYPE_DETERMINISTIC
                 return self._expand_ambiguous(dr), SOURCE_TYPE_EXPLICIT
 
             # unknown or unrecognised — no candidate dates
@@ -455,6 +488,7 @@ class EnquiryDateResolutionService:
         requires_date_clarification: bool,
         clarification_question: str | None,
         confidence: float,
+        disambiguation: DisambiguationResult | None = None,
     ):
         if not _MODELS_AVAILABLE or EnquiryDateRequest is None:
             logger.warning(
@@ -477,6 +511,11 @@ class EnquiryDateResolutionService:
                 requires_date_clarification=requires_date_clarification,
                 clarification_question=clarification_question,
                 confidence=confidence if confidence is not None else None,
+                ambiguity_type=disambiguation.ambiguity_type if disambiguation else None,
+                assumed_date=disambiguation.assumed_date if disambiguation else None,
+                alternative_date=disambiguation.alternative_date if disambiguation else None,
+                clarification_required=disambiguation.clarification_required if disambiguation else None,
+                clarification_reason=disambiguation.clarification_reason if disambiguation else None,
             )
             self._db.add(row)
             self._db.flush()
