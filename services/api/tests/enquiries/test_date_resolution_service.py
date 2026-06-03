@@ -274,6 +274,194 @@ class TestWeekdayRangeExpansion:
         assert result.candidate_dates == []
 
 
+# ── ENQ-006: weekday_range date_range fallback ────────────────────────────────
+
+
+class TestWeekdayRangeDateRangeFallback:
+    """ENQ-006: resolver uses date_range bounds when relative_period has no direction.
+
+    These tests mirror the 6 LLM output patterns from the 60-record V4 accuracy run
+    (anchor 2026-06-03) where relative_period was null/directionless but date_range
+    was correctly populated by the LLM.
+    """
+
+    def test_any_friday_in_august_uses_date_range_bounds(self) -> None:
+        # email_13 pattern: "any Friday in August"
+        # LLM: weekdays=['friday'], date_range=2026-08-01..2026-08-31, relative_period=None
+        result = _resolve(
+            {
+                "date_request_type": "weekday_range_over_relative_period",
+                "weekdays": ["friday"],
+                "relative_period": None,
+                "date_range": {"start_date": "2026-08-01", "end_date": "2026-08-31"},
+            },
+            anchor=date(2026, 6, 3),
+        )
+        assert result.candidate_dates == [
+            date(2026, 8, 7),
+            date(2026, 8, 14),
+            date(2026, 8, 21),
+            date(2026, 8, 28),
+        ]
+
+    def test_end_of_july_fri_sat_uses_date_range_bounds(self) -> None:
+        # email_23 pattern: "end of July" → weekdays=fri+sat, date_range=2026-07-24..2026-07-31
+        # LLM: relative_period={'amount': None, 'unit': None, 'direction': None}
+        result = _resolve(
+            {
+                "date_request_type": "weekday_range_over_relative_period",
+                "weekdays": ["friday", "saturday"],
+                "relative_period": {"amount": None, "unit": None, "direction": None},
+                "date_range": {"start_date": "2026-07-24", "end_date": "2026-07-31"},
+            },
+            anchor=date(2026, 6, 3),
+        )
+        assert result.candidate_dates == [
+            date(2026, 7, 24),  # Friday
+            date(2026, 7, 25),  # Saturday
+            date(2026, 7, 31),  # Friday
+        ]
+
+    def test_mid_august_weekend_uses_date_range_bounds(self) -> None:
+        # email_30 pattern: "mid August" → weekdays=sat+sun, date_range=2026-08-10..2026-08-20
+        result = _resolve(
+            {
+                "date_request_type": "weekday_range_over_relative_period",
+                "weekdays": ["saturday", "sunday"],
+                "relative_period": {"amount": None, "unit": None, "direction": None},
+                "date_range": {"start_date": "2026-08-10", "end_date": "2026-08-20"},
+            },
+            anchor=date(2026, 6, 3),
+        )
+        assert result.candidate_dates == [
+            date(2026, 8, 15),  # Saturday
+            date(2026, 8, 16),  # Sunday
+        ]
+
+    def test_weekend_around_july_18_uses_date_range_bounds(self) -> None:
+        # email_37 pattern: "the weekend around July 18"
+        # LLM: weekdays=sat+sun, date_range=2026-07-17..2026-07-19, relative_period=None
+        result = _resolve(
+            {
+                "date_request_type": "weekday_range_over_relative_period",
+                "weekdays": ["saturday", "sunday"],
+                "relative_period": None,
+                "date_range": {"start_date": "2026-07-17", "end_date": "2026-07-19"},
+            },
+            anchor=date(2026, 6, 3),
+        )
+        assert result.candidate_dates == [
+            date(2026, 7, 18),  # Saturday
+            date(2026, 7, 19),  # Sunday
+        ]
+
+    def test_any_friday_in_july_uses_date_range_bounds(self) -> None:
+        # email_44 pattern: "any Friday in July"
+        result = _resolve(
+            {
+                "date_request_type": "weekday_range_over_relative_period",
+                "weekdays": ["friday"],
+                "relative_period": None,
+                "date_range": {"start_date": "2026-07-01", "end_date": "2026-07-31"},
+            },
+            anchor=date(2026, 6, 3),
+        )
+        assert result.candidate_dates == [
+            date(2026, 7, 3),
+            date(2026, 7, 10),
+            date(2026, 7, 17),
+            date(2026, 7, 24),
+            date(2026, 7, 31),
+        ]
+
+    def test_mon_wed_in_july_uses_date_range_bounds(self) -> None:
+        # email_52 pattern: "any Monday to Wednesday in July"
+        result = _resolve(
+            {
+                "date_request_type": "weekday_range_over_relative_period",
+                "weekdays": ["monday", "tuesday", "wednesday"],
+                "relative_period": None,
+                "date_range": {"start_date": "2026-07-01", "end_date": "2026-07-31"},
+            },
+            anchor=date(2026, 6, 3),
+        )
+        # July 2026: Mon-Wed occurrences
+        expected = [
+            date(2026, 7, 1),   # Wednesday
+            date(2026, 7, 6),   # Monday
+            date(2026, 7, 7),   # Tuesday
+            date(2026, 7, 8),   # Wednesday
+            date(2026, 7, 13),  # Monday
+            date(2026, 7, 14),  # Tuesday
+            date(2026, 7, 15),  # Wednesday
+            date(2026, 7, 20),  # Monday
+            date(2026, 7, 21),  # Tuesday
+            date(2026, 7, 22),  # Wednesday
+            date(2026, 7, 27),  # Monday
+            date(2026, 7, 28),  # Tuesday
+            date(2026, 7, 29),  # Wednesday
+        ]
+        assert result.candidate_dates == expected
+
+    def test_date_range_start_before_anchor_is_clamped(self) -> None:
+        # date_range starts in the past; resolver clamps start to anchor_date
+        result = _resolve(
+            {
+                "date_request_type": "weekday_range_over_relative_period",
+                "weekdays": ["saturday"],
+                "relative_period": None,
+                "date_range": {"start_date": "2026-06-01", "end_date": "2026-06-14"},
+            },
+            anchor=date(2026, 6, 3),
+        )
+        # Saturdays from anchor(2026-06-03) to 2026-06-14: Jun 6, Jun 13
+        assert result.candidate_dates == [date(2026, 6, 6), date(2026, 6, 13)]
+        assert date(2026, 6, 1) not in result.candidate_dates  # past date excluded
+
+    def test_date_range_end_before_clamped_start_returns_empty(self) -> None:
+        # date_range entirely before anchor_date → empty after clamping
+        result = _resolve(
+            {
+                "date_request_type": "weekday_range_over_relative_period",
+                "weekdays": ["friday"],
+                "relative_period": None,
+                "date_range": {"start_date": "2026-05-01", "end_date": "2026-05-31"},
+            },
+            anchor=date(2026, 6, 3),
+        )
+        assert result.candidate_dates == []
+
+    def test_directionless_relative_period_without_date_range_uses_default_window(self) -> None:
+        # No date_range provided — ENQ-006 fallback not triggered; single-weekday
+        # short-circuit in _expand_recurring fires, resolving via next-calendar-week
+        # convention: anchor=Wed Jun 3, "next Friday" = Mon Jun 8 + 4 = Jun 12.
+        result = _resolve(
+            {
+                "date_request_type": "weekday_range_over_relative_period",
+                "weekdays": ["friday"],
+                "relative_period": {"amount": None, "unit": None, "direction": None},
+            },
+            anchor=date(2026, 6, 3),
+        )
+        assert result.candidate_dates == [date(2026, 6, 12)]
+
+    def test_populated_relative_period_direction_is_not_overridden_by_date_range(self) -> None:
+        # Existing behaviour: when direction='next' is present, date_range is ignored
+        result = _resolve(
+            {
+                "date_request_type": "weekday_range_over_relative_period",
+                "weekdays": ["friday", "saturday"],
+                "relative_period": {"direction": "next", "unit": "week", "amount": 2},
+                # date_range present but should NOT override the relative_period
+                "date_range": {"start_date": "2026-09-01", "end_date": "2026-09-30"},
+            },
+            anchor=date(2026, 7, 20),  # Monday
+        )
+        # Fri/Sat in next 2 weeks from 2026-07-21: Jul 24, 25, Jul 31, Aug 1
+        assert all(d.weekday() in (4, 5) for d in result.candidate_dates)
+        assert date(2026, 9, 4) not in result.candidate_dates  # Sep date not used
+
+
 # ── Ambiguous numeric date ────────────────────────────────────────────────────
 
 
