@@ -700,6 +700,127 @@ class TestCalendarWeekBoundaries:
         assert end == date(2026, 6, 17)
 
 
+# ── Calendar-month boundaries ─────────────────────────────────────────────────
+
+
+class TestCalendarMonthBoundaries:
+    """_resolve_relative_period snaps to full calendar-month boundaries for
+    direction in (next, this, last) when unit='month'.
+    """
+
+    def test_next_month_from_june_is_july(self) -> None:
+        # anchor = 2026-06-03; "next month" = Jul 1 – Jul 31
+        start, end = EnquiryDateResolutionService._resolve_relative_period(
+            {"direction": "next", "unit": "month", "amount": 1},
+            date(2026, 6, 3),
+        )
+        assert start == date(2026, 7, 1)
+        assert end == date(2026, 7, 31)
+
+    def test_next_month_from_january_is_february(self) -> None:
+        # anchor = 2026-01-15; "next month" = Feb 1 – Feb 28
+        start, end = EnquiryDateResolutionService._resolve_relative_period(
+            {"direction": "next", "unit": "month", "amount": 1},
+            date(2026, 1, 15),
+        )
+        assert start == date(2026, 2, 1)
+        assert end == date(2026, 2, 28)
+
+    def test_next_month_from_december_wraps_to_january(self) -> None:
+        # anchor = 2026-12-10; "next month" = Jan 1 – Jan 31 2027
+        start, end = EnquiryDateResolutionService._resolve_relative_period(
+            {"direction": "next", "unit": "month", "amount": 1},
+            date(2026, 12, 10),
+        )
+        assert start == date(2027, 1, 1)
+        assert end == date(2027, 1, 31)
+
+    def test_next_2_months_from_june_spans_july_and_august(self) -> None:
+        # anchor = 2026-06-03; "next 2 months" = Jul 1 – Aug 31
+        start, end = EnquiryDateResolutionService._resolve_relative_period(
+            {"direction": "next", "unit": "month", "amount": 2},
+            date(2026, 6, 3),
+        )
+        assert start == date(2026, 7, 1)
+        assert end == date(2026, 8, 31)
+
+    def test_this_month_from_june_3_runs_to_june_30(self) -> None:
+        # anchor = 2026-06-03; "this month" = Jun 3 – Jun 30
+        start, end = EnquiryDateResolutionService._resolve_relative_period(
+            {"direction": "this", "unit": "month", "amount": 1},
+            date(2026, 6, 3),
+        )
+        assert start == date(2026, 6, 3)
+        assert end == date(2026, 6, 30)
+
+    def test_last_month_from_june_is_may(self) -> None:
+        # anchor = 2026-06-03; "last month" = May 1 – May 31
+        start, end = EnquiryDateResolutionService._resolve_relative_period(
+            {"direction": "last", "unit": "month", "amount": 1},
+            date(2026, 6, 3),
+        )
+        assert start == date(2026, 5, 1)
+        assert end == date(2026, 5, 31)
+
+    def test_weekend_next_month_resolves_to_july_weekends(self) -> None:
+        # email_05 / email_54 end-to-end: "weekend next month" from anchor Jun 3
+        # LLM extracts weekdays=sat/sun, direction=next, unit=month
+        result = _resolve(
+            {
+                "date_request_type": "weekday_range_over_relative_period",
+                "weekdays": ["saturday", "sunday"],
+                "relative_period": {"direction": "next", "unit": "month", "amount": 1},
+            },
+            anchor=date(2026, 6, 3),
+        )
+        assert result.candidate_dates == [
+            date(2026, 7, 4),
+            date(2026, 7, 5),
+            date(2026, 7, 11),
+            date(2026, 7, 12),
+            date(2026, 7, 18),
+            date(2026, 7, 19),
+            date(2026, 7, 25),
+            date(2026, 7, 26),
+        ]
+
+    def test_next_2_months_window_contains_july_and_august_dates(self) -> None:
+        # Direct unit test: _resolve_relative_period with direction=next, amount=2
+        # gives Jul 1 – Aug 31 (not a rolling 60-day window)
+        start, end = EnquiryDateResolutionService._resolve_relative_period(
+            {"direction": "next", "unit": "month", "amount": 2},
+            date(2026, 6, 3),
+        )
+        assert start == date(2026, 7, 1)
+        assert end == date(2026, 8, 31)
+
+    def test_any_friday_in_august_via_date_range_fallback(self) -> None:
+        # "any Friday in August": LLM typically outputs no relative_period direction
+        # but provides date_range bounds — handled by ENQ-006 date_range fallback.
+        result = _resolve(
+            {
+                "date_request_type": "weekday_range_over_relative_period",
+                "weekdays": ["friday"],
+                "date_range": {"start_date": "2026-08-01", "end_date": "2026-08-31"},
+            },
+            anchor=date(2026, 6, 3),
+        )
+        assert date(2026, 8, 7) in result.candidate_dates
+        assert date(2026, 8, 14) in result.candidate_dates
+        assert date(2026, 8, 21) in result.candidate_dates
+        assert date(2026, 8, 28) in result.candidate_dates
+
+    def test_future_direction_month_unchanged_uses_rolling_window(self) -> None:
+        # direction='future' is not next/this/last → rolling 30-day window
+        start, end = EnquiryDateResolutionService._resolve_relative_period(
+            {"direction": "future", "unit": "month", "amount": 1},
+            date(2026, 6, 3),
+        )
+        # rolling: start = Jun 4, end = Jun 4 + 29 = Jul 3
+        assert start == date(2026, 6, 4)
+        assert end == date(2026, 7, 3)
+
+
 # ── HOTFIX-002 — next Saturday / next Sunday resolution ───────────────────────
 
 

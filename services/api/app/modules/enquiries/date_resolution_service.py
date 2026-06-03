@@ -18,6 +18,7 @@ Candidate date cap: 60 dates
 
 from __future__ import annotations
 
+import calendar
 import logging
 import uuid
 from dataclasses import dataclass, field
@@ -667,6 +668,35 @@ class EnquiryDateResolutionService:
             else:  # last
                 end = monday_of_this_week - timedelta(days=1)
                 start = end - timedelta(weeks=amount) + timedelta(days=1)
+            return start, end
+
+        # For "next/this/last month" snap to calendar-month boundaries so that
+        # "next month" always means the full calendar month, not a rolling 30 days.
+        if unit == "month" and direction in ("next", "this", "last"):
+            def _add_months(yr: int, mo: int, n: int) -> tuple[int, int]:
+                mo += n
+                yr += (mo - 1) // 12
+                mo = (mo - 1) % 12 + 1
+                return yr, mo
+
+            if direction == "next":
+                sy, sm = _add_months(anchor_date.year, anchor_date.month, 1)
+                ey, em = _add_months(sy, sm, amount - 1)
+                start = date(sy, sm, 1)
+                end = date(ey, em, calendar.monthrange(ey, em)[1])
+            elif direction == "this":
+                # Current calendar month from anchor date onward
+                start = anchor_date
+                end = date(
+                    anchor_date.year,
+                    anchor_date.month,
+                    calendar.monthrange(anchor_date.year, anchor_date.month)[1],
+                )
+            else:  # last
+                ey, em = _add_months(anchor_date.year, anchor_date.month, -1)
+                sy, sm = _add_months(ey, em, -(amount - 1))
+                start = date(sy, sm, 1)
+                end = date(ey, em, calendar.monthrange(ey, em)[1])
             return start, end
 
         unit_days = {"day": 1, "week": 7, "month": 30, "year": 365}
