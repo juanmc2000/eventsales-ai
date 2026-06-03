@@ -31,6 +31,7 @@ from app.modules.ai.constants import (
 )
 from app.modules.ai.gateway import AIGateway
 from app.modules.ai.schemas import AIGatewayRequest
+from app.modules.enquiries.date_context_validator import DateContextValidator
 from app.modules.enquiries.occasion_normalisation_service import OccasionNormalisationService
 
 # EnquiryExtraction is added by DATA-015.  Use a lazy import so the service
@@ -93,6 +94,8 @@ class ExtractionResult:
     raw_response: str | None = field(default=None)
     # ENQ-001: canonical occasion derived deterministically from parsed.occasion
     occasion_canonical: str | None = field(default=None)
+    # ENQ-003: date context warnings from post-extraction validation
+    date_context_warnings: list[str] = field(default_factory=list)
 
 
 class EnquiryExtractionService:
@@ -149,6 +152,13 @@ class EnquiryExtractionService:
         _occasion_raw = (gateway_result.parsed_response or {}).get("occasion")
         _occasion_canonical = _occasion_svc.normalise(_occasion_raw)
 
+        # ENQ-003: surface date context warnings on the result
+        _date_warnings: list[str] = []
+        if gateway_result.parsed_response:
+            _date_warnings = DateContextValidator().validate(
+                gateway_result.parsed_response.get("date_request")
+            )
+
         return ExtractionResult(
             extraction_id=extraction.id if extraction is not None else None,
             prompt_run_id=gateway_result.run_id,
@@ -160,6 +170,7 @@ class EnquiryExtractionService:
             rendered_user_prompt=gateway_result.rendered_user_prompt,
             raw_response=gateway_result.raw_response,
             occasion_canonical=_occasion_canonical,
+            date_context_warnings=_date_warnings,
         )
 
     def _persist_extraction(
@@ -175,8 +186,8 @@ class EnquiryExtractionService:
         missing_fields: list[str] = parsed.get("missing_fields", []) if parsed else []
         confidence_json: dict = parsed.get("confidence", {}) if parsed else {}
 
-        # normalized_json: a copy of parsed_response with type-safe guest_count
-        # and canonical occasion added by OccasionNormalisationService (ENQ-001).
+        # normalized_json: a copy of parsed_response with type-safe guest_count,
+        # canonical occasion (ENQ-001), and date context warnings (ENQ-003).
         normalized: dict | None = None
         if parsed:
             normalized = dict(parsed)
@@ -190,6 +201,13 @@ class EnquiryExtractionService:
             normalized["occasion_canonical"] = _occasion_svc.normalise(
                 normalized.get("occasion")
             )
+            # ENQ-003: validate date context and store warnings in normalized_json
+            _date_validator = DateContextValidator()
+            _date_warnings = _date_validator.validate_and_log(
+                parsed.get("date_request"),
+                enquiry_id=request.enquiry_id,
+            )
+            normalized["date_context_warnings"] = _date_warnings
 
         try:
             if EnquiryExtraction is None:  # DATA-015 not yet applied
