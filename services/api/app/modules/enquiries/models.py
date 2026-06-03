@@ -283,9 +283,13 @@ class EnquiryDateRequest(Base):
     )
     # Raw date phrase as stated by the guest
     raw_text: Mapped[str | None] = mapped_column(Text, nullable=True)
-    # Classified date intent type (see DateRequestType in validators.py)
+    # Classified date intent type (see DateRequestType in validators.py) — raw LLM value
     date_request_type: Mapped[str] = mapped_column(
         String(60), nullable=False, default="unknown", index=True
+    )
+    # ENQ-002: simplified 5-category normalised type (exact/range/recurring/ambiguous/unknown)
+    date_request_type_normalized: Mapped[str | None] = mapped_column(
+        String(20), nullable=True, index=True
     )
     # Reference date used during deterministic expansion (defaults to today when absent)
     anchor_date: Mapped[date | None] = mapped_column(Date, nullable=True)

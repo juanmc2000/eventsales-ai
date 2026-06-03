@@ -25,6 +25,8 @@ from datetime import date, timedelta
 
 from sqlalchemy.orm import Session
 
+from app.modules.enquiries.date_intent_normalizer import DateIntentNormalizer
+
 logger = logging.getLogger(__name__)
 
 # Max candidate dates generated for a single date request
@@ -81,6 +83,8 @@ class DateResolutionResult:
     requires_date_clarification: bool
     clarification_question: str | None = field(default=None)
     error_message: str | None = field(default=None)
+    # ENQ-002: simplified normalized type (exact/range/recurring/ambiguous/unknown)
+    date_request_type_normalized: str | None = field(default=None)
 
 
 # ── Service ───────────────────────────────────────────────────────────────────
@@ -116,6 +120,9 @@ class EnquiryDateResolutionService:
         # ── 1. Extract metadata ────────────────────────────────────────────────
         raw_text: str | None = self._null_str(dr.get("raw_text"))
         date_request_type: str = dr.get("date_request_type") or "unknown"
+        # ENQ-002: compute simplified normalized type alongside raw type
+        _normalizer = DateIntentNormalizer()
+        date_request_type_normalized: str = _normalizer.normalise(date_request_type)
         anchor_date: date = request.anchor_date_override or self._parse_date(
             dr.get("anchor_date")
         ) or date.today()
@@ -125,13 +132,19 @@ class EnquiryDateResolutionService:
         confidence: float = self._coerce_float(dr.get("confidence"), default=0.0)
 
         # ── 2. Expand candidate dates ──────────────────────────────────────────
-        candidate_dates, source_type = self._expand(dr, date_request_type, anchor_date)
+        # ENQ-002: resolver dispatches on normalized type for cleaner branching;
+        # within each branch, structure of the dict (explicit_dates, date_range,
+        # weekdays, month) determines the exact expansion strategy.
+        candidate_dates, source_type = self._expand(
+            dr, date_request_type, date_request_type_normalized, anchor_date
+        )
 
         # ── 3. Persist EnquiryDateRequest ──────────────────────────────────────
         date_request_row = self._persist_date_request(
             request=request,
             raw_text=raw_text,
             date_request_type=date_request_type,
+            date_request_type_normalized=date_request_type_normalized,
             anchor_date=anchor_date,
             timezone=timezone,
             extracted_json=dr,
@@ -154,6 +167,7 @@ class EnquiryDateResolutionService:
         return DateResolutionResult(
             date_request_id=date_request_id,
             date_request_type=date_request_type,
+            date_request_type_normalized=date_request_type_normalized,
             candidate_dates=candidate_dates,
             requires_date_clarification=requires_clarification,
             clarification_question=clarification_question,
@@ -165,56 +179,39 @@ class EnquiryDateResolutionService:
         self,
         dr: dict,
         date_request_type: str,
+        date_request_type_normalized: str,
         anchor_date: date,
     ) -> tuple[list[date], str]:
         """Expand the date_request dict into a list of candidate dates.
 
+        ENQ-002: dispatches on the normalized type (exact/range/recurring/
+        ambiguous/unknown).  Within each branch, the structure of the dict
+        (explicit_dates, date_range, weekdays, month) determines the exact
+        expansion strategy, so no information is lost by the simplification.
+
         Returns (candidate_dates, source_type).
         """
         try:
-            if date_request_type == "exact":
+            if date_request_type_normalized == "exact":
                 return self._expand_exact(dr, anchor_date), SOURCE_TYPE_EXPLICIT
 
-            if date_request_type == "date_range":
-                return self._expand_date_range(dr, anchor_date), SOURCE_TYPE_DETERMINISTIC
+            if date_request_type_normalized == "range":
+                return self._expand_range(dr, anchor_date), SOURCE_TYPE_DETERMINISTIC
 
-            if date_request_type == "multiple_choice":
-                return self._expand_multiple_choice(dr), SOURCE_TYPE_EXPLICIT
+            if date_request_type_normalized == "recurring":
+                return self._expand_recurring(dr, anchor_date), SOURCE_TYPE_DETERMINISTIC
 
-            if date_request_type == "month_flexible":
-                return self._expand_month_flexible(dr, anchor_date), SOURCE_TYPE_DETERMINISTIC
-
-            if date_request_type == "weekday_range_over_relative_period":
-                return self._expand_weekday_range(dr, anchor_date), SOURCE_TYPE_DETERMINISTIC
-
-            if date_request_type == "recurring_window":
-                return self._expand_recurring_window(dr, anchor_date), SOURCE_TYPE_DETERMINISTIC
-
-            if date_request_type == "mixed_relative_dates":
-                return self._expand_mixed_relative(dr, anchor_date), SOURCE_TYPE_DETERMINISTIC
-
-            if date_request_type == "ambiguous_numeric_date":
-                # Store possible interpretations but require clarification — no expansion
+            if date_request_type_normalized == "ambiguous":
                 return self._expand_ambiguous(dr), SOURCE_TYPE_EXPLICIT
-
-            if date_request_type == "relative_period":
-                # The LLM occasionally uses this type instead of the canonical
-                # "weekday_range_over_relative_period" or "exact".
-                # When a single weekday is given, resolve to that weekday in the
-                # next/this calendar week.  Multiple weekdays fall back to range.
-                weekdays: list = dr.get("weekdays") or []
-                if len(weekdays) == 1:
-                    resolved = self._resolve_weekday_relative(
-                        weekdays, dr.get("relative_period") or {}, anchor_date
-                    )
-                    return resolved[:1], SOURCE_TYPE_DETERMINISTIC
-                return self._expand_weekday_range(dr, anchor_date), SOURCE_TYPE_DETERMINISTIC
 
             # unknown or unrecognised — no candidate dates
             return [], SOURCE_TYPE_DETERMINISTIC
 
         except Exception as exc:  # noqa: BLE001
-            logger.warning("Date expansion failed for type %r: %s", date_request_type, exc)
+            logger.warning(
+                "Date expansion failed for raw type %r (normalized: %r): %s",
+                date_request_type, date_request_type_normalized, exc,
+            )
             return [], SOURCE_TYPE_DETERMINISTIC
 
     def _expand_exact(self, dr: dict, anchor_date: date) -> list[date]:
@@ -279,6 +276,63 @@ class EnquiryDateResolutionService:
             if current.weekday() == target_weekday:
                 return [current]
             current += timedelta(days=1)
+        return []
+
+    def _expand_range(self, dr: dict, anchor_date: date) -> list[date]:
+        """Expand any 'range' normalized type into candidate dates.
+
+        Uses structural heuristics on the date_request dict to pick the right
+        sub-expansion, so no context is lost when dispatching on normalized type:
+        1. date_range with start/end bounds → date_range expansion
+        2. Multiple explicit dates → multiple_choice expansion
+        3. month present → month_flexible expansion
+        4. weekdays present → weekday_range expansion
+        5. Single explicit date → treat as a single-date multiple_choice
+        """
+        date_range = dr.get("date_range") or {}
+        if date_range.get("start_date") or date_range.get("end_date"):
+            return self._expand_date_range(dr, anchor_date)
+
+        explicit: list = dr.get("explicit_dates") or []
+        if len(explicit) > 1:
+            return self._expand_multiple_choice(dr)
+
+        if dr.get("month"):
+            return self._expand_month_flexible(dr, anchor_date)
+
+        if dr.get("weekdays"):
+            return self._expand_weekday_range(dr, anchor_date)
+
+        if len(explicit) == 1:
+            return self._expand_multiple_choice(dr)
+
+        return []
+
+    def _expand_recurring(self, dr: dict, anchor_date: date) -> list[date]:
+        """Expand any 'recurring' normalized type into candidate dates.
+
+        Uses structural heuristics:
+        1. Has explicit_dates → mixed_relative expansion
+        2. Has weekdays → weekday_range expansion (covers weekday_range and recurring_window)
+        3. Single weekday in relative_period → weekday_relative resolution
+        """
+        explicit: list = dr.get("explicit_dates") or []
+        weekdays: list = dr.get("weekdays") or []
+
+        if explicit:
+            return self._expand_mixed_relative(dr, anchor_date)
+
+        if len(weekdays) == 1:
+            # "next Wednesday" type patterns: resolve to single weekday in next week
+            resolved = self._resolve_weekday_relative(
+                weekdays, dr.get("relative_period") or {}, anchor_date
+            )
+            if resolved:
+                return resolved[:1]
+
+        if weekdays:
+            return self._expand_weekday_range(dr, anchor_date)
+
         return []
 
     def _expand_date_range(self, dr: dict, anchor_date: date) -> list[date]:
@@ -368,6 +422,7 @@ class EnquiryDateResolutionService:
         request: DateResolutionRequest,
         raw_text: str | None,
         date_request_type: str,
+        date_request_type_normalized: str,
         anchor_date: date,
         timezone: str,
         extracted_json: dict,
@@ -389,6 +444,7 @@ class EnquiryDateResolutionService:
                 prompt_run_id=request.prompt_run_id,
                 raw_text=raw_text,
                 date_request_type=date_request_type,
+                date_request_type_normalized=date_request_type_normalized,
                 anchor_date=anchor_date,
                 timezone=timezone,
                 extracted_json=extracted_json,

@@ -41,6 +41,7 @@ def _make_date_request_row(
     row.prompt_run_id = None
     row.raw_text = "sometime in August"
     row.date_request_type = date_request_type
+    row.date_request_type_normalized = None  # ENQ-002: normalized type, None for legacy rows
     row.anchor_date = date(2026, 5, 29)
     row.timezone = "Europe/London"
     row.extracted_json = {}
