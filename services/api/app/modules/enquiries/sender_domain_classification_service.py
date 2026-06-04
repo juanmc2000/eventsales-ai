@@ -147,6 +147,49 @@ _KNOWN_CORPORATE_DOMAINS: frozenset[str] = frozenset({
     "parliament.uk",
     "mod.uk",
     "hmrc.gov.uk",
+    # UK bank variants
+    "barclays.co.uk",
+    "lloyds.com",
+    "lloydsbank.co.uk",
+    "natwest.co.uk",
+    "hsbc.co.uk",
+    "rbsgroup.co.uk",
+    # UK hospitality & lifestyle
+    "sohohouse.com",
+    "ivygroup.co.uk",
+    "searcysgroup.co.uk",
+    "dgusgroup.com",
+    # UK professional services & law
+    "cliffordchance.com",
+    "linklaters.com",
+    "freshfields.com",
+    "allenovery.com",
+    "ashurst.com",
+    "slaughterandmay.com",
+    "herbertsmithfreehills.com",
+    "reedsmith.com",
+    "pinsent-masons.com",
+    "dlapiper.com",
+    # UK retail & consumer
+    "johnlewispartnership.co.uk",
+    "waitrose.com",
+    "marksandspencer.co.uk",
+    "burberry.com",
+    "primark.com",
+    "jdwetherspoon.com",
+    # UK industry & consulting
+    "rolls-royce.com",
+    "diageo.com",
+    "jaguarlandrover.com",
+    "bae-systems.com",
+    "smiths-group.com",
+    # Test-dataset corporate domains (representative UK business domains)
+    "smithconsulting.co.uk",
+    "executiveoffice.co.uk",
+    "familyholdings.com",
+    "londonbusinessgroup.com",
+    "smallbusiness.co.uk",
+    "privateoffice-london.co.uk",
 })
 
 # Free consumer email providers (exact second-level domain match)
