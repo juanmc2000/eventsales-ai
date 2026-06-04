@@ -21,8 +21,8 @@ Deterministic precedence rules (highest to lowest):
   Rule 3 — Corporate domain (known)      → corporate (confidence 0.90)
   Rule 4 — Extraction says corporate     → corporate (confidence 0.75)
   Rule 5 — Consumer domain               → social    (confidence 0.80)
-  Rule 6 — Extraction says social        → social    (confidence 0.65)
-  Rule 7 — Agency keyword domain         → agency    (confidence 0.70)
+  Rule 6 — Agency keyword domain         → agency    (confidence 0.70)
+  Rule 7 — Extraction says social        → social    (confidence 0.65)
   Rule 8 — No deterministic signal       → unknown   (confidence 0.0)
 
 Rules are evaluated in order — first match wins.
@@ -216,23 +216,23 @@ class CustomerTypeResolver:
                 evidence=evidence,
             )
 
-        # Rule 6 — Extraction classified as social
-        if extraction_type == "social":
-            evidence.append("LLM extraction classified audience as social")
-            return CustomerTypeResolution(
-                resolved_type=RESOLVED_SOCIAL,
-                confidence=0.65,
-                resolution_method=METHOD_EXTRACTION_SOCIAL,
-                evidence=evidence,
-            )
-
-        # Rule 7 — Agency keyword domain (lower confidence than exact match)
+        # Rule 6 — Agency keyword domain (higher confidence than LLM social extraction)
         if domain_type == AUDIENCE_AGENCY and domain_reason == REASON_AGENCY_KEYWORD:
             evidence.append(f"sender domain name contains agency keyword (confidence={domain_classification.confidence:.2f})")
             return CustomerTypeResolution(
                 resolved_type=RESOLVED_AGENCY,
                 confidence=0.70,
                 resolution_method=METHOD_AGENCY_KEYWORD_DOMAIN,
+                evidence=evidence,
+            )
+
+        # Rule 7 — Extraction classified as social
+        if extraction_type == "social":
+            evidence.append("LLM extraction classified audience as social")
+            return CustomerTypeResolution(
+                resolved_type=RESOLVED_SOCIAL,
+                confidence=0.65,
+                resolution_method=METHOD_EXTRACTION_SOCIAL,
                 evidence=evidence,
             )
 
