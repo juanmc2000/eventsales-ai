@@ -50,6 +50,7 @@ def _draft_context() -> dict:
         "persona_style": "concise",
         "guest_first_name": "Alice",
         "guest_last_name": "Smith",
+        "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
     }
 
 
