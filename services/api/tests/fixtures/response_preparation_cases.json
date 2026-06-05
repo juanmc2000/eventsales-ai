@@ -1,0 +1,154 @@
+[
+  {
+    "id": "scenario_01",
+    "description": "Complete enquiry with available date — should be ready to confirm availability",
+    "expected": {
+      "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+      "can_generate_draft": true,
+      "response_priority": "NORMAL",
+      "availability_status": "AVAILABLE",
+      "has_missing_fields": false,
+      "date_clarification_required": false
+    }
+  },
+  {
+    "id": "scenario_02",
+    "description": "Complete enquiry with unavailable date — goal unchanged; availability context reflects UNAVAILABLE",
+    "expected": {
+      "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+      "can_generate_draft": true,
+      "response_priority": "NORMAL",
+      "availability_status": "UNAVAILABLE",
+      "has_missing_fields": false,
+      "date_clarification_required": false
+    }
+  },
+  {
+    "id": "scenario_03",
+    "description": "Ambiguous numeric date — system must request date confirmation before availability lookup",
+    "expected": {
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "can_generate_draft": true,
+      "response_priority": "NORMAL",
+      "availability_status": "PENDING_DATE_CONFIRMATION",
+      "date_clarification_required": true
+    }
+  },
+  {
+    "id": "scenario_04",
+    "description": "Missing guest count only — 1 critical field; ask by email",
+    "expected": {
+      "response_goal": "REQUEST_MISSING_INFORMATION",
+      "can_generate_draft": true,
+      "has_missing_fields": true,
+      "should_send_webform": false,
+      "can_ask_by_email": true
+    }
+  },
+  {
+    "id": "scenario_05",
+    "description": "Missing date only — 1 critical field; ask by email",
+    "expected": {
+      "response_goal": "REQUEST_MISSING_INFORMATION",
+      "can_generate_draft": true,
+      "has_missing_fields": true,
+      "should_send_webform": false,
+      "can_ask_by_email": true
+    }
+  },
+  {
+    "id": "scenario_06",
+    "description": "Missing date, guest count and occasion — 3+ critical fields; direct to webform",
+    "expected": {
+      "response_goal": "REQUEST_WEBFORM",
+      "can_generate_draft": true,
+      "has_missing_fields": true,
+      "should_send_webform": true
+    }
+  },
+  {
+    "id": "scenario_07",
+    "description": "Social enquiry — warm, friendly, celebratory tone",
+    "expected": {
+      "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+      "can_generate_draft": true,
+      "customer_type": "social",
+      "tone_guidance": ["warm", "friendly", "celebratory"]
+    }
+  },
+  {
+    "id": "scenario_08",
+    "description": "Corporate enquiry — concise, professional, efficient tone",
+    "expected": {
+      "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+      "can_generate_draft": true,
+      "customer_type": "corporate",
+      "tone_guidance": ["concise", "professional", "efficient"]
+    }
+  },
+  {
+    "id": "scenario_09",
+    "description": "Agency enquiry — detailed, operationally precise, low-friction tone",
+    "expected": {
+      "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+      "can_generate_draft": true,
+      "customer_type": "agency",
+      "tone_guidance": ["detailed", "operationally precise", "low-friction"]
+    }
+  },
+  {
+    "id": "scenario_10",
+    "description": "Unknown customer type — professional tone fallback",
+    "expected": {
+      "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+      "can_generate_draft": true,
+      "customer_type": "unknown",
+      "tone_guidance": ["professional"]
+    }
+  },
+  {
+    "id": "scenario_11",
+    "description": "Webform recommended — missing_information engine triggers webform when 3+ critical fields absent",
+    "expected": {
+      "response_goal": "REQUEST_WEBFORM",
+      "can_generate_draft": true,
+      "should_send_webform": true
+    }
+  },
+  {
+    "id": "scenario_12",
+    "description": "Direct email clarification — 1–2 critical fields; can_ask_by_email=True",
+    "expected": {
+      "response_goal": "REQUEST_MISSING_INFORMATION",
+      "can_generate_draft": true,
+      "should_send_webform": false,
+      "can_ask_by_email": true
+    }
+  },
+  {
+    "id": "scenario_13",
+    "description": "Escalation required — insufficient information but occasion is understood; human review needed",
+    "expected": {
+      "response_goal": "ESCALATE_TO_HUMAN",
+      "can_generate_draft": false
+    }
+  },
+  {
+    "id": "scenario_14",
+    "description": "Urgent enquiry — event is tomorrow; URGENT priority",
+    "expected": {
+      "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+      "can_generate_draft": true,
+      "response_priority": "URGENT"
+    }
+  },
+  {
+    "id": "scenario_15",
+    "description": "Low-priority future enquiry — event is >90 days away; LOW priority",
+    "expected": {
+      "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+      "can_generate_draft": true,
+      "response_priority": "LOW"
+    }
+  }
+]
