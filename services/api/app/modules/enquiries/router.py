@@ -6,8 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.modules.enquiries.intake_service import EnquiryIntakeService, FreeformIntakeService
-from app.modules.enquiries.repository import EnquiryRepository
-from app.modules.enquiries.repository import DateRequestRepository
+from app.modules.enquiries.repository import DateRequestRepository, EnquiryRepository, ResponsePlanRepository
 from app.modules.enquiries.schemas import (
     DraftResponseOut,
     EnquiryCandidateDateOut,
@@ -24,6 +23,7 @@ from app.modules.enquiries.schemas import (
     FreeformIntakeOut,
     FreeformIntakeRequest,
     ReadinessEvaluationOut,
+    ResponsePlanOut,
     WebformIntakeRequest,
 )
 from app.modules.enquiries.service import EnquiryService
@@ -404,3 +404,47 @@ def list_candidate_dates(
     date_repo = DateRequestRepository(db)
     candidates = date_repo.list_candidate_dates(enquiry_id)
     return [EnquiryCandidateDateOut.model_validate(c) for c in candidates]
+
+
+@router.get("/{enquiry_id}/response-preparation/latest", response_model=ResponsePlanOut)
+def get_latest_response_preparation(
+    enquiry_id: uuid.UUID,
+    db: Session = Depends(get_db),
+) -> ResponsePlanOut:
+    """Return the latest response preparation plan for an enquiry (ORCH-007).
+
+    Returns the most recently created EnquiryResponsePlan row.
+    Returns 404 when the enquiry does not exist.
+    Returns a safe empty-state plan when no preparation has been run yet.
+    """
+    repo = EnquiryRepository(db)
+    enquiry = repo.get_by_id(enquiry_id)
+    if not enquiry:
+        raise HTTPException(status_code=404, detail="Enquiry not found")
+
+    plan_repo = ResponsePlanRepository(db)
+    plan = plan_repo.get_latest(enquiry_id)
+    if plan is None:
+        # Return a safe empty state — no plan has been run yet
+        from datetime import datetime, timezone
+        import uuid as _uuid
+        return ResponsePlanOut(
+            id=_uuid.UUID(int=0),
+            enquiry_id=enquiry_id,
+            snapshot_id=None,
+            response_goal="NOT_RUN",
+            response_priority="NORMAL",
+            can_generate_draft=False,
+            goal_reason="No response preparation has been run for this enquiry.",
+            blocking_fields=[],
+            known_facts=None,
+            missing_information=None,
+            clarification_questions=[],
+            date_context=None,
+            availability_context=None,
+            customer_type_context=None,
+            persona_context=None,
+            draft_instructions=None,
+            created_at=datetime.now(tz=timezone.utc),
+        )
+    return ResponsePlanOut.model_validate(plan)
