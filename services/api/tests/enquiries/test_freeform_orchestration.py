@@ -398,3 +398,257 @@ class TestGatewayPromptKeySeparation:
             assert TRIGGER_TYPE_EXTRACTION == "extraction"
         except ImportError:
             pytest.skip("TRIGGER_TYPE_EXTRACTION not yet defined on this branch")
+
+
+# ── ORCH-008: response preparation wired into freeform intake ─────────────────
+
+
+from datetime import date  # noqa: E402
+
+from app.modules.enquiries.date_resolution_status import (  # noqa: E402
+    STATUS_AMBIGUOUS,
+    STATUS_RESOLVED,
+    STATUS_RESOLVED_WITH_CONFIRMATION,
+    STATUS_UNKNOWN,
+)
+from app.modules.enquiries.intake_service import _build_date_resolution_status  # noqa: E402
+from app.modules.enquiries.response_goal_engine import (  # noqa: E402
+    GOAL_READY_TO_CONFIRM_AVAILABILITY,
+)
+from app.modules.enquiries.schemas import FreeformIntakeOut  # noqa: E402
+
+
+class TestBuildDateResolutionStatus:
+    """Tests for _build_date_resolution_status helper (ORCH-008)."""
+
+    def test_none_stored_dr_returns_unknown(self):
+        status = _build_date_resolution_status(None, {})
+        assert status.status == STATUS_UNKNOWN
+
+    def test_none_stored_dr_uses_raw_text_from_dict(self):
+        status = _build_date_resolution_status(None, {"raw_text": "next Friday"})
+        assert status.original_text == "next Friday"
+
+    def test_resolved_ambiguity_type_maps_to_resolved(self):
+        dr = MagicMock()
+        dr.raw_text = "06/07"
+        dr.ambiguity_type = "resolved"
+        dr.clarification_required = False
+        dr.clarification_question = None
+        dr.clarification_reason = None
+        dr.assumed_date = date(2026, 7, 6)
+        dr.alternative_date = None
+        dr.requires_date_clarification = False
+        status = _build_date_resolution_status(dr, {})
+        assert status.status == STATUS_RESOLVED
+        assert status.resolved_date == "2026-07-06"
+
+    def test_resolved_with_confirmation_ambiguity_type(self):
+        dr = MagicMock()
+        dr.raw_text = "06/07"
+        dr.ambiguity_type = "resolved_with_confirmation"
+        dr.clarification_required = True
+        dr.clarification_question = "Did you mean 6 July or 7 June?"
+        dr.clarification_reason = "dd_mm_vs_mm_dd"
+        dr.assumed_date = date(2026, 7, 6)
+        dr.alternative_date = date(2026, 6, 7)
+        dr.requires_date_clarification = True
+        status = _build_date_resolution_status(dr, {})
+        assert status.status == STATUS_RESOLVED_WITH_CONFIRMATION
+        assert status.alternative_date == "2026-06-07"
+
+    def test_unresolved_ambiguity_maps_to_ambiguous(self):
+        dr = MagicMock()
+        dr.raw_text = "01/02"
+        dr.ambiguity_type = "unresolved_ambiguity"
+        dr.clarification_required = True
+        dr.clarification_question = "Could you clarify the date?"
+        dr.clarification_reason = "unresolvable"
+        dr.assumed_date = None
+        dr.alternative_date = None
+        dr.requires_date_clarification = True
+        status = _build_date_resolution_status(dr, {})
+        assert status.status == STATUS_AMBIGUOUS
+
+    def test_assumed_date_without_ambiguity_type_is_resolved(self):
+        dr = MagicMock()
+        dr.raw_text = "next Saturday"
+        dr.ambiguity_type = None
+        dr.clarification_required = False
+        dr.clarification_question = None
+        dr.clarification_reason = None
+        dr.assumed_date = date(2026, 6, 13)
+        dr.alternative_date = None
+        dr.requires_date_clarification = False
+        status = _build_date_resolution_status(dr, {})
+        assert status.status == STATUS_RESOLVED
+        assert status.resolved_date == "2026-06-13"
+
+    def test_no_assumed_date_no_ambiguity_is_unknown(self):
+        dr = MagicMock()
+        dr.raw_text = None
+        dr.ambiguity_type = None
+        dr.clarification_required = False
+        dr.clarification_question = None
+        dr.clarification_reason = None
+        dr.assumed_date = None
+        dr.alternative_date = None
+        dr.requires_date_clarification = False
+        status = _build_date_resolution_status(dr, {})
+        assert status.status == STATUS_UNKNOWN
+
+
+class TestFreeformIntakeOutResponsePreparation:
+    """ORCH-008: FreeformIntakeOut must carry response_preparation_summary."""
+
+    def test_schema_accepts_response_preparation_summary(self):
+        out = FreeformIntakeOut(
+            enquiry_id=uuid.uuid4(),
+            reference="ENQ-2026-0001",
+            status="new",
+            restaurant_id=uuid.uuid4(),
+            created_at=datetime.now(timezone.utc),
+            response_preparation_summary={
+                "response_goal": GOAL_READY_TO_CONFIRM_AVAILABILITY,
+                "response_priority": "NORMAL",
+                "can_generate_draft": True,
+                "clarification_questions": [],
+            },
+        )
+        assert out.response_preparation_summary["response_goal"] == GOAL_READY_TO_CONFIRM_AVAILABILITY
+
+    def test_response_preparation_summary_defaults_to_none(self):
+        out = FreeformIntakeOut(
+            enquiry_id=uuid.uuid4(),
+            reference="ENQ-2026-0002",
+            status="new",
+            restaurant_id=uuid.uuid4(),
+            created_at=datetime.now(timezone.utc),
+        )
+        assert out.response_preparation_summary is None
+
+
+class TestRunResponsePreparation:
+    """ORCH-008: _run_response_preparation helper tests."""
+
+    def _mock_extraction_result(self, parsed: dict | None = None) -> MagicMock:
+        r = MagicMock()
+        r.is_fallback = False
+        r.parsed = parsed or {
+            "guest_count": 40,
+            "occasion": "birthday",
+            "meal_period": "dinner",
+            "audience_type_from_content": "corporate",
+            "audience_confidence": 0.85,
+            "audience_evidence": "company email domain",
+            "date_request": {"raw_text": "next Saturday", "date_request_type": "exact"},
+        }
+        return r
+
+    def _mock_processing_result(self) -> MagicMock:
+        r = MagicMock()
+        r.snapshot_id = uuid.uuid4()
+        r.availability_result_json = {"status": "available", "date": "2026-06-13"}
+        return r
+
+    def test_returns_summary_dict(self):
+        from app.modules.enquiries.intake_service import _run_response_preparation
+
+        db = MagicMock()
+        with (
+            patch("app.modules.enquiries.intake_service.DateRequestRepository") as mock_dr,
+            patch("app.modules.enquiries.intake_service.ResponsePlanRepository"),
+        ):
+            mock_dr.return_value.get_latest_date_request.return_value = None
+            mock_dr.return_value.list_candidate_dates.return_value = []
+
+            result = _run_response_preparation(
+                db=db,
+                enquiry_id=uuid.uuid4(),
+                extraction_result=self._mock_extraction_result(),
+                processing_result=self._mock_processing_result(),
+                persona=None,
+            )
+
+        assert "response_goal" in result
+        assert "response_priority" in result
+        assert "can_generate_draft" in result
+        assert "clarification_questions" in result
+
+    def test_persists_plan_to_repository(self):
+        from app.modules.enquiries.intake_service import _run_response_preparation
+
+        db = MagicMock()
+        with (
+            patch("app.modules.enquiries.intake_service.DateRequestRepository") as mock_dr,
+            patch("app.modules.enquiries.intake_service.ResponsePlanRepository") as mock_plan,
+        ):
+            mock_dr.return_value.get_latest_date_request.return_value = None
+            mock_dr.return_value.list_candidate_dates.return_value = []
+
+            _run_response_preparation(
+                db=db,
+                enquiry_id=uuid.uuid4(),
+                extraction_result=self._mock_extraction_result(),
+                processing_result=self._mock_processing_result(),
+                persona=None,
+            )
+
+        mock_plan.return_value.create.assert_called_once()
+
+    def test_commits_after_persisting(self):
+        from app.modules.enquiries.intake_service import _run_response_preparation
+
+        db = MagicMock()
+        with (
+            patch("app.modules.enquiries.intake_service.DateRequestRepository") as mock_dr,
+            patch("app.modules.enquiries.intake_service.ResponsePlanRepository"),
+        ):
+            mock_dr.return_value.get_latest_date_request.return_value = None
+            mock_dr.return_value.list_candidate_dates.return_value = []
+
+            _run_response_preparation(
+                db=db,
+                enquiry_id=uuid.uuid4(),
+                extraction_result=self._mock_extraction_result(),
+                processing_result=self._mock_processing_result(),
+                persona=None,
+            )
+
+        db.commit.assert_called()
+
+    def test_ready_goal_with_resolved_date_and_available_candidate(self):
+        from app.modules.enquiries.intake_service import _run_response_preparation
+
+        db = MagicMock()
+        dr = MagicMock()
+        dr.raw_text = "next Saturday"
+        dr.ambiguity_type = "resolved"
+        dr.clarification_required = False
+        dr.clarification_question = None
+        dr.clarification_reason = None
+        dr.assumed_date = date(2026, 6, 13)
+        dr.alternative_date = None
+        dr.requires_date_clarification = False
+
+        cd = MagicMock()
+        cd.candidate_date = date(2026, 6, 13)
+        cd.availability_status = "available"
+
+        with (
+            patch("app.modules.enquiries.intake_service.DateRequestRepository") as mock_dr,
+            patch("app.modules.enquiries.intake_service.ResponsePlanRepository"),
+        ):
+            mock_dr.return_value.get_latest_date_request.return_value = dr
+            mock_dr.return_value.list_candidate_dates.return_value = [cd]
+
+            result = _run_response_preparation(
+                db=db,
+                enquiry_id=uuid.uuid4(),
+                extraction_result=self._mock_extraction_result(),
+                processing_result=self._mock_processing_result(),
+                persona=None,
+            )
+
+        assert result["response_goal"] == GOAL_READY_TO_CONFIRM_AVAILABILITY
+        assert result["can_generate_draft"] is True

@@ -191,6 +191,8 @@ class FreeformIntakeOut(BaseModel):
     draft_is_fallback: bool | None = None
     # AI transparency: context from the draft LLM call (model, persona, prompts)
     draft_ai_context: AIContextOut | None = None
+    # ORCH-008: summary of the deterministic response preparation plan
+    response_preparation_summary: dict | None = None
 
     model_config = {"from_attributes": False}
 
