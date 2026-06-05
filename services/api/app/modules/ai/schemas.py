@@ -64,6 +64,10 @@ class DraftContext:
     missing_questions: list[str] | None = field(default=None)
     # Recommended action from processing service
     recommended_action: str | None = field(default=None)
+    # RESP-003: response goal and clarification context from response preparation
+    response_goal: str | None = field(default=None)       # e.g. "READY_TO_CONFIRM_AVAILABILITY"
+    audience_type: str | None = field(default=None)       # e.g. "social" | "corporate" | "agency"
+    clarification_questions: list[str] | None = field(default=None)  # ordered questions for the guest
 
 
 @dataclass

@@ -130,7 +130,7 @@ _DRAFT_RESPONSE_V1 = PromptDefinition(
 _DRAFT_RESPONSE_V2 = PromptDefinition(
     key=PROMPT_KEY_DRAFT_RESPONSE,
     version=2,
-    status=VERSION_STATUS_ACTIVE,
+    status=VERSION_STATUS_ARCHIVED,
     category=CATEGORY_DRAFT_GENERATION,
     name="Draft Response Generator",
     goal="Generate a persona-based draft email response enriched with availability and pricing context.",
@@ -184,7 +184,85 @@ _DRAFT_RESPONSE_V2 = PromptDefinition(
     change_notes=(
         "Sprint 7 — enriched context from extraction + processing snapshot. "
         "Adds availability_line, confirmed spend line, missing questions line. "
-        "Explicit prohibitions on inventing availability, pricing, or room details."
+        "Explicit prohibitions on inventing availability, pricing, or room details. "
+        "Archived in RESP-003 — replaced by V3 (response goal + audience type)."
+    ),
+)
+
+_DRAFT_RESPONSE_V3 = PromptDefinition(
+    key=PROMPT_KEY_DRAFT_RESPONSE,
+    version=3,
+    status=VERSION_STATUS_ACTIVE,
+    category=CATEGORY_DRAFT_GENERATION,
+    name="Draft Response Generator",
+    goal=(
+        "Generate a persona-based draft email response guided by the deterministic "
+        "response goal from the response preparation layer."
+    ),
+    system_template=(
+        "{persona_system_prompt}\n\n"
+        "You are {persona_name}, a hospitality sales professional at {restaurant_name}. "
+        "Your tone is {persona_tone} and your style is {persona_style}.\n\n"
+        "RESPONSE GOAL: {response_goal}\n\n"
+        "Goal instructions:\n"
+        "- READY_TO_CONFIRM_AVAILABILITY: Confirm availability for the requested date "
+        "and provide relevant venue details. Be warm and commercially-minded.\n"
+        "- REQUEST_MISSING_INFORMATION: Politely ask ONLY the clarification questions "
+        "provided. Do not ask for information that is already known.\n"
+        "- REQUEST_DATE_CONFIRMATION: The date is ambiguous. Ask the guest to confirm "
+        "the exact date using ONLY the clarification question provided.\n"
+        "- REQUEST_WEBFORM: Multiple key details are missing. Direct the guest to the "
+        "booking enquiry form to provide structured details.\n"
+        "- ESCALATE_TO_HUMAN: Acknowledge the enquiry warmly and let the guest know "
+        "that a member of the team will be in touch shortly.\n\n"
+        "CRITICAL RULES — follow these exactly:\n"
+        "- Use ONLY the facts provided. Do NOT invent availability, pricing, or room details.\n"
+        "- Ask ONLY the clarification questions listed — do not add new questions.\n"
+        "- Do NOT reveal internal system logic, confidence scores, or processing steps.\n"
+        "- Write natural, commercially-minded prose. No chatbot language.\n"
+        "- Keep the response under 200 words."
+    ),
+    user_template=(
+        "Please draft a response to this event enquiry.\n"
+        "Guest: {guest_first_name} {guest_last_name}\n"
+        "{audience_type_line}"
+        "{event_type_line}"
+        "{event_date_line}"
+        "{party_size_line}"
+        "{availability_line}"
+        "{spend_line}"
+        "{guest_message_line}"
+        "{room_lines}"
+        "{clarification_questions_line}"
+    ),
+    required_variables=frozenset({
+        "persona_system_prompt",
+        "persona_name",
+        "restaurant_name",
+        "persona_tone",
+        "persona_style",
+        "response_goal",
+        "guest_first_name",
+        "guest_last_name",
+    }),
+    optional_variables=frozenset({
+        "audience_type_line",
+        "event_type_line",
+        "event_date_line",
+        "party_size_line",
+        "availability_line",
+        "spend_line",
+        "guest_message_line",
+        "room_lines",
+        "clarification_questions_line",
+    }),
+    output_schema_name=SCHEMA_DRAFT_EMAIL_OUTPUT,
+    output_schema_version="3.0",
+    change_notes=(
+        "RESP-003 — response goal-driven drafting. "
+        "Adds response_goal to system prompt with per-goal instructions. "
+        "Adds audience_type_line and clarification_questions_line to user template. "
+        "LLM receives the deterministic goal and acts on it rather than inferring intent."
     ),
 )
 
@@ -798,6 +876,7 @@ _AVAILABILITY_ALTERNATIVE_V1 = PromptDefinition(
 _ALL_DEFINITIONS: list[PromptDefinition] = [
     _DRAFT_RESPONSE_V1,
     _DRAFT_RESPONSE_V2,
+    _DRAFT_RESPONSE_V3,
     _ENQUIRY_EXTRACTION_V1,
     _ENQUIRY_EXTRACTION_V2,
     _ENQUIRY_EXTRACTION_V3,

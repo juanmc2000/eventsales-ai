@@ -153,6 +153,9 @@ class DraftGenerationService:
         if snapshot is not None:
             context = _enrich_context_from_snapshot(context, snapshot)
 
+        # ── RESP-003: Load response preparation plan for goal-driven drafting ─
+        context = _enrich_context_from_response_plan(self._db, enquiry_id, context)
+
         # Build input_payload for the draft_response prompt template
         input_payload = _build_draft_input_payload(context)
 
@@ -259,6 +262,12 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
         # Sprint 7 enrichment variables (present only when processing snapshot is available)
         "availability_line": _build_availability_line(context),
         "missing_questions_line": _build_missing_questions_line(context),
+        # RESP-003: response goal and audience context
+        "response_goal": context.response_goal or "READY_TO_CONFIRM_AVAILABILITY",
+        "audience_type_line": (
+            f"Audience type: {context.audience_type}\n" if context.audience_type else ""
+        ),
+        "clarification_questions_line": _build_clarification_questions_line(context),
     }
     return payload
 
@@ -291,6 +300,56 @@ def _build_missing_questions_line(context: DraftContext) -> str:
         return ""
     questions = ", ".join(context.missing_questions)
     return f"Please ask the guest for the following missing information: {questions}.\n"
+
+
+def _build_clarification_questions_line(context: DraftContext) -> str:
+    """Format RESP-003 clarification questions as an ordered prompt instruction."""
+    questions = context.clarification_questions
+    if not questions:
+        return ""
+    if len(questions) == 1:
+        return f"Clarification question to ask: {questions[0]}\n"
+    formatted = "\n".join(f"  {i + 1}. {q}" for i, q in enumerate(questions))
+    return f"Clarification questions to ask (in order):\n{formatted}\n"
+
+
+def _enrich_context_from_response_plan(
+    db: Session, enquiry_id: uuid.UUID, context: DraftContext
+) -> DraftContext:
+    """Enrich DraftContext with response_goal and clarification_questions from the latest plan.
+
+    Returns the original context unchanged when no plan exists or on any error.
+    """
+    try:
+        from dataclasses import replace  # noqa: PLC0415
+        from app.modules.enquiries.repository import ResponsePlanRepository  # noqa: PLC0415
+
+        plan_repo = ResponsePlanRepository(db)
+        plan = plan_repo.get_latest(enquiry_id)
+        if plan is None:
+            return context
+
+        response_goal: str | None = getattr(plan, "response_goal", None)
+        clarification_questions: list[str] | None = None
+        raw_questions = getattr(plan, "clarification_questions", None)
+        if isinstance(raw_questions, list):
+            clarification_questions = [str(q) for q in raw_questions if q]
+
+        # Audience type from customer_type_context JSON column
+        audience_type: str | None = context.audience_type
+        ctype_ctx = getattr(plan, "customer_type_context", None)
+        if isinstance(ctype_ctx, dict):
+            audience_type = ctype_ctx.get("final_customer_type") or audience_type
+
+        return replace(
+            context,
+            response_goal=response_goal or context.response_goal,
+            clarification_questions=clarification_questions or context.clarification_questions,
+            audience_type=audience_type,
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Could not enrich context from response plan for %s: %s", enquiry_id, exc)
+        return context
 
 
 def _load_latest_processing_snapshot(db: Session, enquiry_id: uuid.UUID):

@@ -91,6 +91,7 @@ class TestPromptRenderer:
             "persona_style": "concise",
             "guest_first_name": "Alice",
             "guest_last_name": "Smith",
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
         }
 
     def test_render_system_draft_response(self) -> None:

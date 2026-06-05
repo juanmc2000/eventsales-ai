@@ -192,6 +192,7 @@ class TestAIGatewayLiveProvider:
                 "guest_first_name": "Alice",
                 "guest_last_name": "Smith",
                 "persona_system_prompt": "You are a professional.",
+                "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
             },
         )
         result = gateway.run(request)
@@ -222,6 +223,7 @@ class TestAIGatewayLiveProvider:
                 "guest_first_name": "Alice",
                 "guest_last_name": "Smith",
                 "persona_system_prompt": "You are a professional.",
+                "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
             },
         )
         result = gateway.run(request)
@@ -250,6 +252,7 @@ class TestAIGatewayLiveProvider:
                 "guest_first_name": "Alice",
                 "guest_last_name": "Smith",
                 "persona_system_prompt": "You are a professional.",
+                "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
             },
         )
         result = gateway.run(request)
@@ -280,6 +283,7 @@ class TestAIGatewayLiveProvider:
                 "guest_first_name": "Alice",
                 "guest_last_name": "Smith",
                 "persona_system_prompt": "You are a professional.",
+                "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
             },
         )
         result = gateway.run(request)
@@ -301,6 +305,7 @@ class TestAIGatewayParameterPersistence:
         "guest_first_name": "Alice",
         "guest_last_name": "Smith",
         "persona_system_prompt": "You are a professional.",
+        "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
     }
 
     def test_run_record_includes_temperature_from_definition(self) -> None:

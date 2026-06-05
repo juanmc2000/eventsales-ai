@@ -199,7 +199,7 @@ class TestDraftContextNewFields:
 
         registry = PromptRegistry()
         defn = registry.get(PROMPT_KEY_DRAFT_RESPONSE)
-        assert defn.version == 2
+        assert defn.version >= 2
 
     def test_v2_prompt_prohibits_invention(self) -> None:
         from app.modules.ai.prompt_registry import PromptRegistry
@@ -223,4 +223,8 @@ class TestDraftContextNewFields:
 
         registry = PromptRegistry()
         defn = registry.get(PROMPT_KEY_DRAFT_RESPONSE)
-        assert "missing_questions_line" in defn.optional_variables
+        # V3+ uses clarification_questions_line; V2 used missing_questions_line
+        assert (
+            "missing_questions_line" in defn.optional_variables
+            or "clarification_questions_line" in defn.optional_variables
+        )
