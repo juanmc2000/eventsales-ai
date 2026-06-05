@@ -8,6 +8,7 @@ from app.modules.enquiries.availability_decision_service import (
     AvailabilityDecision,
     STATUS_AVAILABLE,
     STATUS_NOT_CHECKED,
+    STATUS_UNAVAILABLE,
     STATUS_PENDING_DATE_CONFIRMATION,
     STATUS_UNAVAILABLE,
 )
@@ -496,3 +497,67 @@ def test_no_missing_info_result_safe_defaults():
     )
     assert plan.missing_information["missing_fields"] == []
     assert plan.missing_information["should_send_webform"] is False
+
+
+# ── Availability contract in availability_context (RESP-004) ──────────────────
+
+
+def test_availability_contract_not_checked_when_no_decision():
+    """When no AvailabilityDecision is provided, contract is NOT_CHECKED."""
+    plan = ResponsePreparationBuilder.build(
+        readiness_evaluation=_ready_readiness(),
+        availability_decision=None,
+    )
+    assert plan.availability_context.get("availability_contract") == "NOT_CHECKED"
+
+
+def test_availability_contract_confirmed_available():
+    plan = ResponsePreparationBuilder.build(
+        readiness_evaluation=_ready_readiness(),
+        availability_decision=_available_decision(),
+    )
+    assert plan.availability_context.get("availability_contract") == "CONFIRMED_AVAILABLE"
+
+
+def test_availability_contract_confirmed_unavailable():
+    unavail = AvailabilityDecision(
+        availability_status=STATUS_UNAVAILABLE,
+        selected_candidate_date=None,
+        available_options=[],
+        unavailable_options=["2026-06-13"],
+        availability_reason="Fully booked.",
+    )
+    plan = ResponsePreparationBuilder.build(
+        readiness_evaluation=_ready_readiness(),
+        availability_decision=unavail,
+    )
+    assert plan.availability_context.get("availability_contract") == "CONFIRMED_UNAVAILABLE"
+
+
+def test_availability_contract_pending_date_confirmation():
+    from app.modules.enquiries.availability_decision_service import STATUS_PENDING_DATE_CONFIRMATION
+    pending = AvailabilityDecision(
+        availability_status=STATUS_PENDING_DATE_CONFIRMATION,
+        selected_candidate_date=None,
+        available_options=[],
+        unavailable_options=[],
+        availability_reason="Date is ambiguous.",
+    )
+    plan = ResponsePreparationBuilder.build(
+        readiness_evaluation=_ready_readiness(),
+        availability_decision=pending,
+    )
+    assert plan.availability_context.get("availability_contract") == "PENDING_DATE_CONFIRMATION"
+
+
+def test_availability_contract_key_always_present():
+    """availability_contract must be present regardless of input."""
+    for decision in (None, _available_decision()):
+        plan = ResponsePreparationBuilder.build(
+            readiness_evaluation=_ready_readiness(),
+            availability_decision=decision,
+        )
+        assert "availability_contract" in plan.availability_context, (
+            f"availability_contract key missing when decision={decision!r}"
+        )
+

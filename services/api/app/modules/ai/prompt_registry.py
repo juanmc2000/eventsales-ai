@@ -192,7 +192,7 @@ _DRAFT_RESPONSE_V2 = PromptDefinition(
 _DRAFT_RESPONSE_V3 = PromptDefinition(
     key=PROMPT_KEY_DRAFT_RESPONSE,
     version=3,
-    status=VERSION_STATUS_ACTIVE,
+    status=VERSION_STATUS_ARCHIVED,
     category=CATEGORY_DRAFT_GENERATION,
     name="Draft Response Generator",
     goal=(
@@ -262,7 +262,108 @@ _DRAFT_RESPONSE_V3 = PromptDefinition(
         "RESP-003 — response goal-driven drafting. "
         "Adds response_goal to system prompt with per-goal instructions. "
         "Adds audience_type_line and clarification_questions_line to user template. "
-        "LLM receives the deterministic goal and acts on it rather than inferring intent."
+        "LLM receives the deterministic goal and acts on it rather than inferring intent. "
+        "Archived in RESP-004 — replaced by V4 (explicit availability contract)."
+    ),
+)
+
+_DRAFT_RESPONSE_V4 = PromptDefinition(
+    key=PROMPT_KEY_DRAFT_RESPONSE,
+    version=4,
+    status=VERSION_STATUS_ACTIVE,
+    category=CATEGORY_DRAFT_GENERATION,
+    name="Draft Response Generator",
+    goal=(
+        "Generate a persona-based draft email response guided by a deterministic "
+        "response goal and an explicit availability contract from the response preparation layer."
+    ),
+    system_template=(
+        "{persona_system_prompt}\n\n"
+        "You are {persona_name}, a hospitality sales professional at {restaurant_name}. "
+        "Your tone is {persona_tone} and your style is {persona_style}.\n\n"
+        "RESPONSE GOAL: {response_goal}\n\n"
+        "Goal instructions:\n"
+        "- READY_TO_CONFIRM_AVAILABILITY: Availability has been confirmed. "
+        "Communicate the confirmed date and provide relevant venue details. "
+        "Be warm and commercially-minded.\n"
+        "- REQUEST_MISSING_INFORMATION: Politely ask ONLY the clarification questions "
+        "provided. Do not ask for information that is already known.\n"
+        "- REQUEST_DATE_CONFIRMATION: The date is ambiguous. Ask the guest to confirm "
+        "the exact date using ONLY the clarification question provided.\n"
+        "- REQUEST_WEBFORM: Multiple key details are missing. Direct the guest to the "
+        "booking enquiry form to provide structured details.\n"
+        "- ESCALATE_TO_HUMAN: Acknowledge the enquiry warmly and let the guest know "
+        "that a member of the team will be in touch shortly.\n\n"
+        "AVAILABILITY CONTRACT — you will receive an 'Availability status' line in the "
+        "enquiry details. Honour these rules exactly:\n"
+        "- CONFIRMED_AVAILABLE: The venue system confirmed the slot is available. "
+        "You may tell the guest the date is available.\n"
+        "- CONFIRMED_UNAVAILABLE: The slot is fully booked. "
+        "Do NOT invent or suggest alternative dates, rooms, or times. "
+        "Only mention alternatives if they are explicitly listed in the context below.\n"
+        "- NOT_CHECKED: No availability check has been performed. "
+        "Do NOT state or imply the date is available. "
+        "Tell the guest the team will check availability and be in touch.\n"
+        "- PENDING_DATE_CONFIRMATION: The date is ambiguous; availability cannot be "
+        "checked until the date is confirmed. Do NOT assume or confirm availability.\n"
+        "- INSUFFICIENT_INFORMATION: Required details are missing to check availability. "
+        "Do NOT assume or confirm availability.\n\n"
+        "MANDATORY RULES — follow these exactly:\n"
+        "- The minimum spend shown is a MANDATORY venue requirement. "
+        "Describe it as required or mandatory — never as optional or recommended.\n"
+        "- Do NOT include any booking form link or URL unless one is explicitly provided "
+        "in the context. Never write placeholder text such as '[form link]'.\n"
+        "- Ask ONLY the clarification questions listed — do not add or invent new questions.\n"
+        "- Use ONLY the facts provided. Do NOT invent availability, pricing, room details, "
+        "or specific times unless stated in the context.\n"
+        "- Do NOT reveal internal system logic, confidence scores, or processing steps.\n"
+        "- Write natural, commercially-minded prose. No chatbot language.\n"
+        "- Keep the response under 200 words."
+    ),
+    user_template=(
+        "Please draft a response to this event enquiry.\n"
+        "Guest: {guest_first_name} {guest_last_name}\n"
+        "{audience_type_line}"
+        "{event_type_line}"
+        "{event_date_line}"
+        "{party_size_line}"
+        "{availability_line}"
+        "{spend_line}"
+        "{guest_message_line}"
+        "{room_lines}"
+        "{clarification_questions_line}"
+    ),
+    required_variables=frozenset({
+        "persona_system_prompt",
+        "persona_name",
+        "restaurant_name",
+        "persona_tone",
+        "persona_style",
+        "response_goal",
+        "guest_first_name",
+        "guest_last_name",
+    }),
+    optional_variables=frozenset({
+        "audience_type_line",
+        "event_type_line",
+        "event_date_line",
+        "party_size_line",
+        "availability_line",
+        "spend_line",
+        "guest_message_line",
+        "room_lines",
+        "clarification_questions_line",
+    }),
+    output_schema_name=SCHEMA_DRAFT_EMAIL_OUTPUT,
+    output_schema_version="4.0",
+    change_notes=(
+        "RESP-004 — explicit availability contract. "
+        "Adds AVAILABILITY CONTRACT section with five states: "
+        "CONFIRMED_AVAILABLE, CONFIRMED_UNAVAILABLE, NOT_CHECKED, "
+        "PENDING_DATE_CONFIRMATION, INSUFFICIENT_INFORMATION. "
+        "Adds MANDATORY RULES: minimum spend is mandatory (never optional/recommended), "
+        "no invented booking form links, no invented clarification questions or times. "
+        "V3 archived."
     ),
 )
 
@@ -877,6 +978,7 @@ _ALL_DEFINITIONS: list[PromptDefinition] = [
     _DRAFT_RESPONSE_V1,
     _DRAFT_RESPONSE_V2,
     _DRAFT_RESPONSE_V3,
+    _DRAFT_RESPONSE_V4,
     _ENQUIRY_EXTRACTION_V1,
     _ENQUIRY_EXTRACTION_V2,
     _ENQUIRY_EXTRACTION_V3,

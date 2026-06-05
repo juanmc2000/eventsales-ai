@@ -130,13 +130,17 @@ class TestBuildAvailabilityLine:
         line = _build_availability_line(ctx)
         assert "not available" in line.lower()
 
-    def test_unknown_status_returns_empty(self) -> None:
+    def test_unknown_status_produces_not_checked_contract(self) -> None:
+        # "unknown" DB status → NOT_CHECKED contract (cannot confirm availability)
         ctx = _base_context(availability_status="unknown")
-        assert _build_availability_line(ctx) == ""
+        line = _build_availability_line(ctx)
+        assert "NOT_CHECKED" in line
 
-    def test_no_availability_returns_empty(self) -> None:
+    def test_no_availability_produces_not_checked_contract(self) -> None:
+        # No availability data → NOT_CHECKED contract (LLM must not assume available)
         ctx = _base_context()
-        assert _build_availability_line(ctx) == ""
+        line = _build_availability_line(ctx)
+        assert "NOT_CHECKED" in line
 
 
 # ── _build_spend_line ─────────────────────────────────────────────────────────

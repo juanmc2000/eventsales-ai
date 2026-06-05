@@ -264,12 +264,17 @@ class ResponsePreparationBuilder:
         if avail is None:
             return {
                 "availability_status": "NOT_CHECKED",
+                "availability_contract": "NOT_CHECKED",
                 "selected_candidate_date": None,
                 "available_options": [],
                 "unavailable_options": [],
                 "availability_reason": "Availability not checked.",
             }
-        return avail.to_dict()
+        result = avail.to_dict()
+        result["availability_contract"] = _decision_status_to_contract(
+            getattr(avail, "availability_status", "NOT_CHECKED")
+        )
+        return result
 
     @staticmethod
     def _build_customer_type_context(
@@ -363,3 +368,16 @@ def _get_field(obj: Any, key: str) -> Any:
     if isinstance(obj, dict):
         return obj.get(key)
     return getattr(obj, key, None)
+
+
+def _decision_status_to_contract(availability_status: str) -> str:
+    """Map AvailabilityDecision status to the V4 draft availability contract state."""
+    if availability_status in ("AVAILABLE", "PARTIALLY_AVAILABLE"):
+        return "CONFIRMED_AVAILABLE"
+    if availability_status == "UNAVAILABLE":
+        return "CONFIRMED_UNAVAILABLE"
+    if availability_status == "PENDING_DATE_CONFIRMATION":
+        return "PENDING_DATE_CONFIRMATION"
+    if availability_status == "INSUFFICIENT_INFORMATION":
+        return "INSUFFICIENT_INFORMATION"
+    return "NOT_CHECKED"
