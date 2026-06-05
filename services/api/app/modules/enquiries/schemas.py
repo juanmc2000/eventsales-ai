@@ -331,6 +331,30 @@ class EnquiryExtractionOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class ResponsePlanOut(BaseModel):
+    """API response for the latest stored response preparation plan (ORCH-007)."""
+
+    id: uuid.UUID
+    enquiry_id: uuid.UUID
+    snapshot_id: uuid.UUID | None = None
+    response_goal: str
+    response_priority: str
+    can_generate_draft: bool
+    goal_reason: str | None = None
+    blocking_fields: list[str] | None = None
+    known_facts: dict | None = None
+    missing_information: dict | None = None
+    clarification_questions: list[str] | None = None
+    date_context: dict | None = None
+    availability_context: dict | None = None
+    customer_type_context: dict | None = None
+    persona_context: dict | None = None
+    draft_instructions: dict | None = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
 class EnquiryProcessingSnapshotOut(BaseModel):
     """API response for a stored enquiry processing snapshot row."""
 
