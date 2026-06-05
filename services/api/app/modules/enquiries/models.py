@@ -105,6 +105,9 @@ class Enquiry(Base):
     candidate_dates: Mapped[list["EnquiryCandidateDate"]] = relationship(
         "EnquiryCandidateDate", back_populates="enquiry", cascade="all, delete-orphan"
     )
+    response_plans: Mapped[list["EnquiryResponsePlan"]] = relationship(
+        "EnquiryResponsePlan", back_populates="enquiry", cascade="all, delete-orphan"
+    )
 
 
 class EnquiryMessage(Base):
@@ -379,6 +382,56 @@ class EnquiryCandidateDate(Base):
     date_request: Mapped["EnquiryDateRequest"] = relationship(
         "EnquiryDateRequest", back_populates="candidate_dates"
     )
+
+
+class EnquiryResponsePlan(Base):
+    """Assembled response plan produced by ResponsePreparationBuilder (ORCH-006).
+
+    One row per response-preparation run.  Rows are immutable after insert.
+    Re-running preparation creates a new row; ORCH-007 reads the latest via
+    ``GET /enquiries/{id}/response-preparation/latest``.
+    """
+
+    __tablename__ = "enquiry_response_plans"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tenant_id: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
+    enquiry_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("enquiries.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    # Nullable: snapshot may not exist when plan is built during freeform intake
+    snapshot_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("enquiry_processing_snapshots.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    # ── Goal + priority ───────────────────────────────────────────────────────
+    response_goal: Mapped[str] = mapped_column(String(60), nullable=False, index=True)
+    response_priority: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
+    can_generate_draft: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    goal_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    blocking_fields: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    # ── Context sections ──────────────────────────────────────────────────────
+    known_facts: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    missing_information: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    clarification_questions: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    date_context: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    availability_context: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    customer_type_context: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    persona_context: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    draft_instructions: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now(), index=True
+    )
+
+    # Relationships
+    enquiry: Mapped["Enquiry"] = relationship("Enquiry", back_populates="response_plans")
 
 
 # Forward references from email and calendar modules
