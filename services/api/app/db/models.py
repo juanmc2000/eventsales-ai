@@ -18,6 +18,7 @@ from app.modules.enquiries.models import (
     EnquiryProcessingSnapshot,
     EnquiryDateRequest,
     EnquiryCandidateDate,
+    EnquiryResponsePlan,
 )
 from app.modules.email.models import EmailEvent
 from app.modules.calendar.models import CalendarEvent
@@ -46,6 +47,7 @@ __all__ = [
     "EnquiryProcessingSnapshot",
     "EnquiryDateRequest",
     "EnquiryCandidateDate",
+    "EnquiryResponsePlan",
     "EmailEvent",
     "CalendarEvent",
     "DemandEvent",

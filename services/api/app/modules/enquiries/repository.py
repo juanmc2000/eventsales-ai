@@ -7,7 +7,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.modules.enquiries.models import Enquiry, EnquiryMessage
+from app.modules.enquiries.models import Enquiry, EnquiryMessage, EnquiryResponsePlan
 
 # Lazy imports for models added in DATA-019
 try:
@@ -152,3 +152,39 @@ class DateRequestRepository:
         candidate.pricing_checked = pricing_checked
         candidate.recommended_minimum_spend = recommended_minimum_spend
         self._db.flush()
+
+
+class ResponsePlanRepository:
+    """Read/write access for EnquiryResponsePlan rows (ORCH-006)."""
+
+    def __init__(self, db: Session) -> None:
+        self._db = db
+
+    def create(
+        self,
+        enquiry_id: uuid.UUID,
+        plan_data: dict[str, Any],
+        snapshot_id: uuid.UUID | None = None,
+        tenant_id: str | None = None,
+    ) -> EnquiryResponsePlan:
+        """Persist a new response plan row and return it."""
+        record = EnquiryResponsePlan(
+            id=uuid.uuid4(),
+            enquiry_id=enquiry_id,
+            snapshot_id=snapshot_id,
+            tenant_id=tenant_id,
+            **plan_data,
+        )
+        self._db.add(record)
+        self._db.flush()
+        return record
+
+    def get_latest(self, enquiry_id: uuid.UUID) -> EnquiryResponsePlan | None:
+        """Return the most recently created response plan for an enquiry, or None."""
+        stmt = (
+            select(EnquiryResponsePlan)
+            .where(EnquiryResponsePlan.enquiry_id == enquiry_id)
+            .order_by(EnquiryResponsePlan.created_at.desc())
+            .limit(1)
+        )
+        return self._db.scalars(stmt).first()

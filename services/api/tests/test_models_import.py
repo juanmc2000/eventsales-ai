@@ -43,6 +43,7 @@ def test_all_tables_in_metadata() -> None:
         "enquiry_processing_snapshots",
         "enquiry_date_requests",
         "enquiry_candidate_dates",
+        "enquiry_response_plans",
         "email_events",
         "calendar_events",
         "demand_events",
