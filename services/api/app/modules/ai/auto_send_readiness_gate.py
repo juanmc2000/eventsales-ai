@@ -1,27 +1,33 @@
-"""Auto-Send Readiness Gate (RESP-014).
+"""Auto-Send Readiness Gate (RESP-014, updated RESP-022).
 
 Determines whether a generated draft is safe for automatic sending without
 human review.  All checks are deterministic — no LLM calls are made.
+
+The system prefers false negatives over false positives — when in doubt,
+require human review.
 
 Auto-send is allowed only when ALL of the following conditions are met:
 
   1. Draft compliance passed (DraftComplianceValidator returned passed=True).
   2. Response goal is in the auto-sendable set:
-       CONFIRM_AVAILABLE, ACKNOWLEDGE_AND_CHECK_AVAILABILITY,
-       REQUEST_MISSING_INFORMATION.
-  3. Date status is not ambiguous or unknown.
+       CONFIRM_AVAILABLE, ACKNOWLEDGE_AND_CHECK_AVAILABILITY.
+  3. Date status is explicitly resolved or resolved_with_confirmation.
   4. No human escalation is flagged (ESCALATE_TO_HUMAN goal).
+  5. Context integrity gate passed (ResponseContextIntegrityGate returned passed=True).
 
 Usage::
 
     from app.modules.ai.auto_send_readiness_gate import AutoSendReadinessGate, AutoSendReadinessResult
     from app.modules.ai.draft_compliance_validator import ComplianceResult
+    from app.modules.enquiries.response_context_integrity_gate import IntegrityCheckResult
 
     compliance = ComplianceResult(passed=True, violations=[], unsafe_to_send=False)
+    integrity = IntegrityCheckResult(passed=True)
     result = AutoSendReadinessGate.evaluate(
         response_goal="CONFIRM_AVAILABLE",
         draft_compliance_result=compliance,
         date_status="resolved",
+        integrity_result=integrity,
     )
     # result.auto_send_allowed → True
     # result.auto_send_blockers → []
@@ -34,6 +40,7 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from app.modules.ai.draft_compliance_validator import ComplianceResult
+    from app.modules.enquiries.response_context_integrity_gate import IntegrityCheckResult
 
 
 # ── Auto-sendable goals ────────────────────────────────────────────────────────
@@ -41,13 +48,12 @@ if TYPE_CHECKING:
 _AUTO_SEND_GOALS: frozenset[str] = frozenset({
     "CONFIRM_AVAILABLE",
     "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
-    "REQUEST_MISSING_INFORMATION",
 })
 
-# Date statuses that prevent auto-send
-_BLOCKED_DATE_STATUSES: frozenset[str] = frozenset({
-    "ambiguous",
-    "unknown",
+# Date statuses that explicitly permit auto-send (allowlist — all others block)
+_ALLOWED_DATE_STATUSES: frozenset[str] = frozenset({
+    "resolved",
+    "resolved_with_confirmation",
 })
 
 
@@ -89,8 +95,9 @@ class AutoSendReadinessGate:
     Rules (in evaluation order):
       1. Draft compliance must pass.
       2. Response goal must be auto-sendable.
-      3. Date status must not be ambiguous or unknown.
+      3. Date status must be resolved or resolved_with_confirmation.
       4. Response goal must not be ESCALATE_TO_HUMAN.
+      5. Context integrity gate must have passed.
     """
 
     @classmethod
@@ -99,6 +106,7 @@ class AutoSendReadinessGate:
         response_goal: str,
         draft_compliance_result: ComplianceResult,
         date_status: str = "resolved",
+        integrity_result: IntegrityCheckResult | None = None,
         availability_status: str | None = None,
         customer_type_confidence: float = 0.0,
         response_plan: dict[str, Any] | None = None,
@@ -109,7 +117,9 @@ class AutoSendReadinessGate:
             response_goal:             Response goal from the deterministic plan.
             draft_compliance_result:   Result from DraftComplianceValidator.validate().
             date_status:               Date resolution status string (e.g. "resolved",
-                                       "ambiguous", "unknown").
+                                       "resolved_with_confirmation", "ambiguous", "unknown").
+            integrity_result:          Result from ResponseContextIntegrityGate.check().
+                                       None is treated as a failed integrity check.
             availability_status:       Availability decision status (informational).
             customer_type_confidence:  Confidence of customer type classification (0–1).
             response_plan:             The full ResponsePlan dict (reserved for future checks).
@@ -125,11 +135,14 @@ class AutoSendReadinessGate:
         # Rule 2: response goal must be auto-sendable
         cls._check_response_goal(response_goal, blockers)
 
-        # Rule 3: date must not be ambiguous or unknown
+        # Rule 3: date must be explicitly resolved
         cls._check_date_status(date_status, blockers)
 
         # Rule 4: no human escalation
         cls._check_no_escalation(response_goal, blockers)
+
+        # Rule 5: context integrity gate must have passed
+        cls._check_integrity(integrity_result, blockers)
 
         auto_send_allowed = len(blockers) == 0
         review_required_reason = (
@@ -173,10 +186,11 @@ class AutoSendReadinessGate:
         date_status: str,
         blockers: list[str],
     ) -> None:
-        """Block auto-send when the date is ambiguous or unknown."""
-        if date_status in _BLOCKED_DATE_STATUSES:
+        """Block auto-send when the date is not explicitly resolved."""
+        if date_status not in _ALLOWED_DATE_STATUSES:
             blockers.append(
-                f"Date status is '{date_status}' — auto-send requires a resolved date."
+                f"Date status is '{date_status}' — auto-send requires 'resolved' or "
+                "'resolved_with_confirmation'."
             )
 
     @staticmethod
@@ -188,4 +202,20 @@ class AutoSendReadinessGate:
         if response_goal == "ESCALATE_TO_HUMAN":
             blockers.append(
                 "Response goal is ESCALATE_TO_HUMAN — human review is required before sending."
+            )
+
+    @staticmethod
+    def _check_integrity(
+        integrity_result: IntegrityCheckResult | None,
+        blockers: list[str],
+    ) -> None:
+        """Block auto-send when the context integrity gate did not pass."""
+        if integrity_result is None:
+            blockers.append(
+                "Context integrity gate result is absent — auto-send blocked as a precaution."
+            )
+        elif not integrity_result.passed:
+            violation_summary = "; ".join(integrity_result.violations) if integrity_result.violations else "unknown"
+            blockers.append(
+                f"Context integrity gate failed: {violation_summary}"
             )
