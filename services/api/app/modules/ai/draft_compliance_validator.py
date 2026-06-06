@@ -1,9 +1,22 @@
-"""Draft Compliance Validator (RESP-008).
+"""Draft Compliance Validator (RESP-008, strengthened in RESP-012).
 
 Validates generated draft emails against the availability contract, spend rules,
 and prompt constraints before the draft is shown to staff or sent to guests.
 
 All checks are deterministic — no LLM calls are made.
+
+RESP-008 checks:
+  1. Availability over-claim
+  2. Invented alternatives when CONFIRMED_UNAVAILABLE
+  3. Unconfirmed times stated as agreed
+  4. Minimum spend described as recommended/optional
+  5. Fake booking form links
+
+RESP-012 additional checks:
+  6. Hosting language when availability NOT_CHECKED
+  7. Invented SLA commitment (e.g. "within 24 hours")
+  8. Invented clarification questions when none are allowed
+  9. Forbidden topic mentions: menu, dietary, special touches, call scheduling
 
 Usage::
 
@@ -50,6 +63,12 @@ class ValidationContext:
     party_size: int | None = None
     prohibited_times: list[str] = field(default_factory=list)
     response_goal: str = ""
+    # RESP-012: additional context flags
+    alternatives_allowed: bool = False  # True only when explicit alternatives provided
+    time_confirmed: bool = False        # True when a specific time is confirmed by venue
+    allow_menu_discussion: bool = False
+    allow_special_touches: bool = False
+    allow_call_scheduling: bool = False
 
 
 # ── Output ─────────────────────────────────────────────────────────────────────
@@ -117,6 +136,56 @@ _FAKE_URL_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\bclick\s+here\s+to\s+(?:book|fill|complete)\b", re.IGNORECASE),
 ]
 
+# RESP-012: Hosting language — implies venue is ready to host when NOT_CHECKED
+_HOSTING_LANGUAGE_PATTERNS: list[re.Pattern[str]] = [
+    re.compile(r"\blooking\s+forward\s+to\s+hosting\b", re.IGNORECASE),
+    re.compile(r"\bwould\s+be\s+perfect\s+for\b", re.IGNORECASE),
+    re.compile(r"\bperfect\s+for\s+your\s+(?:event|party|group|occasion|celebration)\b", re.IGNORECASE),
+    re.compile(r"\bcan\s+(?:certainly|absolutely)\s+host\b", re.IGNORECASE),
+    re.compile(r"\bdelighted\s+to\s+host\b", re.IGNORECASE),
+    re.compile(r"\bwould\s+love\s+to\s+host\b", re.IGNORECASE),
+]
+
+# RESP-012: Invented SLA commitments
+_SLA_PATTERNS: list[re.Pattern[str]] = [
+    re.compile(r"\bwithin\s+(?:the\s+next\s+)?\d+\s+hours?\b", re.IGNORECASE),
+    re.compile(r"\bwithin\s+(?:the\s+next\s+)?\d+\s+(?:business\s+)?days?\b", re.IGNORECASE),
+    re.compile(r"\bby\s+(?:end\s+of\s+)?(?:today|tomorrow|this\s+(?:morning|afternoon|evening))\b", re.IGNORECASE),
+    re.compile(r"\bshortly\s+(?:after|following)\b", re.IGNORECASE),
+    re.compile(r"\brespond\s+(?:to\s+you\s+)?(?:by|within|before)\b", re.IGNORECASE),
+]
+
+# RESP-012: Invented questions — a question mark where none was authorised
+# Detects sentence-ending question marks (not just any ? in quoted text)
+_QUESTION_SENTENCE_PATTERN = re.compile(r"[A-Z][^.!?]*\?", re.DOTALL)
+
+# RESP-012: Forbidden topic — menu and dietary discussion
+_MENU_PATTERNS: list[re.Pattern[str]] = [
+    re.compile(r"\bmenu\s+(?:options?|choice|selection|discussion)\b", re.IGNORECASE),
+    re.compile(r"\bdiscuss\s+(?:the\s+)?menu\b", re.IGNORECASE),
+    re.compile(r"\bdietary\s+(?:requirements?|restrictions?|needs?|preferences?)\b", re.IGNORECASE),
+    re.compile(r"\bfood\s+(?:options?|preferences?|choices?)\b", re.IGNORECASE),
+]
+
+# RESP-012: Forbidden topic — special touches and personalisation
+_SPECIAL_TOUCHES_PATTERNS: list[re.Pattern[str]] = [
+    re.compile(r"\bspecial\s+touch(?:es)?\b", re.IGNORECASE),
+    re.compile(r"\bpersonal\s+touch(?:es)?\b", re.IGNORECASE),
+    re.compile(r"\bdecorations?\b", re.IGNORECASE),
+    re.compile(r"\bfloral\s+arrangement\b", re.IGNORECASE),
+    re.compile(r"\bspecial\s+arrangement\b", re.IGNORECASE),
+]
+
+# RESP-012: Forbidden topic — call scheduling
+_CALL_SCHEDULING_PATTERNS: list[re.Pattern[str]] = [
+    re.compile(r"\barrange\s+a\s+call\b", re.IGNORECASE),
+    re.compile(r"\bschedule\s+a\s+call\b", re.IGNORECASE),
+    re.compile(r"\bhop\s+on\s+a\s+call\b", re.IGNORECASE),
+    re.compile(r"\bgive\s+(?:us|me)\s+a\s+(?:call|ring)\b", re.IGNORECASE),
+    re.compile(r"\bcall\s+us\s+(?:on|at)\b", re.IGNORECASE),
+    re.compile(r"\bspeak\s+(?:on|over)\s+the\s+phone\b", re.IGNORECASE),
+]
+
 
 # ── Validator ──────────────────────────────────────────────────────────────────
 
@@ -147,6 +216,11 @@ class DraftComplianceValidator:
         cls._check_unconfirmed_times(draft_text, context, violations)
         cls._check_spend_soft_language(draft_text, context, violations)
         cls._check_fake_urls(draft_text, violations)
+        # RESP-012 additional checks
+        cls._check_hosting_language(draft_text, context, violations)
+        cls._check_invented_sla(draft_text, violations)
+        cls._check_invented_questions(draft_text, context, violations)
+        cls._check_forbidden_topics(draft_text, context, violations)
 
         passed = len(violations) == 0
         return ComplianceResult(
@@ -254,3 +328,92 @@ class DraftComplianceValidator:
                     "No URL or form link may appear unless explicitly provided in the context."
                 )
                 return
+
+    # ── RESP-012 additional checks ──────────────────────────────────────────
+
+    @classmethod
+    def _check_hosting_language(
+        cls,
+        text: str,
+        context: ValidationContext,
+        violations: list[str],
+    ) -> None:
+        """Fail if the draft uses hosting language when availability is NOT_CHECKED."""
+        if context.availability_contract != "NOT_CHECKED":
+            return
+        for pattern in _HOSTING_LANGUAGE_PATTERNS:
+            if pattern.search(text):
+                violations.append(
+                    "Draft uses hosting language (e.g. 'looking forward to hosting', "
+                    "'would be perfect for') when availability has not been checked. "
+                    "Hosting language must not be used until the contract state is "
+                    "CONFIRMED_AVAILABLE."
+                )
+                return
+
+    @classmethod
+    def _check_invented_sla(
+        cls,
+        text: str,
+        violations: list[str],
+    ) -> None:
+        """Fail if the draft commits to a specific response timeline."""
+        for pattern in _SLA_PATTERNS:
+            if pattern.search(text):
+                violations.append(
+                    "Draft contains an invented SLA commitment (e.g. 'within 24 hours', "
+                    "'by tomorrow'). No response-time commitment may be made unless "
+                    "explicitly provided in the context."
+                )
+                return
+
+    @classmethod
+    def _check_invented_questions(
+        cls,
+        text: str,
+        context: ValidationContext,
+        violations: list[str],
+    ) -> None:
+        """Fail if the draft contains questions when no clarification questions were authorised."""
+        if context.clarification_questions:
+            return  # Questions are authorised
+        matches = _QUESTION_SENTENCE_PATTERN.findall(text)
+        if matches:
+            violations.append(
+                "Draft contains a question but no clarification questions were provided "
+                "in the context. Questions must not be invented — only use the approved "
+                "clarification questions."
+            )
+
+    @classmethod
+    def _check_forbidden_topics(
+        cls,
+        text: str,
+        context: ValidationContext,
+        violations: list[str],
+    ) -> None:
+        """Fail if the draft discusses topics not allowed by the context flags."""
+        if not context.allow_menu_discussion:
+            for pattern in _MENU_PATTERNS:
+                if pattern.search(text):
+                    violations.append(
+                        "Draft discusses menu or dietary requirements but this topic "
+                        "is not permitted in the current response context."
+                    )
+                    break
+        if not context.allow_special_touches:
+            for pattern in _SPECIAL_TOUCHES_PATTERNS:
+                if pattern.search(text):
+                    violations.append(
+                        "Draft mentions special touches or decorations but this topic "
+                        "is not permitted in the current response context."
+                    )
+                    break
+        if not context.allow_call_scheduling:
+            for pattern in _CALL_SCHEDULING_PATTERNS:
+                if pattern.search(text):
+                    violations.append(
+                        "Draft invites the guest to schedule a call but call scheduling "
+                        "is not permitted in the current response context."
+                    )
+                    break
