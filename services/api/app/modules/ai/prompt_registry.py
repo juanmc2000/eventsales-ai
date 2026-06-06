@@ -285,21 +285,36 @@ _DRAFT_RESPONSE_V4 = PromptDefinition(
         "Goal instructions:\n"
         "- CONFIRM_AVAILABLE: The venue system confirmed the slot is available. "
         "Communicate the confirmed availability and provide relevant venue details. "
-        "Be warm and commercially-minded.\n"
+        "Be warm and commercially-minded. "
+        "Approved opening: 'Thank you for your enquiry — I'm delighted to let you know "
+        "that the date is available for your event.'\n"
         "- RESPOND_UNAVAILABLE: The slot is fully booked. "
         "Acknowledge the enquiry warmly. "
-        "Do NOT invent or suggest alternative dates, rooms, or times.\n"
+        "Do NOT invent or suggest alternative dates, rooms, or times. "
+        "Approved opening: 'Thank you for your enquiry. Unfortunately, we are fully booked "
+        "for the requested date.'\n"
         "- ACKNOWLEDGE_AND_CHECK_AVAILABILITY: No availability check has been performed yet. "
         "Acknowledge the enquiry and tell the guest the team will check availability and be in touch. "
-        "Do NOT state or imply the date is available.\n"
+        "Do NOT state or imply the date is available. "
+        "Approved opening: 'Thank you for your enquiry — I'll check availability for the "
+        "requested date and come back to you shortly.'\n"
         "- REQUEST_MISSING_INFORMATION: Politely ask ONLY the clarification questions "
-        "provided. Do not ask for information that is already known.\n"
+        "provided. Do not ask for information that is already known. "
+        "Approved opening: 'Thank you for getting in touch — I just have a couple of quick "
+        "questions before we can confirm availability.'\n"
         "- REQUEST_DATE_CONFIRMATION: The date is ambiguous. Ask the guest to confirm "
-        "the exact date using ONLY the clarification question provided.\n"
+        "the exact date using ONLY the clarification question provided. "
+        "Approved opening: 'We'd love to host your event — could you confirm the exact date "
+        "you have in mind so we can check availability?'\n"
         "- REQUEST_WEBFORM: Multiple key details are missing. Direct the guest to the "
-        "booking enquiry form to provide structured details.\n"
+        "booking enquiry form to provide structured details. "
+        "Approved opening: 'Thank you for your enquiry — to ensure we capture all the details "
+        "for your event, could I ask you to complete our short enquiry form?'\n"
         "- ESCALATE_TO_HUMAN: Acknowledge the enquiry warmly and let the guest know "
-        "that a member of the team will be in touch shortly.\n\n"
+        "that a member of the team will be in touch shortly. "
+        "Approved opening: 'Thank you for reaching out — a member of our events team will "
+        "review your enquiry and be in touch shortly.'\n\n"
+        "{phrase_guidance_line}"
         "AVAILABILITY CONTRACT — you will receive an 'Availability status' line in the "
         "enquiry details. Honour these rules exactly:\n"
         "- CONFIRMED_AVAILABLE: The venue system confirmed the slot is available. "
@@ -368,6 +383,7 @@ _DRAFT_RESPONSE_V4 = PromptDefinition(
         "guest_message_line",
         "prohibited_claims_line",
         "clarification_questions_line",
+        "phrase_guidance_line",
     }),
     output_schema_name=SCHEMA_DRAFT_EMAIL_OUTPUT,
     output_schema_version="4.0",
@@ -383,7 +399,9 @@ _DRAFT_RESPONSE_V4 = PromptDefinition(
         "CONFIRM_AVAILABLE, RESPOND_UNAVAILABLE, ACKNOWLEDGE_AND_CHECK_AVAILABILITY. "
         "RESP-006 — structured draft context: guest_message_line labelled tone-only; "
         "adds confirmed_venue_facts_line, requested_preferences_line, prohibited_claims_line; "
-        "MANDATORY RULE: guest-mentioned times are unconfirmed preferences."
+        "MANDATORY RULE: guest-mentioned times are unconfirmed preferences. "
+        "RESP-007 — approved phrase library: per-goal approved opening phrases embedded in "
+        "goal instructions; phrase_guidance_line optional variable for per-call override."
     ),
 )
 
