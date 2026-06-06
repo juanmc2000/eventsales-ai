@@ -29,10 +29,16 @@ from app.modules.ai.draft_compliance_validator import (
 
 try:
     from app.modules.ai.auto_send_readiness_gate import AutoSendReadinessGate
+    from app.modules.enquiries.response_context_integrity_gate import IntegrityCheckResult as _IntegrityCheckResult
     _GATE_AVAILABLE = True
 except ImportError:
     AutoSendReadinessGate = None  # type: ignore[assignment,misc]
+    _IntegrityCheckResult = None  # type: ignore[assignment,misc]
     _GATE_AVAILABLE = False
+
+
+def _passing_integrity():
+    return _IntegrityCheckResult(passed=True) if _IntegrityCheckResult else None
 
 _requires_gate = pytest.mark.skipif(
     not _GATE_AVAILABLE,
@@ -169,6 +175,7 @@ class TestAutoSendExpectedOutcomes:
                 response_goal=sc.get("response_goal", ""),
                 draft_compliance_result=compliance,
                 date_status=sc.get("date_status", "resolved"),
+                integrity_result=_passing_integrity(),
             )
             if not gate.auto_send_allowed:
                 failures.append(
@@ -192,6 +199,7 @@ class TestAutoSendExpectedOutcomes:
                 response_goal=sc.get("response_goal", ""),
                 draft_compliance_result=compliance,
                 date_status=sc.get("date_status", "resolved"),
+                integrity_result=_passing_integrity(),
             )
             if gate.auto_send_allowed:
                 surprises.append(
@@ -211,6 +219,7 @@ class TestAutoSendExpectedOutcomes:
                 response_goal=sc.get("response_goal", ""),
                 draft_compliance_result=compliance,
                 date_status=sc.get("date_status", "resolved"),
+                integrity_result=_passing_integrity(),
             )
             assert isinstance(gate.auto_send_allowed, bool), f"{sc['id']}: auto_send_allowed must be bool"
             assert isinstance(gate.auto_send_blockers, list), f"{sc['id']}: auto_send_blockers must be list"
@@ -330,6 +339,7 @@ class TestAutoSendGateCategory:
             response_goal=tc["response_goal"],
             draft_compliance_result=compliance,
             date_status=tc.get("date_status", "resolved"),
+            integrity_result=_passing_integrity(),
         )
         assert not gate.auto_send_allowed
 
@@ -342,6 +352,7 @@ class TestAutoSendGateCategory:
             response_goal=tc["response_goal"],
             draft_compliance_result=compliance,
             date_status=tc.get("date_status", "resolved"),
+            integrity_result=_passing_integrity(),
         )
         assert not gate.auto_send_allowed
         assert any("ambiguous" in b.lower() for b in gate.auto_send_blockers)
@@ -355,6 +366,7 @@ class TestAutoSendGateCategory:
             response_goal=tc["response_goal"],
             draft_compliance_result=compliance,
             date_status=tc.get("date_status", "resolved"),
+            integrity_result=_passing_integrity(),
         )
         assert not gate.auto_send_allowed
 
@@ -385,6 +397,7 @@ class TestRegressionSummary:
                     response_goal=sc.get("response_goal", ""),
                     draft_compliance_result=compliance,
                     date_status=sc.get("date_status", "resolved"),
+                    integrity_result=_passing_integrity(),
                 )
                 if gate.auto_send_allowed:
                     auto_send_allowed_count += 1

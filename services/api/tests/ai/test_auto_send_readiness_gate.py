@@ -1,11 +1,13 @@
-"""Tests for RESP-014 — Auto-Send Readiness Gate.
+"""Tests for RESP-014 / RESP-022 — Auto-Send Readiness Gate.
 
 Validates:
 - auto_send_allowed True when all conditions pass
 - Draft compliance failure blocks auto-send
-- Non-auto-sendable goals block auto-send
-- Ambiguous or unknown date status blocks auto-send
+- Non-auto-sendable goals block auto-send (incl. REQUEST_MISSING_INFORMATION — RESP-022)
+- Date status not in explicit allowlist blocks auto-send (RESP-022)
 - ESCALATE_TO_HUMAN goal blocks auto-send
+- Context integrity gate failure blocks auto-send (RESP-022, Rule 5)
+- Absent integrity_result blocks auto-send (RESP-022)
 - Multiple blockers all captured
 - to_dict returns expected keys
 - RESPOND_UNAVAILABLE and REQUEST_WEBFORM are blocked
@@ -21,6 +23,7 @@ from app.modules.ai.auto_send_readiness_gate import (
     _AUTO_SEND_GOALS,
 )
 from app.modules.ai.draft_compliance_validator import ComplianceResult
+from app.modules.enquiries.response_context_integrity_gate import IntegrityCheckResult
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -35,16 +38,27 @@ def _failing_compliance(violations: list[str] | None = None) -> ComplianceResult
     return ComplianceResult(passed=False, violations=v, unsafe_to_send=True)
 
 
+def _passing_integrity() -> IntegrityCheckResult:
+    return IntegrityCheckResult(passed=True)
+
+
+def _failing_integrity(violations: list[str] | None = None) -> IntegrityCheckResult:
+    v = violations or ["Restaurant name mismatch: context uses 'The Ivy' but availability references 'The Grand'."]
+    return IntegrityCheckResult(passed=False, violations=v, requires_review=True)
+
+
 def _evaluate(
     response_goal: str = "CONFIRM_AVAILABLE",
     compliance: ComplianceResult | None = None,
     date_status: str = "resolved",
+    integrity_result: IntegrityCheckResult | None = None,
     **kwargs,
 ) -> AutoSendReadinessResult:
     return AutoSendReadinessGate.evaluate(
         response_goal=response_goal,
         draft_compliance_result=compliance or _passing_compliance(),
         date_status=date_status,
+        integrity_result=integrity_result if integrity_result is not None else _passing_integrity(),
         **kwargs,
     )
 
@@ -142,6 +156,7 @@ class TestResponseGoalRule:
         "REQUEST_WEBFORM",
         "ESCALATE_TO_HUMAN",
         "REQUEST_DATE_CONFIRMATION",
+        "REQUEST_MISSING_INFORMATION",
         "UNKNOWN_GOAL",
     ])
     def test_blocked_for_non_auto_send_goals(self, goal: str) -> None:
@@ -186,6 +201,11 @@ class TestDateStatusRule:
     def test_blocker_includes_date_status_value(self) -> None:
         result = _evaluate(response_goal="CONFIRM_AVAILABLE", date_status="ambiguous")
         assert any("ambiguous" in b for b in result.auto_send_blockers)
+
+    def test_blocked_when_date_status_not_in_allowlist(self) -> None:
+        result = _evaluate(response_goal="CONFIRM_AVAILABLE", date_status="some_other_status")
+        assert result.auto_send_allowed is False
+        assert any("some_other_status" in b for b in result.auto_send_blockers)
 
 
 # ── Rule 4: no escalation ──────────────────────────────────────────────────────
@@ -250,6 +270,67 @@ class TestGoalCoverage:
         result = _evaluate(response_goal="ACKNOWLEDGE_AND_CHECK_AVAILABILITY")
         assert result.auto_send_allowed is True
 
-    def test_request_missing_information_allowed(self) -> None:
+    def test_request_missing_information_blocked(self) -> None:
         result = _evaluate(response_goal="REQUEST_MISSING_INFORMATION")
+        assert result.auto_send_allowed is False
+
+
+# ── Rule 5: context integrity gate (RESP-022) ──────────────────────────────────
+
+
+class TestIntegrityRule:
+    def test_blocked_when_integrity_result_absent(self) -> None:
+        result = AutoSendReadinessGate.evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            draft_compliance_result=_passing_compliance(),
+            date_status="resolved",
+            integrity_result=None,
+        )
+        assert result.auto_send_allowed is False
+        assert any("absent" in b.lower() or "integrity" in b.lower() for b in result.auto_send_blockers)
+
+    def test_blocked_when_integrity_fails(self) -> None:
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            integrity_result=_failing_integrity(),
+        )
+        assert result.auto_send_allowed is False
+        assert any("integrity" in b.lower() for b in result.auto_send_blockers)
+
+    def test_blocker_includes_violation_text(self) -> None:
+        violation = "Restaurant name mismatch: context uses 'The Ivy' but availability references 'The Grand'."
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            integrity_result=_failing_integrity(violations=[violation]),
+        )
+        assert any(violation in b for b in result.auto_send_blockers)
+
+    def test_allowed_when_integrity_passes(self) -> None:
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            integrity_result=_passing_integrity(),
+        )
+        assert result.auto_send_allowed is True
+
+    def test_integrity_failure_stacks_with_other_blockers(self) -> None:
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            compliance=_failing_compliance(),
+            integrity_result=_failing_integrity(),
+        )
+        assert result.auto_send_allowed is False
+        assert len(result.auto_send_blockers) >= 2
+
+    def test_confirm_available_with_passing_integrity_allowed(self) -> None:
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            integrity_result=_passing_integrity(),
+        )
+        assert result.auto_send_allowed is True
+
+    def test_acknowledge_and_check_with_passing_integrity_allowed(self) -> None:
+        result = _evaluate(
+            response_goal="ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+            integrity_result=_passing_integrity(),
+        )
         assert result.auto_send_allowed is True
