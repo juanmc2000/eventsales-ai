@@ -273,25 +273,75 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
 
 
 def _build_spend_line(context: DraftContext) -> str:
-    """Build spend line — prefer confirmed_minimum_spend from snapshot over metadata."""
+    """Build spend line — prefer confirmed_minimum_spend from snapshot over metadata.
+
+    Labels the spend as 'Minimum spend' — a mandatory venue requirement.
+    """
     spend = context.confirmed_minimum_spend or context.recommended_minimum_spend
     if spend and spend > 0:
-        return f"Confirmed minimum spend: £{spend:,.0f}\n"
+        return f"Minimum spend: £{spend:,.0f}\n"
     return ""
 
 
-def _build_availability_line(context: DraftContext) -> str:
-    """Build availability line from deterministic availability result."""
-    if not context.availability_status:
-        return ""
+def _derive_availability_contract(context: DraftContext) -> str:
+    """Map DraftContext fields to one of the five V4 availability contract states.
+
+    Contract states:
+      CONFIRMED_AVAILABLE       — deterministic check confirmed available
+      CONFIRMED_UNAVAILABLE     — deterministic check confirmed booked/held
+      NOT_CHECKED               — no availability check performed
+      PENDING_DATE_CONFIRMATION — date is ambiguous; cannot check yet
+      INSUFFICIENT_INFORMATION  — required info missing to check availability
+    """
     status = context.availability_status
+    if status == "available":
+        return "CONFIRMED_AVAILABLE"
+    if status in ("booked", "held", "unavailable"):
+        return "CONFIRMED_UNAVAILABLE"
+    goal = context.response_goal or ""
+    if goal == "REQUEST_DATE_CONFIRMATION":
+        return "PENDING_DATE_CONFIRMATION"
+    if goal in ("REQUEST_MISSING_INFORMATION", "REQUEST_WEBFORM"):
+        return "INSUFFICIENT_INFORMATION"
+    return "NOT_CHECKED"
+
+
+def _build_availability_line(context: DraftContext) -> str:
+    """Build availability line with explicit V4 contract state.
+
+    Always returns a non-empty string so the LLM receives an unambiguous
+    availability contract status and cannot infer availability from silence.
+    """
+    contract = _derive_availability_contract(context)
     date_str = context.availability_date or ""
     period = context.availability_meal_period or ""
-    if status == "available":
-        return f"Availability: Room is available for {date_str} {period}.\n"
-    if status in ("booked", "held", "unavailable"):
-        return f"Availability: The requested slot ({date_str} {period}) is not available.\n"
-    return ""  # unknown → don't mention availability
+    slot = f"{date_str} {period}".strip()
+
+    if contract == "CONFIRMED_AVAILABLE":
+        return (
+            f"Availability status: CONFIRMED_AVAILABLE\n"
+            f"Availability: Room is available for {slot}.\n"
+        )
+    if contract == "CONFIRMED_UNAVAILABLE":
+        return (
+            f"Availability status: CONFIRMED_UNAVAILABLE\n"
+            f"Availability: The requested slot ({slot}) is not available.\n"
+        )
+    if contract == "PENDING_DATE_CONFIRMATION":
+        return (
+            "Availability status: PENDING_DATE_CONFIRMATION\n"
+            "Availability: Cannot check — date must be confirmed first.\n"
+        )
+    if contract == "INSUFFICIENT_INFORMATION":
+        return (
+            "Availability status: INSUFFICIENT_INFORMATION\n"
+            "Availability: Cannot check — required information is missing.\n"
+        )
+    # NOT_CHECKED — default
+    return (
+        "Availability status: NOT_CHECKED\n"
+        "Availability: Not yet checked — do not confirm availability.\n"
+    )
 
 
 def _build_missing_questions_line(context: DraftContext) -> str:
