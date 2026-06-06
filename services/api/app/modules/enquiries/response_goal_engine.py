@@ -5,12 +5,14 @@ generation.  The LLM must never decide operational workflow — this engine owns
 that decision.
 
 Supported response goals (in precedence order):
-  UNABLE_TO_PROCESS            — no usable information; cannot form any response
-  ESCALATE_TO_HUMAN            — insufficient information but some context exists
-  REQUEST_DATE_CONFIRMATION    — date is ambiguous or requires confirmation
-  REQUEST_WEBFORM              — multiple critical fields missing; direct to form
-  REQUEST_MISSING_INFORMATION  — 1–2 fields missing; ask by email
-  READY_TO_CONFIRM_AVAILABILITY — all key facts present; proceed to availability reply
+  UNABLE_TO_PROCESS                  — no usable information; cannot form any response
+  ESCALATE_TO_HUMAN                  — insufficient information but some context exists
+  REQUEST_DATE_CONFIRMATION          — date is ambiguous or requires confirmation
+  REQUEST_WEBFORM                    — multiple critical fields missing; direct to form
+  REQUEST_MISSING_INFORMATION        — 1–2 fields missing; ask by email
+  CONFIRM_AVAILABLE                  — availability confirmed; communicate the date
+  RESPOND_UNAVAILABLE                — slot fully booked; acknowledge without inventing alternatives
+  ACKNOWLEDGE_AND_CHECK_AVAILABILITY — no availability check yet; team will follow up
 
 Inputs:
   - readiness_evaluation: ReadinessEvaluation from EnquiryReadinessEvaluator
@@ -39,7 +41,7 @@ Usage::
         availability_decision=avail_decision,
         customer_type="corporate",
     )
-    # result.response_goal → "READY_TO_CONFIRM_AVAILABILITY"
+    # result.response_goal → "CONFIRM_AVAILABLE" / "RESPOND_UNAVAILABLE" / "ACKNOWLEDGE_AND_CHECK_AVAILABILITY"
     # result.can_generate_draft → True
 """
 
@@ -62,6 +64,12 @@ from app.modules.enquiries.readiness_evaluator import (
     ReadinessEvaluation,
 )
 
+from app.modules.enquiries.availability_decision_service import (
+    STATUS_AVAILABLE,
+    STATUS_PARTIALLY_AVAILABLE,
+    STATUS_UNAVAILABLE,
+)
+
 if TYPE_CHECKING:
     # Defined by ORCH-002 and ORCH-003 respectively.
     from app.modules.enquiries.availability_decision_service import AvailabilityDecision
@@ -69,7 +77,17 @@ if TYPE_CHECKING:
 
 # ── Response goal constants ────────────────────────────────────────────────────
 
+# RESP-005: three precise availability-aware goals replace the over-broad
+# READY_TO_CONFIRM_AVAILABILITY.  The old constant is kept as a deprecated alias
+# so that existing stored EnquiryResponsePlan rows remain valid without migration.
+GOAL_CONFIRM_AVAILABLE = "CONFIRM_AVAILABLE"
+GOAL_RESPOND_UNAVAILABLE = "RESPOND_UNAVAILABLE"
+GOAL_ACKNOWLEDGE_AND_CHECK_AVAILABILITY = "ACKNOWLEDGE_AND_CHECK_AVAILABILITY"
+
+# Deprecated — kept for backward compat with stored DB records only.
+# The engine never produces this value for new records.
 GOAL_READY_TO_CONFIRM_AVAILABILITY = "READY_TO_CONFIRM_AVAILABILITY"
+
 GOAL_REQUEST_MISSING_INFORMATION = "REQUEST_MISSING_INFORMATION"
 GOAL_REQUEST_DATE_CONFIRMATION = "REQUEST_DATE_CONFIRMATION"
 GOAL_REQUEST_WEBFORM = "REQUEST_WEBFORM"
@@ -77,7 +95,10 @@ GOAL_ESCALATE_TO_HUMAN = "ESCALATE_TO_HUMAN"
 GOAL_UNABLE_TO_PROCESS = "UNABLE_TO_PROCESS"
 
 ALL_GOALS = {
-    GOAL_READY_TO_CONFIRM_AVAILABILITY,
+    GOAL_CONFIRM_AVAILABLE,
+    GOAL_RESPOND_UNAVAILABLE,
+    GOAL_ACKNOWLEDGE_AND_CHECK_AVAILABILITY,
+    GOAL_READY_TO_CONFIRM_AVAILABILITY,  # deprecated alias — still valid in DB
     GOAL_REQUEST_MISSING_INFORMATION,
     GOAL_REQUEST_DATE_CONFIRMATION,
     GOAL_REQUEST_WEBFORM,
@@ -87,7 +108,10 @@ ALL_GOALS = {
 
 # Goals that permit LLM draft generation
 GOALS_ALLOWING_DRAFT = {
-    GOAL_READY_TO_CONFIRM_AVAILABILITY,
+    GOAL_CONFIRM_AVAILABLE,
+    GOAL_RESPOND_UNAVAILABLE,
+    GOAL_ACKNOWLEDGE_AND_CHECK_AVAILABILITY,
+    GOAL_READY_TO_CONFIRM_AVAILABILITY,  # deprecated alias — still allowed
     GOAL_REQUEST_MISSING_INFORMATION,
     GOAL_REQUEST_DATE_CONFIRMATION,
     GOAL_REQUEST_WEBFORM,
@@ -131,12 +155,14 @@ class ResponseGoalEngine:
     order.  No LLM calls are made.  No database state is mutated.
 
     Precedence (first match wins):
-      1. UNABLE_TO_PROCESS            — completely unusable enquiry
-      2. ESCALATE_TO_HUMAN            — insufficient_information with some context
-      3. REQUEST_DATE_CONFIRMATION    — date ambiguous or needs confirmation
-      4. REQUEST_WEBFORM              — should_send_webform OR webform_required
-      5. REQUEST_MISSING_INFORMATION  — 1–2 critical fields missing
-      6. READY_TO_CONFIRM_AVAILABILITY — all clear
+      1. UNABLE_TO_PROCESS                  — completely unusable enquiry
+      2. ESCALATE_TO_HUMAN                  — insufficient_information with some context
+      3. REQUEST_DATE_CONFIRMATION          — date ambiguous or needs confirmation
+      4. REQUEST_WEBFORM                    — should_send_webform OR webform_required
+      5. REQUEST_MISSING_INFORMATION        — 1–2 critical fields missing
+      6a. CONFIRM_AVAILABLE                 — availability_decision AVAILABLE
+      6b. RESPOND_UNAVAILABLE               — availability_decision UNAVAILABLE
+      6c. ACKNOWLEDGE_AND_CHECK_AVAILABILITY — no availability decision yet
     """
 
     @classmethod
@@ -265,12 +291,40 @@ class ResponseGoalEngine:
                     can_generate_draft=True,
                 )
 
-        # ── Rule 6 — Ready to confirm availability ────────────────────────────
+        # ── Rule 6 — Availability-aware response goal ─────────────────────────
+        avail_status = (
+            getattr(availability_decision, "availability_status", None)
+            if availability_decision is not None
+            else None
+        )
+
+        if avail_status in (STATUS_AVAILABLE, STATUS_PARTIALLY_AVAILABLE):
+            return ResponseGoalResult(
+                response_goal=GOAL_CONFIRM_AVAILABLE,
+                goal_reason=(
+                    f"Readiness status is {readiness_status} and date is {date_status}; "
+                    f"availability confirmed ({avail_status}) — communicate availability to guest."
+                ),
+                blocking_fields=[],
+                can_generate_draft=True,
+            )
+
+        if avail_status == STATUS_UNAVAILABLE:
+            return ResponseGoalResult(
+                response_goal=GOAL_RESPOND_UNAVAILABLE,
+                goal_reason=(
+                    f"Readiness status is {readiness_status} and date is {date_status}; "
+                    "availability is UNAVAILABLE — acknowledge without inventing alternatives."
+                ),
+                blocking_fields=[],
+                can_generate_draft=True,
+            )
+
         return ResponseGoalResult(
-            response_goal=GOAL_READY_TO_CONFIRM_AVAILABILITY,
+            response_goal=GOAL_ACKNOWLEDGE_AND_CHECK_AVAILABILITY,
             goal_reason=(
                 f"Readiness status is {readiness_status} and date is {date_status}; "
-                "all key facts are present — proceeding to availability confirmation."
+                "no availability check has been performed — team will check and follow up."
             ),
             blocking_fields=[],
             can_generate_draft=True,

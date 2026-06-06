@@ -262,8 +262,9 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
         # Sprint 7 enrichment variables (present only when processing snapshot is available)
         "availability_line": _build_availability_line(context),
         "missing_questions_line": _build_missing_questions_line(context),
-        # RESP-003: response goal and audience context
-        "response_goal": context.response_goal or "READY_TO_CONFIRM_AVAILABILITY",
+        # RESP-005: response goal — new goals take precedence; legacy alias kept for
+        # stored DB records that may still hold READY_TO_CONFIRM_AVAILABILITY.
+        "response_goal": context.response_goal or "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
         "audience_type_line": (
             f"Audience type: {context.audience_type}\n" if context.audience_type else ""
         ),
@@ -299,6 +300,11 @@ def _derive_availability_contract(context: DraftContext) -> str:
     if status in ("booked", "held", "unavailable"):
         return "CONFIRMED_UNAVAILABLE"
     goal = context.response_goal or ""
+    # RESP-005 new goals map directly to contract states
+    if goal == "CONFIRM_AVAILABLE":
+        return "CONFIRMED_AVAILABLE"
+    if goal == "RESPOND_UNAVAILABLE":
+        return "CONFIRMED_UNAVAILABLE"
     if goal == "REQUEST_DATE_CONFIRMATION":
         return "PENDING_DATE_CONFIRMATION"
     if goal in ("REQUEST_MISSING_INFORMATION", "REQUEST_WEBFORM"):
