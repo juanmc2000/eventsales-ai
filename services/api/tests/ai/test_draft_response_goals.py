@@ -78,9 +78,10 @@ class TestDraftPromptV3Registry:
     def setup_method(self) -> None:
         self.registry = PromptRegistry()
 
-    def test_active_draft_prompt_is_v5(self) -> None:
+    def test_active_draft_prompt_is_v6(self) -> None:
+        # V5 archived in RESP-018 — V6 is now active
         defn = self.registry.get(PROMPT_KEY_DRAFT_RESPONSE)
-        assert defn.version == 5
+        assert defn.version == 6
         assert defn.status == VERSION_STATUS_ACTIVE
 
     def test_response_goal_is_required_variable(self) -> None:
@@ -95,9 +96,10 @@ class TestDraftPromptV3Registry:
         defn = self.registry.get(PROMPT_KEY_DRAFT_RESPONSE)
         assert "clarification_questions_line" in defn.optional_variables
 
-    def test_output_schema_version_is_5(self) -> None:
+    def test_output_schema_version_is_6(self) -> None:
+        # V6 output schema version
         defn = self.registry.get(PROMPT_KEY_DRAFT_RESPONSE)
-        assert defn.output_schema_version == "5.0"
+        assert defn.output_schema_version == "6.0"
 
 
 # ── Prompt rendering — response_goal is in system prompt ──────────────────────
