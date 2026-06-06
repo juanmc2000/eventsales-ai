@@ -22,7 +22,7 @@ from app.modules.ai.constants import (
     VERSION_STATUS_ACTIVE,
     VERSION_STATUS_ARCHIVED,
 )
-from app.modules.ai.prompt_registry import PromptRegistry
+from app.modules.ai.prompt_registry import PromptRegistry, _ALL_DEFINITIONS
 from app.modules.ai.schemas import DraftContext
 from app.modules.ai.service import (
     _build_allowed_sections_line,
@@ -69,17 +69,29 @@ _SAMPLE_SECTION_PLAN = {
 }
 
 
-# ── Registry: V5 active, V4 archived ──────────────────────────────────────────
+# ── Registry: V5 archived (replaced by V6), V4 archived ───────────────────────
+
+
+def _get_v5():
+    """Return V5 directly from the full definitions list (archived since RESP-018)."""
+    return next(
+        (d for d in _ALL_DEFINITIONS if d.key == PROMPT_KEY_DRAFT_RESPONSE and d.version == 5),
+        None,
+    )
 
 
 class TestDraftPromptV5Registry:
     def setup_method(self) -> None:
         self.registry = PromptRegistry()
 
-    def test_active_draft_prompt_is_v5(self) -> None:
-        defn = self.registry.get(PROMPT_KEY_DRAFT_RESPONSE)
-        assert defn.version == 5
-        assert defn.status == VERSION_STATUS_ACTIVE
+    def test_v5_exists_as_historical_record(self) -> None:
+        v5 = _get_v5()
+        assert v5 is not None
+
+    def test_v5_is_archived_since_resp018(self) -> None:
+        # V5 was archived in RESP-018 — replaced by V6 (approved copy blocks)
+        v5 = _get_v5()
+        assert v5.status == VERSION_STATUS_ARCHIVED
 
     def test_v4_is_archived(self) -> None:
         all_defns = self.registry.all_definitions()
@@ -91,32 +103,32 @@ class TestDraftPromptV5Registry:
         assert v4.status == VERSION_STATUS_ARCHIVED
 
     def test_v5_temperature_is_0_4(self) -> None:
-        defn = self.registry.get(PROMPT_KEY_DRAFT_RESPONSE)
-        assert defn.temperature == 0.4
+        v5 = _get_v5()
+        assert v5.temperature == 0.4
 
     def test_v5_allowed_sections_line_is_optional_variable(self) -> None:
-        defn = self.registry.get(PROMPT_KEY_DRAFT_RESPONSE)
-        assert "allowed_sections_line" in defn.optional_variables
+        v5 = _get_v5()
+        assert "allowed_sections_line" in v5.optional_variables
 
     def test_v5_forbidden_topics_line_is_optional_variable(self) -> None:
-        defn = self.registry.get(PROMPT_KEY_DRAFT_RESPONSE)
-        assert "forbidden_topics_line" in defn.optional_variables
+        v5 = _get_v5()
+        assert "forbidden_topics_line" in v5.optional_variables
 
     def test_v5_response_goal_is_required_variable(self) -> None:
-        defn = self.registry.get(PROMPT_KEY_DRAFT_RESPONSE)
-        assert "response_goal" in defn.required_variables
+        v5 = _get_v5()
+        assert "response_goal" in v5.required_variables
 
     def test_v5_output_schema_version_is_5(self) -> None:
-        defn = self.registry.get(PROMPT_KEY_DRAFT_RESPONSE)
-        assert defn.output_schema_version == "5.0"
+        v5 = _get_v5()
+        assert v5.output_schema_version == "5.0"
 
     def test_v5_system_template_references_allowed_sections_line(self) -> None:
-        defn = self.registry.get(PROMPT_KEY_DRAFT_RESPONSE)
-        assert "{allowed_sections_line}" in defn.system_template
+        v5 = _get_v5()
+        assert "{allowed_sections_line}" in v5.system_template
 
     def test_v5_system_template_references_forbidden_topics_line(self) -> None:
-        defn = self.registry.get(PROMPT_KEY_DRAFT_RESPONSE)
-        assert "{forbidden_topics_line}" in defn.system_template
+        v5 = _get_v5()
+        assert "{forbidden_topics_line}" in v5.system_template
 
 
 # ── _build_allowed_sections_line ──────────────────────────────────────────────

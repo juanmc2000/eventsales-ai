@@ -401,3 +401,29 @@ class TestBuildDraftInputPayload:
         # RESP-019: guest_message_line is built from structured fields; persona_tone
         # is set so tone line is non-empty — only empty when ALL tone fields absent
         assert "guest_message_line" in payload
+
+    def test_approved_copy_blocks_line_present_in_payload(self) -> None:
+        """RESP-018: approved_copy_blocks_line must be included in the draft input payload."""
+        from app.modules.ai.service import _build_draft_input_payload
+        from app.modules.ai.schemas import DraftContext
+
+        ctx = DraftContext(
+            enquiry_id=uuid.uuid4(),
+            guest_first_name="Alice",
+            guest_last_name="Smith",
+            event_type="corporate",
+            event_date="2026-08-15",
+            party_size=20,
+            guest_message=None,
+            restaurant_name="The Grand",
+            restaurant_description=None,
+            persona_name="Eleanor",
+            persona_tone="warm",
+            persona_style="concise",
+            persona_system_prompt="",
+            recommended_minimum_spend=None,
+            response_goal="ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+        )
+        payload = _build_draft_input_payload(ctx)
+        assert "approved_copy_blocks_line" in payload
+        assert payload["approved_copy_blocks_line"] != ""

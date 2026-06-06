@@ -276,6 +276,8 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
         # RESP-013: section plan lines — authorised/forbidden sections from SectionPlan
         "allowed_sections_line": _build_allowed_sections_line(context),
         "forbidden_topics_line": _build_forbidden_topics_line(context),
+        # RESP-018: pre-rendered approved copy blocks for V6 prompt
+        "approved_copy_blocks_line": _build_approved_copy_blocks_line(context),
     }
     return payload
 
@@ -559,6 +561,83 @@ def _build_forbidden_topics_line(context: DraftContext) -> str:
         else:
             lines.append(f"  - {section}\n")
     lines.append("\n")
+    return "".join(lines)
+
+
+def _build_approved_copy_blocks_line(context: DraftContext) -> str:
+    """Build pre-rendered approved copy blocks for the V6 prompt (RESP-018).
+
+    Renders the blocks relevant to the current response goal from
+    FirstResponseCopyLibrary so the LLM stitches them verbatim rather than
+    inventing operational wording.  Returns an empty string when no blocks
+    can be rendered (e.g. missing required variables).
+    """
+    from app.modules.ai.first_response_copy_library import FirstResponseCopyLibrary  # noqa: PLC0415
+
+    goal = context.response_goal or "ACKNOWLEDGE_AND_CHECK_AVAILABILITY"
+    meal_period = context.availability_meal_period or "dinner"
+    event_date = context.availability_date or context.event_date or "the requested date"
+    persona_name = context.persona_name
+
+    blocks: list[tuple[str, str]] = []  # (label, rendered_text)
+
+    if goal == "CONFIRM_AVAILABLE":
+        text = FirstResponseCopyLibrary.render_safe(
+            "availability_confirmed",
+            {"meal_period": meal_period, "event_date": event_date},
+        )
+        if text:
+            blocks.append(("Opening statement", text))
+        spend = context.confirmed_minimum_spend or context.recommended_minimum_spend
+        if spend and spend > 0:
+            text = FirstResponseCopyLibrary.render_safe(
+                "minimum_spend", {"spend_amount": f"£{spend:,.0f}"}
+            )
+            if text:
+                blocks.append(("Minimum spend statement", text))
+        text = FirstResponseCopyLibrary.render_safe("booking_next_step")
+        if text:
+            blocks.append(("Next step", text))
+
+    elif goal == "RESPOND_UNAVAILABLE":
+        text = FirstResponseCopyLibrary.render_safe(
+            "availability_unavailable",
+            {"meal_period": meal_period, "event_date": event_date},
+        )
+        if text:
+            blocks.append(("Opening statement", text))
+
+    elif goal == "ACKNOWLEDGE_AND_CHECK_AVAILABILITY":
+        text = FirstResponseCopyLibrary.render_safe(
+            "availability_not_checked",
+            {"meal_period": meal_period, "event_date": event_date},
+        )
+        if text:
+            blocks.append(("Opening statement", text))
+        text = FirstResponseCopyLibrary.render_safe("availability_check_next_step")
+        if text:
+            blocks.append(("Next step", text))
+
+    elif goal == "REQUEST_MISSING_INFORMATION":
+        text = FirstResponseCopyLibrary.render_safe("clarification_next_step")
+        if text:
+            blocks.append(("Next step", text))
+
+    # Always include signoff
+    text = FirstResponseCopyLibrary.render_safe("signoff", {"persona_name": persona_name})
+    if text:
+        blocks.append(("Sign-off", text))
+
+    if not blocks:
+        return ""
+
+    lines = ["APPROVED COPY BLOCKS — use these verbatim for operational statements:\n"]
+    for label, rendered in blocks:
+        lines.append(f"[{label}]\n{rendered}\n\n")
+    lines.append(
+        "You MUST use the approved blocks above exactly as written. "
+        "Do not paraphrase, shorten, or replace them with alternative wording.\n\n"
+    )
     return "".join(lines)
 
 
