@@ -1,4 +1,4 @@
-"""Tests for RESP-011 — Response Section Builder.
+"""Tests for RESP-011 — Response Section Builder (updated RESP-016).
 
 Validates:
 - SectionPlan returned for every known response goal
@@ -13,6 +13,11 @@ Validates:
 - Unknown goal returns conservative fallback
 - to_dict returns expected keys
 - ResponsePreparationBuilder.build() produces section_plan in ResponsePlan
+RESP-016:
+- CONFIRM_AVAILABLE uses booking_next_step (not simple_next_step)
+- ACKNOWLEDGE_AND_CHECK_AVAILABILITY uses availability_check_next_step
+- RESPOND_UNAVAILABLE has no next-step section
+- REQUEST_MISSING_INFORMATION uses clarification_next_step
 """
 
 from __future__ import annotations
@@ -21,8 +26,11 @@ import pytest
 
 from app.modules.enquiries.response_section_builder import (
     SECTION_ALTERNATIVE_DATES,
+    SECTION_AVAILABILITY_CHECK_NEXT_STEP,
     SECTION_AVAILABILITY_CHECK_PENDING,
     SECTION_AVAILABILITY_CONFIRMATION,
+    SECTION_BOOKING_NEXT_STEP,
+    SECTION_CLARIFICATION_NEXT_STEP,
     SECTION_CLARIFICATION_QUESTIONS,
     SECTION_DATE_CONFIRMATION_QUESTION,
     SECTION_EXACT_TIMING,
@@ -339,3 +347,72 @@ class TestResponsePreparationBuilderIntegration:
         plan = ResponsePreparationBuilder.build(readiness_evaluation=self._make_readiness())
         assert "omitted_sections" in plan.section_plan
         assert len(plan.section_plan["omitted_sections"]) > 0
+
+
+# ── RESP-016: Deterministic next-step sections ────────────────────────────────
+
+
+class TestDeterministicNextStepSections:
+    """RESP-016 — simple_next_step replaced with goal-specific next-step types."""
+
+    def test_confirm_available_uses_booking_next_step(self) -> None:
+        plan = ResponseSectionBuilder.build("CONFIRM_AVAILABLE")
+        assert SECTION_BOOKING_NEXT_STEP in plan.allowed_sections
+
+    def test_confirm_available_no_simple_next_step(self) -> None:
+        plan = ResponseSectionBuilder.build("CONFIRM_AVAILABLE")
+        assert "simple_next_step" not in plan.allowed_sections
+        assert "simple_next_step" not in plan.required_sections
+
+    def test_booking_next_step_before_signoff(self) -> None:
+        plan = ResponseSectionBuilder.build("CONFIRM_AVAILABLE")
+        allowed = plan.allowed_sections
+        assert allowed.index(SECTION_BOOKING_NEXT_STEP) < allowed.index(SECTION_SIGNOFF)
+
+    def test_acknowledge_uses_availability_check_next_step(self) -> None:
+        plan = ResponseSectionBuilder.build("ACKNOWLEDGE_AND_CHECK_AVAILABILITY")
+        assert SECTION_AVAILABILITY_CHECK_NEXT_STEP in plan.allowed_sections
+
+    def test_acknowledge_no_simple_next_step(self) -> None:
+        plan = ResponseSectionBuilder.build("ACKNOWLEDGE_AND_CHECK_AVAILABILITY")
+        assert "simple_next_step" not in plan.allowed_sections
+
+    def test_availability_check_next_step_before_signoff(self) -> None:
+        plan = ResponseSectionBuilder.build("ACKNOWLEDGE_AND_CHECK_AVAILABILITY")
+        allowed = plan.allowed_sections
+        assert allowed.index(SECTION_AVAILABILITY_CHECK_NEXT_STEP) < allowed.index(SECTION_SIGNOFF)
+
+    def test_respond_unavailable_has_no_next_step_section(self) -> None:
+        plan = ResponseSectionBuilder.build("RESPOND_UNAVAILABLE")
+        assert SECTION_BOOKING_NEXT_STEP not in plan.allowed_sections
+        assert SECTION_AVAILABILITY_CHECK_NEXT_STEP not in plan.allowed_sections
+        assert SECTION_CLARIFICATION_NEXT_STEP not in plan.allowed_sections
+        assert "simple_next_step" not in plan.allowed_sections
+
+    def test_request_missing_information_uses_clarification_next_step(self) -> None:
+        plan = ResponseSectionBuilder.build("REQUEST_MISSING_INFORMATION")
+        assert SECTION_CLARIFICATION_NEXT_STEP in plan.allowed_sections
+
+    def test_request_missing_information_no_simple_next_step(self) -> None:
+        plan = ResponseSectionBuilder.build("REQUEST_MISSING_INFORMATION")
+        assert "simple_next_step" not in plan.allowed_sections
+
+    def test_clarification_next_step_before_signoff(self) -> None:
+        plan = ResponseSectionBuilder.build("REQUEST_MISSING_INFORMATION")
+        allowed = plan.allowed_sections
+        assert allowed.index(SECTION_CLARIFICATION_NEXT_STEP) < allowed.index(SECTION_SIGNOFF)
+
+    def test_no_next_step_sections_cross_contaminate(self) -> None:
+        """booking_next_step must not appear in non-CONFIRM_AVAILABLE plans."""
+        for goal in ["RESPOND_UNAVAILABLE", "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+                     "REQUEST_MISSING_INFORMATION", "REQUEST_DATE_CONFIRMATION",
+                     "REQUEST_WEBFORM", "ESCALATE_TO_HUMAN"]:
+            plan = ResponseSectionBuilder.build(goal)
+            assert SECTION_BOOKING_NEXT_STEP not in plan.allowed_sections, goal
+
+    def test_availability_check_next_step_only_in_acknowledge(self) -> None:
+        for goal in ["CONFIRM_AVAILABLE", "RESPOND_UNAVAILABLE",
+                     "REQUEST_MISSING_INFORMATION", "REQUEST_DATE_CONFIRMATION",
+                     "REQUEST_WEBFORM", "ESCALATE_TO_HUMAN"]:
+            plan = ResponseSectionBuilder.build(goal)
+            assert SECTION_AVAILABILITY_CHECK_NEXT_STEP not in plan.allowed_sections, goal
