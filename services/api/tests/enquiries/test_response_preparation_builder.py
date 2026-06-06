@@ -193,7 +193,7 @@ def test_response_plan_to_dict_has_all_keys():
         "response_goal", "response_priority", "can_generate_draft", "goal_reason",
         "blocking_fields", "known_facts", "missing_information", "clarification_questions",
         "date_context", "availability_context", "customer_type_context", "persona_context",
-        "draft_instructions",
+        "draft_instructions", "section_plan",
     }
 
 
