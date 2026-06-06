@@ -28,8 +28,9 @@ from app.modules.enquiries.readiness_evaluator import (
     ReadinessEvaluation,
 )
 from app.modules.enquiries.response_goal_engine import (
+    GOAL_ACKNOWLEDGE_AND_CHECK_AVAILABILITY,
+    GOAL_CONFIRM_AVAILABLE,
     GOAL_ESCALATE_TO_HUMAN,
-    GOAL_READY_TO_CONFIRM_AVAILABILITY,
     GOAL_REQUEST_DATE_CONFIRMATION,
     GOAL_REQUEST_MISSING_INFORMATION,
     GOAL_REQUEST_WEBFORM,
@@ -182,7 +183,7 @@ def _urgent_priority() -> ResponsePriorityResult:
 
 def test_response_plan_to_dict_has_all_keys():
     plan = ResponsePlan(
-        response_goal=GOAL_READY_TO_CONFIRM_AVAILABILITY,
+        response_goal=GOAL_CONFIRM_AVAILABLE,
         response_priority=PRIORITY_NORMAL,
         can_generate_draft=True,
         goal_reason="All good.",
@@ -210,7 +211,7 @@ def test_complete_enquiry_is_ready():
         persona_routing_context=_social_persona_ctx(),
         response_priority_result=_urgent_priority(),
     )
-    assert plan.response_goal == GOAL_READY_TO_CONFIRM_AVAILABILITY
+    assert plan.response_goal == GOAL_CONFIRM_AVAILABLE
     assert plan.can_generate_draft is True
 
 

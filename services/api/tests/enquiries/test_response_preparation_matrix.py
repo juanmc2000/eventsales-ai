@@ -46,8 +46,8 @@ from app.modules.enquiries.readiness_evaluator import (
     STATUS_WEBFORM_REQUIRED,
 )
 from app.modules.enquiries.response_goal_engine import (
+    GOAL_CONFIRM_AVAILABLE,
     GOAL_ESCALATE_TO_HUMAN,
-    GOAL_READY_TO_CONFIRM_AVAILABILITY,
     GOAL_REQUEST_DATE_CONFIRMATION,
     GOAL_REQUEST_MISSING_INFORMATION,
     GOAL_REQUEST_WEBFORM,
@@ -409,7 +409,7 @@ def test_scenarios_07_10_customer_type_tone_routing(customer_type: str, expected
         ),
     )
 
-    assert plan.response_goal == GOAL_READY_TO_CONFIRM_AVAILABILITY
+    assert plan.response_goal == GOAL_CONFIRM_AVAILABLE
     assert plan.can_generate_draft is True
     assert plan.customer_type_context.get("final_customer_type") == customer_type
     assert plan.persona_context.get("tone_guidance") == expected_tone

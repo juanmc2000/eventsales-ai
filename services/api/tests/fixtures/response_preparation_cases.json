@@ -1,9 +1,9 @@
 [
   {
     "id": "scenario_01",
-    "description": "Complete enquiry with available date — should be ready to confirm availability",
+    "description": "Complete enquiry with available date — availability confirmed, communicate to guest",
     "expected": {
-      "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+      "response_goal": "CONFIRM_AVAILABLE",
       "can_generate_draft": true,
       "response_priority": "NORMAL",
       "availability_status": "AVAILABLE",
@@ -13,9 +13,9 @@
   },
   {
     "id": "scenario_02",
-    "description": "Complete enquiry with unavailable date — goal unchanged; availability context reflects UNAVAILABLE",
+    "description": "Complete enquiry with unavailable date — slot fully booked, acknowledge without inventing alternatives",
     "expected": {
-      "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+      "response_goal": "RESPOND_UNAVAILABLE",
       "can_generate_draft": true,
       "response_priority": "NORMAL",
       "availability_status": "UNAVAILABLE",
@@ -70,7 +70,7 @@
     "id": "scenario_07",
     "description": "Social enquiry — warm, friendly, celebratory tone",
     "expected": {
-      "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+      "response_goal": "CONFIRM_AVAILABLE",
       "can_generate_draft": true,
       "customer_type": "social",
       "tone_guidance": ["warm", "friendly", "celebratory"]
@@ -80,7 +80,7 @@
     "id": "scenario_08",
     "description": "Corporate enquiry — concise, professional, efficient tone",
     "expected": {
-      "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+      "response_goal": "CONFIRM_AVAILABLE",
       "can_generate_draft": true,
       "customer_type": "corporate",
       "tone_guidance": ["concise", "professional", "efficient"]
@@ -90,7 +90,7 @@
     "id": "scenario_09",
     "description": "Agency enquiry — detailed, operationally precise, low-friction tone",
     "expected": {
-      "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+      "response_goal": "CONFIRM_AVAILABLE",
       "can_generate_draft": true,
       "customer_type": "agency",
       "tone_guidance": ["detailed", "operationally precise", "low-friction"]
@@ -100,7 +100,7 @@
     "id": "scenario_10",
     "description": "Unknown customer type — professional tone fallback",
     "expected": {
-      "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+      "response_goal": "CONFIRM_AVAILABLE",
       "can_generate_draft": true,
       "customer_type": "unknown",
       "tone_guidance": ["professional"]
@@ -137,7 +137,7 @@
     "id": "scenario_14",
     "description": "Urgent enquiry — event is tomorrow; URGENT priority",
     "expected": {
-      "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+      "response_goal": "CONFIRM_AVAILABLE",
       "can_generate_draft": true,
       "response_priority": "URGENT"
     }
@@ -146,7 +146,7 @@
     "id": "scenario_15",
     "description": "Low-priority future enquiry — event is >90 days away; LOW priority",
     "expected": {
-      "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+      "response_goal": "CONFIRM_AVAILABLE",
       "can_generate_draft": true,
       "response_priority": "LOW"
     }

@@ -20,11 +20,14 @@ from app.modules.enquiries.readiness_evaluator import (
 )
 from app.modules.enquiries.response_goal_engine import (
     ALL_GOALS,
+    GOAL_ACKNOWLEDGE_AND_CHECK_AVAILABILITY,
+    GOAL_CONFIRM_AVAILABLE,
     GOAL_ESCALATE_TO_HUMAN,
     GOAL_READY_TO_CONFIRM_AVAILABILITY,
     GOAL_REQUEST_DATE_CONFIRMATION,
     GOAL_REQUEST_MISSING_INFORMATION,
     GOAL_REQUEST_WEBFORM,
+    GOAL_RESPOND_UNAVAILABLE,
     GOAL_UNABLE_TO_PROCESS,
     ResponseGoalEngine,
     ResponseGoalResult,
@@ -77,6 +80,13 @@ def _date_status(
     )
 
 
+class _FakeAvailabilityDecision:
+    """Minimal stand-in for AvailabilityDecision (ORCH-002)."""
+
+    def __init__(self, availability_status: str) -> None:
+        self.availability_status = availability_status
+
+
 class _FakeMissingInfo:
     """Minimal stand-in for MissingInformationResult (ORCH-003)."""
 
@@ -96,10 +106,13 @@ class _FakeMissingInfo:
 # ── ALL_GOALS constant ─────────────────────────────────────────────────────────
 
 
-def test_all_goals_contains_six_values():
-    assert len(ALL_GOALS) == 6
-    assert GOAL_READY_TO_CONFIRM_AVAILABILITY in ALL_GOALS
+def test_all_goals_contains_new_goals():
+    assert GOAL_CONFIRM_AVAILABLE in ALL_GOALS
+    assert GOAL_RESPOND_UNAVAILABLE in ALL_GOALS
+    assert GOAL_ACKNOWLEDGE_AND_CHECK_AVAILABILITY in ALL_GOALS
     assert GOAL_UNABLE_TO_PROCESS in ALL_GOALS
+    # deprecated alias still present for backward compat
+    assert GOAL_READY_TO_CONFIRM_AVAILABILITY in ALL_GOALS
 
 
 # ── ResponseGoalResult ────────────────────────────────────────────────────────
@@ -278,40 +291,70 @@ def test_critical_fields_from_missing_info_engine_trigger_request_missing():
     assert "guest_count" in r.blocking_fields
 
 
-# ── Rule 6: READY_TO_CONFIRM_AVAILABILITY ────────────────────────────────────
+# ── Rule 6: Availability-aware response goals (RESP-005) ──────────────────────
 
 
-def test_ready_when_all_facts_present():
+def test_confirm_available_when_availability_decision_available():
     r = ResponseGoalEngine.decide(
         readiness_evaluation=_readiness(status=STATUS_READY_FOR_AVAILABILITY),
         date_resolution_status=_date_status(status=STATUS_RESOLVED),
+        availability_decision=_FakeAvailabilityDecision("AVAILABLE"),
     )
-    assert r.response_goal == GOAL_READY_TO_CONFIRM_AVAILABILITY
+    assert r.response_goal == GOAL_CONFIRM_AVAILABLE
     assert r.can_generate_draft is True
     assert r.blocking_fields == []
 
 
-def test_ready_with_no_date_resolution_object_but_readiness_ready():
-    """When date_resolution_status is None but readiness is READY, allow READY goal."""
+def test_confirm_available_when_partially_available():
+    r = ResponseGoalEngine.decide(
+        readiness_evaluation=_readiness(status=STATUS_READY_FOR_AVAILABILITY),
+        date_resolution_status=_date_status(status=STATUS_RESOLVED),
+        availability_decision=_FakeAvailabilityDecision("PARTIALLY_AVAILABLE"),
+    )
+    assert r.response_goal == GOAL_CONFIRM_AVAILABLE
+
+
+def test_respond_unavailable_when_availability_decision_unavailable():
+    r = ResponseGoalEngine.decide(
+        readiness_evaluation=_readiness(status=STATUS_READY_FOR_AVAILABILITY),
+        date_resolution_status=_date_status(status=STATUS_RESOLVED),
+        availability_decision=_FakeAvailabilityDecision("UNAVAILABLE"),
+    )
+    assert r.response_goal == GOAL_RESPOND_UNAVAILABLE
+    assert r.can_generate_draft is True
+    assert r.blocking_fields == []
+
+
+def test_acknowledge_and_check_when_no_availability_decision():
+    r = ResponseGoalEngine.decide(
+        readiness_evaluation=_readiness(status=STATUS_READY_FOR_AVAILABILITY),
+        date_resolution_status=_date_status(status=STATUS_RESOLVED),
+        availability_decision=None,
+    )
+    assert r.response_goal == GOAL_ACKNOWLEDGE_AND_CHECK_AVAILABILITY
+    assert r.can_generate_draft is True
+    assert r.blocking_fields == []
+
+
+def test_acknowledge_and_check_when_not_checked_status():
+    r = ResponseGoalEngine.decide(
+        readiness_evaluation=_readiness(status=STATUS_READY_FOR_AVAILABILITY),
+        date_resolution_status=_date_status(status=STATUS_RESOLVED),
+        availability_decision=_FakeAvailabilityDecision("NOT_CHECKED"),
+    )
+    assert r.response_goal == GOAL_ACKNOWLEDGE_AND_CHECK_AVAILABILITY
+
+
+def test_acknowledge_and_check_with_no_date_resolution():
+    """date_resolution_status=None still resolves to ACKNOWLEDGE when no availability."""
     r = ResponseGoalEngine.decide(
         readiness_evaluation=_readiness(status=STATUS_READY_FOR_AVAILABILITY),
         date_resolution_status=None,
     )
-    # DATE_UNKNOWN does not block if readiness passed its own date checks
-    assert r.response_goal == GOAL_READY_TO_CONFIRM_AVAILABILITY
+    assert r.response_goal == GOAL_ACKNOWLEDGE_AND_CHECK_AVAILABILITY
 
 
-def test_ready_with_no_missing_info_engine():
-    r = ResponseGoalEngine.decide(
-        readiness_evaluation=_readiness(status=STATUS_READY_FOR_AVAILABILITY),
-        date_resolution_status=_date_status(status=STATUS_RESOLVED),
-        missing_information_result=None,
-        availability_decision=None,
-    )
-    assert r.response_goal == GOAL_READY_TO_CONFIRM_AVAILABILITY
-
-
-def test_ready_with_empty_missing_info_engine():
+def test_acknowledge_and_check_with_empty_missing_info():
     missing = _FakeMissingInfo(
         missing_fields=[],
         critical_missing_fields=[],
@@ -322,7 +365,7 @@ def test_ready_with_empty_missing_info_engine():
         date_resolution_status=_date_status(status=STATUS_RESOLVED),
         missing_information_result=missing,
     )
-    assert r.response_goal == GOAL_READY_TO_CONFIRM_AVAILABILITY
+    assert r.response_goal == GOAL_ACKNOWLEDGE_AND_CHECK_AVAILABILITY
 
 
 # ── Goal properties ───────────────────────────────────────────────────────────
@@ -360,4 +403,4 @@ def test_customer_type_does_not_affect_goal_assignment():
             date_resolution_status=_date_status(status=STATUS_RESOLVED),
             customer_type=ctype,
         )
-        assert r.response_goal == GOAL_READY_TO_CONFIRM_AVAILABILITY
+        assert r.response_goal == GOAL_ACKNOWLEDGE_AND_CHECK_AVAILABILITY

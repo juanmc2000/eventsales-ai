@@ -208,10 +208,10 @@ class TestBuildDraftInputPayloadResponseGoal:
         payload = _build_draft_input_payload(ctx)
         assert payload["response_goal"] == "REQUEST_MISSING_INFORMATION"
 
-    def test_response_goal_defaults_to_ready_when_none(self) -> None:
+    def test_response_goal_defaults_to_acknowledge_when_none(self) -> None:
         ctx = _base_context(response_goal=None)
         payload = _build_draft_input_payload(ctx)
-        assert payload["response_goal"] == "READY_TO_CONFIRM_AVAILABILITY"
+        assert payload["response_goal"] == "ACKNOWLEDGE_AND_CHECK_AVAILABILITY"
 
     def test_audience_type_line_present_in_payload(self) -> None:
         ctx = _base_context(audience_type="corporate")
@@ -352,7 +352,10 @@ class TestDraftContextNewFields:
 
     def test_all_goals_accepted(self) -> None:
         goals = [
-            "READY_TO_CONFIRM_AVAILABILITY",
+            "CONFIRM_AVAILABLE",
+            "RESPOND_UNAVAILABLE",
+            "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+            "READY_TO_CONFIRM_AVAILABILITY",  # deprecated alias still accepted
             "REQUEST_MISSING_INFORMATION",
             "REQUEST_DATE_CONFIRMATION",
             "REQUEST_WEBFORM",

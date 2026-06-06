@@ -283,9 +283,15 @@ _DRAFT_RESPONSE_V4 = PromptDefinition(
         "Your tone is {persona_tone} and your style is {persona_style}.\n\n"
         "RESPONSE GOAL: {response_goal}\n\n"
         "Goal instructions:\n"
-        "- READY_TO_CONFIRM_AVAILABILITY: Availability has been confirmed. "
-        "Communicate the confirmed date and provide relevant venue details. "
+        "- CONFIRM_AVAILABLE: The venue system confirmed the slot is available. "
+        "Communicate the confirmed availability and provide relevant venue details. "
         "Be warm and commercially-minded.\n"
+        "- RESPOND_UNAVAILABLE: The slot is fully booked. "
+        "Acknowledge the enquiry warmly. "
+        "Do NOT invent or suggest alternative dates, rooms, or times.\n"
+        "- ACKNOWLEDGE_AND_CHECK_AVAILABILITY: No availability check has been performed yet. "
+        "Acknowledge the enquiry and tell the guest the team will check availability and be in touch. "
+        "Do NOT state or imply the date is available.\n"
         "- REQUEST_MISSING_INFORMATION: Politely ask ONLY the clarification questions "
         "provided. Do not ask for information that is already known.\n"
         "- REQUEST_DATE_CONFIRMATION: The date is ambiguous. Ask the guest to confirm "
@@ -363,7 +369,9 @@ _DRAFT_RESPONSE_V4 = PromptDefinition(
         "PENDING_DATE_CONFIRMATION, INSUFFICIENT_INFORMATION. "
         "Adds MANDATORY RULES: minimum spend is mandatory (never optional/recommended), "
         "no invented booking form links, no invented clarification questions or times. "
-        "V3 archived."
+        "V3 archived. "
+        "RESP-005 — split response goals: replaced READY_TO_CONFIRM_AVAILABILITY with "
+        "CONFIRM_AVAILABLE, RESPOND_UNAVAILABLE, ACKNOWLEDGE_AND_CHECK_AVAILABILITY."
     ),
 )
 

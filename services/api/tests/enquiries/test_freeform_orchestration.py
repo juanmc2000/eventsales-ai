@@ -413,7 +413,8 @@ from app.modules.enquiries.date_resolution_status import (  # noqa: E402
 )
 from app.modules.enquiries.intake_service import _build_date_resolution_status  # noqa: E402
 from app.modules.enquiries.response_goal_engine import (  # noqa: E402
-    GOAL_READY_TO_CONFIRM_AVAILABILITY,
+    GOAL_ACKNOWLEDGE_AND_CHECK_AVAILABILITY,
+    GOAL_CONFIRM_AVAILABLE,
 )
 from app.modules.enquiries.schemas import FreeformIntakeOut  # noqa: E402
 
@@ -509,13 +510,13 @@ class TestFreeformIntakeOutResponsePreparation:
             restaurant_id=uuid.uuid4(),
             created_at=datetime.now(timezone.utc),
             response_preparation_summary={
-                "response_goal": GOAL_READY_TO_CONFIRM_AVAILABILITY,
+                "response_goal": GOAL_ACKNOWLEDGE_AND_CHECK_AVAILABILITY,
                 "response_priority": "NORMAL",
                 "can_generate_draft": True,
                 "clarification_questions": [],
             },
         )
-        assert out.response_preparation_summary["response_goal"] == GOAL_READY_TO_CONFIRM_AVAILABILITY
+        assert out.response_preparation_summary["response_goal"] == GOAL_ACKNOWLEDGE_AND_CHECK_AVAILABILITY
 
     def test_response_preparation_summary_defaults_to_none(self):
         out = FreeformIntakeOut(
@@ -650,5 +651,5 @@ class TestRunResponsePreparation:
                 persona=None,
             )
 
-        assert result["response_goal"] == GOAL_READY_TO_CONFIRM_AVAILABILITY
+        assert result["response_goal"] == GOAL_CONFIRM_AVAILABLE
         assert result["can_generate_draft"] is True

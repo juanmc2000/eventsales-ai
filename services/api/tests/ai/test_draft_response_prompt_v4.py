@@ -178,7 +178,7 @@ class TestDraftPromptV4Rendering:
         return self.renderer.render_system(self.defn, payload)
 
     def test_all_five_contract_states_in_rendered_system(self) -> None:
-        rendered = self._render_system(response_goal="READY_TO_CONFIRM_AVAILABILITY")
+        rendered = self._render_system(response_goal="ACKNOWLEDGE_AND_CHECK_AVAILABILITY")
         for state in (
             "CONFIRMED_AVAILABLE",
             "CONFIRMED_UNAVAILABLE",
@@ -189,9 +189,11 @@ class TestDraftPromptV4Rendering:
             assert state in rendered, f"Contract state {state!r} missing from rendered system prompt"
 
     def test_all_response_goals_in_rendered_system(self) -> None:
-        rendered = self._render_system(response_goal="READY_TO_CONFIRM_AVAILABILITY")
+        rendered = self._render_system(response_goal="ACKNOWLEDGE_AND_CHECK_AVAILABILITY")
         for goal in (
-            "READY_TO_CONFIRM_AVAILABILITY",
+            "CONFIRM_AVAILABLE",
+            "RESPOND_UNAVAILABLE",
+            "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "REQUEST_MISSING_INFORMATION",
             "REQUEST_DATE_CONFIRMATION",
             "REQUEST_WEBFORM",
@@ -247,6 +249,19 @@ class TestDeriveAvailabilityContract:
             response_goal="REQUEST_DATE_CONFIRMATION",
         )
         assert _derive_availability_contract(ctx) == "CONFIRMED_AVAILABLE"
+
+    # RESP-005: new goal → contract mappings
+    def test_confirm_available_goal_maps_to_confirmed_available(self) -> None:
+        ctx = _base_context(availability_status=None, response_goal="CONFIRM_AVAILABLE")
+        assert _derive_availability_contract(ctx) == "CONFIRMED_AVAILABLE"
+
+    def test_respond_unavailable_goal_maps_to_confirmed_unavailable(self) -> None:
+        ctx = _base_context(availability_status=None, response_goal="RESPOND_UNAVAILABLE")
+        assert _derive_availability_contract(ctx) == "CONFIRMED_UNAVAILABLE"
+
+    def test_acknowledge_goal_maps_to_not_checked(self) -> None:
+        ctx = _base_context(availability_status=None, response_goal="ACKNOWLEDGE_AND_CHECK_AVAILABILITY")
+        assert _derive_availability_contract(ctx) == "NOT_CHECKED"
 
 
 # ── _build_availability_line ───────────────────────────────────────────────────
