@@ -273,6 +273,9 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
         "prohibited_claims_line": _build_prohibited_claims_line(context),
         # RESP-007: phrase guidance — approved opening phrase for the current goal
         "phrase_guidance_line": _build_phrase_guidance_line(context),
+        # RESP-013: section plan lines — authorised/forbidden sections from SectionPlan
+        "allowed_sections_line": _build_allowed_sections_line(context),
+        "forbidden_topics_line": _build_forbidden_topics_line(context),
     }
     return payload
 
@@ -489,6 +492,51 @@ def _build_phrase_guidance_line(context: DraftContext) -> str:
     return get_phrase_guidance(goal)
 
 
+def _build_allowed_sections_line(context: DraftContext) -> str:
+    """Build the ALLOWED SECTIONS block for the V5 prompt (RESP-013).
+
+    Lists every section the model is permitted to write, marking required ones.
+    Returns an empty string when no section_plan is available.
+    """
+    sp = context.section_plan
+    if not sp:
+        return ""
+    allowed = sp.get("allowed_sections", [])
+    required = sp.get("required_sections", [])
+    if not allowed:
+        return ""
+    lines = ["RESPONSE SECTIONS — write ONLY sections from this list (in order):\n"]
+    for section in allowed:
+        marker = " (REQUIRED)" if section in required else ""
+        lines.append(f"  - {section}{marker}\n")
+    lines.append("Do NOT write any other section or topic.\n\n")
+    return "".join(lines)
+
+
+def _build_forbidden_topics_line(context: DraftContext) -> str:
+    """Build the FORBIDDEN TOPICS block for the V5 prompt (RESP-013).
+
+    Lists every section the model must not write, with the policy reason where available.
+    Returns an empty string when no section_plan is available.
+    """
+    sp = context.section_plan
+    if not sp:
+        return ""
+    omitted = sp.get("omitted_sections", [])
+    reasoning = sp.get("section_reasoning", {})
+    if not omitted:
+        return ""
+    lines = ["FORBIDDEN SECTIONS — do NOT write about any of the following:\n"]
+    for section in omitted:
+        reason = reasoning.get(section, "")
+        if reason:
+            lines.append(f"  - {section}: {reason}\n")
+        else:
+            lines.append(f"  - {section}\n")
+    lines.append("\n")
+    return "".join(lines)
+
+
 def _enrich_context_from_response_plan(
     db: Session, enquiry_id: uuid.UUID, context: DraftContext
 ) -> DraftContext:
@@ -517,11 +565,18 @@ def _enrich_context_from_response_plan(
         if isinstance(ctype_ctx, dict):
             audience_type = ctype_ctx.get("final_customer_type") or audience_type
 
+        # RESP-013: load section_plan from DB plan for V5 prompt
+        section_plan: dict | None = None
+        raw_section_plan = getattr(plan, "section_plan", None)
+        if isinstance(raw_section_plan, dict):
+            section_plan = raw_section_plan
+
         return replace(
             context,
             response_goal=response_goal or context.response_goal,
             clarification_questions=clarification_questions or context.clarification_questions,
             audience_type=audience_type,
+            section_plan=section_plan or context.section_plan,
         )
     except Exception as exc:  # noqa: BLE001
         logger.warning("Could not enrich context from response plan for %s: %s", enquiry_id, exc)
