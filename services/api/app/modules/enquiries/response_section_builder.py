@@ -1,10 +1,19 @@
-"""Response Section Builder (RESP-011).
+"""Response Section Builder (RESP-011, updated RESP-016).
 
 Deterministically specifies which sections the draft LLM is allowed to write,
 which are required, and which must be omitted.  No LLM calls are made.
 
 The builder narrows the model's freedom from "write a response" to
 "assemble exactly these sections in this order".
+
+RESP-016: Replaced generic ``simple_next_step`` with deterministic,
+goal-specific next-step section types so the model cannot invent arbitrary
+closing copy:
+
+  - CONFIRM_AVAILABLE            → ``booking_next_step``
+  - ACKNOWLEDGE_AND_CHECK_AVAILABILITY → ``availability_check_next_step``
+  - RESPOND_UNAVAILABLE          → no next-step section
+  - REQUEST_MISSING_INFORMATION  → ``clarification_next_step``
 
 Usage::
 
@@ -33,7 +42,10 @@ SECTION_MINIMUM_SPEND = "minimum_spend"
 SECTION_CLARIFICATION_QUESTIONS = "clarification_questions"
 SECTION_DATE_CONFIRMATION_QUESTION = "date_confirmation_question"
 SECTION_WEBFORM_REDIRECT = "webform_redirect"
-SECTION_SIMPLE_NEXT_STEP = "simple_next_step"
+# RESP-016: deterministic next-step sections replace generic simple_next_step
+SECTION_BOOKING_NEXT_STEP = "booking_next_step"
+SECTION_AVAILABILITY_CHECK_NEXT_STEP = "availability_check_next_step"
+SECTION_CLARIFICATION_NEXT_STEP = "clarification_next_step"
 SECTION_SIGNOFF = "signoff"
 
 # Sections that are forbidden by policy but named for explicit omission messages
@@ -139,7 +151,8 @@ class ResponseSectionBuilder:
             allowed.append(SECTION_MINIMUM_SPEND)
             required.append(SECTION_MINIMUM_SPEND)
 
-        allowed.extend([SECTION_SIMPLE_NEXT_STEP, SECTION_SIGNOFF])
+        # RESP-016: booking_next_step replaces generic simple_next_step
+        allowed.extend([SECTION_BOOKING_NEXT_STEP, SECTION_SIGNOFF])
 
         omitted = [
             SECTION_EXACT_TIMING,
@@ -228,10 +241,12 @@ class ResponseSectionBuilder:
         has_room_context: bool,
         **_: Any,
     ) -> SectionPlan:
+        # RESP-016: availability_check_next_step replaces generic simple_next_step
         allowed = [
             SECTION_OPENING,
             SECTION_ENQUIRY_SUMMARY,
             SECTION_AVAILABILITY_CHECK_PENDING,
+            SECTION_AVAILABILITY_CHECK_NEXT_STEP,
             SECTION_SIGNOFF,
         ]
         required = [SECTION_OPENING, SECTION_AVAILABILITY_CHECK_PENDING, SECTION_SIGNOFF]
@@ -275,7 +290,8 @@ class ResponseSectionBuilder:
         has_clarification_questions: bool,
         **_: Any,
     ) -> SectionPlan:
-        allowed = [SECTION_OPENING, SECTION_SIGNOFF]
+        # RESP-016: clarification_next_step replaces generic simple_next_step
+        allowed = [SECTION_OPENING, SECTION_CLARIFICATION_NEXT_STEP, SECTION_SIGNOFF]
         required = [SECTION_OPENING, SECTION_SIGNOFF]
 
         if has_clarification_questions:
