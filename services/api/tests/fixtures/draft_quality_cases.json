@@ -417,7 +417,7 @@
       "response_goal": "REQUEST_WEBFORM",
       "availability_contract": "NOT_CHECKED",
       "date_status": "resolved",
-      "draft_text": "Thank you for your enquiry. To ensure we capture all the details for your event, could I ask you to complete our short enquiry form?",
+      "draft_text": "Thank you for your enquiry. To ensure we capture all the details for your event, please complete our short enquiry form so we can follow up promptly.",
       "context": {
         "clarification_questions": [],
         "confirmed_minimum_spend": null,
