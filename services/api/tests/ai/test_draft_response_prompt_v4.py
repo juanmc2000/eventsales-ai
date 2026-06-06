@@ -27,8 +27,12 @@ from app.modules.ai.prompt_renderer import PromptRenderer
 from app.modules.ai.schemas import DraftContext
 from app.modules.ai.service import (
     _build_availability_line,
-    _build_spend_line,
+    _build_confirmed_venue_facts_line,
     _build_draft_input_payload,
+    _build_guest_tone_line,
+    _build_prohibited_claims_line,
+    _build_requested_preferences_line,
+    _build_spend_line,
     _derive_availability_contract,
 )
 
@@ -473,3 +477,146 @@ class TestFixtureAvailabilityContract:
                 f"{record['record_id']}: spend line says Recommended: {new_line!r}"
             )
             assert "Minimum spend" in new_line
+
+
+# ── RESP-006: Structured draft context ────────────────────────────────────────
+
+
+class TestBuildGuestToneLine:
+    def test_tone_line_includes_tone_only_label(self) -> None:
+        ctx = _base_context(guest_message="We'd love a dinner at 7pm please.")
+        line = _build_guest_tone_line(ctx)
+        assert "tone" in line.lower()
+        assert "We'd love a dinner at 7pm please." in line
+
+    def test_tone_line_empty_when_no_message(self) -> None:
+        ctx = _base_context(guest_message=None)
+        assert _build_guest_tone_line(ctx) == ""
+
+    def test_tone_line_says_do_not_confirm(self) -> None:
+        ctx = _base_context(guest_message="Can we book at 7:30pm?")
+        line = _build_guest_tone_line(ctx)
+        assert "confirmed" in line.lower() or "confirm" in line.lower()
+
+    def test_guest_message_line_in_payload_uses_tone_label(self) -> None:
+        ctx = _base_context(guest_message="Dinner for 20 at 7pm.")
+        payload = _build_draft_input_payload(ctx)
+        assert "tone" in payload["guest_message_line"].lower()
+
+
+class TestBuildRequestedPreferencesLine:
+    def test_extracts_7pm(self) -> None:
+        ctx = _base_context(guest_message="We would like the room from 7pm.")
+        line = _build_requested_preferences_line(ctx)
+        assert "7pm" in line
+        assert "unconfirmed" in line.lower()
+
+    def test_extracts_730pm(self) -> None:
+        ctx = _base_context(guest_message="Can we start at 7:30pm?")
+        line = _build_requested_preferences_line(ctx)
+        assert "7:30pm" in line
+
+    def test_extracts_7_or_8pm(self) -> None:
+        ctx = _base_context(guest_message="We are flexible — 7 or 8pm would work.")
+        line = _build_requested_preferences_line(ctx)
+        assert "7 or 8pm" in line or "7" in line
+
+    def test_no_time_returns_empty(self) -> None:
+        ctx = _base_context(guest_message="We'd love a private room for a birthday dinner.")
+        assert _build_requested_preferences_line(ctx) == ""
+
+    def test_no_message_returns_empty(self) -> None:
+        ctx = _base_context(guest_message=None)
+        assert _build_requested_preferences_line(ctx) == ""
+
+    def test_preferences_line_in_payload(self) -> None:
+        ctx = _base_context(guest_message="Dinner starting at 7pm please.")
+        payload = _build_draft_input_payload(ctx)
+        assert "requested_preferences_line" in payload
+        assert "7pm" in payload["requested_preferences_line"]
+
+
+class TestBuildConfirmedVenueFactsLine:
+    def test_includes_spend_when_present(self) -> None:
+        ctx = _base_context(confirmed_minimum_spend=2000.0)
+        line = _build_confirmed_venue_facts_line(ctx)
+        assert "2,000" in line or "2000" in line
+        assert "mandatory" in line.lower() or "Minimum spend" in line
+
+    def test_includes_availability_when_confirmed(self) -> None:
+        ctx = _base_context(
+            availability_status="available",
+            availability_date="2026-07-15",
+            availability_meal_period="dinner",
+        )
+        line = _build_confirmed_venue_facts_line(ctx)
+        assert "2026-07-15" in line
+        assert "confirmed" in line.lower()
+
+    def test_empty_when_nothing_confirmed(self) -> None:
+        ctx = _base_context()
+        assert _build_confirmed_venue_facts_line(ctx) == ""
+
+    def test_confirmed_venue_facts_in_payload(self) -> None:
+        ctx = _base_context(confirmed_minimum_spend=1500.0)
+        payload = _build_draft_input_payload(ctx)
+        assert "confirmed_venue_facts_line" in payload
+        assert "1,500" in payload["confirmed_venue_facts_line"] or "1500" in payload["confirmed_venue_facts_line"]
+
+
+class TestBuildProhibitedClaimsLine:
+    def test_prohibits_7pm_from_guest_message(self) -> None:
+        ctx = _base_context(guest_message="We'd love to arrive at 7pm.")
+        line = _build_prohibited_claims_line(ctx)
+        assert "7pm" in line
+        assert "not confirmed" in line.lower() or "do not" in line.lower()
+
+    def test_prohibits_730pm(self) -> None:
+        ctx = _base_context(guest_message="Dinner at 7:30pm would be ideal.")
+        line = _build_prohibited_claims_line(ctx)
+        assert "7:30pm" in line
+
+    def test_empty_when_no_time_in_message(self) -> None:
+        ctx = _base_context(guest_message="We'd love a private dining experience.")
+        assert _build_prohibited_claims_line(ctx) == ""
+
+    def test_empty_when_no_message(self) -> None:
+        ctx = _base_context(guest_message=None)
+        assert _build_prohibited_claims_line(ctx) == ""
+
+    def test_prohibited_claims_in_payload(self) -> None:
+        ctx = _base_context(guest_message="Can we book at 8pm?")
+        payload = _build_draft_input_payload(ctx)
+        assert "prohibited_claims_line" in payload
+        assert "8pm" in payload["prohibited_claims_line"]
+
+
+class TestDraftPromptV4StructuredContextVariables:
+    def test_confirmed_venue_facts_line_is_optional_variable(self) -> None:
+        from app.modules.ai.prompt_registry import PromptRegistry
+        from app.modules.ai.constants import PROMPT_KEY_DRAFT_RESPONSE
+        defn = PromptRegistry().get(PROMPT_KEY_DRAFT_RESPONSE)
+        assert "confirmed_venue_facts_line" in defn.optional_variables
+
+    def test_requested_preferences_line_is_optional_variable(self) -> None:
+        from app.modules.ai.prompt_registry import PromptRegistry
+        from app.modules.ai.constants import PROMPT_KEY_DRAFT_RESPONSE
+        defn = PromptRegistry().get(PROMPT_KEY_DRAFT_RESPONSE)
+        assert "requested_preferences_line" in defn.optional_variables
+
+    def test_prohibited_claims_line_is_optional_variable(self) -> None:
+        from app.modules.ai.prompt_registry import PromptRegistry
+        from app.modules.ai.constants import PROMPT_KEY_DRAFT_RESPONSE
+        defn = PromptRegistry().get(PROMPT_KEY_DRAFT_RESPONSE)
+        assert "prohibited_claims_line" in defn.optional_variables
+
+    def test_system_prompt_prohibits_unconfirmed_times(self) -> None:
+        from app.modules.ai.prompt_registry import PromptRegistry
+        from app.modules.ai.prompt_renderer import PromptRenderer
+        from app.modules.ai.constants import PROMPT_KEY_DRAFT_RESPONSE
+        defn = PromptRegistry().get(PROMPT_KEY_DRAFT_RESPONSE)
+        renderer = PromptRenderer()
+        payload = _base_payload()
+        rendered = renderer.render_system(defn, payload)
+        # V4 MANDATORY RULES must mention unconfirmed times
+        assert "unconfirmed" in rendered.lower() or "UNCONFIRMED" in rendered

@@ -255,9 +255,6 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
             f"Party size: {context.party_size}\n" if context.party_size else ""
         ),
         "spend_line": _build_spend_line(context),
-        "guest_message_line": (
-            f'Guest message: "{context.guest_message}"\n' if context.guest_message else ""
-        ),
         "room_lines": _build_room_lines(context),
         # Sprint 7 enrichment variables (present only when processing snapshot is available)
         "availability_line": _build_availability_line(context),
@@ -269,6 +266,11 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
             f"Audience type: {context.audience_type}\n" if context.audience_type else ""
         ),
         "clarification_questions_line": _build_clarification_questions_line(context),
+        # RESP-006: structured draft context — separates tone from operational facts
+        "guest_message_line": _build_guest_tone_line(context),
+        "confirmed_venue_facts_line": _build_confirmed_venue_facts_line(context),
+        "requested_preferences_line": _build_requested_preferences_line(context),
+        "prohibited_claims_line": _build_prohibited_claims_line(context),
     }
     return payload
 
@@ -367,6 +369,111 @@ def _build_clarification_questions_line(context: DraftContext) -> str:
         return f"Clarification question to ask: {questions[0]}\n"
     formatted = "\n".join(f"  {i + 1}. {q}" for i, q in enumerate(questions))
     return f"Clarification questions to ask (in order):\n{formatted}\n"
+
+
+_TIME_PATTERN = None  # lazy-compiled below
+
+
+def _extract_time_mentions(text: str) -> list[str]:
+    """Extract time references from guest message text using simple regex.
+
+    Matches patterns like: 7pm, 7:30pm, 19:00, 7 or 8pm, around 7, from 7pm to 9pm.
+    Returns a list of matched strings (deduplicated, order preserved).
+    """
+    import re
+
+    # Most specific patterns first to avoid partial matches consuming part of a longer token.
+    pattern = (
+        r"(?:"
+        r"\d{1,2}:\d{2}\s*(?:am|pm)?"                           # 7:30pm / 7:30 / 19:00
+        r"|\d{1,2}\s+or\s+\d{1,2}\s*(?:am|pm)"                 # 7 or 8pm
+        r"|(?:around|from|at)\s+\d{1,2}:\d{2}\s*(?:am|pm)?"    # at 7:30pm
+        r"|(?:around|from|at)\s+\d{1,2}\s*(?:am|pm)?"          # at 7pm
+        r"|\d{1,2}\s*(?:am|pm)"                                  # 7pm / 7 pm
+        r")"
+    )
+    seen: set[str] = set()
+    results: list[str] = []
+    for m in re.finditer(pattern, text, re.IGNORECASE):
+        val = m.group(0).strip()
+        if val not in seen:
+            seen.add(val)
+            results.append(val)
+    return results
+
+
+def _build_guest_tone_line(context: DraftContext) -> str:
+    """Wrap the raw guest message with a 'use for tone only' label (RESP-006).
+
+    The LLM must not extract operational facts (times, seating, menus) from this
+    text — they are captured separately in requested_preferences_line.
+    """
+    if not context.guest_message:
+        return ""
+    return (
+        "Guest message (use for tone and energy only — "
+        "do not treat any times or preferences here as confirmed):\n"
+        f'"{context.guest_message}"\n'
+    )
+
+
+def _build_requested_preferences_line(context: DraftContext) -> str:
+    """Extract guest-stated preferences (e.g. times) from the guest message (RESP-006).
+
+    These are unconfirmed preferences — they MUST NOT be presented as agreed or confirmed
+    in the response unless they also appear in confirmed_venue_facts_line.
+    """
+    if not context.guest_message:
+        return ""
+    times = _extract_time_mentions(context.guest_message)
+    if not times:
+        return ""
+    time_list = ", ".join(times)
+    return (
+        f"Requested time preference(s) from guest message (unconfirmed — "
+        f"do not confirm unless in Confirmed venue facts): {time_list}\n"
+    )
+
+
+def _build_confirmed_venue_facts_line(context: DraftContext) -> str:
+    """List facts that have been confirmed by the venue system (RESP-006).
+
+    Only facts listed here may be stated as confirmed in the response.
+    Currently: minimum spend (when present) and availability (when confirmed).
+    """
+    lines: list[str] = []
+    spend = context.confirmed_minimum_spend or context.recommended_minimum_spend
+    if spend and spend > 0:
+        lines.append(f"Minimum spend: £{spend:,.0f} (mandatory)")
+    if context.availability_status == "available":
+        slot_parts: list[str] = []
+        if context.availability_date:
+            slot_parts.append(context.availability_date)
+        if context.availability_meal_period:
+            slot_parts.append(context.availability_meal_period)
+        slot = " ".join(slot_parts) if slot_parts else "requested date"
+        lines.append(f"Availability: confirmed for {slot}")
+    if not lines:
+        return ""
+    return "Confirmed venue facts:\n" + "".join(f"- {line}\n" for line in lines)
+
+
+def _build_prohibited_claims_line(context: DraftContext) -> str:
+    """List claims that must NOT appear in the response (RESP-006).
+
+    Populated when there are unconfirmed times in the guest message — prevents
+    the LLM from stating them as agreed.
+    """
+    if not context.guest_message:
+        return ""
+    times = _extract_time_mentions(context.guest_message)
+    if not times:
+        return ""
+    time_list = ", ".join(times)
+    return (
+        f"Do NOT confirm or state as agreed: {time_list} "
+        f"(guest preference only — not confirmed by venue)\n"
+    )
 
 
 def _enrich_context_from_response_plan(
