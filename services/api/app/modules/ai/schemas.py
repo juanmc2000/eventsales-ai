@@ -68,6 +68,8 @@ class DraftContext:
     response_goal: str | None = field(default=None)       # e.g. "READY_TO_CONFIRM_AVAILABILITY"
     audience_type: str | None = field(default=None)       # e.g. "social" | "corporate" | "agency"
     clarification_questions: list[str] | None = field(default=None)  # ordered questions for the guest
+    # RESP-013: section plan from ResponseSectionBuilder — drives allowed/forbidden section lines
+    section_plan: dict[str, Any] | None = field(default=None)
 
 
 @dataclass

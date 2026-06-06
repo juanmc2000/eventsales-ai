@@ -1,7 +1,7 @@
 """Tests for RESP-004 — Draft Prompt V4 Availability Contract.
 
 Validates:
-- Draft prompt V4 is active and V3 is archived
+- Draft prompt V4 is archived (superseded by V5 in RESP-013); V3 is also archived
 - System prompt contains the AVAILABILITY CONTRACT section with all five states
 - System prompt treats minimum spend as mandatory
 - System prompt prohibits invented booking form links
@@ -80,17 +80,21 @@ def _base_payload(**overrides) -> dict:
     return base
 
 
-# ── Registry: V4 active, V3 archived ──────────────────────────────────────────
+# ── Registry: V4 archived (superseded by V5), V3 also archived ────────────────
 
 
 class TestDraftPromptV4Registry:
     def setup_method(self) -> None:
         self.registry = PromptRegistry()
 
-    def test_active_draft_prompt_is_v4(self) -> None:
-        defn = self.registry.get(PROMPT_KEY_DRAFT_RESPONSE)
-        assert defn.version == 4
-        assert defn.status == VERSION_STATUS_ACTIVE
+    def test_v4_is_archived(self) -> None:
+        all_defns = self.registry.all_definitions()
+        v4 = next(
+            (d for d in all_defns if d.key == PROMPT_KEY_DRAFT_RESPONSE and d.version == 4),
+            None,
+        )
+        assert v4 is not None, "V4 definition should still exist as historical record"
+        assert v4.status == VERSION_STATUS_ARCHIVED
 
     def test_v3_is_archived(self) -> None:
         all_defns = self.registry.all_definitions()
@@ -109,9 +113,14 @@ class TestDraftPromptV4Registry:
         defn = self.registry.get(PROMPT_KEY_DRAFT_RESPONSE)
         assert "availability_line" in defn.optional_variables
 
-    def test_output_schema_version_is_4(self) -> None:
-        defn = self.registry.get(PROMPT_KEY_DRAFT_RESPONSE)
-        assert defn.output_schema_version == "4.0"
+    def test_v4_output_schema_version_is_4(self) -> None:
+        all_defns = self.registry.all_definitions()
+        v4 = next(
+            (d for d in all_defns if d.key == PROMPT_KEY_DRAFT_RESPONSE and d.version == 4),
+            None,
+        )
+        assert v4 is not None
+        assert v4.output_schema_version == "4.0"
 
 
 # ── System prompt: availability contract section ───────────────────────────────
