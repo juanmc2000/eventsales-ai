@@ -271,6 +271,8 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
         "confirmed_venue_facts_line": _build_confirmed_venue_facts_line(context),
         "requested_preferences_line": _build_requested_preferences_line(context),
         "prohibited_claims_line": _build_prohibited_claims_line(context),
+        # RESP-007: phrase guidance — approved opening phrase for the current goal
+        "phrase_guidance_line": _build_phrase_guidance_line(context),
     }
     return payload
 
@@ -474,6 +476,17 @@ def _build_prohibited_claims_line(context: DraftContext) -> str:
         f"Do NOT confirm or state as agreed: {time_list} "
         f"(guest preference only — not confirmed by venue)\n"
     )
+
+
+def _build_phrase_guidance_line(context: DraftContext) -> str:
+    """Return the approved opening phrase for the current response goal (RESP-007).
+
+    Produces an empty string when the goal has no approved phrase or is not set.
+    """
+    from app.modules.ai.phrase_library import get_phrase_guidance  # noqa: PLC0415
+
+    goal = context.response_goal or "ACKNOWLEDGE_AND_CHECK_AVAILABILITY"
+    return get_phrase_guidance(goal)
 
 
 def _enrich_context_from_response_plan(
