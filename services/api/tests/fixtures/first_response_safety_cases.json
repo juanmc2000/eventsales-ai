@@ -1,0 +1,791 @@
+{
+  "meta": {
+    "version": "1.0",
+    "description": "First response safety regression cases (TEST-011). 25 scenarios covering all response goals, availability states, customer types, and known violation patterns.",
+    "total_scenarios": 25,
+    "created_for": "TEST-011"
+  },
+  "availability_records": [
+    {
+      "id": "av_001",
+      "restaurant": "The Ivy Tower Bridge",
+      "room": "Private Dining Room",
+      "date": "2026-06-20",
+      "meal_period": "dinner",
+      "contract": "CONFIRMED_AVAILABLE"
+    },
+    {
+      "id": "av_002",
+      "restaurant": "The Ivy Tower Bridge",
+      "room": "The Mayfair Suite",
+      "date": "2026-06-20",
+      "meal_period": "dinner",
+      "contract": "CONFIRMED_UNAVAILABLE"
+    },
+    {
+      "id": "av_003",
+      "restaurant": "The Ivy Tower Bridge",
+      "room": "Private Dining Room",
+      "date": "2026-06-14",
+      "meal_period": "dinner",
+      "contract": "NOT_CHECKED"
+    },
+    {
+      "id": "av_004",
+      "restaurant": "The Ivy Tower Bridge",
+      "room": "Private Dining Room",
+      "date": "2026-06-28",
+      "meal_period": "lunch",
+      "contract": "CONFIRMED_AVAILABLE"
+    },
+    {
+      "id": "av_005",
+      "restaurant": "The Ivy Tower Bridge",
+      "room": "The Garden Room",
+      "date": "2026-07-05",
+      "meal_period": "dinner",
+      "contract": "CONFIRMED_AVAILABLE"
+    },
+    {
+      "id": "av_006",
+      "restaurant": "The Ivy Tower Bridge",
+      "room": "The Mayfair Suite",
+      "date": "2026-07-12",
+      "meal_period": "dinner",
+      "contract": "CONFIRMED_AVAILABLE"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "fs_001",
+      "availability_ref": "av_001",
+      "category": "compliance_pass",
+      "description": "Clean CONFIRM_AVAILABLE \u2014 social tone, all rules satisfied",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Alice, thank you for getting in touch. I am pleased to confirm that our Private Dining Room is available on the evening of Saturday 20 June 2026 for your birthday dinner. The minimum spend for this space is \u00a31,200 for the evening. Please complete our booking form to proceed and I will send across all the details. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1200,
+        "party_size": 12,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs_002",
+      "availability_ref": "av_004",
+      "category": "compliance_pass",
+      "description": "Clean CONFIRM_AVAILABLE \u2014 corporate tone, spend correctly stated as minimum",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear James, thank you for your enquiry. I am pleased to confirm that our Private Dining Room is available on Saturday 28 June 2026 for your corporate lunch. The minimum spend for this event is \u00a3800. Please complete the booking form to proceed and I will be in touch with the full details. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 800,
+        "party_size": 10,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs_003",
+      "availability_ref": "av_005",
+      "category": "compliance_pass",
+      "description": "Clean CONFIRM_AVAILABLE \u2014 agency tone, resolved_with_confirmation date status",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved_with_confirmation",
+      "customer_type": "agency",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "The Garden Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "The Garden Room",
+      "draft_text": "Dear Sophie, thank you for reaching out on behalf of your client. I am pleased to confirm that our Garden Room is available on Sunday 5 July 2026 for the evening event. The minimum spend for the evening is \u00a32,500. Please complete our booking form so we can proceed with the details. Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 2500,
+        "party_size": 20,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs_004",
+      "availability_ref": "av_003",
+      "category": "compliance_pass",
+      "description": "Clean ACKNOWLEDGE_AND_CHECK_AVAILABILITY \u2014 social tone, no invented questions",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": null,
+      "availability_restaurant_name": null,
+      "availability_room_name": null,
+      "draft_text": "Dear Michael, thank you for getting in touch about your event. We will check availability for your preferred date and will be in contact shortly. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs_005",
+      "availability_ref": "av_003",
+      "category": "compliance_pass",
+      "description": "Clean ACKNOWLEDGE_AND_CHECK_AVAILABILITY \u2014 corporate tone",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": null,
+      "availability_restaurant_name": null,
+      "availability_room_name": null,
+      "draft_text": "Dear Mr Harrington, thank you for your enquiry. We will look into availability for your preferred dates and be in touch shortly with an update. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs_006",
+      "availability_ref": "av_002",
+      "category": "gate_blocked_goal",
+      "description": "Clean RESPOND_UNAVAILABLE \u2014 compliance passes but gate blocks (goal not auto-sendable)",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "The Mayfair Suite",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "The Mayfair Suite",
+      "draft_text": "Dear Emma, thank you for your message. Unfortunately we are unable to accommodate your event on 20 June 2026 in the Mayfair Suite. We hope to welcome you on another occasion. Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_007",
+      "availability_ref": "av_002",
+      "category": "alternative_dates",
+      "description": "RESPOND_UNAVAILABLE \u2014 draft invents alternative dates when slot is CONFIRMED_UNAVAILABLE",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "The Mayfair Suite",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "The Mayfair Suite",
+      "draft_text": "Dear Emma, unfortunately the Mayfair Suite is not available on 20 June 2026. We have other dates available that may suit your celebration. Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_008",
+      "availability_ref": "av_002",
+      "category": "room_suitability_unavailable",
+      "description": "RESPOND_UNAVAILABLE \u2014 draft uses suitability language ('perfect for') when slot is unavailable",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "The Mayfair Suite",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "The Mayfair Suite",
+      "draft_text": "Dear Emma, unfortunately the Mayfair Suite is not available on 20 June 2026. Our Private Dining Room is perfect for a group of your size and would be a great fit for the occasion. Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_009",
+      "availability_ref": "av_002",
+      "category": "alternative_dates",
+      "description": "RESPOND_UNAVAILABLE \u2014 draft encourages exploring alternative options",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "The Mayfair Suite",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "The Mayfair Suite",
+      "draft_text": "Dear Emma, unfortunately we cannot accommodate your event on 20 June 2026. We would encourage you to explore alternative options that may better suit your requirements. Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_010",
+      "availability_ref": "av_003",
+      "category": "gate_blocked_goal",
+      "description": "REQUEST_MISSING_INFORMATION \u2014 compliance passes, gate blocks (RESP-022: removed from auto-send set)",
+      "response_goal": "REQUEST_MISSING_INFORMATION",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": null,
+      "availability_restaurant_name": null,
+      "availability_room_name": null,
+      "draft_text": "Dear David, thank you for your message. Before we can check availability for you, could you let us know how many guests you are expecting? Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [
+          "How many guests are you expecting?"
+        ],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_011",
+      "availability_ref": "av_003",
+      "category": "gate_blocked_goal",
+      "description": "REQUEST_DATE_CONFIRMATION \u2014 compliance passes, gate blocks (goal + ambiguous date)",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "ambiguous",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": null,
+      "availability_restaurant_name": null,
+      "availability_room_name": null,
+      "draft_text": "Dear Sarah, thank you for your enquiry. Could you confirm the exact date you have in mind for your event? Once we have this, we will check availability for you. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [
+          "Could you confirm the exact date you have in mind?"
+        ],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_012",
+      "availability_ref": "av_003",
+      "category": "hallucinated_availability",
+      "description": "Availability overclaim \u2014 draft confirms availability when contract is NOT_CHECKED",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": null,
+      "availability_room_name": null,
+      "draft_text": "Dear Tom, I am pleased to confirm that our Private Dining Room is available on 14 June 2026. The minimum spend is \u00a31,200. Please complete the booking form to proceed. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1200,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_013",
+      "availability_ref": "av_001",
+      "category": "spend_soft_language",
+      "description": "Spend described as 'recommended' rather than mandatory minimum",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Rachel, thank you for your enquiry. I am pleased to confirm that the Private Dining Room is available on 20 June 2026. Our recommended spend for this space is \u00a31,200 for the evening. Please complete the booking form to proceed. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1200,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_014",
+      "availability_ref": "av_001",
+      "category": "fake_url",
+      "description": "Draft contains a placeholder booking form link",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Tom, I am pleased to confirm that our Private Dining Room is available on 20 June 2026. The minimum spend is \u00a31,200. Please complete our [form link] to confirm your booking and we will be in touch. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1200,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_015",
+      "availability_ref": "av_001",
+      "category": "unconfirmed_time",
+      "description": "Draft confirms a start time that came from the guest and has not been verified by the venue",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Alice, I am pleased to confirm that our Private Dining Room is available on 20 June 2026. The event will begin at 7pm. The minimum spend is \u00a31,200. Please complete the booking form to proceed. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1200,
+        "party_size": 12,
+        "prohibited_times": [
+          "7pm"
+        ],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_016",
+      "availability_ref": "av_001",
+      "category": "hosting_language",
+      "description": "ACKNOWLEDGE draft uses prohibited hosting language ('delighted to host') before availability is checked",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear James, I am delighted to host your corporate lunch on 28 June 2026 in our Private Dining Room. The minimum spend for this event is \u00a3800. Please complete the booking form to proceed. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 800,
+        "party_size": 10,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_017",
+      "availability_ref": "av_001",
+      "category": "invented_sla",
+      "description": "Draft invents a 24-hour response SLA commitment",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Alice, I am pleased to confirm that our Private Dining Room is available on 20 June 2026. The minimum spend is \u00a31,200. Our team will be in touch within 24 hours to confirm all details. Please complete the booking form. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1200,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_018",
+      "availability_ref": "av_003",
+      "category": "hallucinated_availability",
+      "description": "ACKNOWLEDGE draft incorrectly claims the venue is available on the requested date",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": null,
+      "availability_restaurant_name": null,
+      "availability_room_name": null,
+      "draft_text": "Dear Michael, thank you for your enquiry. I am pleased to confirm that we are available on 14 June 2026. We look forward to welcoming you. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_019",
+      "availability_ref": "av_003",
+      "category": "invented_questions",
+      "description": "ACKNOWLEDGE draft asks a question not in the approved clarification list",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": null,
+      "availability_restaurant_name": null,
+      "availability_room_name": null,
+      "draft_text": "Dear Sarah, thank you for your enquiry. We will check availability for your preferred date. Could you also let us know if there is anything else we should be aware of for the event? Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_020",
+      "availability_ref": "av_003",
+      "category": "forbidden_topics_menu",
+      "description": "ACKNOWLEDGE draft discusses menu options \u2014 topic not permitted at this stage",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": null,
+      "availability_restaurant_name": null,
+      "availability_room_name": null,
+      "draft_text": "Dear Lucy, thank you for getting in touch. We will check availability for your preferred date and be in touch shortly. In the meantime, do browse our menu options and food choices to help with your planning. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_021",
+      "availability_ref": "av_001",
+      "category": "gate_blocked_date",
+      "description": "CONFIRM_AVAILABLE \u2014 compliance passes but gate blocks on ambiguous date status",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "ambiguous",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Alice, I am pleased to confirm that our Private Dining Room is available for your birthday dinner. The minimum spend is \u00a31,200. Please complete the booking form to proceed. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1200,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_022",
+      "availability_ref": "av_005",
+      "category": "gate_blocked_date",
+      "description": "CONFIRM_AVAILABLE \u2014 compliance passes but gate blocks on unknown date status",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "unknown",
+      "customer_type": "agency",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "The Garden Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "The Garden Room",
+      "draft_text": "Dear Tom, I am pleased to confirm that our Garden Room is available for your event. The minimum spend for the evening is \u00a32,500. Please complete the booking form. Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 2500,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_023",
+      "availability_ref": "av_004",
+      "category": "context_mismatch",
+      "description": "Context integrity failure \u2014 availability record references a different restaurant than the enquiry context",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Grand Ballroom",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear James, I am pleased to confirm that our Private Dining Room is available on 28 June 2026. The minimum spend is \u00a3800. Please complete the booking form to proceed. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 800,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": false,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_024",
+      "availability_ref": "av_003",
+      "category": "gate_blocked_goal",
+      "description": "ESCALATE_TO_HUMAN \u2014 compliance passes, gate blocks (human review required)",
+      "response_goal": "ESCALATE_TO_HUMAN",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": null,
+      "availability_restaurant_name": null,
+      "availability_room_name": null,
+      "draft_text": "Dear client, thank you for your enquiry. A member of our senior team will be in touch to discuss your requirements in more detail. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs_025",
+      "availability_ref": "av_006",
+      "category": "compliance_pass",
+      "description": "Clean CONFIRM_AVAILABLE \u2014 agency tone, Mayfair Suite, resolved_with_confirmation, all rules satisfied",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved_with_confirmation",
+      "customer_type": "agency",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "The Mayfair Suite",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "The Mayfair Suite",
+      "draft_text": "Dear Sophie, thank you for reaching out on behalf of your client. I am pleased to confirm that our Mayfair Suite is available on Saturday 12 July 2026 for the evening event. The minimum spend for this booking is \u00a33,000. Please complete our booking form and we will send across all the details. Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 3000,
+        "party_size": 30,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    }
+  ]
+}
