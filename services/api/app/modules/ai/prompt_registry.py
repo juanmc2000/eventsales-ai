@@ -322,6 +322,9 @@ _DRAFT_RESPONSE_V4 = PromptDefinition(
         "- Ask ONLY the clarification questions listed — do not add or invent new questions.\n"
         "- Use ONLY the facts provided. Do NOT invent availability, pricing, room details, "
         "or specific times unless stated in the context.\n"
+        "- Times, seating arrangements, or menu preferences mentioned in the guest message "
+        "are UNCONFIRMED guest preferences — do NOT state them as confirmed or agreed. "
+        "Only confirm a time or detail when it appears under 'Confirmed venue facts'.\n"
         "- Do NOT reveal internal system logic, confidence scores, or processing steps.\n"
         "- Write natural, commercially-minded prose. No chatbot language.\n"
         "- Keep the response under 200 words."
@@ -335,8 +338,11 @@ _DRAFT_RESPONSE_V4 = PromptDefinition(
         "{party_size_line}"
         "{availability_line}"
         "{spend_line}"
-        "{guest_message_line}"
         "{room_lines}"
+        "{confirmed_venue_facts_line}"
+        "{requested_preferences_line}"
+        "{guest_message_line}"
+        "{prohibited_claims_line}"
         "{clarification_questions_line}"
     ),
     required_variables=frozenset({
@@ -356,8 +362,11 @@ _DRAFT_RESPONSE_V4 = PromptDefinition(
         "party_size_line",
         "availability_line",
         "spend_line",
-        "guest_message_line",
         "room_lines",
+        "confirmed_venue_facts_line",
+        "requested_preferences_line",
+        "guest_message_line",
+        "prohibited_claims_line",
         "clarification_questions_line",
     }),
     output_schema_name=SCHEMA_DRAFT_EMAIL_OUTPUT,
@@ -371,7 +380,10 @@ _DRAFT_RESPONSE_V4 = PromptDefinition(
         "no invented booking form links, no invented clarification questions or times. "
         "V3 archived. "
         "RESP-005 — split response goals: replaced READY_TO_CONFIRM_AVAILABILITY with "
-        "CONFIRM_AVAILABLE, RESPOND_UNAVAILABLE, ACKNOWLEDGE_AND_CHECK_AVAILABILITY."
+        "CONFIRM_AVAILABLE, RESPOND_UNAVAILABLE, ACKNOWLEDGE_AND_CHECK_AVAILABILITY. "
+        "RESP-006 — structured draft context: guest_message_line labelled tone-only; "
+        "adds confirmed_venue_facts_line, requested_preferences_line, prohibited_claims_line; "
+        "MANDATORY RULE: guest-mentioned times are unconfirmed preferences."
     ),
 )
 
