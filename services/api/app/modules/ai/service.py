@@ -159,6 +159,52 @@ class DraftGenerationService:
         # Build input_payload for the draft_response prompt template
         input_payload = _build_draft_input_payload(context)
 
+        # ── RESP-021: Context integrity check before LLM2 ─────────────────────
+        integrity_result = _check_context_integrity(context, snapshot)
+        if not integrity_result.passed:
+            logger.warning(
+                "Context integrity check failed for enquiry %s — skipping LLM draft. "
+                "Violations: %s",
+                enquiry_id,
+                integrity_result.violations,
+            )
+            draft_body = FallbackProvider().generate(context)
+            ai_context = AIContextOut(
+                model="fallback",
+                is_fallback=True,
+                persona_name=persona_name,
+                persona_tone=persona_tone,
+                persona_style=persona_style,
+                guest_message_used=guest_message,
+                room_name=context.room_name,
+                recommended_minimum_spend=recommended_minimum_spend,
+                system_prompt=None,
+                user_message=None,
+                prompt_run_id=None,
+            )
+            subject = _build_subject(enquiry.first_name, enquiry.last_name, enquiry.event_type)
+            message = self._enquiry_repo.add_message(
+                enquiry_id,
+                {
+                    "direction": "outbound",
+                    "channel": "draft",
+                    "subject": subject,
+                    "body": draft_body,
+                    "sent_at": None,
+                },
+            )
+            self._db.commit()
+            return DraftGenerationResult(
+                enquiry_id=enquiry_id,
+                message_id=message.id,
+                subject=subject,
+                body=draft_body,
+                persona_name=persona_name,
+                is_fallback=True,
+                model="fallback",
+                ai_context=ai_context,
+            )
+
         # ── Call AI Gateway (single entry point for all LLM calls) ────────────
         gateway = AIGateway(db=self._db, api_key=settings.anthropic_api_key)
         gateway_result = gateway.run(AIGatewayRequest(
@@ -562,6 +608,63 @@ def _build_forbidden_topics_line(context: DraftContext) -> str:
             lines.append(f"  - {section}\n")
     lines.append("\n")
     return "".join(lines)
+
+
+def _check_context_integrity(context: DraftContext, snapshot) -> "IntegrityCheckResult":
+    """Run RESP-021 context integrity check before LLM2 draft generation.
+
+    Extracts availability restaurant/room identifiers from the processing snapshot
+    (when available) and compares them against the prompt context.  Falls back to
+    name comparison when IDs are absent.
+
+    Returns IntegrityCheckResult with passed=True when context is consistent
+    or when insufficient data is available to validate.
+    """
+    from app.modules.enquiries.response_context_integrity_gate import (  # noqa: PLC0415
+        ResponseContextIntegrityGate,
+        IntegrityCheckResult,
+    )
+
+    # Extract availability identifiers from snapshot (optional — may not be present)
+    availability_restaurant_id = None
+    availability_restaurant_name = None
+    availability_room_id = None
+    availability_room_name = None
+
+    if snapshot is not None and isinstance(getattr(snapshot, "availability_result_json", None), dict):
+        avail_json = snapshot.availability_result_json
+        raw_rest_id = avail_json.get("restaurant_id")
+        if raw_rest_id:
+            try:
+                import uuid as _uuid  # noqa: PLC0415
+                availability_restaurant_id = _uuid.UUID(str(raw_rest_id))
+            except (ValueError, AttributeError):
+                pass
+        availability_restaurant_name = avail_json.get("restaurant_name") or None
+        raw_room_id = avail_json.get("room_id")
+        if raw_room_id:
+            try:
+                import uuid as _uuid  # noqa: PLC0415
+                availability_room_id = _uuid.UUID(str(raw_room_id))
+            except (ValueError, AttributeError):
+                pass
+        availability_room_name = avail_json.get("room_name") or None
+
+    return ResponseContextIntegrityGate.check(
+        context_restaurant_name=context.restaurant_name,
+        context_room_name=context.room_name,
+        availability_restaurant_name=availability_restaurant_name,
+        availability_room_name=availability_room_name,
+        availability_restaurant_id=availability_restaurant_id,
+        availability_room_id=availability_room_id,
+    )
+
+
+# Re-export for test imports
+try:
+    from app.modules.enquiries.response_context_integrity_gate import IntegrityCheckResult  # noqa: F401
+except ImportError:  # pragma: no cover
+    pass
 
 
 def _build_approved_copy_blocks_line(context: DraftContext) -> str:
