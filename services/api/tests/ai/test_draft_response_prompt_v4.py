@@ -492,20 +492,29 @@ class TestFixtureAvailabilityContract:
 
 
 class TestBuildGuestToneLine:
-    def test_tone_line_includes_tone_only_label(self) -> None:
+    def test_tone_line_includes_tone_context_label(self) -> None:
+        # RESP-019: structured tone block replaces raw message
         ctx = _base_context(guest_message="We'd love a dinner at 7pm please.")
         line = _build_guest_tone_line(ctx)
-        assert "tone" in line.lower()
-        assert "We'd love a dinner at 7pm please." in line
+        assert "Tone context" in line
 
-    def test_tone_line_empty_when_no_message(self) -> None:
-        ctx = _base_context(guest_message=None)
+    def test_tone_line_does_not_include_raw_message(self) -> None:
+        # RESP-019: raw verbatim message must not appear
+        ctx = _base_context(guest_message="We'd love a dinner at 7pm please.")
+        line = _build_guest_tone_line(ctx)
+        assert "We'd love a dinner" not in line
+
+    def test_tone_line_empty_when_no_context_fields(self) -> None:
+        ctx = _base_context(
+            guest_message=None, audience_type=None,
+            event_type=None, party_size=None, persona_tone="",
+        )
         assert _build_guest_tone_line(ctx) == ""
 
-    def test_tone_line_says_do_not_confirm(self) -> None:
+    def test_tone_line_contains_infer_warning(self) -> None:
         ctx = _base_context(guest_message="Can we book at 7:30pm?")
         line = _build_guest_tone_line(ctx)
-        assert "confirmed" in line.lower() or "confirm" in line.lower()
+        assert "infer" in line.lower() or "operational" in line.lower()
 
     def test_guest_message_line_in_payload_uses_tone_label(self) -> None:
         ctx = _base_context(guest_message="Dinner for 20 at 7pm.")
