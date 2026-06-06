@@ -1,0 +1,488 @@
+{
+  "_meta": {
+    "description": "Draft quality regression fixture for RESP-015",
+    "version": "1.0",
+    "total_scenarios": 25,
+    "validator_version": "RESP-008",
+    "notes": "Scenarios test RESP-008 validator checks: availability overclaim, confirmed_unavailable alternatives, unconfirmed times, spend soft language, fake URLs. RESP-012 extended checks (hosting_language, invented_sla, invented_questions, forbidden_topics) covered in test_draft_compliance_validator.py.",
+    "categories": [
+      "availability_claim",
+      "spend_wording",
+      "alternative_dates",
+      "fake_url",
+      "unconfirmed_time",
+      "auto_send_gate"
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "tc_001",
+      "category": "availability_claim",
+      "description": "Clean CONFIRM_AVAILABLE — no violations",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "draft_text": "Thank you for your enquiry — I'm delighted to let you know that the date is available for your event. We look forward to welcoming your group. Please feel free to reply with any questions. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "tc_002",
+      "category": "availability_claim",
+      "description": "CONFIRM_AVAILABLE with mandatory minimum spend — pass",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "draft_text": "Thank you for your enquiry. I'm pleased to confirm the date is available. Please note that our minimum spend of £1,500 is a mandatory venue requirement. We look forward to welcoming you.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1500.0,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "tc_003",
+      "category": "spend_wording",
+      "description": "CONFIRM_AVAILABLE — spend described as recommended (violation)",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "draft_text": "Great news — the date is available! Our recommended minimum spend is £1,500 for this space.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1500.0,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": false,
+        "violation_categories": ["spend_soft_language"],
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "tc_004",
+      "category": "spend_wording",
+      "description": "CONFIRM_AVAILABLE — spend described as optional (violation)",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "draft_text": "The date is available for your dinner. There is an optional minimum spend of £2,000 which you may wish to note.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 2000.0,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": false,
+        "violation_categories": ["spend_soft_language"],
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "tc_005",
+      "category": "spend_wording",
+      "description": "CONFIRM_AVAILABLE — spend described as suggested (violation)",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "draft_text": "The date is available. We have a suggested minimum spend of £1,200 for private dining.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1200.0,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": false,
+        "violation_categories": ["spend_soft_language"],
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "tc_006",
+      "category": "availability_claim",
+      "description": "NOT_CHECKED — draft incorrectly confirms availability (violation)",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "draft_text": "Thank you for your enquiry. The date is available for your event! We look forward to welcoming your group.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": false,
+        "violation_categories": ["availability_overclaim"],
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "tc_007",
+      "category": "availability_claim",
+      "description": "NOT_CHECKED — 'we do have availability' phrasing (violation)",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "draft_text": "Thank you for reaching out. We do have availability for events and would be happy to host your celebration.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": false,
+        "violation_categories": ["availability_overclaim"],
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "tc_008",
+      "category": "availability_claim",
+      "description": "NOT_CHECKED — clean acknowledge, no availability claim (pass)",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "draft_text": "Thank you for your enquiry. I'll check availability for the requested date and come back to you shortly. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "tc_009",
+      "category": "availability_claim",
+      "description": "PENDING_DATE_CONFIRMATION — confirms availability prematurely (violation)",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_contract": "PENDING_DATE_CONFIRMATION",
+      "date_status": "ambiguous",
+      "draft_text": "We are available for your event. Could you confirm whether you meant the 14th or the 15th?",
+      "context": {
+        "clarification_questions": ["Did you mean the 14th or the 15th?"],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": false,
+        "violation_categories": ["availability_overclaim"],
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "tc_010",
+      "category": "alternative_dates",
+      "description": "RESPOND_UNAVAILABLE — invents alternative dates (email_02 pattern)",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "draft_text": "Thank you for your enquiry. Unfortunately, we are fully booked for the requested date. I'd recommend reaching out to our events team to explore alternative dates that might work for your celebration.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": false,
+        "violation_categories": ["alternative_dates"],
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "tc_011",
+      "category": "alternative_dates",
+      "description": "RESPOND_UNAVAILABLE — suggests alternative dates with 'how about' (email_03 pattern)",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "draft_text": "We are sorry to inform you that we are fully booked on the requested date. How about the weekend of the 21st instead?",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": false,
+        "violation_categories": ["alternative_dates"],
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "tc_012",
+      "category": "alternative_dates",
+      "description": "RESPOND_UNAVAILABLE — 'other dates available' (violation)",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "draft_text": "Unfortunately we are fully booked. We have other dates available in the coming weeks if you are flexible.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": false,
+        "violation_categories": ["alternative_dates"],
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "tc_013",
+      "category": "alternative_dates",
+      "description": "RESPOND_UNAVAILABLE — clean decline with no alternatives (pass)",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "draft_text": "Thank you for your enquiry. Unfortunately, we are fully booked for the requested date. We hope to have the opportunity to welcome you on a future occasion. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": true,
+        "ready_to_send_allowed": false,
+        "auto_send_blocked_reason": "RESPOND_UNAVAILABLE not in auto-send set"
+      }
+    },
+    {
+      "id": "tc_014",
+      "category": "fake_url",
+      "description": "CONFIRM_AVAILABLE — contains fake booking form link (violation)",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "draft_text": "The date is available. Please complete our booking form here: [form link]. We look forward to welcoming you.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": false,
+        "violation_categories": ["fake_url"],
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "tc_015",
+      "category": "fake_url",
+      "description": "REQUEST_WEBFORM — contains booking form URL placeholder (violation)",
+      "response_goal": "REQUEST_WEBFORM",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "draft_text": "To capture the details of your event, could I ask you to complete our enquiry form at [booking form url]?",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": false,
+        "violation_categories": ["fake_url"],
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "tc_016",
+      "category": "unconfirmed_time",
+      "description": "CONFIRM_AVAILABLE — states guest-mentioned 7pm as agreed (violation)",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "draft_text": "The date is available. We look forward to welcoming your party at 7pm on the evening.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": ["7pm"]
+      },
+      "expected": {
+        "compliance_passed": false,
+        "violation_categories": ["unconfirmed_time"],
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "tc_017",
+      "category": "unconfirmed_time",
+      "description": "CONFIRM_AVAILABLE — time just mentioned, not confirmed (pass)",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "draft_text": "The date is available. You mentioned 7pm as a preference — I will note this for discussion once the booking is confirmed.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": ["7pm"]
+      },
+      "expected": {
+        "compliance_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "tc_018",
+      "category": "unconfirmed_time",
+      "description": "CONFIRM_AVAILABLE — states 7:30pm as starting time (violation)",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "draft_text": "The date is available. Your event starting at 7:30pm is confirmed and we look forward to welcoming you.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": ["7:30pm"]
+      },
+      "expected": {
+        "compliance_passed": false,
+        "violation_categories": ["unconfirmed_time"],
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "tc_019",
+      "category": "auto_send_gate",
+      "description": "RESPOND_UNAVAILABLE — compliance passes but goal not auto-sendable",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "draft_text": "Thank you for your enquiry. Unfortunately, we are fully booked on the requested date. We hope to welcome you on a future occasion.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": true,
+        "ready_to_send_allowed": false,
+        "auto_send_blocked_reason": "RESPOND_UNAVAILABLE not in auto-send set"
+      }
+    },
+    {
+      "id": "tc_020",
+      "category": "auto_send_gate",
+      "description": "CONFIRM_AVAILABLE — date status ambiguous blocks auto-send",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "ambiguous",
+      "draft_text": "Thank you for your enquiry — I'm delighted to confirm the date is available for your event.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": true,
+        "ready_to_send_allowed": false,
+        "auto_send_blocked_reason": "Date status is ambiguous"
+      }
+    },
+    {
+      "id": "tc_021",
+      "category": "auto_send_gate",
+      "description": "ESCALATE_TO_HUMAN — compliance passes but auto-send blocked",
+      "response_goal": "ESCALATE_TO_HUMAN",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "draft_text": "Thank you for reaching out — a member of our events team will review your enquiry and be in touch shortly.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": true,
+        "ready_to_send_allowed": false,
+        "auto_send_blocked_reason": "ESCALATE_TO_HUMAN requires human review"
+      }
+    },
+    {
+      "id": "tc_022",
+      "category": "auto_send_gate",
+      "description": "REQUEST_WEBFORM — compliance passes but goal not auto-sendable",
+      "response_goal": "REQUEST_WEBFORM",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "draft_text": "Thank you for your enquiry. To ensure we capture all the details for your event, could I ask you to complete our short enquiry form?",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": true,
+        "ready_to_send_allowed": false,
+        "auto_send_blocked_reason": "REQUEST_WEBFORM not in auto-send set"
+      }
+    },
+    {
+      "id": "tc_023",
+      "category": "auto_send_gate",
+      "description": "REQUEST_DATE_CONFIRMATION — compliance passes but goal not auto-sendable",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_contract": "PENDING_DATE_CONFIRMATION",
+      "date_status": "ambiguous",
+      "draft_text": "Thank you for getting in touch. Could you confirm the exact date you have in mind so we can check availability for your event?",
+      "context": {
+        "clarification_questions": ["What exact date did you have in mind?"],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": true,
+        "ready_to_send_allowed": false,
+        "auto_send_blocked_reason": "REQUEST_DATE_CONFIRMATION not in auto-send set"
+      }
+    },
+    {
+      "id": "tc_024",
+      "category": "auto_send_gate",
+      "description": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY — all clear, allowed",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "draft_text": "Thank you for your enquiry. I'll check availability for the requested date and come back to you as soon as possible.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "tc_025",
+      "category": "auto_send_gate",
+      "description": "REQUEST_MISSING_INFORMATION — compliance and gate both pass",
+      "response_goal": "REQUEST_MISSING_INFORMATION",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "draft_text": "Thank you for getting in touch. Before we can confirm availability, could you please let us know approximately how many guests you are expecting?",
+      "context": {
+        "clarification_questions": ["How many guests are you expecting?"],
+        "confirmed_minimum_spend": null,
+        "prohibited_times": []
+      },
+      "expected": {
+        "compliance_passed": true,
+        "ready_to_send_allowed": true
+      }
+    }
+  ]
+}
