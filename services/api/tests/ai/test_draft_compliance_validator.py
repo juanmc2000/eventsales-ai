@@ -1,4 +1,4 @@
-"""Tests for RESP-008 — Draft Compliance Validator.
+"""Tests for RESP-008 and RESP-012 — Draft Compliance Validator.
 
 Validates:
 - pass/fail + violations returned correctly
@@ -10,6 +10,12 @@ Validates:
 - Fake booking form links blocked
 - unsafe_to_send matches failed checks
 - Six-record V4 fixture coverage
+
+RESP-012 additional checks:
+- Hosting language blocked when contract is NOT_CHECKED
+- Invented SLA commitments blocked
+- Invented clarification questions blocked when none authorised
+- Forbidden topics: menu/dietary, special touches, call scheduling
 """
 
 from __future__ import annotations
@@ -287,3 +293,185 @@ class TestFixtureCoverage:
             assert isinstance(result.passed, bool)
             assert isinstance(result.violations, list)
             assert isinstance(result.unsafe_to_send, bool)
+
+
+# ── RESP-012: Hosting language ─────────────────────────────────────────────────
+
+
+class TestHostingLanguage:
+    def test_fail_looking_forward_to_hosting_not_checked(self) -> None:
+        draft = "We are looking forward to hosting your celebration."
+        result = _validate(draft, availability_contract="NOT_CHECKED")
+        assert result.passed is False
+        assert any("hosting language" in v.lower() for v in result.violations)
+
+    def test_fail_would_be_perfect_for_not_checked(self) -> None:
+        draft = "Our private dining room would be perfect for your party."
+        result = _validate(draft, availability_contract="NOT_CHECKED")
+        assert result.passed is False
+
+    def test_fail_would_love_to_host_not_checked(self) -> None:
+        draft = "We would love to host your event."
+        result = _validate(draft, availability_contract="NOT_CHECKED")
+        assert result.passed is False
+
+    def test_pass_hosting_language_when_confirmed_available(self) -> None:
+        draft = "We are looking forward to hosting your celebration."
+        result = _validate(draft, availability_contract="CONFIRMED_AVAILABLE")
+        assert result.passed is True
+
+    def test_pass_neutral_language_not_checked(self) -> None:
+        draft = "Thank you for your enquiry — I'll check availability and come back to you."
+        result = _validate(draft, availability_contract="NOT_CHECKED")
+        assert result.passed is True
+
+    def test_fail_can_certainly_host_not_checked(self) -> None:
+        draft = "We can certainly host a group of that size."
+        result = _validate(draft, availability_contract="NOT_CHECKED")
+        assert result.passed is False
+
+
+# ── RESP-012: Invented SLA ──────────────────────────────────────────────────────
+
+
+class TestInventedSLA:
+    def test_fail_within_24_hours(self) -> None:
+        draft = "I will get back to you within 24 hours."
+        result = _validate(draft)
+        assert result.passed is False
+        assert any("sla" in v.lower() or "commitment" in v.lower() for v in result.violations)
+
+    def test_fail_within_2_business_days(self) -> None:
+        draft = "You can expect a response within 2 business days."
+        result = _validate(draft)
+        assert result.passed is False
+
+    def test_fail_by_tomorrow(self) -> None:
+        draft = "I will confirm the details by tomorrow."
+        result = _validate(draft)
+        assert result.passed is False
+
+    def test_fail_by_end_of_today(self) -> None:
+        draft = "We aim to respond by end of today."
+        result = _validate(draft)
+        assert result.passed is False
+
+    def test_fail_respond_within_deadline(self) -> None:
+        draft = "We will respond to you within the next few hours."
+        result = _validate(draft)
+        assert result.passed is False
+
+    def test_pass_no_timeline_commitment(self) -> None:
+        draft = "We will be in touch as soon as possible with availability details."
+        result = _validate(draft)
+        assert result.passed is True
+
+
+# ── RESP-012: Invented questions ───────────────────────────────────────────────
+
+
+class TestInventedQuestions:
+    def test_fail_question_when_none_authorised(self) -> None:
+        draft = "Could you let us know your preferred start time?"
+        result = _validate(draft, clarification_questions=[])
+        assert result.passed is False
+        assert any("question" in v.lower() for v in result.violations)
+
+    def test_pass_question_when_authorised(self) -> None:
+        draft = "Could you let us know your preferred start time?"
+        result = _validate(draft, clarification_questions=["What time were you thinking?"])
+        assert result.passed is True
+
+    def test_fail_multiple_invented_questions(self) -> None:
+        draft = "How many guests are you expecting? Would you like a private room?"
+        result = _validate(draft, clarification_questions=[])
+        assert result.passed is False
+
+    def test_pass_statement_not_question(self) -> None:
+        draft = "We will check availability and confirm the details shortly."
+        result = _validate(draft, clarification_questions=[])
+        assert result.passed is True
+
+
+# ── RESP-012: Forbidden topics ─────────────────────────────────────────────────
+
+
+class TestForbiddenTopics:
+    def test_fail_menu_options_not_allowed(self) -> None:
+        draft = "We can discuss menu options once the date is confirmed."
+        result = _validate(draft, availability_contract="NOT_CHECKED")
+        assert result.passed is False
+        assert any("menu" in v.lower() for v in result.violations)
+
+    def test_fail_dietary_requirements_not_allowed(self) -> None:
+        draft = "Please let us know any dietary requirements in advance."
+        result = _validate(draft, availability_contract="NOT_CHECKED")
+        assert result.passed is False
+
+    def test_pass_menu_allowed_when_flag_set(self) -> None:
+        draft = "We can discuss menu options at the next stage."
+        result = _validate(draft, allow_menu_discussion=True, availability_contract="CONFIRMED_AVAILABLE")
+        assert result.passed is True
+
+    def test_fail_special_touches_not_allowed(self) -> None:
+        draft = "We can arrange special touches to personalise the evening."
+        result = _validate(draft, availability_contract="NOT_CHECKED")
+        assert result.passed is False
+        assert any("special" in v.lower() or "touches" in v.lower() for v in result.violations)
+
+    def test_pass_special_touches_allowed_when_flag_set(self) -> None:
+        draft = "We can arrange special touches for the occasion."
+        result = _validate(draft, allow_special_touches=True, availability_contract="CONFIRMED_AVAILABLE")
+        assert result.passed is True
+
+    def test_fail_call_scheduling_not_allowed(self) -> None:
+        draft = "Please feel free to arrange a call to discuss further."
+        result = _validate(draft, availability_contract="NOT_CHECKED")
+        assert result.passed is False
+        assert any("call" in v.lower() for v in result.violations)
+
+    def test_fail_hop_on_a_call_not_allowed(self) -> None:
+        draft = "Happy to hop on a call to go through the details."
+        result = _validate(draft, availability_contract="NOT_CHECKED")
+        assert result.passed is False
+
+    def test_pass_call_scheduling_allowed_when_flag_set(self) -> None:
+        draft = "We'd be happy to arrange a call to discuss further."
+        result = _validate(draft, allow_call_scheduling=True, availability_contract="CONFIRMED_AVAILABLE")
+        assert result.passed is True
+
+
+# ── RESP-012: Six-record V4 alternative-date failures ─────────────────────────
+
+
+class TestAlternativeDateInventionDetected:
+    """Confirms the validator catches the alternative-date pattern found in email_02/email_03."""
+
+    def test_email_02_pattern_detected(self) -> None:
+        draft = (
+            "Unfortunately, we are fully booked on 14th March. "
+            "I'd recommend reaching out to our events team to explore alternative dates "
+            "that might work for your celebration."
+        )
+        result = _validate(draft, availability_contract="CONFIRMED_UNAVAILABLE")
+        assert result.passed is False
+        assert any("alternative" in v.lower() for v in result.violations)
+
+    def test_email_03_pattern_detected(self) -> None:
+        draft = (
+            "We are sorry to inform you that we are fully booked on the requested date. "
+            "We suggest looking at alternative dates — perhaps the weekend of the 21st?"
+        )
+        result = _validate(draft, availability_contract="CONFIRMED_UNAVAILABLE")
+        assert result.passed is False
+        assert any("alternative" in v.lower() for v in result.violations)
+
+    def test_email_12_sla_invention_detected(self) -> None:
+        draft = (
+            "Thank you for your enquiry. I will confirm availability within the next 24 hours "
+            "and look forward to welcoming you."
+        )
+        result = _validate(draft, availability_contract="NOT_CHECKED")
+        assert result.passed is False
+        # Either hosting-language or SLA violation should fire
+        assert len(result.violations) >= 1
