@@ -1,4 +1,4 @@
-"""Draft Compliance Validator (RESP-008, strengthened in RESP-012).
+"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020).
 
 Validates generated draft emails against the availability contract, spend rules,
 and prompt constraints before the draft is shown to staff or sent to guests.
@@ -17,6 +17,9 @@ RESP-012 additional checks:
   7. Invented SLA commitment (e.g. "within 24 hours")
   8. Invented clarification questions when none are allowed
   9. Forbidden topic mentions: menu, dietary, special touches, call scheduling
+
+RESP-020 additional checks:
+  10. Unavailable room described as suitable or perfect (CONFIRMED_UNAVAILABLE)
 
 Usage::
 
@@ -110,14 +113,16 @@ _AVAILABILITY_CONFIRM_PATTERNS: list[re.Pattern[str]] = [
 
 # Phrases that suggest alternative dates when the slot is unavailable
 # (LLM should acknowledge but never invent alternatives)
+# RESP-020: extended with "explore other options", "other options/slots/rooms"
 _ALTERNATIVE_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\balternative(?:ly)?\b", re.IGNORECASE),
     re.compile(r"\bhow\s+about\b", re.IGNORECASE),
     re.compile(r"\bwhat\s+about\b", re.IGNORECASE),
-    re.compile(r"\bother\s+dates?\b", re.IGNORECASE),
+    re.compile(r"\bother\s+(?:dates?|times?|options?|slots?|rooms?)\b", re.IGNORECASE),
     re.compile(r"\bdifferent\s+dates?\b", re.IGNORECASE),
     re.compile(r"\banother\s+(?:date|time|slot)\b", re.IGNORECASE),
     re.compile(r"\bwe\s+could\s+offer\b", re.IGNORECASE),
+    re.compile(r"\bexplore\s+(?:other|alternative|different)\s+(?:options?|dates?|slots?)\b", re.IGNORECASE),
 ]
 
 # Patterns for recommended/optional spend wording
@@ -160,20 +165,33 @@ _SLA_PATTERNS: list[re.Pattern[str]] = [
 _QUESTION_SENTENCE_PATTERN = re.compile(r"[A-Z][^.!?]*\?", re.DOTALL)
 
 # RESP-012: Forbidden topic — menu and dietary discussion
+# RESP-020: extended with "menu preferences"
 _MENU_PATTERNS: list[re.Pattern[str]] = [
-    re.compile(r"\bmenu\s+(?:options?|choice|selection|discussion)\b", re.IGNORECASE),
+    re.compile(r"\bmenu\s+(?:options?|choice|choices|selection|discussion|preferences?)\b", re.IGNORECASE),
     re.compile(r"\bdiscuss\s+(?:the\s+)?menu\b", re.IGNORECASE),
     re.compile(r"\bdietary\s+(?:requirements?|restrictions?|needs?|preferences?)\b", re.IGNORECASE),
     re.compile(r"\bfood\s+(?:options?|preferences?|choices?)\b", re.IGNORECASE),
 ]
 
 # RESP-012: Forbidden topic — special touches and personalisation
+# RESP-020: extended with "special details/elements", "personalisation"
 _SPECIAL_TOUCHES_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\bspecial\s+touch(?:es)?\b", re.IGNORECASE),
+    re.compile(r"\bspecial\s+(?:details?|elements?|arrangements?|features?)\b", re.IGNORECASE),
     re.compile(r"\bpersonal\s+touch(?:es)?\b", re.IGNORECASE),
+    re.compile(r"\bpersonalis(?:e|ed|ation|ing)\b", re.IGNORECASE),
     re.compile(r"\bdecorations?\b", re.IGNORECASE),
     re.compile(r"\bfloral\s+arrangement\b", re.IGNORECASE),
     re.compile(r"\bspecial\s+arrangement\b", re.IGNORECASE),
+]
+
+# RESP-020: Room suitability language when slot is CONFIRMED_UNAVAILABLE
+_ROOM_SUITABILITY_UNAVAILABLE_PATTERNS: list[re.Pattern[str]] = [
+    re.compile(r"\bperfect\s+for\b", re.IGNORECASE),
+    re.compile(r"\bideal\s+for\b", re.IGNORECASE),
+    re.compile(r"\bwell[\s-]+suited\s+(?:to|for)\b", re.IGNORECASE),
+    re.compile(r"\bexcellent\s+(?:choice|venue|space|room)\s+for\b", re.IGNORECASE),
+    re.compile(r"\b(?:have\s+the\s+)?space\s+and\s+expertise\s+to\b", re.IGNORECASE),
 ]
 
 # RESP-012: Forbidden topic — call scheduling
@@ -221,6 +239,8 @@ class DraftComplianceValidator:
         cls._check_invented_sla(draft_text, violations)
         cls._check_invented_questions(draft_text, context, violations)
         cls._check_forbidden_topics(draft_text, context, violations)
+        # RESP-020 additional checks
+        cls._check_unavailable_room_suitability(draft_text, context, violations)
 
         passed = len(violations) == 0
         return ComplianceResult(
@@ -417,3 +437,28 @@ class DraftComplianceValidator:
                         "is not permitted in the current response context."
                     )
                     break
+
+    # ── RESP-020 additional checks ──────────────────────────────────────────
+
+    @classmethod
+    def _check_unavailable_room_suitability(
+        cls,
+        text: str,
+        context: ValidationContext,
+        violations: list[str],
+    ) -> None:
+        """Fail if the draft describes a room as suitable or perfect when CONFIRMED_UNAVAILABLE.
+
+        When the slot is fully booked, the response must not imply the room would be
+        ideal for the guest's event — this misleads the guest about what they cannot have.
+        """
+        if context.availability_contract != "CONFIRMED_UNAVAILABLE":
+            return
+        for pattern in _ROOM_SUITABILITY_UNAVAILABLE_PATTERNS:
+            if pattern.search(text):
+                violations.append(
+                    "Draft describes the room or space as suitable or perfect for the guest's "
+                    "event when the slot is CONFIRMED_UNAVAILABLE. Room suitability language "
+                    "must not be used when the requested slot is not available."
+                )
+                return
