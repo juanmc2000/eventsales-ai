@@ -475,3 +475,196 @@ class TestAlternativeDateInventionDetected:
         assert result.passed is False
         # Either hosting-language or SLA violation should fire
         assert len(result.violations) >= 1
+
+
+# ── RESP-020: New pattern extensions ──────────────────────────────────────────
+
+
+class TestMenuPreferencesExtended:
+    """RESP-020: 'menu preferences' must trigger the menu forbidden-topic check."""
+
+    def test_menu_preferences_fails_when_not_allowed(self) -> None:
+        draft = (
+            "Thank you — I'm delighted to confirm availability. "
+            "Our events team will be in touch to discuss timing, menu preferences, "
+            "and how we can make the evening memorable."
+        )
+        result = _validate(draft, availability_contract="CONFIRMED_AVAILABLE")
+        assert result.passed is False
+        assert any("menu" in v.lower() for v in result.violations)
+
+    def test_menu_choices_still_caught(self) -> None:
+        draft = "We can discuss menu choices and dietary requirements at a later stage."
+        result = _validate(draft, availability_contract="CONFIRMED_AVAILABLE")
+        assert result.passed is False
+        assert any("menu" in v.lower() or "dietary" in v.lower() for v in result.violations)
+
+    def test_menu_preferences_pass_when_allowed(self) -> None:
+        draft = "Please let us know your menu preferences so we can tailor the experience."
+        result = _validate(
+            draft,
+            availability_contract="CONFIRMED_AVAILABLE",
+            allow_menu_discussion=True,
+        )
+        assert result.passed is True
+
+
+class TestSpecialDetailsExtended:
+    """RESP-020: 'special details/elements' must trigger the special-touches check."""
+
+    def test_special_details_fails_when_not_allowed(self) -> None:
+        draft = (
+            "Our events team will be in touch to go over timing, menu options, "
+            "and all the special details to make your celebration memorable."
+        )
+        result = _validate(draft, availability_contract="CONFIRMED_AVAILABLE")
+        assert result.passed is False
+        assert any("special" in v.lower() or "menu" in v.lower() for v in result.violations)
+
+    def test_special_elements_fails_when_not_allowed(self) -> None:
+        draft = "We can discuss the special elements to personalise your event."
+        result = _validate(draft, availability_contract="CONFIRMED_AVAILABLE")
+        assert result.passed is False
+
+    def test_personalisation_fails_when_not_allowed(self) -> None:
+        draft = "We offer personalisation options to make your event unique."
+        result = _validate(draft, availability_contract="CONFIRMED_AVAILABLE")
+        assert result.passed is False
+        assert any("special" in v.lower() for v in result.violations)
+
+
+class TestExploreOtherOptionsExtended:
+    """RESP-020: 'explore other options' must trigger the alternatives check when CONFIRMED_UNAVAILABLE."""
+
+    def test_explore_other_options_fails(self) -> None:
+        draft = (
+            "Unfortunately we are fully booked. Our events team may be able to "
+            "explore other options for you."
+        )
+        result = _validate(draft, availability_contract="CONFIRMED_UNAVAILABLE")
+        assert result.passed is False
+        assert any("alternative" in v.lower() for v in result.violations)
+
+    def test_other_options_fails(self) -> None:
+        draft = (
+            "We are fully booked on that date. Please get in touch if you'd like "
+            "to discuss other options or dates."
+        )
+        result = _validate(draft, availability_contract="CONFIRMED_UNAVAILABLE")
+        assert result.passed is False
+
+    def test_explore_alternative_options_fails(self) -> None:
+        draft = "Our team would be happy to explore alternative options for your group."
+        result = _validate(draft, availability_contract="CONFIRMED_UNAVAILABLE")
+        assert result.passed is False
+
+
+class TestUnavailableRoomSuitability:
+    """RESP-020: Room suitability language must not appear when slot is CONFIRMED_UNAVAILABLE."""
+
+    def test_perfect_for_group_fails_when_unavailable(self) -> None:
+        draft = (
+            "Thank you for your enquiry. Unfortunately, we are fully booked for the "
+            "requested date. Our Large Private Dining Room would be perfect for a group of 16."
+        )
+        result = _validate(draft, availability_contract="CONFIRMED_UNAVAILABLE")
+        assert result.passed is False
+        assert any("suitable" in v.lower() or "perfect" in v.lower() or "suitability" in v.lower() for v in result.violations)
+
+    def test_ideal_for_celebration_fails_when_unavailable(self) -> None:
+        draft = (
+            "We are sorry to say we are fully booked. Our private dining room "
+            "would be ideal for your celebration."
+        )
+        result = _validate(draft, availability_contract="CONFIRMED_UNAVAILABLE")
+        assert result.passed is False
+
+    def test_space_and_expertise_fails_when_unavailable(self) -> None:
+        draft = (
+            "Unfortunately the date is fully booked. We have the space and expertise to "
+            "create a memorable celebration for you."
+        )
+        result = _validate(draft, availability_contract="CONFIRMED_UNAVAILABLE")
+        assert result.passed is False
+
+    def test_perfect_for_group_pass_when_confirmed_available(self) -> None:
+        """Suitability language is fine when the slot is confirmed available."""
+        draft = (
+            "I'm delighted to confirm the date is available. Our Private Dining Room "
+            "would be perfect for a group of 12."
+        )
+        result = _validate(draft, availability_contract="CONFIRMED_AVAILABLE")
+        # No suitability violation — slot is confirmed
+        suitability_violations = [v for v in result.violations if "suitable" in v.lower() or "suitability" in v.lower()]
+        assert len(suitability_violations) == 0
+
+    def test_no_suitability_violation_for_not_checked(self) -> None:
+        """Suitability check only fires for CONFIRMED_UNAVAILABLE."""
+        draft = "Our room would be perfect for a party of 10."
+        result = _validate(draft, availability_contract="NOT_CHECKED")
+        suitability_violations = [v for v in result.violations if "suitability" in v.lower()]
+        assert len(suitability_violations) == 0
+
+
+class TestV5FixtureCoverage:
+    """RESP-020: Validates that V5 fixture failure patterns are caught by strengthened validator."""
+
+    def test_email01_available_menu_preferences_caught(self) -> None:
+        """email_01 AVAILABLE: 'menu preferences, and any special touches' should fail."""
+        draft = (
+            "Thank you for your enquiry — I'm delighted to let you know that the date "
+            "is available for your event.\n\n"
+            "We'd love to host your sister's birthday celebration on 12th June. "
+            "Our semi-private dining area would be perfect for your party of 8, "
+            "offering an intimate setting with a wonderful atmosphere.\n\n"
+            "There is a mandatory minimum spend of £1,000 for this space. Your preference "
+            "for around 7pm is noted, and we can certainly discuss timing as we move forward.\n\n"
+            "The next step is for one of our events team to connect with you to discuss the "
+            "finer details — timing, menu preferences, and any special touches to make the "
+            "evening memorable.\n\nWarm regards,\nEleanor"
+        )
+        result = _validate(
+            draft,
+            availability_contract="CONFIRMED_AVAILABLE",
+            confirmed_minimum_spend=1000.0,
+        )
+        assert result.passed is False
+        # Should catch menu preferences and/or special touches
+        assert len(result.violations) >= 1
+
+    def test_email01_unavailable_alternative_options_caught(self) -> None:
+        """email_01 UNAVAILABLE: 'explore alternative options' + 'other dates' should fail."""
+        draft = (
+            "Thank you for your enquiry. Unfortunately, we are fully booked for the "
+            "requested date.\n\n"
+            "We'd have loved to host your dad's birthday celebration at The Ivy Tower Bridge. "
+            "Saturday 20th June is a popular evening, and our private dining spaces are reserved.\n\n"
+            "If you're flexible with your date, our events team would be happy to explore "
+            "alternative options that work for your group of 10.\n\n"
+            "Do get in touch if you'd like to discuss other dates.\n\nWarm regards,\nEleanor"
+        )
+        result = _validate(
+            draft,
+            availability_contract="CONFIRMED_UNAVAILABLE",
+        )
+        assert result.passed is False
+        assert any("alternative" in v.lower() for v in result.violations)
+
+    def test_email03_unavailable_perfect_for_group_caught(self) -> None:
+        """email_03 UNAVAILABLE: 'Our Large Private Dining Room would be perfect for a group of 16'."""
+        draft = (
+            "Thank you for your enquiry. Unfortunately, we are fully booked for the "
+            "requested date.\n\n"
+            "We'd have loved to host Claire's engagement party at The Ivy Tower Bridge. "
+            "Our Large Private Dining Room would be perfect for a group of 16, and we have "
+            "the space and expertise to create a memorable celebration.\n\n"
+            "If you're able to consider alternative dates, please do get back in touch.\n\n"
+            "Best regards,\nJames"
+        )
+        result = _validate(
+            draft,
+            availability_contract="CONFIRMED_UNAVAILABLE",
+        )
+        assert result.passed is False
+        # Should catch both the suitability language and the alternative dates
+        assert len(result.violations) >= 1
