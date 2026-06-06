@@ -48,6 +48,10 @@ from app.modules.enquiries.response_priority_engine import (
     ResponsePriorityEngine,
     ResponsePriorityResult,
 )
+from app.modules.enquiries.response_section_builder import (
+    ResponseSectionBuilder,
+    SectionPlan,
+)
 
 if TYPE_CHECKING:
     from app.modules.enquiries.availability_decision_service import AvailabilityDecision
@@ -92,6 +96,7 @@ class ResponsePlan:
     customer_type_context: dict[str, Any] = field(default_factory=dict)
     persona_context: dict[str, Any] = field(default_factory=dict)
     draft_instructions: dict[str, Any] = field(default_factory=dict)
+    section_plan: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -108,6 +113,7 @@ class ResponsePlan:
             "customer_type_context": self.customer_type_context,
             "persona_context": self.persona_context,
             "draft_instructions": self.draft_instructions,
+            "section_plan": self.section_plan,
         }
 
 
@@ -219,6 +225,25 @@ class ResponsePreparationBuilder:
             clarification_questions=clarification_questions,
         )
 
+        # ── Step 6: section plan (RESP-011) ───────────────────────────────────
+        has_minimum_spend = bool(
+            missing_information_result is not None
+            and getattr(missing_information_result, "should_send_webform", False) is False
+        )
+        # Derive simpler flags from available context
+        has_room_context = False  # room matching happens in service.py
+        time_confirmed = False    # no time confirmation at this layer
+        alternatives_provided = False  # alternatives must be explicitly provided
+        section_plan_obj: SectionPlan = ResponseSectionBuilder.build(
+            response_goal=goal_result.response_goal,
+            has_minimum_spend=has_minimum_spend,
+            has_room_context=has_room_context,
+            time_confirmed=time_confirmed,
+            alternatives_provided=alternatives_provided,
+            has_clarification_questions=bool(clarification_questions),
+            has_webform_url=False,  # URL availability resolved in service.py
+        )
+
         return ResponsePlan(
             response_goal=goal_result.response_goal,
             response_priority=priority_result.response_priority,
@@ -233,6 +258,7 @@ class ResponsePreparationBuilder:
             customer_type_context=customer_ctx,
             persona_context=persona_ctx,
             draft_instructions=draft_instructions,
+            section_plan=section_plan_obj.to_dict(),
         )
 
     # ── Context builders ───────────────────────────────────────────────────────
