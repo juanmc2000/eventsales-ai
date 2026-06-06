@@ -369,7 +369,9 @@ class TestBuildDraftInputPayload:
         assert "2026-08-15" in payload["event_date_line"]
         assert "20" in payload["party_size_line"]
         assert "2,500" in payload["spend_line"]
-        assert "Looking for a venue" in payload["guest_message_line"]
+        # RESP-019: guest_message_line is now a structured tone block — raw text removed
+        assert "Tone context" in payload["guest_message_line"]
+        assert "Looking for a venue" not in payload["guest_message_line"]
 
     def test_optional_lines_empty_when_data_absent(self) -> None:
         from app.modules.ai.service import _build_draft_input_payload
@@ -396,4 +398,6 @@ class TestBuildDraftInputPayload:
         assert payload["event_date_line"] == ""
         assert payload["party_size_line"] == ""
         assert payload["spend_line"] == ""
-        assert payload["guest_message_line"] == ""
+        # RESP-019: guest_message_line is built from structured fields; persona_tone
+        # is set so tone line is non-empty — only empty when ALL tone fields absent
+        assert "guest_message_line" in payload

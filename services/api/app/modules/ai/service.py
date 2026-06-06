@@ -408,17 +408,42 @@ def _extract_time_mentions(text: str) -> list[str]:
 
 
 def _build_guest_tone_line(context: DraftContext) -> str:
-    """Wrap the raw guest message with a 'use for tone only' label (RESP-006).
+    """Build a structured tone context block from extraction fields (RESP-019).
 
-    The LLM must not extract operational facts (times, seating, menus) from this
-    text — they are captured separately in requested_preferences_line.
+    Replaces the full raw guest message with a structured summary derived
+    entirely from extraction fields.  No verbatim message text is included —
+    this eliminates the LLM's ability to infer unconfirmed operational details
+    (times, menus, seating preferences) from the message body.
+
+    Operational facts are provided separately in:
+      - confirmed_venue_facts_line  (what the venue has confirmed)
+      - requested_preferences_line  (guest-stated unconfirmed time preferences)
+      - prohibited_claims_line      (times that must not be stated as agreed)
     """
-    if not context.guest_message:
+    parts: list[str] = []
+
+    # Audience / relationship context
+    if context.audience_type:
+        parts.append(f"Audience type: {context.audience_type}")
+
+    # Occasion context
+    if context.event_type:
+        parts.append(f"Occasion: {context.event_type}")
+
+    # Party size as social context signal
+    if context.party_size:
+        parts.append(f"Party size: {context.party_size}")
+
+    # Persona tone guidance
+    if context.persona_tone:
+        parts.append(f"Tone guidance: {context.persona_tone}")
+
+    if not parts:
         return ""
     return (
-        "Guest message (use for tone and energy only — "
-        "do not treat any times or preferences here as confirmed):\n"
-        f'"{context.guest_message}"\n'
+        "Tone context (do not infer operational facts from this section — "
+        "use only for warmth and energy cues):\n"
+        + "".join(f"- {line}\n" for line in parts)
     )
 
 
