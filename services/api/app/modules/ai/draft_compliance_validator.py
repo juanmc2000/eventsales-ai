@@ -1,4 +1,4 @@
-"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020).
+"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025).
 
 Validates generated draft emails against the availability contract, spend rules,
 and prompt constraints before the draft is shown to staff or sent to guests.
@@ -20,6 +20,11 @@ RESP-012 additional checks:
 
 RESP-020 additional checks:
   10. Unavailable room described as suitable or perfect (CONFIRMED_UNAVAILABLE)
+
+RESP-025 additional checks:
+  11. Alternative-date language when alternatives_allowed=False (any non-CONFIRMED_AVAILABLE)
+  12. Hosting language when CONFIRMED_UNAVAILABLE (extends RESP-012 which only covered NOT_CHECKED)
+  13. Room suitability when NOT_CHECKED (extends RESP-020 which only covered CONFIRMED_UNAVAILABLE)
 
 Usage::
 
@@ -278,15 +283,22 @@ class DraftComplianceValidator:
         context: ValidationContext,
         violations: list[str],
     ) -> None:
-        """Fail if the draft invents alternatives when the slot is CONFIRMED_UNAVAILABLE."""
-        if context.availability_contract != "CONFIRMED_UNAVAILABLE":
-            return
+        """Fail if the draft invents alternatives when alternatives_allowed=False.
+
+        RESP-025: extended from CONFIRMED_UNAVAILABLE-only to any contract state
+        where alternatives have not been explicitly provided in the context.
+        CONFIRM_AVAILABLE is excluded — alternatives are harmless when confirmed.
+        """
+        if context.alternatives_allowed:
+            return  # Alternatives were explicitly provided — allow them
+        if context.availability_contract == "CONFIRMED_AVAILABLE":
+            return  # Alternatives in a confirmed-available response are not harmful
         for pattern in _ALTERNATIVE_PATTERNS:
             if pattern.search(text):
                 violations.append(
-                    "Draft suggests alternative dates or options when the slot is "
-                    "CONFIRMED_UNAVAILABLE. Alternatives must not be invented — "
-                    "only use alternatives explicitly provided in the context."
+                    f"[ALT_DATE_INVENTED] Draft suggests alternative dates or options "
+                    f"(contract: {context.availability_contract}) but no alternatives were "
+                    "provided in the context. Do not invent alternative dates or rooms."
                 )
                 return
 
@@ -358,14 +370,22 @@ class DraftComplianceValidator:
         context: ValidationContext,
         violations: list[str],
     ) -> None:
-        """Fail if the draft uses hosting language when availability is NOT_CHECKED."""
-        if context.availability_contract != "NOT_CHECKED":
+        """Fail if the draft uses hosting language when availability is not confirmed.
+
+        RESP-025: extended from NOT_CHECKED-only to also cover CONFIRMED_UNAVAILABLE.
+        Hosting language implies the event will happen — forbidden when the slot is
+        unavailable or has not been checked.
+        """
+        blocked_contracts = {"NOT_CHECKED", "CONFIRMED_UNAVAILABLE",
+                             "PENDING_DATE_CONFIRMATION", "INSUFFICIENT_INFORMATION"}
+        if context.availability_contract not in blocked_contracts:
             return
         for pattern in _HOSTING_LANGUAGE_PATTERNS:
             if pattern.search(text):
                 violations.append(
-                    "Draft uses hosting language (e.g. 'looking forward to hosting', "
-                    "'would be perfect for') when availability has not been checked. "
+                    f"[HOSTING_LANG_NOT_AVAILABLE] Draft uses hosting language "
+                    f"(e.g. 'looking forward to hosting', 'would be perfect for') "
+                    f"when contract state is {context.availability_contract}. "
                     "Hosting language must not be used until the contract state is "
                     "CONFIRMED_AVAILABLE."
                 )
@@ -447,18 +467,21 @@ class DraftComplianceValidator:
         context: ValidationContext,
         violations: list[str],
     ) -> None:
-        """Fail if the draft describes a room as suitable or perfect when CONFIRMED_UNAVAILABLE.
+        """Fail if the draft describes a room as suitable or perfect when the slot is
+        not confirmed available.
 
-        When the slot is fully booked, the response must not imply the room would be
-        ideal for the guest's event — this misleads the guest about what they cannot have.
+        RESP-025: extended from CONFIRMED_UNAVAILABLE-only to also cover NOT_CHECKED.
+        Claiming a room is "perfect for your group" before confirming availability
+        sets a false expectation.
         """
-        if context.availability_contract != "CONFIRMED_UNAVAILABLE":
+        blocked_contracts = {"CONFIRMED_UNAVAILABLE", "NOT_CHECKED"}
+        if context.availability_contract not in blocked_contracts:
             return
         for pattern in _ROOM_SUITABILITY_UNAVAILABLE_PATTERNS:
             if pattern.search(text):
                 violations.append(
-                    "Draft describes the room or space as suitable or perfect for the guest's "
-                    "event when the slot is CONFIRMED_UNAVAILABLE. Room suitability language "
-                    "must not be used when the requested slot is not available."
+                    f"[ROOM_SUITABILITY_PREMATURE] Draft describes the room or space as suitable "
+                    f"or perfect for the guest's event (contract: {context.availability_contract}). "
+                    "Room suitability language must not be used until availability is confirmed."
                 )
                 return

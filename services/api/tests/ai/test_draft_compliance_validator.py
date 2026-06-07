@@ -598,12 +598,12 @@ class TestUnavailableRoomSuitability:
         suitability_violations = [v for v in result.violations if "suitable" in v.lower() or "suitability" in v.lower()]
         assert len(suitability_violations) == 0
 
-    def test_no_suitability_violation_for_not_checked(self) -> None:
-        """Suitability check only fires for CONFIRMED_UNAVAILABLE."""
+    def test_suitability_violation_fires_for_not_checked(self) -> None:
+        """RESP-025: suitability check also fires for NOT_CHECKED (extended from CONFIRMED_UNAVAILABLE)."""
         draft = "Our room would be perfect for a party of 10."
         result = _validate(draft, availability_contract="NOT_CHECKED")
-        suitability_violations = [v for v in result.violations if "suitability" in v.lower()]
-        assert len(suitability_violations) == 0
+        suitability_violations = [v for v in result.violations if "ROOM_SUITABILITY_PREMATURE" in v]
+        assert len(suitability_violations) == 1
 
 
 class TestV5FixtureCoverage:
@@ -668,3 +668,108 @@ class TestV5FixtureCoverage:
         assert result.passed is False
         # Should catch both the suitability language and the alternative dates
         assert len(result.violations) >= 1
+
+
+# ── RESP-025: strengthened checks ─────────────────────────────────────────────
+
+
+class TestResp025AlternativeDatesExtended:
+    """RESP-025: alternative-date check extended to all non-CONFIRMED_AVAILABLE contracts."""
+
+    def test_alternative_dates_fail_for_not_checked(self) -> None:
+        draft = "We could suggest alternative dates that might work for your group."
+        result = _validate(draft, availability_contract="NOT_CHECKED")
+        assert result.passed is False
+        assert any("ALT_DATE_INVENTED" in v for v in result.violations)
+
+    def test_alternative_dates_fail_for_pending_date_confirmation(self) -> None:
+        draft = "How about considering other dates if your first choice doesn't work?"
+        result = _validate(draft, availability_contract="PENDING_DATE_CONFIRMATION")
+        assert result.passed is False
+        assert any("ALT_DATE_INVENTED" in v for v in result.violations)
+
+    def test_alternative_dates_fail_for_insufficient_information(self) -> None:
+        draft = "We'd be happy to look at other options for your event."
+        result = _validate(draft, availability_contract="INSUFFICIENT_INFORMATION")
+        assert result.passed is False
+        assert any("ALT_DATE_INVENTED" in v for v in result.violations)
+
+    def test_alternative_dates_pass_when_alternatives_allowed(self) -> None:
+        draft = "We can offer alternative dates: 22nd or 23rd June."
+        result = _validate(
+            draft,
+            availability_contract="CONFIRMED_UNAVAILABLE",
+            alternatives_allowed=True,
+        )
+        alt_violations = [v for v in result.violations if "ALT_DATE_INVENTED" in v]
+        assert len(alt_violations) == 0
+
+    def test_alternative_dates_pass_for_confirmed_available(self) -> None:
+        draft = "We look forward to hosting your event. We can also offer other options."
+        result = _validate(draft, availability_contract="CONFIRMED_AVAILABLE")
+        alt_violations = [v for v in result.violations if "ALT_DATE_INVENTED" in v]
+        assert len(alt_violations) == 0
+
+
+class TestResp025HostingLanguageExtended:
+    """RESP-025: hosting language check extended to CONFIRMED_UNAVAILABLE."""
+
+    def test_hosting_language_fails_for_confirmed_unavailable(self) -> None:
+        draft = "We would love to host your celebration at our venue."
+        result = _validate(draft, availability_contract="CONFIRMED_UNAVAILABLE")
+        assert result.passed is False
+        assert any("HOSTING_LANG_NOT_AVAILABLE" in v for v in result.violations)
+
+    def test_perfect_for_fails_for_confirmed_unavailable(self) -> None:
+        draft = "Our Private Dining Room would be perfect for a group of 20."
+        result = _validate(draft, availability_contract="CONFIRMED_UNAVAILABLE")
+        assert result.passed is False
+        assert any("HOSTING_LANG_NOT_AVAILABLE" in v or "ROOM_SUITABILITY" in v
+                   for v in result.violations)
+
+    def test_hosting_language_still_fails_for_not_checked(self) -> None:
+        draft = "We're looking forward to hosting you!"
+        result = _validate(draft, availability_contract="NOT_CHECKED")
+        assert result.passed is False
+        assert any("HOSTING_LANG_NOT_AVAILABLE" in v for v in result.violations)
+
+    def test_hosting_language_passes_for_confirmed_available(self) -> None:
+        draft = "We're delighted to host your event and look forward to hosting you."
+        result = _validate(draft, availability_contract="CONFIRMED_AVAILABLE")
+        hosting_violations = [v for v in result.violations if "HOSTING_LANG_NOT_AVAILABLE" in v]
+        assert len(hosting_violations) == 0
+
+
+class TestResp025RoomSuitabilityExtended:
+    """RESP-025: room suitability check extended to NOT_CHECKED."""
+
+    def test_perfect_for_group_fails_for_not_checked(self) -> None:
+        draft = "Our dining room would be perfect for your group of 25."
+        result = _validate(draft, availability_contract="NOT_CHECKED")
+        assert result.passed is False
+        assert any("ROOM_SUITABILITY_PREMATURE" in v for v in result.violations)
+
+    def test_ideal_for_celebration_fails_for_not_checked(self) -> None:
+        draft = "The Mezzanine Suite is ideal for celebrations of this size."
+        result = _validate(draft, availability_contract="NOT_CHECKED")
+        assert result.passed is False
+        assert any("ROOM_SUITABILITY_PREMATURE" in v for v in result.violations)
+
+    def test_room_suitability_still_fails_for_confirmed_unavailable(self) -> None:
+        draft = "Our space and expertise make us well-suited to hosting your event."
+        result = _validate(draft, availability_contract="CONFIRMED_UNAVAILABLE")
+        assert result.passed is False
+        assert any("ROOM_SUITABILITY_PREMATURE" in v for v in result.violations)
+
+    def test_room_suitability_passes_for_confirmed_available(self) -> None:
+        draft = "Our Private Dining Room would be perfect for your group."
+        result = _validate(draft, availability_contract="CONFIRMED_AVAILABLE")
+        suitability_violations = [v for v in result.violations if "ROOM_SUITABILITY_PREMATURE" in v]
+        assert len(suitability_violations) == 0
+
+    def test_room_suitability_passes_for_pending_date_confirmation(self) -> None:
+        """Suitability check does not fire for PENDING_DATE_CONFIRMATION or INSUFFICIENT_INFORMATION."""
+        draft = "Our room would be perfect for your event."
+        result = _validate(draft, availability_contract="PENDING_DATE_CONFIRMATION")
+        suitability_violations = [v for v in result.violations if "ROOM_SUITABILITY_PREMATURE" in v]
+        assert len(suitability_violations) == 0
