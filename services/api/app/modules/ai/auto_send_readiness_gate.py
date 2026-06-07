@@ -1,4 +1,4 @@
-"""Auto-Send Readiness Gate (RESP-014, updated RESP-022).
+"""Auto-Send Readiness Gate (RESP-014, updated RESP-022, AUTO-001).
 
 Determines whether a generated draft is safe for automatic sending without
 human review.  All checks are deterministic — no LLM calls are made.
@@ -42,19 +42,12 @@ if TYPE_CHECKING:
     from app.modules.ai.draft_compliance_validator import ComplianceResult
     from app.modules.enquiries.response_context_integrity_gate import IntegrityCheckResult
 
+# AUTO-001: Import policy constants from the canonical eligibility policy
+from app.modules.ai.auto_send_policy import AutoSendEligibilityPolicy as _Policy  # noqa: E402
 
-# ── Auto-sendable goals ────────────────────────────────────────────────────────
-
-_AUTO_SEND_GOALS: frozenset[str] = frozenset({
-    "CONFIRM_AVAILABLE",
-    "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
-})
-
-# Date statuses that explicitly permit auto-send (allowlist — all others block)
-_ALLOWED_DATE_STATUSES: frozenset[str] = frozenset({
-    "resolved",
-    "resolved_with_confirmation",
-})
+# Keep module-level aliases for backwards-compatibility with any external readers
+_AUTO_SEND_GOALS: frozenset[str] = _Policy.ALLOWED_GOALS
+_ALLOWED_DATE_STATUSES: frozenset[str] = _Policy.ALLOWED_DATE_STATUSES
 
 
 # ── Output ─────────────────────────────────────────────────────────────────────
@@ -175,11 +168,9 @@ class AutoSendReadinessGate:
         blockers: list[str],
     ) -> None:
         """Block auto-send when the response goal is not in the auto-sendable set."""
-        if response_goal not in _AUTO_SEND_GOALS:
-            blockers.append(
-                f"Response goal '{response_goal}' is not in the auto-send allowed set "
-                f"({', '.join(sorted(_AUTO_SEND_GOALS))})."
-            )
+        reason = _Policy.goal_block_reason(response_goal)
+        if reason is not None:
+            blockers.append(reason)
 
     @staticmethod
     def _check_date_status(
@@ -187,11 +178,9 @@ class AutoSendReadinessGate:
         blockers: list[str],
     ) -> None:
         """Block auto-send when the date is not explicitly resolved."""
-        if date_status not in _ALLOWED_DATE_STATUSES:
-            blockers.append(
-                f"Date status is '{date_status}' — auto-send requires 'resolved' or "
-                "'resolved_with_confirmation'."
-            )
+        reason = _Policy.date_status_block_reason(date_status)
+        if reason is not None:
+            blockers.append(reason)
 
     @staticmethod
     def _check_no_escalation(
