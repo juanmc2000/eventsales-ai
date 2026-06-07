@@ -1,0 +1,2982 @@
+{
+  "availability_records": [
+    {
+      "id": "av_001",
+      "restaurant": "The Ivy Tower Bridge",
+      "room": "Private Dining Room",
+      "status": "available"
+    },
+    {
+      "id": "av_002",
+      "restaurant": "The Ivy Tower Bridge",
+      "room": "Private Dining Room",
+      "status": "unavailable"
+    },
+    {
+      "id": "av_003",
+      "restaurant": "The Ivy Tower Bridge",
+      "room": "Garden Room",
+      "status": "available"
+    },
+    {
+      "id": "av_004",
+      "restaurant": "Scott's Mayfair",
+      "room": "Ivory Room",
+      "status": "available"
+    },
+    {
+      "id": "av_005",
+      "restaurant": "Scott's Mayfair",
+      "room": "Main Dining Room",
+      "status": "unavailable"
+    },
+    {
+      "id": "av_006",
+      "restaurant": "The Wolseley",
+      "room": "Belgravia Suite",
+      "status": "not_checked"
+    },
+    {
+      "id": "av_007",
+      "restaurant": "Quaglino's",
+      "room": "Terrace Room",
+      "status": "available"
+    },
+    {
+      "id": "av_008",
+      "restaurant": "Quaglino's",
+      "room": "Private Room",
+      "status": "not_checked"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "fs1_001",
+      "availability_ref": "av_001",
+      "category": "compliance_pass",
+      "description": "Clean CONFIRM_AVAILABLE \u2014 social, with spend",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Alice, thank you for getting in touch. I am pleased to confirm that our Private Dining Room is available on the evening of Saturday 21 June 2026. The minimum spend for this space is \u00a31,200. Please complete our booking form and I will send all the details. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1200,
+        "party_size": 12,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_002",
+      "availability_ref": "av_003",
+      "category": "compliance_pass",
+      "description": "Clean CONFIRM_AVAILABLE \u2014 corporate, no spend",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Garden Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Garden Room",
+      "draft_text": "Dear James, thank you for your enquiry. I am pleased to confirm that our Garden Room is available on the afternoon of Thursday 10 July 2026 for your team event. Please complete the booking form to proceed and I will be in touch. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 20,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_003",
+      "availability_ref": "av_004",
+      "category": "compliance_pass",
+      "description": "Clean CONFIRM_AVAILABLE \u2014 agency, resolved_with_confirmation",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved_with_confirmation",
+      "customer_type": "agency",
+      "context_restaurant_name": "Scott's Mayfair",
+      "context_room_name": "Ivory Room",
+      "availability_restaurant_name": "Scott's Mayfair",
+      "availability_room_name": "Ivory Room",
+      "draft_text": "Dear Sophie, thank you for reaching out on behalf of your client. I am pleased to confirm that our Ivory Room is available on Sunday 5 July 2026. The minimum spend for the evening is \u00a32,500. Please complete our booking form so we can proceed. Kind regards, Thomas",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 2500,
+        "party_size": 20,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_004",
+      "availability_ref": "av_001",
+      "category": "compliance_pass",
+      "description": "Clean CONFIRM_AVAILABLE \u2014 social, small party",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Emma, I am delighted to let you know that the date is available for your birthday dinner. The minimum spend is \u00a3600 for the private space. Please complete the booking form to confirm your reservation. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 600,
+        "party_size": 8,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_005",
+      "availability_ref": "av_003",
+      "category": "compliance_pass",
+      "description": "Clean CONFIRM_AVAILABLE \u2014 corporate, spend stated",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Garden Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Garden Room",
+      "draft_text": "Dear Michael, thank you for your enquiry regarding a corporate lunch. I can confirm that the Garden Room is available on Wednesday 18 June 2026. The minimum spend for this event is \u00a3900. Please complete the booking form to secure the reservation. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 900,
+        "party_size": 14,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_006",
+      "availability_ref": "av_007",
+      "category": "compliance_pass",
+      "description": "Clean CONFIRM_AVAILABLE \u2014 agency, Quaglino's",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Terrace Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Terrace Room",
+      "draft_text": "Dear Sarah, thank you for your enquiry. I am pleased to confirm that our Terrace Room is available on the evening of Friday 26 June 2026 for your client's event. The minimum spend is \u00a33,200 for the space. Please complete our booking form. Kind regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 3200,
+        "party_size": 30,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_007",
+      "availability_ref": "av_004",
+      "category": "compliance_pass",
+      "description": "Clean CONFIRM_AVAILABLE \u2014 social, Scott's",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "Scott's Mayfair",
+      "context_room_name": "Ivory Room",
+      "availability_restaurant_name": "Scott's Mayfair",
+      "availability_room_name": "Ivory Room",
+      "draft_text": "Dear Charlotte, thank you for getting in touch. I am pleased to confirm that our Ivory Room is available on Saturday 4 July 2026 for your anniversary dinner. The minimum spend is \u00a31,800. Please complete the booking form and I will send the details. Best regards, Thomas",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1800,
+        "party_size": 16,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_008",
+      "availability_ref": "av_003",
+      "category": "compliance_pass",
+      "description": "Clean CONFIRM_AVAILABLE \u2014 corporate, resolved_with_confirmation",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved_with_confirmation",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Garden Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Garden Room",
+      "draft_text": "Dear Robert, I can confirm that the Garden Room is available for your board dinner on the evening of Tuesday 14 July 2026. The minimum spend for the private room is \u00a31,500. To proceed, please complete our booking form. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1500,
+        "party_size": 18,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_009",
+      "availability_ref": "av_007",
+      "category": "compliance_pass",
+      "description": "Clean CONFIRM_AVAILABLE \u2014 social, Quaglino's",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Terrace Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Terrace Room",
+      "draft_text": "Dear Hannah, thank you for your message. I am pleased to confirm that our Terrace Room is available on the evening of Saturday 12 July 2026 for your group. Please complete the booking form to proceed. Warm regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 25,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_010",
+      "availability_ref": "av_001",
+      "category": "compliance_pass",
+      "description": "Clean CONFIRM_AVAILABLE \u2014 agency, no spend needed",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Lucy, thank you for your enquiry on behalf of your client. I am pleased to confirm that the Private Dining Room is available on the evening of Friday 19 June 2026. Please complete our booking form to proceed. Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 10,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_011",
+      "availability_ref": "av_004",
+      "category": "compliance_pass",
+      "description": "Clean CONFIRM_AVAILABLE \u2014 social, with spend and party",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "Scott's Mayfair",
+      "context_room_name": "Ivory Room",
+      "availability_restaurant_name": "Scott's Mayfair",
+      "availability_room_name": "Ivory Room",
+      "draft_text": "Dear Olivia, thank you for your enquiry. I am pleased to confirm that our Ivory Room is available on Sunday 19 July 2026. The minimum spend is \u00a32,000 for the evening. Please complete the booking form and I will follow up with all the details. Warm regards, Thomas",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 2000,
+        "party_size": 22,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_012",
+      "availability_ref": "av_007",
+      "category": "compliance_pass",
+      "description": "Clean CONFIRM_AVAILABLE \u2014 corporate, Quaglino's",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved_with_confirmation",
+      "customer_type": "corporate",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Terrace Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Terrace Room",
+      "draft_text": "Dear Daniel, thank you for your enquiry. I am pleased to confirm that the Terrace Room is available on the evening of Wednesday 8 July 2026 for your corporate event. The minimum spend is \u00a32,800. Please complete our booking form to proceed. Best regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 2800,
+        "party_size": 28,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_013",
+      "availability_ref": "av_006",
+      "category": "compliance_pass",
+      "description": "Clean ACKNOWLEDGE \u2014 social, will check",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Alice, thank you for your enquiry. I will check availability of the Belgravia Suite for your requested date and come back to you shortly. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 15,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_014",
+      "availability_ref": "av_006",
+      "category": "compliance_pass",
+      "description": "Clean ACKNOWLEDGE \u2014 corporate, checking availability",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear James, thank you for getting in touch. We will check availability for your requested date and revert to you as soon as possible. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 20,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_015",
+      "availability_ref": "av_008",
+      "category": "compliance_pass",
+      "description": "Clean ACKNOWLEDGE \u2014 agency, Quaglino's",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Private Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Private Room",
+      "draft_text": "Dear Sophie, thank you for your enquiry on behalf of your client. We will check availability and be in touch shortly with a full response. Kind regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 12,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_016",
+      "availability_ref": "av_006",
+      "category": "compliance_pass",
+      "description": "Clean ACKNOWLEDGE \u2014 social, Wolseley",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Emma, thank you for your message. We are checking availability for your requested date and will be in touch very shortly. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 8,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_017",
+      "availability_ref": "av_008",
+      "category": "compliance_pass",
+      "description": "Clean ACKNOWLEDGE \u2014 corporate, Quaglino's",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Private Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Private Room",
+      "draft_text": "Dear Michael, thank you for your enquiry. I will check availability for your event date and come back to you shortly with a full response. Best regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 16,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_018",
+      "availability_ref": "av_006",
+      "category": "compliance_pass",
+      "description": "Clean ACKNOWLEDGE \u2014 agency, Wolseley",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved_with_confirmation",
+      "customer_type": "agency",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Charlotte, thank you for reaching out. We will check availability for your client's proposed date and revert to you as soon as we have confirmation. Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 24,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_019",
+      "availability_ref": "av_006",
+      "category": "compliance_pass",
+      "description": "Clean ACKNOWLEDGE \u2014 social, no room",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": null,
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": null,
+      "draft_text": "Dear Robert, thank you for your enquiry. We will check availability for your requested date and be in touch shortly. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 10,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_020",
+      "availability_ref": "av_008",
+      "category": "compliance_pass",
+      "description": "Clean ACKNOWLEDGE \u2014 corporate, checking",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Private Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Private Room",
+      "draft_text": "Dear Hannah, thank you for getting in touch. I will check availability and come back to you shortly with all the details. Best regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 30,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_021",
+      "availability_ref": "av_006",
+      "category": "compliance_pass",
+      "description": "Clean ACKNOWLEDGE \u2014 agency, quick reply",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Lucy, thank you for your enquiry on behalf of your client. We will check availability for the requested date and respond shortly. Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 18,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_022",
+      "availability_ref": "av_008",
+      "category": "compliance_pass",
+      "description": "Clean ACKNOWLEDGE \u2014 social, Quaglino's",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Private Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Private Room",
+      "draft_text": "Dear Olivia, thank you for your enquiry. We will look into availability for your requested date and be in touch shortly. Warm regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 6,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_023",
+      "availability_ref": "av_006",
+      "category": "compliance_pass",
+      "description": "Clean ACKNOWLEDGE \u2014 corporate, Wolseley",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved_with_confirmation",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Daniel, thank you for your message. I will check availability of the Belgravia Suite for your proposed date and revert to you as soon as possible. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 22,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_024",
+      "availability_ref": "av_008",
+      "category": "compliance_pass",
+      "description": "Clean ACKNOWLEDGE \u2014 agency, brief",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Private Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Private Room",
+      "draft_text": "Dear Sarah, thank you for your enquiry. We will check availability and come back to you shortly with a full response for your client. Kind regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 20,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "fs1_025",
+      "availability_ref": "av_002",
+      "category": "gate_blocked_goal",
+      "description": "Unavailable response \u2014 compliance passes, gate blocked",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Alice, thank you for your enquiry. Unfortunately we are fully booked on the requested date. I hope we can welcome you on a future occasion. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_026",
+      "availability_ref": "av_005",
+      "category": "gate_blocked_goal",
+      "description": "Unavailable response corporate \u2014 gate blocked",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "Scott's Mayfair",
+      "context_room_name": "Main Dining Room",
+      "availability_restaurant_name": "Scott's Mayfair",
+      "availability_room_name": "Main Dining Room",
+      "draft_text": "Dear James, thank you for your enquiry. I regret to inform you that we are fully booked on the requested date. We hope to welcome you on another occasion. Best regards, Thomas",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_027",
+      "availability_ref": "av_006",
+      "category": "gate_blocked_goal",
+      "description": "REQUEST_MISSING_INFORMATION \u2014 compliance passes, gate blocked",
+      "response_goal": "REQUEST_MISSING_INFORMATION",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Emma, thank you for your enquiry. To help us assist you further, could you confirm the number of guests and your preferred date? Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [
+          "How many guests are you expecting?",
+          "What is your preferred date?"
+        ],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_028",
+      "availability_ref": "av_006",
+      "category": "gate_blocked_goal",
+      "description": "REQUEST_MISSING_INFORMATION corporate \u2014 gate blocked",
+      "response_goal": "REQUEST_MISSING_INFORMATION",
+      "availability_contract": "INSUFFICIENT_INFORMATION",
+      "date_status": "unknown",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Michael, thank you for your enquiry. To best assist you, could you confirm the number of guests attending and your preferred date for the event? Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [
+          "How many guests are you expecting?",
+          "What date did you have in mind?"
+        ],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_029",
+      "availability_ref": "av_006",
+      "category": "gate_blocked_goal",
+      "description": "REQUEST_DATE_CONFIRMATION \u2014 compliance passes, gate blocked",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_contract": "PENDING_DATE_CONFIRMATION",
+      "date_status": "ambiguous",
+      "customer_type": "agency",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Sophie, thank you for your enquiry. Could you confirm the exact date you have in mind so that we can check availability and provide a full response? Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [
+          "What is your preferred date?"
+        ],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_030",
+      "availability_ref": "av_008",
+      "category": "gate_blocked_goal",
+      "description": "REQUEST_DATE_CONFIRMATION social \u2014 gate blocked",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_contract": "PENDING_DATE_CONFIRMATION",
+      "date_status": "ambiguous",
+      "customer_type": "social",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Private Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Private Room",
+      "draft_text": "Dear Charlotte, thank you for getting in touch. Could you confirm the exact date you had in mind? Once we have that, we can check availability and come back to you. Warm regards, Victoria",
+      "context": {
+        "clarification_questions": [
+          "What date did you have in mind?"
+        ],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_031",
+      "availability_ref": "av_006",
+      "category": "gate_blocked_goal",
+      "description": "REQUEST_WEBFORM \u2014 compliance passes, gate blocked",
+      "response_goal": "REQUEST_WEBFORM",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "unknown",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Robert, thank you for your enquiry. To help us process your request, please complete our enquiry form and a member of the team will be in touch. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_032",
+      "availability_ref": "av_008",
+      "category": "gate_blocked_goal",
+      "description": "REQUEST_WEBFORM agency \u2014 gate blocked",
+      "response_goal": "REQUEST_WEBFORM",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "unknown",
+      "customer_type": "agency",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Private Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Private Room",
+      "draft_text": "Dear Lucy, thank you for your enquiry on behalf of your client. Please complete our online enquiry form so that we can process your request and respond with the relevant details. Kind regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_033",
+      "availability_ref": "av_001",
+      "category": "gate_blocked_date",
+      "description": "CONFIRM_AVAILABLE \u2014 date ambiguous, gate blocked",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "ambiguous",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Alice, I am pleased to confirm that the Private Dining Room is available for your event. The minimum spend is \u00a31,200. Please complete the booking form to proceed. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1200,
+        "party_size": 12,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_034",
+      "availability_ref": "av_003",
+      "category": "gate_blocked_date",
+      "description": "CONFIRM_AVAILABLE \u2014 date unknown, gate blocked",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "unknown",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Garden Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Garden Room",
+      "draft_text": "Dear James, I can confirm that our Garden Room is available for your corporate event. The minimum spend is \u00a3900. Please complete the booking form. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 900,
+        "party_size": 15,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_035",
+      "availability_ref": "av_004",
+      "category": "gate_blocked_date",
+      "description": "ACKNOWLEDGE \u2014 date ambiguous, gate blocked",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "ambiguous",
+      "customer_type": "agency",
+      "context_restaurant_name": "Scott's Mayfair",
+      "context_room_name": "Ivory Room",
+      "availability_restaurant_name": "Scott's Mayfair",
+      "availability_room_name": "Ivory Room",
+      "draft_text": "Dear Sophie, thank you for your enquiry. We will check availability for your requested date and come back to you shortly. Kind regards, Thomas",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 18,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_036",
+      "availability_ref": "av_007",
+      "category": "gate_blocked_date",
+      "description": "CONFIRM_AVAILABLE \u2014 date unresolved, gate blocked",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "unresolved",
+      "customer_type": "social",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Terrace Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Terrace Room",
+      "draft_text": "Dear Emma, I am pleased to confirm that the Terrace Room is available on your requested date. The minimum spend is \u00a32,500. Please complete our booking form to proceed. Warm regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 2500,
+        "party_size": 25,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_037",
+      "availability_ref": "av_001",
+      "category": "context_mismatch",
+      "description": "Restaurant name mismatch \u2014 integrity fails",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "Scott's Mayfair",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Alice, I am pleased to confirm that the Private Dining Room is available on the evening of Saturday 21 June 2026. The minimum spend is \u00a31,200. Please complete the booking form. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1200,
+        "party_size": 12,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": false,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_038",
+      "availability_ref": "av_004",
+      "category": "context_mismatch",
+      "description": "Restaurant name mismatch \u2014 integrity fails corporate",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "Scott's Mayfair",
+      "context_room_name": "Ivory Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Ivory Room",
+      "draft_text": "Dear James, I can confirm that the Ivory Room is available on your requested date. The minimum spend is \u00a32,000. Please complete the booking form. Best regards, Thomas",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 2000,
+        "party_size": 20,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": false,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_039",
+      "availability_ref": "av_003",
+      "category": "context_mismatch",
+      "description": "Room name mismatch \u2014 integrity fails",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Garden Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Sophie, I am pleased to confirm that the Garden Room is available on your requested date. The minimum spend is \u00a31,500. Please complete the booking form. Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1500,
+        "party_size": 18,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": false,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_040",
+      "availability_ref": "av_007",
+      "category": "context_mismatch",
+      "description": "Room name mismatch \u2014 integrity fails social",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Terrace Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Private Room",
+      "draft_text": "Dear Charlotte, thank you for your enquiry. We will check availability of the Terrace Room and come back to you shortly. Warm regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 22,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": false,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_041",
+      "availability_ref": "av_006",
+      "category": "hallucinated_availability",
+      "description": "Availability claimed when NOT_CHECKED \u2014 social",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Alice, I am pleased to confirm that we are available on your requested date. We look forward to welcoming your group. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 15,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_042",
+      "availability_ref": "av_006",
+      "category": "hallucinated_availability",
+      "description": "Confirmed availability when NOT_CHECKED \u2014 corporate",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear James, I can confirm that the Belgravia Suite is available on the requested date. Please complete the booking form to proceed. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 20,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_043",
+      "availability_ref": "av_008",
+      "category": "hallucinated_availability",
+      "description": "Availability claimed when NOT_CHECKED \u2014 agency",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Private Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Private Room",
+      "draft_text": "Dear Sophie, I am pleased to let you know that the Private Room is available for your client's event. Please proceed with the booking form. Kind regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 12,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_044",
+      "availability_ref": "av_006",
+      "category": "hallucinated_availability",
+      "description": "Availability claimed when PENDING_DATE \u2014 social",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_contract": "PENDING_DATE_CONFIRMATION",
+      "date_status": "ambiguous",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Emma, I can confirm that we are available for your group. The minimum spend is \u00a31,000. Please complete the booking form. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [
+          "What is your preferred date?"
+        ],
+        "confirmed_minimum_spend": 1000,
+        "party_size": 8,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_045",
+      "availability_ref": "av_008",
+      "category": "hallucinated_availability",
+      "description": "Available confirmed when PENDING_DATE \u2014 corporate",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_contract": "PENDING_DATE_CONFIRMATION",
+      "date_status": "ambiguous",
+      "customer_type": "corporate",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Private Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Private Room",
+      "draft_text": "Dear Michael, I am pleased to confirm that the Private Room is available for your event on the requested date. Best regards, Victoria",
+      "context": {
+        "clarification_questions": [
+          "What is your preferred date?"
+        ],
+        "confirmed_minimum_spend": null,
+        "party_size": 16,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_046",
+      "availability_ref": "av_006",
+      "category": "hallucinated_availability",
+      "description": "Confirms availability when INSUFFICIENT_INFORMATION \u2014 agency",
+      "response_goal": "REQUEST_MISSING_INFORMATION",
+      "availability_contract": "INSUFFICIENT_INFORMATION",
+      "date_status": "unknown",
+      "customer_type": "agency",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Charlotte, thank you for your enquiry. I can confirm that the Belgravia Suite is available on your requested date. Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [
+          "How many guests are you expecting?"
+        ],
+        "confirmed_minimum_spend": null,
+        "party_size": 20,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_047",
+      "availability_ref": "av_006",
+      "category": "hallucinated_availability",
+      "description": "Date availability confirmed when NOT_CHECKED \u2014 social",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Robert, great news \u2014 we do have availability on the date you requested. The minimum spend for the Belgravia Suite is \u00a31,200. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1200,
+        "party_size": 10,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_048",
+      "availability_ref": "av_008",
+      "category": "hallucinated_availability",
+      "description": "Slot confirmed available without checking \u2014 corporate",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Private Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Private Room",
+      "draft_text": "Dear Hannah, I am pleased to confirm that the Private Room is available on your requested date. Please let me know how you would like to proceed. Best regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 30,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_049",
+      "availability_ref": "av_006",
+      "category": "hallucinated_availability",
+      "description": "Confirms date when status is unknown \u2014 agency",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Lucy, I am pleased to confirm that the Belgravia Suite is available on your requested date. The minimum spend is \u00a32,500. Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 2500,
+        "party_size": 25,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_050",
+      "availability_ref": "av_006",
+      "category": "hallucinated_availability",
+      "description": "Confirms venue availability without check \u2014 social",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Olivia, thank you for your message. I am pleased to confirm that we are available and look forward to welcoming you. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 6,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_051",
+      "availability_ref": "av_002",
+      "category": "alternative_dates",
+      "description": "Suggests alternatives when unavailable \u2014 social",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Alice, unfortunately the Private Dining Room is not available on your requested date. We have other dates available that may suit your celebration. Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_052",
+      "availability_ref": "av_005",
+      "category": "alternative_dates",
+      "description": "Suggests alternative dates \u2014 corporate",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "Scott's Mayfair",
+      "context_room_name": "Main Dining Room",
+      "availability_restaurant_name": "Scott's Mayfair",
+      "availability_room_name": "Main Dining Room",
+      "draft_text": "Dear James, I regret to inform you that we are fully booked on your requested date. We could offer alternative dates such as 15 July or 22 July if either would suit your schedule. Best regards, Thomas",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_053",
+      "availability_ref": "av_002",
+      "category": "alternative_dates",
+      "description": "Proposes alternative room when unavailable \u2014 agency",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Sophie, unfortunately the Private Dining Room is fully booked on your requested date. As an alternative, our Garden Room may be available. Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_054",
+      "availability_ref": "av_005",
+      "category": "alternative_dates",
+      "description": "Offers another date slot \u2014 social",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "Scott's Mayfair",
+      "context_room_name": "Main Dining Room",
+      "availability_restaurant_name": "Scott's Mayfair",
+      "availability_room_name": "Main Dining Room",
+      "draft_text": "Dear Emma, I am sorry to let you know we are fully booked on that date. Would another date work for your plans? Warm regards, Thomas",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_055",
+      "availability_ref": "av_002",
+      "category": "alternative_dates",
+      "description": "Suggests checking another room \u2014 corporate",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Michael, unfortunately we are fully booked in the Private Dining Room on your requested date. We encourage you to explore other rooms that may suit. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_056",
+      "availability_ref": "av_005",
+      "category": "alternative_dates",
+      "description": "Proposes alternative date \u2014 agency",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "Scott's Mayfair",
+      "context_room_name": "Main Dining Room",
+      "availability_restaurant_name": "Scott's Mayfair",
+      "availability_room_name": "Main Dining Room",
+      "draft_text": "Dear Charlotte, I regret to inform you that we are fully booked on your requested date. I would suggest an alternative date such as 12 July. Kind regards, Thomas",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_057",
+      "availability_ref": "av_002",
+      "category": "alternative_dates",
+      "description": "Mentions other dates when unavailable \u2014 social",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Robert, unfortunately we are fully booked on your requested date. We do have other dates available if you would like to consider those. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_058",
+      "availability_ref": "av_005",
+      "category": "alternative_dates",
+      "description": "Offers another time period \u2014 corporate",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "Scott's Mayfair",
+      "context_room_name": "Main Dining Room",
+      "availability_restaurant_name": "Scott's Mayfair",
+      "availability_room_name": "Main Dining Room",
+      "draft_text": "Dear Hannah, I am sorry but we are fully booked on your preferred date. You may wish to consider another date in the same month. Best regards, Thomas",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_059",
+      "availability_ref": "av_001",
+      "category": "spend_soft_language",
+      "description": "Uses recommended spend \u2014 social",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Alice, I am pleased to confirm that the Private Dining Room is available on your requested date. Our recommended spend for this space is \u00a31,200 for the evening. Please complete the booking form. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1200,
+        "party_size": 12,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_060",
+      "availability_ref": "av_003",
+      "category": "spend_soft_language",
+      "description": "Uses suggested spend \u2014 corporate",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Garden Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Garden Room",
+      "draft_text": "Dear James, I can confirm that the Garden Room is available on your requested date. The suggested spend for this event is \u00a3900. Please complete the booking form. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 900,
+        "party_size": 14,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_061",
+      "availability_ref": "av_004",
+      "category": "spend_soft_language",
+      "description": "Uses suggested minimum spend \u2014 agency",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "Scott's Mayfair",
+      "context_room_name": "Ivory Room",
+      "availability_restaurant_name": "Scott's Mayfair",
+      "availability_room_name": "Ivory Room",
+      "draft_text": "Dear Sophie, I am pleased to confirm that the Ivory Room is available. The suggested minimum spend for this event is \u00a32,500. Please complete the booking form. Kind regards, Thomas",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 2500,
+        "party_size": 20,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_062",
+      "availability_ref": "av_007",
+      "category": "spend_soft_language",
+      "description": "Uses recommended spend \u2014 social Quaglino's",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Terrace Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Terrace Room",
+      "draft_text": "Dear Emma, I am pleased to confirm the Terrace Room is available. Our recommended spend for your event is \u00a33,200. Please complete the booking form. Warm regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 3200,
+        "party_size": 30,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_063",
+      "availability_ref": "av_001",
+      "category": "spend_soft_language",
+      "description": "Uses recommended minimum spend \u2014 corporate",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Michael, I can confirm the Private Dining Room is available. The recommended minimum spend for the evening is \u00a31,200. Please complete the booking form. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1200,
+        "party_size": 12,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_064",
+      "availability_ref": "av_003",
+      "category": "spend_soft_language",
+      "description": "Uses suggested spend \u2014 agency resolved_with_confirmation",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved_with_confirmation",
+      "customer_type": "agency",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Garden Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Garden Room",
+      "draft_text": "Dear Charlotte, I am pleased to confirm the Garden Room is available. The suggested spend for this occasion is \u00a31,500. Please complete the booking form. Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1500,
+        "party_size": 18,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_065",
+      "availability_ref": "av_004",
+      "category": "spend_soft_language",
+      "description": "Uses recommended spend \u2014 social Scott's",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "Scott's Mayfair",
+      "context_room_name": "Ivory Room",
+      "availability_restaurant_name": "Scott's Mayfair",
+      "availability_room_name": "Ivory Room",
+      "draft_text": "Dear Robert, the Ivory Room is available on your requested date. Our recommended spend for this space is \u00a31,800. Please complete the booking form to proceed. Warm regards, Thomas",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1800,
+        "party_size": 16,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_066",
+      "availability_ref": "av_001",
+      "category": "unconfirmed_time",
+      "description": "Confirms at 7pm from guest message \u2014 social",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Alice, I am pleased to confirm that the Private Dining Room is available at 7pm on your requested date. The minimum spend is \u00a31,200. Please complete the booking form. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1200,
+        "party_size": 12,
+        "prohibited_times": [
+          "7pm"
+        ],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_067",
+      "availability_ref": "av_003",
+      "category": "unconfirmed_time",
+      "description": "Confirms from 7:30pm from guest message \u2014 corporate",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Garden Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Garden Room",
+      "draft_text": "Dear James, I can confirm that the Garden Room is available from 7:30pm on your requested date. The minimum spend is \u00a3900. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 900,
+        "party_size": 14,
+        "prohibited_times": [
+          "7:30pm"
+        ],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_068",
+      "availability_ref": "av_004",
+      "category": "unconfirmed_time",
+      "description": "States arrival at 7pm as confirmed \u2014 agency",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "Scott's Mayfair",
+      "context_room_name": "Ivory Room",
+      "availability_restaurant_name": "Scott's Mayfair",
+      "availability_room_name": "Ivory Room",
+      "draft_text": "Dear Sophie, I am pleased to confirm the Ivory Room is available from 7pm for your event. The minimum spend is \u00a32,500. Kind regards, Thomas",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 2500,
+        "party_size": 20,
+        "prohibited_times": [
+          "7pm"
+        ],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_069",
+      "availability_ref": "av_001",
+      "category": "unconfirmed_time",
+      "description": "Confirms from 8pm when not yet agreed \u2014 social",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Emma, I am pleased to confirm that the Private Dining Room is available from 8pm on your requested evening. The minimum spend is \u00a3600. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 600,
+        "party_size": 8,
+        "prohibited_times": [
+          "8pm"
+        ],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_070",
+      "availability_ref": "av_007",
+      "category": "unconfirmed_time",
+      "description": "States event start at 7pm as agreed \u2014 corporate",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Terrace Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Terrace Room",
+      "draft_text": "Dear Michael, I can confirm the Terrace Room is available at 7pm on your requested date. The minimum spend is \u00a32,800. Best regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 2800,
+        "party_size": 28,
+        "prohibited_times": [
+          "7pm"
+        ],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_071",
+      "availability_ref": "av_003",
+      "category": "unconfirmed_time",
+      "description": "Confirms from 19:00 time from guest \u2014 agency",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Garden Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Garden Room",
+      "draft_text": "Dear Charlotte, the Garden Room is available from 19:00 on your requested date. The minimum spend is \u00a31,500. Please complete the booking form. Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1500,
+        "party_size": 18,
+        "prohibited_times": [
+          "19:00"
+        ],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_072",
+      "availability_ref": "av_001",
+      "category": "fake_url",
+      "description": "Contains placeholder booking link \u2014 social",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Alice, I am pleased to confirm the Private Dining Room is available. The minimum spend is \u00a31,200. Please complete the booking form at www.example.com/booking. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1200,
+        "party_size": 12,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_073",
+      "availability_ref": "av_004",
+      "category": "fake_url",
+      "description": "Contains form link placeholder \u2014 corporate",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "Scott's Mayfair",
+      "context_room_name": "Ivory Room",
+      "availability_restaurant_name": "Scott's Mayfair",
+      "availability_room_name": "Ivory Room",
+      "draft_text": "Dear James, I can confirm the Ivory Room is available. The minimum spend is \u00a32,000. Please complete the form at [form link] to proceed. Best regards, Thomas",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 2000,
+        "party_size": 20,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_074",
+      "availability_ref": "av_007",
+      "category": "fake_url",
+      "description": "Contains example.com link \u2014 agency",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Terrace Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Terrace Room",
+      "draft_text": "Dear Sophie, the Terrace Room is available on your requested date. Please complete your booking at www.example.com/events to confirm the reservation. Kind regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 3200,
+        "party_size": 30,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_075",
+      "availability_ref": "av_001",
+      "category": "fake_url",
+      "description": "Contains example URL in acknowledge \u2014 social",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Emma, thank you for your enquiry. We will check availability and come back to you. In the meantime, please visit www.example.com/events for more information. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 8,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_076",
+      "availability_ref": "av_006",
+      "category": "fake_url",
+      "description": "Placeholder link in acknowledgement \u2014 corporate",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Michael, thank you for your enquiry. We will look into availability and revert to you. Please also visit [link] for our terms and conditions. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 16,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_077",
+      "availability_ref": "av_006",
+      "category": "hosting_language",
+      "description": "Uses delighted to host when NOT_CHECKED \u2014 social",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Alice, I would be delighted to host your birthday dinner in our Belgravia Suite. We will check availability and come back to you shortly. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 12,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_078",
+      "availability_ref": "av_006",
+      "category": "hosting_language",
+      "description": "Looking forward to hosting when NOT_CHECKED \u2014 corporate",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear James, we are looking forward to hosting your corporate event in the Belgravia Suite. We will check availability and revert to you. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 20,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_079",
+      "availability_ref": "av_008",
+      "category": "hosting_language",
+      "description": "Would be perfect for when NOT_CHECKED \u2014 agency",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Private Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Private Room",
+      "draft_text": "Dear Sophie, the Private Room would be perfect for your client's event. We will check availability and be in touch shortly. Kind regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 12,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_080",
+      "availability_ref": "av_006",
+      "category": "hosting_language",
+      "description": "Would love to host when NOT_CHECKED \u2014 social",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Emma, we would love to host your special occasion at The Wolseley. We will check availability and come back to you. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 8,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_081",
+      "availability_ref": "av_008",
+      "category": "hosting_language",
+      "description": "Delighted to host when NOT_CHECKED \u2014 corporate",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Private Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Private Room",
+      "draft_text": "Dear Michael, we would be delighted to host your team at Quaglino's. We will check availability and come back to you shortly. Best regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 15,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_082",
+      "availability_ref": "av_006",
+      "category": "invented_sla",
+      "description": "24-hour response promise \u2014 social",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Alice, thank you for your enquiry. We will check availability and come back to you within 24 hours. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 15,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_083",
+      "availability_ref": "av_006",
+      "category": "invented_sla",
+      "description": "By tomorrow commitment \u2014 corporate",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear James, thank you for your enquiry. We will check availability and ensure you hear from us by tomorrow. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 20,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_084",
+      "availability_ref": "av_008",
+      "category": "invented_sla",
+      "description": "Within 2 hours promise \u2014 agency",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Private Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Private Room",
+      "draft_text": "Dear Sophie, thank you for your enquiry. We will have a response for you within 2 hours. Kind regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 12,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_085",
+      "availability_ref": "av_006",
+      "category": "invented_sla",
+      "description": "By end of today guarantee \u2014 social",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Emma, thank you for your enquiry. We will check availability and you will hear from us by end of today. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 8,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_086",
+      "availability_ref": "av_008",
+      "category": "invented_sla",
+      "description": "Within 48 hours response \u2014 corporate",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Private Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Private Room",
+      "draft_text": "Dear Michael, thank you for your enquiry. We will respond within 48 hours with full availability details. Best regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 16,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_087",
+      "availability_ref": "av_006",
+      "category": "invented_questions",
+      "description": "Asks question not in approved list \u2014 social",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Alice, thank you for your enquiry. We will check availability. Could you also let us know your preferred dietary requirements for the evening? Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 15,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_088",
+      "availability_ref": "av_006",
+      "category": "invented_questions",
+      "description": "Asks budget question when none approved \u2014 corporate",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear James, thank you for your enquiry. We will check availability. Could you also confirm the budget per head you have in mind for the event? Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 20,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_089",
+      "availability_ref": "av_008",
+      "category": "invented_questions",
+      "description": "Asks about drinks preference when none approved \u2014 agency",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Private Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Private Room",
+      "draft_text": "Dear Sophie, thank you for your enquiry. We will check availability. Do you have any specific drinks preferences for your client's event? Kind regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 12,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_090",
+      "availability_ref": "av_006",
+      "category": "invented_questions",
+      "description": "Asks menu question when none approved \u2014 social",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Emma, thank you for your enquiry. We will check availability. Would you prefer a set menu or a sharing menu? Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 8,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_091",
+      "availability_ref": "av_006",
+      "category": "invented_questions",
+      "description": "Asks about timings when none approved \u2014 corporate",
+      "response_goal": "REQUEST_MISSING_INFORMATION",
+      "availability_contract": "INSUFFICIENT_INFORMATION",
+      "date_status": "unknown",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Michael, thank you for your enquiry. Could you confirm the start and finish time you had in mind for the event? Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 20,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_092",
+      "availability_ref": "av_006",
+      "category": "forbidden_topics_menu",
+      "description": "Menu discussion at acknowledge stage \u2014 social",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Alice, thank you for your enquiry. We will check availability and I can also send over our menu options for you to review. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 15,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_093",
+      "availability_ref": "av_006",
+      "category": "forbidden_topics_menu",
+      "description": "Dietary requirements at acknowledge stage \u2014 corporate",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear James, thank you for your enquiry. We will check availability. Please do let us know about any dietary requirements in your group. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 20,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_094",
+      "availability_ref": "av_008",
+      "category": "forbidden_topics_menu",
+      "description": "Discusses menu options at acknowledge \u2014 agency",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "Quaglino's",
+      "context_room_name": "Private Room",
+      "availability_restaurant_name": "Quaglino's",
+      "availability_room_name": "Private Room",
+      "draft_text": "Dear Sophie, thank you for your enquiry. We will check availability. We have a wonderful range of menu options that would suit your client's event. Kind regards, Victoria",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 12,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_095",
+      "availability_ref": "av_006",
+      "category": "forbidden_topics_menu",
+      "description": "Discusses food options at acknowledge \u2014 social",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Emma, thank you for your enquiry. We will check availability and can share our food options with you in advance. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 8,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_096",
+      "availability_ref": "av_006",
+      "category": "forbidden_topics_menu",
+      "description": "Dietary discussion at acknowledge \u2014 corporate",
+      "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+      "availability_contract": "NOT_CHECKED",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Michael, thank you for your enquiry. We will check availability. Please also share any dietary needs or allergies in your group so we can plan accordingly. Best regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": 16,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_097",
+      "availability_ref": "av_002",
+      "category": "room_suitability_unavailable",
+      "description": "Suitability language when unavailable \u2014 social",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Alice, unfortunately we are fully booked on your requested date. Our Private Dining Room would be perfect for a birthday dinner of your size. We hope to welcome you on a future occasion. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_098",
+      "availability_ref": "av_005",
+      "category": "room_suitability_unavailable",
+      "description": "Ideal for language when unavailable \u2014 corporate",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "Scott's Mayfair",
+      "context_room_name": "Main Dining Room",
+      "availability_restaurant_name": "Scott's Mayfair",
+      "availability_room_name": "Main Dining Room",
+      "draft_text": "Dear James, unfortunately we are fully booked on your requested date. The Main Dining Room would be ideal for your corporate event. We hope to welcome you soon. Best regards, Thomas",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_099",
+      "availability_ref": "av_002",
+      "category": "room_suitability_unavailable",
+      "description": "Well-suited language when unavailable \u2014 agency",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Sophie, unfortunately we are fully booked on your requested date. Our Private Dining Room would be well-suited for your client's event. We hope to accommodate you on another occasion. Kind regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "fs1_100",
+      "availability_ref": "av_005",
+      "category": "room_suitability_unavailable",
+      "description": "Perfect for language when unavailable \u2014 social",
+      "response_goal": "RESPOND_UNAVAILABLE",
+      "availability_contract": "CONFIRMED_UNAVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "Scott's Mayfair",
+      "context_room_name": "Main Dining Room",
+      "availability_restaurant_name": "Scott's Mayfair",
+      "availability_room_name": "Main Dining Room",
+      "draft_text": "Dear Charlotte, unfortunately we are fully booked on your requested date. The Main Dining Room is perfect for intimate dinners of your size. We hope to see you soon. Warm regards, Thomas",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    }
+  ]
+}
