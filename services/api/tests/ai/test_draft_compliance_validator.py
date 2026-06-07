@@ -598,11 +598,19 @@ class TestUnavailableRoomSuitability:
         suitability_violations = [v for v in result.violations if "suitable" in v.lower() or "suitability" in v.lower()]
         assert len(suitability_violations) == 0
 
-    def test_no_suitability_violation_for_not_checked(self) -> None:
-        """Suitability check only fires for CONFIRMED_UNAVAILABLE."""
+    def test_suitability_violation_also_fires_for_not_checked(self) -> None:
+        """RESP-025: suitability check now fires for NOT_CHECKED as well (extended from RESP-020)."""
         draft = "Our room would be perfect for a party of 10."
         result = _validate(draft, availability_contract="NOT_CHECKED")
-        suitability_violations = [v for v in result.violations if "suitability" in v.lower()]
+        suitability_violations = [v for v in result.violations if "suitability" in v.lower() or "suitable" in v.lower() or "perfect" in v.lower()]
+        assert len(suitability_violations) >= 1
+        assert result.passed is False
+
+    def test_suitability_check_passes_for_confirmed_available(self) -> None:
+        """Suitability language is permitted once availability is confirmed."""
+        draft = "Our Private Dining Room is perfect for your celebration, and I am pleased to confirm it is available."
+        result = _validate(draft, availability_contract="CONFIRMED_AVAILABLE")
+        suitability_violations = [v for v in result.violations if "suitability" in v.lower() or "suitable" in v.lower()]
         assert len(suitability_violations) == 0
 
 
