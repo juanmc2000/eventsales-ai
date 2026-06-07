@@ -448,3 +448,30 @@ def get_latest_response_preparation(
             created_at=datetime.now(tz=timezone.utc),
         )
     return ResponsePlanOut.model_validate(plan)
+
+
+# ── Auto-send dry run (AUTO-003) ────────────────────────────────────────────
+
+
+@router.post("/{enquiry_id}/auto-send/dry-run")
+def auto_send_dry_run(
+    enquiry_id: uuid.UUID,
+    db: Session = Depends(get_db),
+) -> dict:
+    """Simulate the auto-send decision for an enquiry without sending any email.
+
+    Runs DraftComplianceValidator, ResponseContextIntegrityGate, and
+    AutoSendReadinessGate against the latest stored draft and response plan.
+    The auto-send decision is logged but no SMTP call is made.
+
+    Returns a structured dry-run result with compliance/integrity/gate outcomes
+    and a human-readable decision_summary.
+    """
+    from app.modules.ai.auto_send_dry_run import AutoSendDryRunService  # noqa: PLC0415
+
+    try:
+        svc = AutoSendDryRunService(db)
+        result = svc.simulate(enquiry_id)
+        return result.to_dict()
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
