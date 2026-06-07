@@ -159,6 +159,63 @@ class DraftGenerationService:
         # Build input_payload for the draft_response prompt template
         input_payload = _build_draft_input_payload(context)
 
+        # ── RESP-023: RESPOND_UNAVAILABLE — fully deterministic, no LLM call ──
+        if context.response_goal == "RESPOND_UNAVAILABLE":
+            # Strip room details — unavailable responses must not reference rooms
+            from dataclasses import replace as _replace  # noqa: PLC0415
+            context = _replace(
+                context,
+                room_name=None,
+                room_type=None,
+                room_seated_capacity=None,
+                room_standing_capacity=None,
+                room_layouts=None,
+                room_amenities=None,
+                room_suitability_notes=None,
+                room_booking_url=None,
+                room_is_private_dining=False,
+            )
+            draft_body = _generate_deterministic_unavailable(context)
+            logger.info(
+                "RESPOND_UNAVAILABLE for enquiry %s — using deterministic copy (no LLM call)",
+                enquiry_id,
+            )
+            ai_context = AIContextOut(
+                model="deterministic",
+                is_fallback=False,
+                persona_name=persona_name,
+                persona_tone=persona_tone,
+                persona_style=persona_style,
+                guest_message_used=guest_message,
+                room_name=None,
+                recommended_minimum_spend=recommended_minimum_spend,
+                system_prompt=None,
+                user_message=None,
+                prompt_run_id=None,
+            )
+            subject = _build_subject(enquiry.first_name, enquiry.last_name, enquiry.event_type)
+            message = self._enquiry_repo.add_message(
+                enquiry_id,
+                {
+                    "direction": "outbound",
+                    "channel": "draft",
+                    "subject": subject,
+                    "body": draft_body,
+                    "sent_at": None,
+                },
+            )
+            self._db.commit()
+            return DraftGenerationResult(
+                enquiry_id=enquiry_id,
+                message_id=message.id,
+                subject=subject,
+                body=draft_body,
+                persona_name=persona_name,
+                is_fallback=False,
+                model="deterministic",
+                ai_context=ai_context,
+            )
+
         # ── RESP-021: Context integrity check before LLM2 ─────────────────────
         integrity_result = _check_context_integrity(context, snapshot)
         if not integrity_result.passed:
@@ -301,7 +358,11 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
             f"Party size: {context.party_size}\n" if context.party_size else ""
         ),
         "spend_line": _build_spend_line(context),
-        "room_lines": _build_room_lines(context),
+        # RESP-023: suppress room details for RESPOND_UNAVAILABLE
+        "room_lines": (
+            "" if context.response_goal == "RESPOND_UNAVAILABLE"
+            else _build_room_lines(context)
+        ),
         # Sprint 7 enrichment variables (present only when processing snapshot is available)
         "availability_line": _build_availability_line(context),
         "missing_questions_line": _build_missing_questions_line(context),
@@ -665,6 +726,34 @@ try:
     from app.modules.enquiries.response_context_integrity_gate import IntegrityCheckResult  # noqa: F401
 except ImportError:  # pragma: no cover
     pass
+
+
+def _generate_deterministic_unavailable(context: DraftContext) -> str:
+    """Build a fully deterministic unavailable response from approved copy blocks (RESP-023).
+
+    Allowed content: unavailable opening + signoff.
+    Forbidden: alternative dates, alternative rooms, room suitability, minimum spend,
+               menu discussion, future availability checks.
+    No LLM call is made.
+    """
+    from app.modules.ai.first_response_copy_library import FirstResponseCopyLibrary  # noqa: PLC0415
+
+    meal_period = context.availability_meal_period or "dinner"
+    event_date = context.availability_date or context.event_date or "the requested date"
+    persona_name = context.persona_name
+
+    opening = (
+        FirstResponseCopyLibrary.render_safe(
+            "availability_unavailable",
+            {"meal_period": meal_period, "event_date": event_date},
+        )
+        or f"Thank you for your enquiry. Unfortunately, we are fully booked for {meal_period} on {event_date}."
+    )
+    signoff = (
+        FirstResponseCopyLibrary.render_safe("signoff", {"persona_name": persona_name})
+        or f"Warm regards,\n{persona_name}"
+    )
+    return f"{opening}\n\n{signoff}"
 
 
 def _build_approved_copy_blocks_line(context: DraftContext) -> str:
