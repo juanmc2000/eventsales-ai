@@ -217,3 +217,130 @@ class TestDraftInputPayloadIntegration:
         payload = _build_draft_input_payload(ctx)
         assert "prohibited_claims_line" in payload
         assert payload["prohibited_claims_line"] != ""
+
+
+# ── RESP-024: goal-based context pruning ──────────────────────────────────────
+
+
+class TestGoalBasedContextPruning:
+    """RESP-024: payload must vary by response goal — only pass minimum needed."""
+
+    # ── CONFIRM_AVAILABLE ─────────────────────────────────────────────────────
+
+    def test_confirm_available_suppresses_clarification_questions(self) -> None:
+        ctx = _base_context(
+            response_goal="CONFIRM_AVAILABLE",
+            clarification_questions=["What is your preferred start time?"],
+        )
+        payload = _build_draft_input_payload(ctx)
+        assert payload["clarification_questions_line"] == ""
+
+    def test_confirm_available_suppresses_missing_questions(self) -> None:
+        ctx = _base_context(
+            response_goal="CONFIRM_AVAILABLE",
+            missing_questions=["event_date", "party_size"],
+        )
+        payload = _build_draft_input_payload(ctx)
+        assert payload["missing_questions_line"] == ""
+
+    def test_confirm_available_suppresses_requested_preferences(self) -> None:
+        ctx = _base_context(
+            response_goal="CONFIRM_AVAILABLE",
+            guest_message="We'd love 7pm for dinner if possible.",
+        )
+        payload = _build_draft_input_payload(ctx)
+        assert payload["requested_preferences_line"] == ""
+
+    def test_confirm_available_suppresses_prohibited_claims(self) -> None:
+        ctx = _base_context(
+            response_goal="CONFIRM_AVAILABLE",
+            guest_message="Around 7pm would be ideal.",
+        )
+        payload = _build_draft_input_payload(ctx)
+        assert payload["prohibited_claims_line"] == ""
+
+    def test_confirm_available_keeps_room_lines_when_present(self) -> None:
+        ctx = _base_context(
+            response_goal="CONFIRM_AVAILABLE",
+            room_name="Private Dining Room",
+            room_seated_capacity=30,
+        )
+        payload = _build_draft_input_payload(ctx)
+        assert payload["room_lines"] != ""
+        assert "Private Dining Room" in payload["room_lines"]
+
+    def test_confirm_available_keeps_spend_line(self) -> None:
+        ctx = _base_context(
+            response_goal="CONFIRM_AVAILABLE",
+            recommended_minimum_spend=2500.0,
+        )
+        payload = _build_draft_input_payload(ctx)
+        assert "2,500" in payload["spend_line"]
+
+    # ── ACKNOWLEDGE_AND_CHECK_AVAILABILITY ────────────────────────────────────
+
+    def test_acknowledge_suppresses_room_lines(self) -> None:
+        ctx = _base_context(
+            response_goal="ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+            room_name="The Mezzanine",
+            room_seated_capacity=40,
+            room_suitability_notes="Great for large groups",
+        )
+        payload = _build_draft_input_payload(ctx)
+        assert payload["room_lines"] == ""
+
+    def test_acknowledge_keeps_availability_line(self) -> None:
+        ctx = _base_context(
+            response_goal="ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+            availability_status="available",
+            availability_date="2026-09-20",
+            availability_meal_period="dinner",
+        )
+        payload = _build_draft_input_payload(ctx)
+        assert payload["availability_line"] != ""
+
+    def test_acknowledge_keeps_clarification_questions(self) -> None:
+        ctx = _base_context(
+            response_goal="ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+            clarification_questions=["How many guests are attending?"],
+        )
+        payload = _build_draft_input_payload(ctx)
+        assert payload["clarification_questions_line"] != ""
+
+    # ── RESPOND_UNAVAILABLE ───────────────────────────────────────────────────
+
+    def test_respond_unavailable_suppresses_room_lines(self) -> None:
+        ctx = _base_context(
+            response_goal="RESPOND_UNAVAILABLE",
+            room_name="Penthouse Suite",
+            room_seated_capacity=80,
+        )
+        payload = _build_draft_input_payload(ctx)
+        assert payload["room_lines"] == ""
+
+    # ── Other goals unaffected ────────────────────────────────────────────────
+
+    def test_request_missing_information_keeps_clarification_questions(self) -> None:
+        ctx = _base_context(
+            response_goal="REQUEST_MISSING_INFORMATION",
+            clarification_questions=["What is the occasion?"],
+        )
+        payload = _build_draft_input_payload(ctx)
+        assert payload["clarification_questions_line"] != ""
+
+    def test_request_missing_information_keeps_requested_preferences(self) -> None:
+        ctx = _base_context(
+            response_goal="REQUEST_MISSING_INFORMATION",
+            guest_message="Would 7pm work for a birthday dinner?",
+        )
+        payload = _build_draft_input_payload(ctx)
+        assert payload["requested_preferences_line"] != ""
+
+    def test_request_missing_information_keeps_room_lines(self) -> None:
+        ctx = _base_context(
+            response_goal="REQUEST_MISSING_INFORMATION",
+            room_name="The Snug",
+            room_seated_capacity=12,
+        )
+        payload = _build_draft_input_payload(ctx)
+        assert payload["room_lines"] != ""
