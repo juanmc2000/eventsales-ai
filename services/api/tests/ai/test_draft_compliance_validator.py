@@ -773,3 +773,240 @@ class TestResp025RoomSuitabilityExtended:
         result = _validate(draft, availability_contract="PENDING_DATE_CONFIRMATION")
         suitability_violations = [v for v in result.violations if "ROOM_SUITABILITY_PREMATURE" in v]
         assert len(suitability_violations) == 0
+
+
+# ── RESP-026: verbatim copy block enforcement ─────────────────────────────────
+
+
+class TestResp026VerbatimCopyBlockEnforcement:
+    """RESP-026: required copy blocks must be present verbatim."""
+
+    # ── Opening block — CONFIRMED_AVAILABLE ───────────────────────────────────
+
+    def test_confirmed_available_opening_block_present_passes(self) -> None:
+        draft = (
+            "Thank you for your enquiry — I'm delighted to confirm that we have "
+            "availability for dinner on 15th September.\n\n"
+            "Warm regards,\nEvents Team"
+        )
+        result = _validate(
+            draft,
+            availability_contract="CONFIRMED_AVAILABLE",
+            meal_period="dinner",
+            event_date="15th September",
+            persona_name="Events Team",
+        )
+        copy_violations = [v for v in result.violations if "COPY_BLOCK_MISSING" in v]
+        assert len(copy_violations) == 0
+
+    def test_confirmed_available_opening_block_absent_fails(self) -> None:
+        draft = (
+            "Great news! We can accommodate your event on 15th September.\n\n"
+            "Warm regards,\nEvents Team"
+        )
+        result = _validate(
+            draft,
+            availability_contract="CONFIRMED_AVAILABLE",
+            meal_period="dinner",
+            event_date="15th September",
+            persona_name="Events Team",
+        )
+        copy_violations = [v for v in result.violations if "COPY_BLOCK_MISSING" in v and "opening" in v.lower()]
+        assert len(copy_violations) >= 1
+
+    # ── Opening block — CONFIRMED_UNAVAILABLE ─────────────────────────────────
+
+    def test_unavailable_opening_block_present_passes(self) -> None:
+        draft = (
+            "Thank you for your enquiry. Unfortunately, we are fully booked for "
+            "dinner on 20th October.\n\nWarm regards,\nSarah"
+        )
+        result = _validate(
+            draft,
+            availability_contract="CONFIRMED_UNAVAILABLE",
+            meal_period="dinner",
+            event_date="20th October",
+            persona_name="Sarah",
+        )
+        copy_violations = [v for v in result.violations if "COPY_BLOCK_MISSING" in v]
+        assert len(copy_violations) == 0
+
+    def test_unavailable_opening_block_paraphrased_fails(self) -> None:
+        draft = (
+            "Hi there! We regret to say that the date you've chosen is not available.\n\n"
+            "Kind regards,\nSarah"
+        )
+        result = _validate(
+            draft,
+            availability_contract="CONFIRMED_UNAVAILABLE",
+            meal_period="dinner",
+            event_date="20th October",
+            persona_name="Sarah",
+        )
+        copy_violations = [v for v in result.violations if "COPY_BLOCK_MISSING" in v and "opening" in v.lower()]
+        assert len(copy_violations) >= 1
+
+    # ── Opening block — NOT_CHECKED ───────────────────────────────────────────
+
+    def test_not_checked_opening_block_present_passes(self) -> None:
+        draft = (
+            "Thank you for your enquiry — I'll check availability for lunch on "
+            "10th August and come back to you shortly.\n\nWarm regards,\nJames"
+        )
+        result = _validate(
+            draft,
+            availability_contract="NOT_CHECKED",
+            meal_period="lunch",
+            event_date="10th August",
+            persona_name="James",
+        )
+        copy_violations = [v for v in result.violations if "COPY_BLOCK_MISSING" in v]
+        assert len(copy_violations) == 0
+
+    def test_not_checked_opening_block_absent_fails(self) -> None:
+        draft = (
+            "Hi! We'll look into that for you and get back shortly.\n\nWarm regards,\nJames"
+        )
+        result = _validate(
+            draft,
+            availability_contract="NOT_CHECKED",
+            meal_period="lunch",
+            event_date="10th August",
+            persona_name="James",
+        )
+        copy_violations = [v for v in result.violations if "COPY_BLOCK_MISSING" in v and "opening" in v.lower()]
+        assert len(copy_violations) >= 1
+
+    # ── Minimum spend block ───────────────────────────────────────────────────
+
+    def test_spend_block_present_passes(self) -> None:
+        draft = (
+            "Thank you for your enquiry — I'm delighted to confirm that we have "
+            "availability for dinner on 15th September.\n\n"
+            "Please note that our mandatory minimum spend for this space is £2,500.\n\n"
+            "Warm regards,\nEvents Team"
+        )
+        result = _validate(
+            draft,
+            availability_contract="CONFIRMED_AVAILABLE",
+            confirmed_minimum_spend=2500.0,
+            meal_period="dinner",
+            event_date="15th September",
+            persona_name="Events Team",
+        )
+        copy_violations = [v for v in result.violations if "COPY_BLOCK_MISSING" in v]
+        assert len(copy_violations) == 0
+
+    def test_spend_block_paraphrased_fails(self) -> None:
+        draft = (
+            "Thank you for your enquiry — I'm delighted to confirm that we have "
+            "availability for dinner on 15th September.\n\n"
+            "There is a spend requirement of £2,500 for this event.\n\n"
+            "Warm regards,\nEvents Team"
+        )
+        result = _validate(
+            draft,
+            availability_contract="CONFIRMED_AVAILABLE",
+            confirmed_minimum_spend=2500.0,
+            meal_period="dinner",
+            event_date="15th September",
+            persona_name="Events Team",
+        )
+        copy_violations = [v for v in result.violations if "COPY_BLOCK_MISSING" in v and "spend" in v.lower()]
+        assert len(copy_violations) >= 1
+
+    def test_spend_block_not_checked_when_unavailable(self) -> None:
+        """Spend block is only required for CONFIRMED_AVAILABLE."""
+        draft = (
+            "Thank you for your enquiry. Unfortunately, we are fully booked for "
+            "dinner on 15th September.\n\nWarm regards,\nEvents Team"
+        )
+        result = _validate(
+            draft,
+            availability_contract="CONFIRMED_UNAVAILABLE",
+            confirmed_minimum_spend=2500.0,
+            meal_period="dinner",
+            event_date="15th September",
+            persona_name="Events Team",
+        )
+        spend_violations = [v for v in result.violations if "COPY_BLOCK_MISSING" in v and "spend" in v.lower()]
+        assert len(spend_violations) == 0
+
+    # ── Signoff block ─────────────────────────────────────────────────────────
+
+    def test_signoff_block_present_passes(self) -> None:
+        draft = (
+            "Thank you for your enquiry — I'll check availability for dinner on "
+            "5th November and come back to you shortly.\n\nWarm regards,\nEleanor"
+        )
+        result = _validate(
+            draft,
+            availability_contract="NOT_CHECKED",
+            meal_period="dinner",
+            event_date="5th November",
+            persona_name="Eleanor",
+        )
+        copy_violations = [v for v in result.violations if "COPY_BLOCK_MISSING" in v]
+        assert len(copy_violations) == 0
+
+    def test_signoff_block_absent_fails(self) -> None:
+        draft = (
+            "Thank you for your enquiry — I'll check availability for dinner on "
+            "5th November and come back to you shortly.\n\nBest,\nEleanor"
+        )
+        result = _validate(
+            draft,
+            availability_contract="NOT_CHECKED",
+            meal_period="dinner",
+            event_date="5th November",
+            persona_name="Eleanor",
+        )
+        signoff_violations = [v for v in result.violations if "COPY_BLOCK_MISSING" in v and "signoff" in v.lower()]
+        assert len(signoff_violations) >= 1
+
+    def test_signoff_check_skipped_when_no_persona_name(self) -> None:
+        """Signoff check must not fire when persona_name is absent."""
+        draft = "Thank you for your enquiry — we'll be in touch shortly.\n\nBest wishes"
+        result = _validate(
+            draft,
+            availability_contract="NOT_CHECKED",
+            meal_period="lunch",
+            event_date="5th November",
+            persona_name=None,
+        )
+        signoff_violations = [v for v in result.violations if "COPY_BLOCK_MISSING" in v and "signoff" in v.lower()]
+        assert len(signoff_violations) == 0
+
+    # ── Formatting tolerance ──────────────────────────────────────────────────
+
+    def test_bold_markdown_formatting_does_not_cause_false_failure(self) -> None:
+        """Markdown bold formatting in the draft must not cause false block-missing failures."""
+        draft = (
+            "**Thank you for your enquiry — I'm delighted to confirm that we have "
+            "availability for dinner on 15th September.**\n\n"
+            "**Warm regards,**\n**Events Team**"
+        )
+        result = _validate(
+            draft,
+            availability_contract="CONFIRMED_AVAILABLE",
+            meal_period="dinner",
+            event_date="15th September",
+            persona_name="Events Team",
+        )
+        copy_violations = [v for v in result.violations if "COPY_BLOCK_MISSING" in v]
+        assert len(copy_violations) == 0
+
+    def test_extra_whitespace_does_not_cause_false_failure(self) -> None:
+        draft = (
+            "Thank you  for  your  enquiry — I'll check availability  for lunch on "
+            "10th August  and come back  to you shortly.\n\n\nWarm regards,\nJames"
+        )
+        result = _validate(
+            draft,
+            availability_contract="NOT_CHECKED",
+            meal_period="lunch",
+            event_date="10th August",
+            persona_name="James",
+        )
+        copy_violations = [v for v in result.violations if "COPY_BLOCK_MISSING" in v]
+        assert len(copy_violations) == 0

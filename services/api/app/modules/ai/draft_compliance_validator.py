@@ -77,6 +77,10 @@ class ValidationContext:
     allow_menu_discussion: bool = False
     allow_special_touches: bool = False
     allow_call_scheduling: bool = False
+    # RESP-026: copy block variables for verbatim enforcement
+    meal_period: str | None = None      # e.g. "dinner", "lunch"
+    event_date: str | None = None       # e.g. "15th September", "2026-09-15"
+    persona_name: str | None = None     # e.g. "Events Team", "Sarah"
 
 
 # ── Output ─────────────────────────────────────────────────────────────────────
@@ -199,6 +203,29 @@ _ROOM_SUITABILITY_UNAVAILABLE_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\b(?:have\s+the\s+)?space\s+and\s+expertise\s+to\b", re.IGNORECASE),
 ]
 
+# RESP-026: Contracts that require an approved opening copy block
+_OPENING_BLOCK_CONTRACT_MAP: dict[str, str] = {
+    "CONFIRMED_AVAILABLE": "availability_confirmed",
+    "CONFIRMED_UNAVAILABLE": "availability_unavailable",
+    "NOT_CHECKED": "availability_not_checked",
+}
+
+
+def _normalize_for_comparison(text: str) -> str:
+    """Normalise whitespace and markdown for copy-block comparison (RESP-026).
+
+    Strips bold/italic markdown, collapses whitespace, lowercases.
+    This ensures formatting differences (e.g. **bold** vs plain) do not
+    cause false failures when checking verbatim copy block usage.
+    """
+    # Strip markdown bold/italic: **text** / *text* / __text__ / _text_
+    text = re.sub(r"\*{1,2}([^*]+)\*{1,2}", r"\1", text)
+    text = re.sub(r"_{1,2}([^_]+)_{1,2}", r"\1", text)
+    # Collapse all whitespace (including newlines) to single spaces
+    text = re.sub(r"\s+", " ", text)
+    return text.strip().lower()
+
+
 # RESP-012: Forbidden topic — call scheduling
 _CALL_SCHEDULING_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\barrange\s+a\s+call\b", re.IGNORECASE),
@@ -246,6 +273,8 @@ class DraftComplianceValidator:
         cls._check_forbidden_topics(draft_text, context, violations)
         # RESP-020 additional checks
         cls._check_unavailable_room_suitability(draft_text, context, violations)
+        # RESP-026: verbatim copy block enforcement
+        cls._check_required_copy_blocks(draft_text, context, violations)
 
         passed = len(violations) == 0
         return ComplianceResult(
@@ -457,6 +486,84 @@ class DraftComplianceValidator:
                         "is not permitted in the current response context."
                     )
                     break
+
+    # ── RESP-026: required copy block checks ────────────────────────────────
+
+    @classmethod
+    def _check_required_copy_blocks(
+        cls,
+        text: str,
+        context: ValidationContext,
+        violations: list[str],
+    ) -> None:
+        """Fail if required approved copy blocks are absent or paraphrased (RESP-026).
+
+        Checks (when variables are available):
+        - Opening block for the availability contract (confirmed/unavailable/not-checked)
+        - Minimum spend block when confirmed_minimum_spend is set
+        - Signoff block when persona_name is set
+
+        Comparison is normalised: whitespace collapsed, markdown stripped, lowercased.
+        Only fires when the required variables are present — if meal_period/event_date
+        are absent, the opening block check is skipped to avoid false failures.
+        """
+        from app.modules.ai.first_response_copy_library import FirstResponseCopyLibrary  # noqa: PLC0415
+
+        normalized_draft = _normalize_for_comparison(text)
+
+        # ── Opening block check ──────────────────────────────────────────────
+        block_key = _OPENING_BLOCK_CONTRACT_MAP.get(context.availability_contract)
+        if block_key and context.meal_period and context.event_date:
+            expected = FirstResponseCopyLibrary.render_safe(
+                block_key,
+                {"meal_period": context.meal_period, "event_date": context.event_date},
+            )
+            if expected:
+                normalized_expected = _normalize_for_comparison(expected)
+                if normalized_expected not in normalized_draft:
+                    violations.append(
+                        f"[COPY_BLOCK_MISSING] Required opening copy block "
+                        f"'{block_key}' is absent or paraphrased. "
+                        "Use the approved copy block verbatim."
+                    )
+
+        # ── Minimum spend block check ────────────────────────────────────────
+        # Only enforced when copy-block variables are present (meal_period + event_date),
+        # so callers that don't provide the full context won't get false failures.
+        spend = context.confirmed_minimum_spend
+        if (
+            spend is not None
+            and spend > 0
+            and context.availability_contract == "CONFIRMED_AVAILABLE"
+            and context.meal_period
+            and context.event_date
+        ):
+            spend_amount = f"£{spend:,.0f}"
+            expected = FirstResponseCopyLibrary.render_safe(
+                "minimum_spend", {"spend_amount": spend_amount}
+            )
+            if expected:
+                normalized_expected = _normalize_for_comparison(expected)
+                if normalized_expected not in normalized_draft:
+                    violations.append(
+                        f"[COPY_BLOCK_MISSING] Required minimum spend copy block is absent "
+                        f"or paraphrased (expected spend: {spend_amount}). "
+                        "Use the approved spend block verbatim."
+                    )
+
+        # ── Signoff block check ──────────────────────────────────────────────
+        # Only enforced when meal_period + event_date are also set (full copy-block context).
+        if context.persona_name and context.meal_period and context.event_date:
+            expected = FirstResponseCopyLibrary.render_safe(
+                "signoff", {"persona_name": context.persona_name}
+            )
+            if expected:
+                normalized_expected = _normalize_for_comparison(expected)
+                if normalized_expected not in normalized_draft:
+                    violations.append(
+                        "[COPY_BLOCK_MISSING] Required signoff copy block is absent "
+                        "or paraphrased. Use the approved signoff block verbatim."
+                    )
 
     # ── RESP-020 additional checks ──────────────────────────────────────────
 
