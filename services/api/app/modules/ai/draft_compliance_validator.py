@@ -1,4 +1,4 @@
-"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020).
+"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025).
 
 Validates generated draft emails against the availability contract, spend rules,
 and prompt constraints before the draft is shown to staff or sent to guests.
@@ -20,6 +20,9 @@ RESP-012 additional checks:
 
 RESP-020 additional checks:
   10. Unavailable room described as suitable or perfect (CONFIRMED_UNAVAILABLE)
+
+RESP-025 additional checks:
+  10b. Room suitability language extended to NOT_CHECKED contract state
 
 Usage::
 
@@ -447,18 +450,23 @@ class DraftComplianceValidator:
         context: ValidationContext,
         violations: list[str],
     ) -> None:
-        """Fail if the draft describes a room as suitable or perfect when CONFIRMED_UNAVAILABLE.
+        """Fail if the draft claims room suitability when availability is not confirmed.
 
-        When the slot is fully booked, the response must not imply the room would be
-        ideal for the guest's event — this misleads the guest about what they cannot have.
+        Applies to CONFIRMED_UNAVAILABLE (slot fully booked) and NOT_CHECKED (availability
+        not yet verified). In both cases the response must not pre-sell the room as perfect
+        or ideal — availability has not been established.
+
+        RESP-020: originally CONFIRMED_UNAVAILABLE only.
+        RESP-025: extended to NOT_CHECKED.
         """
-        if context.availability_contract != "CONFIRMED_UNAVAILABLE":
+        contract = context.availability_contract
+        if contract not in ("CONFIRMED_UNAVAILABLE", "NOT_CHECKED"):
             return
         for pattern in _ROOM_SUITABILITY_UNAVAILABLE_PATTERNS:
             if pattern.search(text):
                 violations.append(
-                    "Draft describes the room or space as suitable or perfect for the guest's "
-                    "event when the slot is CONFIRMED_UNAVAILABLE. Room suitability language "
-                    "must not be used when the requested slot is not available."
+                    f"Draft describes the room or space as suitable or perfect for the guest's "
+                    f"event when the availability contract is {contract}. Room suitability "
+                    "language must not be used before availability is confirmed."
                 )
                 return
