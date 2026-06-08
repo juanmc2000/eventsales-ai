@@ -1,4 +1,4 @@
-"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-026, RESP-027).
+"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-026, RESP-027, RESP-033).
 
 Validates generated draft emails against the availability contract, spend rules,
 and prompt constraints before the draft is shown to staff or sent to guests.
@@ -29,6 +29,11 @@ RESP-026 additional checks:
 
 RESP-027 additional checks:
   12. Internal section labels leaked into the customer-facing draft
+
+RESP-033 additional checks:
+  13. Structured forbidden-topic violations (code, severity, matched_text)
+      Covers: timing discussion, menu, dietary, special touches, call/chat/phone,
+      alternative dates (via alternatives_allowed flag)
 
 Usage::
 
@@ -81,6 +86,7 @@ class ValidationContext:
     allow_menu_discussion: bool = False
     allow_special_touches: bool = False
     allow_call_scheduling: bool = False
+    allow_timing_discussion: bool = False  # RESP-033: True only when timing explicitly allowed
     # RESP-026: required copy block (normalized verbatim match enforced when set)
     required_opening_phrase: str | None = None
 
@@ -89,24 +95,52 @@ class ValidationContext:
 
 
 @dataclass
+class ViolationDetail:
+    """RESP-033: Structured violation record with code, severity, and matched text.
+
+    Attributes:
+        code:         Short identifier for the violation type (e.g. "forbidden_topic_menu").
+        severity:     "high" | "medium" | "low"
+        matched_text: The text fragment that triggered the violation (or empty string).
+        message:      Human-readable description of the violation.
+    """
+
+    code: str
+    severity: str  # "high" | "medium" | "low"
+    matched_text: str
+    message: str
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "code": self.code,
+            "severity": self.severity,
+            "matched_text": self.matched_text,
+            "message": self.message,
+        }
+
+
+@dataclass
 class ComplianceResult:
     """Result of DraftComplianceValidator.validate().
 
     Attributes:
-        passed:         True when no violations were detected.
-        violations:     List of human-readable violation descriptions.
-        unsafe_to_send: True when any violation prevents sending the draft.
+        passed:              True when no violations were detected.
+        violations:          List of human-readable violation descriptions.
+        unsafe_to_send:      True when any violation prevents sending the draft.
+        structured_violations: RESP-033 structured violation records (code, severity, matched_text).
     """
 
     passed: bool
     violations: list[str]
     unsafe_to_send: bool
+    structured_violations: list[ViolationDetail] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "passed": self.passed,
             "violations": self.violations,
             "unsafe_to_send": self.unsafe_to_send,
+            "structured_violations": [v.to_dict() for v in self.structured_violations],
         }
 
 
@@ -205,6 +239,15 @@ _ROOM_SUITABILITY_UNAVAILABLE_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\b(?:have\s+the\s+)?space\s+and\s+expertise\s+to\b", re.IGNORECASE),
 ]
 
+# RESP-033: Timing-discussion topic — generic timing language (distinct from specific time mentions)
+# Only covers clearly topic-level timing discussion phrases, not incidental time references.
+_TIMING_LANGUAGE_PATTERNS: list[re.Pattern[str]] = [
+    re.compile(r"\bpreferred?\s+timing\b", re.IGNORECASE),
+    re.compile(r"\bdiscuss\s+(?:the\s+)?timing\b", re.IGNORECASE),
+    re.compile(r"\btimings?\s+(?:for|of)\s+(?:the\s+)?(?:event|evening|dinner|lunch)\b", re.IGNORECASE),
+    re.compile(r"\btiming\s+preferences?\b", re.IGNORECASE),
+]
+
 # RESP-032: Subject-line patterns that must not appear in the draft body
 _SUBJECT_LINE_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"^\*{0,2}Subject\s*:", re.IGNORECASE | re.MULTILINE),
@@ -254,6 +297,7 @@ class DraftComplianceValidator:
             ComplianceResult with passed, violations, and unsafe_to_send.
         """
         violations: list[str] = []
+        structured_violations: list[ViolationDetail] = []
 
         # Run all checks
         cls._check_availability_overclaim(draft_text, context, violations)
@@ -265,7 +309,8 @@ class DraftComplianceValidator:
         cls._check_hosting_language(draft_text, context, violations)
         cls._check_invented_sla(draft_text, violations)
         cls._check_invented_questions(draft_text, context, violations)
-        cls._check_forbidden_topics(draft_text, context, violations)
+        # RESP-033: structured forbidden-topic check (also appends to violations)
+        cls._check_forbidden_topics(draft_text, context, violations, structured_violations)
         # RESP-020 additional checks
         cls._check_unavailable_room_suitability(draft_text, context, violations)
         # RESP-026 additional checks
@@ -280,6 +325,7 @@ class DraftComplianceValidator:
             passed=passed,
             violations=violations,
             unsafe_to_send=not passed,
+            structured_violations=structured_violations,
         )
 
     # ── Individual checks ──────────────────────────────────────────────────────
@@ -448,30 +494,98 @@ class DraftComplianceValidator:
         text: str,
         context: ValidationContext,
         violations: list[str],
+        structured_violations: list[ViolationDetail] | None = None,
     ) -> None:
-        """Fail if the draft discusses topics not allowed by the context flags."""
+        """RESP-033: Fail if the draft discusses topics not allowed by the context flags.
+
+        Appends human-readable messages to violations (backward-compatible).
+        When structured_violations is provided, also appends ViolationDetail records
+        with code, severity, and matched_text.
+        """
+        def _record(code: str, severity: str, matched_text: str, message: str) -> None:
+            violations.append(message)
+            if structured_violations is not None:
+                structured_violations.append(ViolationDetail(
+                    code=code,
+                    severity=severity,
+                    matched_text=matched_text,
+                    message=message,
+                ))
+
         if not context.allow_menu_discussion:
             for pattern in _MENU_PATTERNS:
-                if pattern.search(text):
-                    violations.append(
-                        "Draft discusses menu or dietary requirements but this topic "
-                        "is not permitted in the current response context."
+                m = pattern.search(text)
+                if m:
+                    _record(
+                        code="forbidden_topic_menu",
+                        severity="high",
+                        matched_text=m.group(0),
+                        message=(
+                            "Draft discusses menu or dietary requirements but this topic "
+                            "is not permitted in the current response context."
+                        ),
                     )
                     break
         if not context.allow_special_touches:
             for pattern in _SPECIAL_TOUCHES_PATTERNS:
-                if pattern.search(text):
-                    violations.append(
-                        "Draft mentions special touches or decorations but this topic "
-                        "is not permitted in the current response context."
+                m = pattern.search(text)
+                if m:
+                    _record(
+                        code="forbidden_topic_special_touches",
+                        severity="medium",
+                        matched_text=m.group(0),
+                        message=(
+                            "Draft mentions special touches or decorations but this topic "
+                            "is not permitted in the current response context."
+                        ),
                     )
                     break
         if not context.allow_call_scheduling:
             for pattern in _CALL_SCHEDULING_PATTERNS:
-                if pattern.search(text):
-                    violations.append(
-                        "Draft invites the guest to schedule a call but call scheduling "
-                        "is not permitted in the current response context."
+                m = pattern.search(text)
+                if m:
+                    _record(
+                        code="forbidden_topic_call_scheduling",
+                        severity="medium",
+                        matched_text=m.group(0),
+                        message=(
+                            "Draft invites the guest to schedule a call but call scheduling "
+                            "is not permitted in the current response context."
+                        ),
+                    )
+                    break
+        # RESP-033: timing discussion topic
+        if not context.allow_timing_discussion:
+            for pattern in _TIMING_LANGUAGE_PATTERNS:
+                m = pattern.search(text)
+                if m:
+                    _record(
+                        code="forbidden_topic_timing",
+                        severity="high",
+                        matched_text=m.group(0),
+                        message=(
+                            "Draft discusses timing or arrival time preferences but this topic "
+                            "is not permitted until confirmed venue facts are established."
+                        ),
+                    )
+                    break
+        # RESP-033: alternative dates topic (via alternatives_allowed flag)
+        # Skip CONFIRMED_UNAVAILABLE (own check) and CONFIRMED_AVAILABLE (alternatives OK)
+        if not context.alternatives_allowed and context.availability_contract not in (
+            "CONFIRMED_UNAVAILABLE",
+            "CONFIRMED_AVAILABLE",
+        ):
+            for pattern in _ALTERNATIVE_PATTERNS:
+                m = pattern.search(text)
+                if m:
+                    _record(
+                        code="forbidden_topic_alternatives",
+                        severity="high",
+                        matched_text=m.group(0),
+                        message=(
+                            "Draft suggests alternative dates or options but alternatives "
+                            "are not permitted in the current response context."
+                        ),
                     )
                     break
 
