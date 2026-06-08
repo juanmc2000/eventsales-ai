@@ -31,6 +31,8 @@ BLOCK_AVAILABILITY_NOT_CHECKED = "availability_not_checked"
 BLOCK_AVAILABILITY_UNAVAILABLE = "availability_unavailable"
 BLOCK_MINIMUM_SPEND = "minimum_spend"
 BLOCK_BOOKING_NEXT_STEP = "booking_next_step"
+# RESP-030: deterministic next-step for CONFIRM_AVAILABLE — no additional detail requests
+BLOCK_CONFIRM_AVAILABLE_NEXT_STEP = "confirm_available_next_step"
 BLOCK_AVAILABILITY_CHECK_NEXT_STEP = "availability_check_next_step"
 BLOCK_CLARIFICATION_NEXT_STEP = "clarification_next_step"
 BLOCK_SIGNOFF = "signoff"
@@ -62,6 +64,13 @@ _TEMPLATES: dict[str, str] = {
         "To proceed, please reply with any additional details and our events team "
         "will be in touch to confirm the booking."
     ),
+    # RESP-030: constrained next-step for CONFIRM_AVAILABLE — no extra detail requests
+    # Communicates only: reply to proceed, events team will finalise booking.
+    # Must not invite menu discussion, timing, special requests, or call scheduling.
+    BLOCK_CONFIRM_AVAILABLE_NEXT_STEP: (
+        "Please reply to this email to proceed and our events team will be in touch "
+        "to finalise the booking."
+    ),
     # Next step when availability is not yet checked
     BLOCK_AVAILABILITY_CHECK_NEXT_STEP: (
         "I will check availability and follow up with you as soon as possible."
@@ -84,6 +93,7 @@ _REQUIRED_VARS: dict[str, frozenset[str]] = {
     BLOCK_AVAILABILITY_UNAVAILABLE: frozenset({"meal_period", "event_date"}),
     BLOCK_MINIMUM_SPEND: frozenset({"spend_amount"}),
     BLOCK_BOOKING_NEXT_STEP: frozenset(),
+    BLOCK_CONFIRM_AVAILABLE_NEXT_STEP: frozenset(),
     BLOCK_AVAILABILITY_CHECK_NEXT_STEP: frozenset(),
     BLOCK_CLARIFICATION_NEXT_STEP: frozenset(),
     BLOCK_SIGNOFF: frozenset({"persona_name"}),

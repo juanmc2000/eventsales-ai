@@ -416,3 +416,42 @@ class TestDeterministicNextStepSections:
                      "REQUEST_WEBFORM", "ESCALATE_TO_HUMAN"]:
             plan = ResponseSectionBuilder.build(goal)
             assert SECTION_AVAILABILITY_CHECK_NEXT_STEP not in plan.allowed_sections, goal
+
+
+# ── RESP-030: CONFIRM_AVAILABLE next-step section safety ──────────────────────
+
+
+class TestConfirmAvailableNextStepSafety:
+    """RESP-030: CONFIRM_AVAILABLE section plan must omit follow-up invitation sections."""
+
+    def test_menu_discussion_omitted(self) -> None:
+        from app.modules.enquiries.response_section_builder import SECTION_MENU_DISCUSSION
+        plan = ResponseSectionBuilder.build("CONFIRM_AVAILABLE")
+        assert SECTION_MENU_DISCUSSION in plan.omitted_sections
+
+    def test_special_touches_omitted(self) -> None:
+        from app.modules.enquiries.response_section_builder import SECTION_SPECIAL_TOUCHES
+        plan = ResponseSectionBuilder.build("CONFIRM_AVAILABLE")
+        assert SECTION_SPECIAL_TOUCHES in plan.omitted_sections
+
+    def test_call_scheduling_omitted(self) -> None:
+        from app.modules.enquiries.response_section_builder import SECTION_CALL_SCHEDULING
+        plan = ResponseSectionBuilder.build("CONFIRM_AVAILABLE")
+        assert SECTION_CALL_SCHEDULING in plan.omitted_sections
+
+    def test_alternative_dates_omitted(self) -> None:
+        plan = ResponseSectionBuilder.build("CONFIRM_AVAILABLE")
+        assert SECTION_ALTERNATIVE_DATES in plan.omitted_sections
+
+    def test_invented_questions_omitted(self) -> None:
+        plan = ResponseSectionBuilder.build("CONFIRM_AVAILABLE")
+        assert SECTION_INVENTED_QUESTIONS in plan.omitted_sections
+
+    def test_invented_sla_omitted(self) -> None:
+        plan = ResponseSectionBuilder.build("CONFIRM_AVAILABLE")
+        assert SECTION_INVENTED_SLA in plan.omitted_sections
+
+    def test_booking_next_step_in_allowed(self) -> None:
+        """booking_next_step section must be present — wording enforced by copy block."""
+        plan = ResponseSectionBuilder.build("CONFIRM_AVAILABLE")
+        assert SECTION_BOOKING_NEXT_STEP in plan.allowed_sections
