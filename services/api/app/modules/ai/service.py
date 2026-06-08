@@ -258,7 +258,8 @@ class DraftGenerationService:
             # No LLM response — use template-based fallback (pure Python, no API call)
             draft_body = FallbackProvider().generate(context)
         else:
-            draft_body = gateway_result.raw_response
+            # RESP-031: strip standalone section headers before persistence
+            draft_body = _strip_section_labels(gateway_result.raw_response)
 
         # ── Build AI transparency context ─────────────────────────────────────
         ai_context = AIContextOut(
@@ -578,6 +579,47 @@ def _build_clarification_questions_line(context: DraftContext) -> str:
         return f"Clarification question to ask: {questions[0]}\n"
     formatted = "\n".join(f"  {i + 1}. {q}" for i, q in enumerate(questions))
     return f"Clarification questions to ask (in order):\n{formatted}\n"
+
+
+def _strip_section_labels(text: str) -> str:
+    """RESP-031: Remove standalone section header lines from LLM output.
+
+    Strips lines whose entire content (ignoring surrounding whitespace) is
+    one of the internal section labels defined in _SECTION_LABEL_PATTERNS —
+    e.g. **Opening**, **Sign-off**, **Enquiry summary**.
+
+    Normal bold text inside paragraphs (e.g. **The Grand**) is preserved
+    because those lines contain more than just the label pattern.
+
+    Consecutive blank lines introduced by removal are collapsed to at most one.
+    """
+    from app.modules.ai.draft_compliance_validator import (  # noqa: PLC0415
+        _SECTION_LABEL_PATTERNS,
+    )
+
+    lines = text.split("\n")
+    kept: list[str] = []
+    for line in lines:
+        stripped = line.strip()
+        if stripped and any(
+            p.fullmatch(stripped) for p in _SECTION_LABEL_PATTERNS
+        ):
+            continue  # drop standalone label line
+        kept.append(line)
+
+    # Collapse runs of more than one consecutive blank line
+    result: list[str] = []
+    blank_run = 0
+    for line in kept:
+        if line.strip() == "":
+            blank_run += 1
+            if blank_run <= 1:
+                result.append(line)
+        else:
+            blank_run = 0
+            result.append(line)
+
+    return "\n".join(result).strip()
 
 
 _TIME_PATTERN = None  # lazy-compiled below
