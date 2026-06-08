@@ -205,6 +205,11 @@ _ROOM_SUITABILITY_UNAVAILABLE_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\b(?:have\s+the\s+)?space\s+and\s+expertise\s+to\b", re.IGNORECASE),
 ]
 
+# RESP-032: Subject-line patterns that must not appear in the draft body
+_SUBJECT_LINE_PATTERNS: list[re.Pattern[str]] = [
+    re.compile(r"^\*{0,2}Subject\s*:", re.IGNORECASE | re.MULTILINE),
+]
+
 # RESP-027: Internal section labels that must not appear in customer-facing drafts
 _SECTION_LABEL_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\*\*Opening\*\*", re.IGNORECASE),
@@ -267,6 +272,8 @@ class DraftComplianceValidator:
         cls._check_copy_block_compliance(draft_text, context, violations)
         # RESP-027 additional checks
         cls._check_section_labels(draft_text, violations)
+        # RESP-032 additional checks
+        cls._check_subject_line_in_body(draft_text, violations)
 
         passed = len(violations) == 0
         return ComplianceResult(
@@ -553,5 +560,27 @@ class DraftComplianceValidator:
                     "Draft contains an internal section label (e.g. **Opening**, "
                     "**Sign-off**) that must not appear in customer-facing emails. "
                     "Remove all structural headings from the draft body."
+                )
+                return  # One violation per category
+
+    # ── RESP-032 additional checks ──────────────────────────────────────────
+
+    @classmethod
+    def _check_subject_line_in_body(
+        cls,
+        text: str,
+        violations: list[str],
+    ) -> None:
+        """Fail if a subject line appears anywhere in the draft body.
+
+        Patterns such as 'Subject: ...' or '**Subject: ...**' must not appear
+        in the email body — the subject is set separately by the caller.
+        """
+        for pattern in _SUBJECT_LINE_PATTERNS:
+            if pattern.search(text):
+                violations.append(
+                    "Draft contains a subject line in the email body "
+                    "(e.g. 'Subject: ...' or '**Subject: ...**'). "
+                    "Remove it — the subject field is set separately."
                 )
                 return  # One violation per category
