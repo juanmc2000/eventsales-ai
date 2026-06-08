@@ -387,22 +387,49 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
             f"Party size: {context.party_size}\n" if context.party_size else ""
         ),
         "spend_line": _build_spend_line(context),
-        "room_lines": _build_room_lines(context),
+        # RESP-024: suppress room details for goals where room-selling is forbidden
+        # RESPOND_UNAVAILABLE — LLM path bypassed, but suppress for safety
+        # ACKNOWLEDGE_AND_CHECK_AVAILABILITY — no room suitability claims until confirmed
+        "room_lines": (
+            "" if context.response_goal in (
+                "RESPOND_UNAVAILABLE",
+                "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+            )
+            else _build_room_lines(context)
+        ),
         # Sprint 7 enrichment variables (present only when processing snapshot is available)
         "availability_line": _build_availability_line(context),
-        "missing_questions_line": _build_missing_questions_line(context),
+        # RESP-024: suppress clarification/missing-info context for CONFIRM_AVAILABLE —
+        # availability is already confirmed; asking for more info would be contradictory
+        "missing_questions_line": (
+            "" if context.response_goal == "CONFIRM_AVAILABLE"
+            else _build_missing_questions_line(context)
+        ),
         # RESP-005: response goal — new goals take precedence; legacy alias kept for
         # stored DB records that may still hold READY_TO_CONFIRM_AVAILABILITY.
         "response_goal": context.response_goal or "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
         "audience_type_line": (
             f"Audience type: {context.audience_type}\n" if context.audience_type else ""
         ),
-        "clarification_questions_line": _build_clarification_questions_line(context),
+        # RESP-024: suppress clarification questions for CONFIRM_AVAILABLE — confirmed
+        # availability responses must not ask for more information
+        "clarification_questions_line": (
+            "" if context.response_goal == "CONFIRM_AVAILABLE"
+            else _build_clarification_questions_line(context)
+        ),
         # RESP-006: structured draft context — separates tone from operational facts
         "guest_message_line": _build_guest_tone_line(context),
         "confirmed_venue_facts_line": _build_confirmed_venue_facts_line(context),
-        "requested_preferences_line": _build_requested_preferences_line(context),
-        "prohibited_claims_line": _build_prohibited_claims_line(context),
+        # RESP-024: suppress unconfirmed time preferences/prohibitions for
+        # CONFIRM_AVAILABLE — no need to caveat confirmed responses with time warnings
+        "requested_preferences_line": (
+            "" if context.response_goal == "CONFIRM_AVAILABLE"
+            else _build_requested_preferences_line(context)
+        ),
+        "prohibited_claims_line": (
+            "" if context.response_goal == "CONFIRM_AVAILABLE"
+            else _build_prohibited_claims_line(context)
+        ),
         # RESP-007: phrase guidance — approved opening phrase for the current goal
         "phrase_guidance_line": _build_phrase_guidance_line(context),
         # RESP-013: section plan lines — authorised/forbidden sections from SectionPlan
