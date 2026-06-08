@@ -1,4 +1,4 @@
-"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025).
+"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-027).
 
 Validates generated draft emails against the availability contract, spend rules,
 and prompt constraints before the draft is shown to staff or sent to guests.
@@ -23,6 +23,9 @@ RESP-020 additional checks:
 
 RESP-025 additional checks:
   10b. Room suitability language extended to NOT_CHECKED contract state
+
+RESP-027 additional checks:
+  11. Internal section labels leaked into the customer-facing draft
 
 Usage::
 
@@ -197,6 +200,17 @@ _ROOM_SUITABILITY_UNAVAILABLE_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\b(?:have\s+the\s+)?space\s+and\s+expertise\s+to\b", re.IGNORECASE),
 ]
 
+# RESP-027: Internal section labels that must not appear in customer-facing drafts
+_SECTION_LABEL_PATTERNS: list[re.Pattern[str]] = [
+    re.compile(r"\*\*Opening\*\*", re.IGNORECASE),
+    re.compile(r"\*\*Enquiry\s+summary\*\*", re.IGNORECASE),
+    re.compile(r"\*\*Availability\s+confirmation\*\*", re.IGNORECASE),
+    re.compile(r"\*\*Booking\s+next\s+step\*\*", re.IGNORECASE),
+    re.compile(r"\*\*Sign[\s-]+off\*\*", re.IGNORECASE),
+    re.compile(r"\*\*Next\s+steps?\*\*", re.IGNORECASE),
+    re.compile(r"\*\*Closing\*\*", re.IGNORECASE),
+]
+
 # RESP-012: Forbidden topic — call scheduling
 _CALL_SCHEDULING_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\barrange\s+a\s+call\b", re.IGNORECASE),
@@ -244,6 +258,8 @@ class DraftComplianceValidator:
         cls._check_forbidden_topics(draft_text, context, violations)
         # RESP-020 additional checks
         cls._check_unavailable_room_suitability(draft_text, context, violations)
+        # RESP-027 additional checks
+        cls._check_section_labels(draft_text, violations)
 
         passed = len(violations) == 0
         return ComplianceResult(
@@ -470,3 +486,25 @@ class DraftComplianceValidator:
                     "language must not be used before availability is confirmed."
                 )
                 return
+
+    # ── RESP-027 additional checks ──────────────────────────────────────────
+
+    @classmethod
+    def _check_section_labels(
+        cls,
+        text: str,
+        violations: list[str],
+    ) -> None:
+        """Fail if internal section labels appear in the customer-facing draft.
+
+        Labels such as **Opening** or **Sign-off** are internal structural markers
+        used during prompt construction and must never appear in the email sent to guests.
+        """
+        for pattern in _SECTION_LABEL_PATTERNS:
+            if pattern.search(text):
+                violations.append(
+                    "Draft contains an internal section label (e.g. **Opening**, "
+                    "**Sign-off**) that must not appear in customer-facing emails. "
+                    "Remove all structural headings from the draft body."
+                )
+                return  # One violation per category

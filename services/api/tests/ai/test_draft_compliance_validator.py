@@ -676,3 +676,64 @@ class TestV5FixtureCoverage:
         assert result.passed is False
         # Should catch both the suitability language and the alternative dates
         assert len(result.violations) >= 1
+
+
+# ── RESP-027: Section label suppression ───────────────────────────────────────
+
+
+class TestSectionLabels:
+    """RESP-027: Internal section labels must not appear in customer-facing drafts."""
+
+    def test_opening_label_fails(self) -> None:
+        result = _validate("**Opening**\nDear Alice, thank you for your enquiry.")
+        assert result.passed is False
+        assert any("section label" in v.lower() for v in result.violations)
+
+    def test_sign_off_label_fails(self) -> None:
+        result = _validate("Dear Alice, thank you.\n\n**Sign-off**\nWarm regards, Sophie")
+        assert result.passed is False
+        assert any("section label" in v.lower() for v in result.violations)
+
+    def test_enquiry_summary_label_fails(self) -> None:
+        result = _validate("**Enquiry summary**\nYou enquired about a private dining room.")
+        assert result.passed is False
+        assert any("section label" in v.lower() for v in result.violations)
+
+    def test_availability_confirmation_label_fails(self) -> None:
+        result = _validate(
+            "**Availability confirmation**\nI am pleased to confirm the date is available.",
+            availability_contract="CONFIRMED_AVAILABLE",
+        )
+        assert result.passed is False
+        assert any("section label" in v.lower() for v in result.violations)
+
+    def test_booking_next_step_label_fails(self) -> None:
+        result = _validate("**Booking next step**\nPlease complete our form.")
+        assert result.passed is False
+
+    def test_next_steps_label_fails(self) -> None:
+        result = _validate("**Next steps**\nPlease complete our form.")
+        assert result.passed is False
+
+    def test_closing_label_fails(self) -> None:
+        result = _validate("Dear Alice.\n\n**Closing**\nWarm regards.")
+        assert result.passed is False
+
+    def test_clean_draft_without_labels_passes(self) -> None:
+        result = _validate(
+            "Dear Alice, thank you for your enquiry. I am pleased to confirm availability. "
+            "Warm regards, Sophie.",
+            availability_contract="CONFIRMED_AVAILABLE",
+        )
+        assert result.passed is True
+
+    def test_label_in_body_text_not_as_heading_passes(self) -> None:
+        """The word 'opening' in plain text (not as **Opening**) is allowed."""
+        result = _validate("Dear Alice, as an opening remark, thank you for reaching out.")
+        assert result.passed is True
+
+    def test_only_one_violation_raised_per_section_label_category(self) -> None:
+        draft = "**Opening**\nDear Alice.\n\n**Sign-off**\nWarm regards."
+        result = _validate(draft)
+        section_violations = [v for v in result.violations if "section label" in v.lower()]
+        assert len(section_violations) == 1  # One violation per category
