@@ -89,6 +89,8 @@ class ValidationContext:
     allow_timing_discussion: bool = False  # RESP-033: True only when timing explicitly allowed
     # RESP-026: required copy block (normalized verbatim match enforced when set)
     required_opening_phrase: str | None = None
+    # RESP-034: rendered approved block texts for post-extension detection
+    approved_blocks: list[str] = field(default_factory=list)
 
 
 # ── Output ─────────────────────────────────────────────────────────────────────
@@ -319,6 +321,8 @@ class DraftComplianceValidator:
         cls._check_section_labels(draft_text, violations)
         # RESP-032 additional checks
         cls._check_subject_line_in_body(draft_text, violations)
+        # RESP-034 additional checks
+        cls._check_copy_block_post_extension(draft_text, context, violations, structured_violations)
 
         passed = len(violations) == 0
         return ComplianceResult(
@@ -702,3 +706,72 @@ class DraftComplianceValidator:
                     "Remove it — the subject field is set separately."
                 )
                 return  # One violation per category
+
+    # ── RESP-034 additional checks ──────────────────────────────────────────
+
+    # Forbidden-extension patterns: content that must not follow an approved block
+    _FORBIDDEN_EXTENSION_PATTERNS: list[re.Pattern[str]] = (
+        _MENU_PATTERNS
+        + _SPECIAL_TOUCHES_PATTERNS
+        + _CALL_SCHEDULING_PATTERNS
+        + _TIMING_LANGUAGE_PATTERNS
+    )
+
+    @classmethod
+    def _check_copy_block_post_extension(
+        cls,
+        text: str,
+        context: ValidationContext,
+        violations: list[str],
+        structured_violations: list[ViolationDetail] | None = None,
+    ) -> None:
+        """RESP-034: Fail if extra text is appended immediately after an approved copy block.
+
+        For each block in context.approved_blocks, locate it in the normalised
+        draft and extract the text that follows it up to the next paragraph break.
+        If that trailing text is non-trivial (more than a salutation) AND mentions
+        a forbidden topic, record a high-severity violation.
+        """
+        if not context.approved_blocks:
+            return
+
+        norm_draft = cls._normalise_for_comparison(text)
+
+        for block_text in context.approved_blocks:
+            norm_block = cls._normalise_for_comparison(block_text)
+            if not norm_block:
+                continue
+
+            pos = norm_draft.find(norm_block)
+            if pos == -1:
+                continue  # Block not present — RESP-026 handles the missing-block case
+
+            # Extract text immediately following this block up to the next sentence break
+            after_pos = pos + len(norm_block)
+            # Grab up to 250 normalised characters after the block
+            trailing = norm_draft[after_pos:after_pos + 250].strip()
+            if not trailing:
+                continue  # Nothing follows the block
+
+            # Skip if trailing is only a short salutation or sign-off
+            if len(trailing.split()) <= 3:
+                continue
+
+            # Check for forbidden-topic content in the trailing text
+            for pattern in cls._FORBIDDEN_EXTENSION_PATTERNS:
+                m = pattern.search(trailing)
+                if m:
+                    message = (
+                        "Draft extends an approved copy block with forbidden-topic language "
+                        f"('{m.group(0)}'). No extra operational content may be appended "
+                        "after an approved block — the block is the complete operational statement."
+                    )
+                    violations.append(message)
+                    if structured_violations is not None:
+                        structured_violations.append(ViolationDetail(
+                            code="copy_block_post_extension",
+                            severity="high",
+                            matched_text=m.group(0),
+                            message=message,
+                        ))
+                    return  # One violation per call
