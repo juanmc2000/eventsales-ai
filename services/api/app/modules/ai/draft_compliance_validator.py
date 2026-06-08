@@ -30,6 +30,13 @@ RESP-026 additional checks:
 RESP-027 additional checks:
   12. Internal section labels leaked into the customer-facing draft
 
+RESP-031 calibrations:
+  - For CONFIRM_AVAILABLE, copy block check uses semantic validation (availability
+    confirmed) instead of verbatim opening phrase — reduces false failures from
+    harmless paraphrases while preserving all commercial-safety checks.
+  - Mandatory minimum spend, unavailable statement, booking form URL, and date
+    clarification remain strictly verbatim.
+
 Usage::
 
     from app.modules.ai.draft_compliance_validator import DraftComplianceValidator, ValidationContext
@@ -519,12 +526,28 @@ class DraftComplianceValidator:
     ) -> None:
         """Fail if a required copy block is missing or paraphrased in the draft.
 
-        When ValidationContext.required_opening_phrase is set, the normalised form
-        of that phrase must appear somewhere in the draft.  Formatting differences
-        (bold markers, extra newlines) are ignored.  Paraphrasing is not allowed.
+        RESP-026: When ValidationContext.required_opening_phrase is set, strict
+        verbatim matching is enforced — EXCEPT for CONFIRM_AVAILABLE (RESP-031).
+
+        RESP-031: For CONFIRM_AVAILABLE, semantic validation replaces verbatim:
+        the draft must contain availability confirmation language (pattern-matched)
+        rather than the exact approved phrase.  This avoids failing on harmless
+        paraphrases while preserving all commercial-safety checks.
+
+        Strict verbatim remains in force for:
+          - CONFIRMED_UNAVAILABLE (unavailable statement must not be softened)
+          - Minimum spend language (handled by _check_spend_soft_language)
+          - Booking form URL (handled by _check_fake_urls)
+          - Any goal other than CONFIRM_AVAILABLE
         """
         if not context.required_opening_phrase:
             return
+
+        if context.response_goal == "CONFIRM_AVAILABLE":
+            # RESP-031: semantic check — availability must be confirmed somewhere in the draft
+            cls._check_confirm_available_semantic(text, violations)
+            return
+
         normalised_draft = cls._normalise_for_comparison(text)
         normalised_required = cls._normalise_for_comparison(context.required_opening_phrase)
         if normalised_required not in normalised_draft:
@@ -533,6 +556,31 @@ class DraftComplianceValidator:
                 f"'{context.required_opening_phrase[:80]}' (or its equivalent) must "
                 "appear verbatim. Paraphrasing operational copy is not permitted."
             )
+
+    @classmethod
+    def _check_confirm_available_semantic(
+        cls,
+        text: str,
+        violations: list[str],
+    ) -> None:
+        """RESP-031: semantic validation for CONFIRM_AVAILABLE drafts.
+
+        Checks that the draft communicates availability confirmation without
+        requiring the exact approved phrase verbatim.  A draft passes when at
+        least one availability-confirm pattern matches.
+
+        This check catches cases where the LLM omits all availability language
+        (e.g. by starting with a sales pitch rather than confirming the date).
+        """
+        for pattern in _AVAILABILITY_CONFIRM_PATTERNS:
+            if pattern.search(text):
+                return  # Availability is confirmed — no violation
+        violations.append(
+            "CONFIRM_AVAILABLE draft does not appear to confirm availability. "
+            "The response must clearly state that the date or slot is available. "
+            "Approved phrases include: 'I'm delighted to confirm', "
+            "'we have availability', 'pleased to confirm', 'date is free'."
+        )
 
     # ── RESP-027 additional checks ──────────────────────────────────────────
 
