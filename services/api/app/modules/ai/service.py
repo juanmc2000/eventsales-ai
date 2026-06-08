@@ -156,6 +156,17 @@ class DraftGenerationService:
         # ── RESP-003: Load response preparation plan for goal-driven drafting ─
         context = _enrich_context_from_response_plan(self._db, enquiry_id, context)
 
+        # ── RESP-023: Deterministic RESPOND_UNAVAILABLE path — bypass LLM ──────
+        if context.response_goal == "RESPOND_UNAVAILABLE":
+            return self._generate_deterministic_unavailable_draft(
+                enquiry_id=enquiry_id,
+                enquiry=enquiry,
+                context=context,
+                persona_name=persona_name,
+                recommended_minimum_spend=recommended_minimum_spend,
+                guest_message=guest_message,
+            )
+
         # Build input_payload for the draft_response prompt template
         input_payload = _build_draft_input_payload(context)
 
@@ -266,6 +277,81 @@ class DraftGenerationService:
             persona_name=persona_name,
             is_fallback=is_fallback,
             model=model_name,
+            ai_context=ai_context,
+        )
+
+    def _generate_deterministic_unavailable_draft(
+        self,
+        enquiry_id: uuid.UUID,
+        enquiry,
+        context: "DraftContext",
+        persona_name: str,
+        recommended_minimum_spend: float | None,
+        guest_message: str | None,
+    ) -> "DraftGenerationResult":
+        """RESP-023: Build an unavailable draft from approved copy blocks only.
+
+        Bypasses the LLM entirely.  No room details, no alternative dates,
+        no minimum spend — only the approved unavailable opening plus signoff.
+        """
+        from app.modules.ai.first_response_copy_library import (  # noqa: PLC0415
+            FirstResponseCopyLibrary,
+        )
+
+        meal_period = context.availability_meal_period or "dinner"
+        event_date = context.availability_date or context.event_date or "the requested date"
+        guest_name = context.guest_first_name or "there"
+
+        opening = FirstResponseCopyLibrary.render(
+            "availability_unavailable",
+            {"meal_period": meal_period, "event_date": event_date},
+        )
+        signoff = FirstResponseCopyLibrary.render(
+            "signoff",
+            {"persona_name": persona_name},
+        )
+        draft_body = f"Dear {guest_name},\n\n{opening}\n\n{signoff}"
+
+        ai_context = AIContextOut(
+            model="deterministic",
+            is_fallback=False,
+            persona_name=persona_name,
+            persona_tone=context.persona_tone,
+            persona_style=context.persona_style,
+            guest_message_used=guest_message,
+            room_name=None,  # No room details for unavailable responses
+            recommended_minimum_spend=recommended_minimum_spend,
+            system_prompt=None,
+            user_message=None,
+            prompt_run_id=None,
+        )
+
+        subject = _build_subject(enquiry.first_name, enquiry.last_name, enquiry.event_type)
+        message = self._enquiry_repo.add_message(
+            enquiry_id,
+            {
+                "direction": "outbound",
+                "channel": "draft",
+                "subject": subject,
+                "body": draft_body,
+                "sent_at": None,
+            },
+        )
+        self._db.commit()
+
+        logger.info(
+            "RESP-023: Deterministic RESPOND_UNAVAILABLE draft generated for enquiry %s",
+            enquiry_id,
+        )
+
+        return DraftGenerationResult(
+            enquiry_id=enquiry_id,
+            message_id=message.id,
+            subject=subject,
+            body=draft_body,
+            persona_name=persona_name,
+            is_fallback=False,
+            model="deterministic",
             ai_context=ai_context,
         )
 
