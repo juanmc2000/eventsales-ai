@@ -1,4 +1,4 @@
-"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-027).
+"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-026, RESP-027).
 
 Validates generated draft emails against the availability contract, spend rules,
 and prompt constraints before the draft is shown to staff or sent to guests.
@@ -24,8 +24,11 @@ RESP-020 additional checks:
 RESP-025 additional checks:
   10b. Room suitability language extended to NOT_CHECKED contract state
 
+RESP-026 additional checks:
+  11. Required copy block missing or paraphrased (when required_opening_phrase is set)
+
 RESP-027 additional checks:
-  11. Internal section labels leaked into the customer-facing draft
+  12. Internal section labels leaked into the customer-facing draft
 
 Usage::
 
@@ -78,6 +81,8 @@ class ValidationContext:
     allow_menu_discussion: bool = False
     allow_special_touches: bool = False
     allow_call_scheduling: bool = False
+    # RESP-026: required copy block (normalized verbatim match enforced when set)
+    required_opening_phrase: str | None = None
 
 
 # ── Output ─────────────────────────────────────────────────────────────────────
@@ -258,6 +263,8 @@ class DraftComplianceValidator:
         cls._check_forbidden_topics(draft_text, context, violations)
         # RESP-020 additional checks
         cls._check_unavailable_room_suitability(draft_text, context, violations)
+        # RESP-026 additional checks
+        cls._check_copy_block_compliance(draft_text, context, violations)
         # RESP-027 additional checks
         cls._check_section_labels(draft_text, violations)
 
@@ -486,6 +493,46 @@ class DraftComplianceValidator:
                     "language must not be used before availability is confirmed."
                 )
                 return
+
+    # ── RESP-026 additional checks ──────────────────────────────────────────
+
+    @staticmethod
+    def _normalise_for_comparison(text: str) -> str:
+        """Strip markdown formatting and collapse whitespace for copy-block comparison.
+
+        Removes bold/italic markers (**text**, *text*), strips leading/trailing
+        whitespace, and collapses all internal whitespace runs to a single space.
+        This allows formatting differences (e.g. extra newlines) to be ignored.
+        """
+        # Strip markdown bold/italic markers
+        text = re.sub(r"\*{1,2}([^*]+)\*{1,2}", r"\1", text)
+        # Normalise all whitespace (newlines, tabs, multiple spaces) to single space
+        text = re.sub(r"\s+", " ", text)
+        return text.strip().lower()
+
+    @classmethod
+    def _check_copy_block_compliance(
+        cls,
+        text: str,
+        context: ValidationContext,
+        violations: list[str],
+    ) -> None:
+        """Fail if a required copy block is missing or paraphrased in the draft.
+
+        When ValidationContext.required_opening_phrase is set, the normalised form
+        of that phrase must appear somewhere in the draft.  Formatting differences
+        (bold markers, extra newlines) are ignored.  Paraphrasing is not allowed.
+        """
+        if not context.required_opening_phrase:
+            return
+        normalised_draft = cls._normalise_for_comparison(text)
+        normalised_required = cls._normalise_for_comparison(context.required_opening_phrase)
+        if normalised_required not in normalised_draft:
+            violations.append(
+                "Draft is missing a required copy block. The approved opening phrase "
+                f"'{context.required_opening_phrase[:80]}' (or its equivalent) must "
+                "appear verbatim. Paraphrasing operational copy is not permitted."
+            )
 
     # ── RESP-027 additional checks ──────────────────────────────────────────
 

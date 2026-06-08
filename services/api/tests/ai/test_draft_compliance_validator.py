@@ -737,3 +737,84 @@ class TestSectionLabels:
         result = _validate(draft)
         section_violations = [v for v in result.violations if "section label" in v.lower()]
         assert len(section_violations) == 1  # One violation per category
+
+
+# ── RESP-026: Copy block enforcement ──────────────────────────────────────────
+
+
+class TestCopyBlockCompliance:
+    """RESP-026: Required copy blocks must appear verbatim (normalised) in the draft."""
+
+    def _ctx(self, phrase: str | None = None, **kwargs) -> ValidationContext:
+        return ValidationContext(required_opening_phrase=phrase, **kwargs)
+
+    def test_missing_required_phrase_fails(self) -> None:
+        phrase = "Thank you for your enquiry. Unfortunately, we are fully booked for the requested date."
+        result = _validate(
+            "Dear Alice, I am sorry but we cannot accommodate your request.",
+            required_opening_phrase=phrase,
+        )
+        assert result.passed is False
+        assert any("copy block" in v.lower() or "required" in v.lower() for v in result.violations)
+
+    def test_exact_phrase_present_passes(self) -> None:
+        phrase = "Thank you for your enquiry. Unfortunately, we are fully booked for the requested date."
+        result = _validate(
+            f"Dear Alice, {phrase} Warm regards, Sophie.",
+            required_opening_phrase=phrase,
+        )
+        copy_violations = [v for v in result.violations if "copy block" in v.lower()]
+        assert len(copy_violations) == 0
+
+    def test_phrase_with_extra_whitespace_passes(self) -> None:
+        """Formatting differences (extra spaces/newlines) should not cause false failures."""
+        phrase = "Thank you for your enquiry — I'll check availability for the requested date and come back to you shortly."
+        draft = (
+            "Dear Alice,\n\n"
+            "Thank you for your enquiry — I'll check availability for the requested\n"
+            "date and come back to you shortly.\n\n"
+            "Warm regards, Sophie"
+        )
+        result = _validate(draft, required_opening_phrase=phrase)
+        copy_violations = [v for v in result.violations if "copy block" in v.lower()]
+        assert len(copy_violations) == 0
+
+    def test_phrase_with_bold_markdown_passes(self) -> None:
+        """Bold markdown formatting (**text**) should be stripped before comparison."""
+        phrase = "Thank you for your enquiry — I'm delighted to let you know that the date is available for your event."
+        draft = (
+            "Dear Alice, **Thank you for your enquiry** — I'm delighted to let you know "
+            "that the date is available for your event. Warm regards, Sophie."
+        )
+        result = _validate(draft, required_opening_phrase=phrase, availability_contract="CONFIRMED_AVAILABLE")
+        copy_violations = [v for v in result.violations if "copy block" in v.lower()]
+        assert len(copy_violations) == 0
+
+    def test_paraphrased_phrase_fails(self) -> None:
+        """Paraphrasing the opening phrase is not allowed — must be verbatim."""
+        phrase = "Thank you for your enquiry — I'm delighted to let you know that the date is available for your event."
+        result = _validate(
+            "Dear Alice, I am very pleased to inform you that the date is available.",
+            required_opening_phrase=phrase,
+            availability_contract="CONFIRMED_AVAILABLE",
+        )
+        assert result.passed is False
+        assert any("copy block" in v.lower() or "required" in v.lower() for v in result.violations)
+
+    def test_no_required_phrase_set_passes(self) -> None:
+        """When required_opening_phrase is None, the check does not fire."""
+        result = _validate(
+            "Dear Alice, I am very pleased to inform you that the date is available.",
+            availability_contract="CONFIRMED_AVAILABLE",
+        )
+        copy_violations = [v for v in result.violations if "copy block" in v.lower()]
+        assert len(copy_violations) == 0
+
+    def test_empty_required_phrase_does_not_fire(self) -> None:
+        """Empty string required_opening_phrase is treated as not set."""
+        result = _validate(
+            "Dear Alice, some text.",
+            required_opening_phrase="",
+        )
+        copy_violations = [v for v in result.violations if "copy block" in v.lower()]
+        assert len(copy_violations) == 0
