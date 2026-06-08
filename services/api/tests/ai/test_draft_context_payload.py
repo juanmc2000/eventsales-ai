@@ -344,3 +344,81 @@ class TestGoalBasedContextPruning:
         )
         payload = _build_draft_input_payload(ctx)
         assert payload["room_lines"] != ""
+
+
+# ── RESP-029: RESPOND_UNAVAILABLE context suppression ─────────────────────────
+
+
+class TestRespondUnavailablePayloadSuppression:
+    """RESP-029: unavailable response payload must contain only essential fields."""
+
+    def _unavailable_context(self, **overrides) -> DraftContext:
+        ctx = _base_context(
+            response_goal="RESPOND_UNAVAILABLE",
+            confirmed_minimum_spend=2000.0,
+            room_name="The Mayfair Suite",
+            room_seated_capacity=40,
+            guest_message="We'd like dinner around 7pm on 20 June.",
+        )
+        for k, v in overrides.items():
+            ctx = replace(ctx, **{k: v})
+        return ctx
+
+    def test_spend_line_suppressed(self) -> None:
+        ctx = self._unavailable_context()
+        payload = _build_draft_input_payload(ctx)
+        assert payload["spend_line"] == "", "spend_line must be empty for RESPOND_UNAVAILABLE"
+
+    def test_room_lines_suppressed(self) -> None:
+        ctx = self._unavailable_context()
+        payload = _build_draft_input_payload(ctx)
+        assert payload["room_lines"] == "", "room_lines must be empty for RESPOND_UNAVAILABLE"
+
+    def test_guest_message_line_suppressed(self) -> None:
+        ctx = self._unavailable_context()
+        payload = _build_draft_input_payload(ctx)
+        assert payload["guest_message_line"] == "", "guest_message_line must be empty for RESPOND_UNAVAILABLE"
+
+    def test_requested_preferences_line_suppressed(self) -> None:
+        ctx = self._unavailable_context()
+        payload = _build_draft_input_payload(ctx)
+        assert payload["requested_preferences_line"] == "", (
+            "requested_preferences_line must be empty for RESPOND_UNAVAILABLE"
+        )
+
+    def test_prohibited_claims_line_suppressed(self) -> None:
+        ctx = self._unavailable_context()
+        payload = _build_draft_input_payload(ctx)
+        assert payload["prohibited_claims_line"] == "", (
+            "prohibited_claims_line must be empty for RESPOND_UNAVAILABLE"
+        )
+
+    def test_missing_questions_line_suppressed(self) -> None:
+        ctx = self._unavailable_context()
+        ctx = replace(ctx, missing_questions=["What is the occasion?"])
+        payload = _build_draft_input_payload(ctx)
+        assert payload["missing_questions_line"] == "", (
+            "missing_questions_line must be empty for RESPOND_UNAVAILABLE"
+        )
+
+    def test_persona_name_retained(self) -> None:
+        ctx = self._unavailable_context()
+        payload = _build_draft_input_payload(ctx)
+        assert payload["persona_name"] == "Eleanor"
+
+    def test_restaurant_name_retained(self) -> None:
+        ctx = self._unavailable_context()
+        payload = _build_draft_input_payload(ctx)
+        assert payload["restaurant_name"] == "The Grand"
+
+    def test_availability_line_retained(self) -> None:
+        """Availability line is always present — it provides the contract state."""
+        ctx = self._unavailable_context()
+        payload = _build_draft_input_payload(ctx)
+        assert payload["availability_line"] != ""
+
+    def test_approved_copy_blocks_retained(self) -> None:
+        """Unavailable copy block must be present for the LLM to use."""
+        ctx = self._unavailable_context()
+        payload = _build_draft_input_payload(ctx)
+        assert payload["approved_copy_blocks_line"] != ""

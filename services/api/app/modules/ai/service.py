@@ -462,7 +462,12 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
         "party_size_line": (
             f"Party size: {context.party_size}\n" if context.party_size else ""
         ),
-        "spend_line": _build_spend_line(context),
+        # RESP-029: suppress spend for RESPOND_UNAVAILABLE — unavailable response
+        # must not include pricing context; the slot is gone, no minimum spend applies
+        "spend_line": (
+            "" if context.response_goal == "RESPOND_UNAVAILABLE"
+            else _build_spend_line(context)
+        ),
         # RESP-024: suppress room details for goals where room-selling is forbidden
         # RESPOND_UNAVAILABLE — LLM path bypassed, but suppress for safety
         # ACKNOWLEDGE_AND_CHECK_AVAILABILITY — no room suitability claims until confirmed
@@ -477,8 +482,9 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
         "availability_line": _build_availability_line(context),
         # RESP-024: suppress clarification/missing-info context for CONFIRM_AVAILABLE —
         # availability is already confirmed; asking for more info would be contradictory
+        # RESP-029: suppress for RESPOND_UNAVAILABLE — no missing info is relevant
         "missing_questions_line": (
-            "" if context.response_goal == "CONFIRM_AVAILABLE"
+            "" if context.response_goal in ("CONFIRM_AVAILABLE", "RESPOND_UNAVAILABLE")
             else _build_missing_questions_line(context)
         ),
         # RESP-005: response goal — new goals take precedence; legacy alias kept for
@@ -494,16 +500,22 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
             else _build_clarification_questions_line(context)
         ),
         # RESP-006: structured draft context — separates tone from operational facts
-        "guest_message_line": _build_guest_tone_line(context),
+        # RESP-029: suppress for RESPOND_UNAVAILABLE — no tone context needed for
+        # deterministic copy-only drafts; include only unavailable copy block
+        "guest_message_line": (
+            "" if context.response_goal == "RESPOND_UNAVAILABLE"
+            else _build_guest_tone_line(context)
+        ),
         "confirmed_venue_facts_line": _build_confirmed_venue_facts_line(context),
         # RESP-024: suppress unconfirmed time preferences/prohibitions for
         # CONFIRM_AVAILABLE — no need to caveat confirmed responses with time warnings
+        # RESP-029: suppress for RESPOND_UNAVAILABLE — time context is irrelevant
         "requested_preferences_line": (
-            "" if context.response_goal == "CONFIRM_AVAILABLE"
+            "" if context.response_goal in ("CONFIRM_AVAILABLE", "RESPOND_UNAVAILABLE")
             else _build_requested_preferences_line(context)
         ),
         "prohibited_claims_line": (
-            "" if context.response_goal == "CONFIRM_AVAILABLE"
+            "" if context.response_goal in ("CONFIRM_AVAILABLE", "RESPOND_UNAVAILABLE")
             else _build_prohibited_claims_line(context)
         ),
         # RESP-007: phrase guidance — approved opening phrase for the current goal
