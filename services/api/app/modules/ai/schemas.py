@@ -157,6 +157,8 @@ class DraftGenerationResult:
     is_fallback: bool               # True when generated without an LLM call
     model: str                      # Model name or "fallback"
     ai_context: AIContextOut | None = field(default=None)
+    # AUTO-002: draft review lifecycle state (None when evaluation was not performed)
+    review_state: "DraftReviewState | None" = field(default=None)
 
 
 # ── API response schemas (Pydantic) ───────────────────────────────────────────

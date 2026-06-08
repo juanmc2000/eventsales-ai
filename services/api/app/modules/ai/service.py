@@ -155,6 +155,8 @@ class DraftGenerationService:
 
         # ── RESP-003: Load response preparation plan for goal-driven drafting ─
         context = _enrich_context_from_response_plan(self._db, enquiry_id, context)
+        # AUTO-002: capture date_status from response plan for auto-send gate
+        _plan_date_status: str = _load_date_status_from_plan(self._db, enquiry_id)
 
         # ── RESP-023: Deterministic RESPOND_UNAVAILABLE path — bypass LLM ──────
         if context.response_goal == "RESPOND_UNAVAILABLE":
@@ -169,6 +171,16 @@ class DraftGenerationService:
 
         # Build input_payload for the draft_response prompt template
         input_payload = _build_draft_input_payload(context)
+
+        # ── AUTO-002: lazy imports for review state computation ──────────────
+        from app.modules.ai.draft_compliance_validator import (  # noqa: PLC0415
+            DraftComplianceValidator, ValidationContext,
+        )
+        from app.modules.ai.auto_send_readiness_gate import AutoSendReadinessGate  # noqa: PLC0415
+        from app.modules.ai.draft_review_state import (  # noqa: PLC0415
+            DraftReviewStateService, DraftReviewState, HUMAN_REVIEW_REQUIRED,
+        )
+
 
         # ── RESP-021: Context integrity check before LLM2 ─────────────────────
         integrity_result = _check_context_integrity(context, snapshot)
@@ -205,6 +217,14 @@ class DraftGenerationService:
                 },
             )
             self._db.commit()
+            # AUTO-002: integrity failure → human review required
+            _integrity_review = DraftReviewState(
+                status=HUMAN_REVIEW_REQUIRED,
+                auto_send_allowed=False,
+                blockers=[f"Context integrity check failed: {'; '.join(integrity_result.violations or ['unknown'])}"],
+                validation_passed=True,
+                auto_send_blockers=[f"Context integrity check failed: {'; '.join(integrity_result.violations or ['unknown'])}"],
+            )
             return DraftGenerationResult(
                 enquiry_id=enquiry_id,
                 message_id=message.id,
@@ -214,6 +234,7 @@ class DraftGenerationService:
                 is_fallback=True,
                 model="fallback",
                 ai_context=ai_context,
+                review_state=_integrity_review,
             )
 
         # ── Call AI Gateway (single entry point for all LLM calls) ────────────
@@ -269,6 +290,27 @@ class DraftGenerationService:
         )
         self._db.commit()
 
+        # AUTO-002: compute review state for the LLM-generated draft
+        _compliance = DraftComplianceValidator.validate(
+            draft_text=draft_body,
+            context=ValidationContext(
+                availability_contract=_availability_status_to_contract(context.availability_status),
+                response_goal=context.response_goal or "",
+                confirmed_minimum_spend=context.confirmed_minimum_spend,
+            ),
+        )
+        _date_status = _plan_date_status or "unknown"
+        _readiness = AutoSendReadinessGate.evaluate(
+            response_goal=context.response_goal or "",
+            draft_compliance_result=_compliance,
+            date_status=_date_status,
+            integrity_result=integrity_result,
+        )
+        _review_state = DraftReviewStateService.evaluate(
+            compliance_result=_compliance,
+            readiness_result=_readiness,
+        )
+
         return DraftGenerationResult(
             enquiry_id=enquiry_id,
             message_id=message.id,
@@ -278,6 +320,7 @@ class DraftGenerationService:
             is_fallback=is_fallback,
             model=model_name,
             ai_context=ai_context,
+            review_state=_review_state,
         )
 
     def _generate_deterministic_unavailable_draft(
@@ -778,6 +821,38 @@ try:
     from app.modules.enquiries.response_context_integrity_gate import IntegrityCheckResult  # noqa: F401
 except ImportError:  # pragma: no cover
     pass
+
+
+def _load_date_status_from_plan(db: Session, enquiry_id: uuid.UUID) -> str:
+    """Return the date resolution status string from the latest response plan.
+
+    Falls back to "unknown" when no plan exists or the plan has no date_context.
+    """
+    try:
+        from app.modules.enquiries.repository import ResponsePlanRepository  # noqa: PLC0415
+        plan = ResponsePlanRepository(db).get_latest(enquiry_id)
+        if plan is None:
+            return "unknown"
+        date_ctx = getattr(plan, "date_context", None)
+        if isinstance(date_ctx, dict):
+            return str(date_ctx.get("status", "unknown") or "unknown")
+    except Exception:  # pragma: no cover  pylint: disable=broad-except
+        pass
+    return "unknown"
+
+
+def _availability_status_to_contract(status: str | None) -> str:
+    """Map DraftContext.availability_status to the ValidationContext availability_contract.
+
+    DraftContext uses lower-case room-availability table values.
+    ValidationContext uses the five-state V4 contract codes.
+    """
+    if status == "available":
+        return "CONFIRMED_AVAILABLE"
+    if status in ("booked", "held", "unavailable"):
+        return "CONFIRMED_UNAVAILABLE"
+    return "NOT_CHECKED"
+
 
 
 def _build_approved_copy_blocks_line(context: DraftContext) -> str:
