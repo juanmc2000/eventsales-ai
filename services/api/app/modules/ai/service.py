@@ -311,6 +311,18 @@ class DraftGenerationService:
             readiness_result=_readiness,
         )
 
+        # AUTO-004: persist review state to message record
+        _llm_review_meta = {
+            "review_state": _review_state.status,
+            "validation_status": "passed" if _review_state.validation_passed else "failed",
+            "validation_blockers": _review_state.validation_violations,
+            "auto_send_allowed": _review_state.auto_send_allowed,
+            "auto_send_blockers": _review_state.auto_send_blockers,
+            "generation_path": "llm",
+        }
+        self._enquiry_repo.update_message_review_metadata(message.id, _llm_review_meta)
+        self._db.commit()
+
         return DraftGenerationResult(
             enquiry_id=enquiry_id,
             message_id=message.id,
@@ -380,6 +392,8 @@ class DraftGenerationService:
                 "sent_at": None,
             },
         )
+        # AUTO-004: persist review metadata before commit (message already flushed)
+        # Build a partial dict here; full state added after review_state is computed below
         self._db.commit()
 
         logger.info(
@@ -418,6 +432,18 @@ class DraftGenerationService:
             compliance_result=_det_compliance,
             readiness_result=_det_readiness,
         )
+
+        # AUTO-004: persist review state to message record
+        _det_review_meta = {
+            "review_state": _det_review_state.status,
+            "validation_status": "passed" if _det_review_state.validation_passed else "failed",
+            "validation_blockers": _det_review_state.validation_violations,
+            "auto_send_allowed": _det_review_state.auto_send_allowed,
+            "auto_send_blockers": _det_review_state.auto_send_blockers,
+            "generation_path": "deterministic",
+        }
+        self._enquiry_repo.update_message_review_metadata(message.id, _det_review_meta)
+        self._db.commit()
 
         return DraftGenerationResult(
             enquiry_id=enquiry_id,
