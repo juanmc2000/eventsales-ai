@@ -330,22 +330,26 @@ class DraftComplianceValidator:
         context: ValidationContext,
         violations: list[str],
     ) -> None:
-        """Fail if the draft states a specific time that came from an unconfirmed guest preference."""
+        """RESP-035: Fail if the draft mentions any time from an unconfirmed guest preference.
+
+        Any mention of a prohibited time — not just confirming phrases — is a
+        violation.  Prohibited times are extracted from the guest message and
+        represent unconfirmed preferences; they must not appear anywhere in the
+        generated response.
+
+        Confirmed venue times will not be in prohibited_times, so they are
+        unaffected by this check.
+        """
         if not context.prohibited_times:
             return
         for time_str in context.prohibited_times:
-            # Normalise: strip whitespace, lowercase for comparison
-            time_norm = time_str.strip().lower()
-            # Check if the draft uses a phrase that confirms the time
-            confirm_time_pattern = re.compile(
-                r"(?:at|from|starting\s+at|beginning\s+at|for)\s+"
-                + re.escape(time_norm),
-                re.IGNORECASE,
-            )
-            if confirm_time_pattern.search(text.lower()):
+            time_norm = time_str.strip()
+            any_mention_pattern = re.compile(re.escape(time_norm), re.IGNORECASE)
+            if any_mention_pattern.search(text):
                 violations.append(
-                    f"Draft appears to confirm the time '{time_str}' as agreed, but this "
-                    "time came from the guest message and has not been confirmed by the venue."
+                    f"Draft mentions the time '{time_str}', which is an unconfirmed guest "
+                    "preference. Unconfirmed times must not appear anywhere in the response — "
+                    "not even as a preference echo or soft reference."
                 )
                 return
 

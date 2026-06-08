@@ -307,11 +307,13 @@ class TestUnconfirmedTimeCategory:
         assert not result.passed
         assert any("7pm" in v or "time" in v.lower() for v in result.violations)
 
-    def test_mentioned_not_confirmed_passes(self, scenarios: list[dict]) -> None:
+    def test_preference_echo_fails_resp035(self, scenarios: list[dict]) -> None:
+        # RESP-035: soft preference echoes ("you mentioned 7pm") are now violations
         tc = next(sc for sc in scenarios if sc["id"] == "tc_017")
         ctx = _context_from_scenario(tc)
         result = DraftComplianceValidator.validate(tc["draft_text"], ctx)
-        assert result.passed
+        assert not result.passed
+        assert any("7pm" in v for v in result.violations)
 
 
 class TestFakeUrlCategory:

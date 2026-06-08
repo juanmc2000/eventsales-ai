@@ -169,11 +169,12 @@ class TestUnconfirmedTimes:
         assert result.passed is False
         assert any("7:30pm" in v for v in result.violations)
 
-    def test_pass_when_time_just_mentioned_not_confirmed(self) -> None:
-        # "you mentioned 7pm" is not the same as "confirmed at 7pm"
+    def test_fail_when_time_mentioned_even_as_preference_echo(self) -> None:
+        # RESP-035: any mention of a prohibited time fails, including soft echoes
         draft = "You mentioned 7pm as a preference — I'll note this for when we check availability."
         result = _validate(draft, prohibited_times=["7pm"])
-        assert result.passed is True
+        assert result.passed is False
+        assert any("7pm" in v for v in result.violations)
 
 
 # ── Spend soft language ────────────────────────────────────────────────────────
