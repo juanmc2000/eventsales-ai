@@ -595,6 +595,62 @@ def _seed_demand_events(db: Session, restaurant_id: uuid.UUID, rng: random.Rando
     db.flush()
 
 
+def _seed_policy_faqs(db: Session, restaurants: list[Any]) -> None:
+    """Seed 20 policy FAQ defaults for each restaurant (DATA-021).
+
+    All FAQs are idempotent: existing rows for the same restaurant+question_key
+    are skipped.
+    """
+    from sqlalchemy import select
+    from app.modules.restaurants.models import RestaurantPolicyFAQ
+
+    # POC defaults — 20 supported question types
+    POLICY_DEFAULTS = [
+        {"question_key": "cake_allowed",              "answer_policy": "allowed",           "answer_text": "Yes, you are welcome to bring your own celebration cake."},
+        {"question_key": "candles_allowed",           "answer_policy": "allowed",           "answer_text": "Birthday candles are permitted."},
+        {"question_key": "decorations_allowed",       "answer_policy": "approval_required", "answer_text": None},
+        {"question_key": "balloons_allowed",          "answer_policy": "approval_required", "answer_text": None},
+        {"question_key": "flowers_allowed",           "answer_policy": "allowed",           "answer_text": "Floral arrangements are welcome."},
+        {"question_key": "external_performer_allowed","answer_policy": "approval_required", "answer_text": None},
+        {"question_key": "live_music_allowed",        "answer_policy": "approval_required", "answer_text": None},
+        {"question_key": "dj_allowed",                "answer_policy": "approval_required", "answer_text": None},
+        {"question_key": "microphone_available",      "answer_policy": "information_only",  "answer_text": "A handheld microphone is available upon request."},
+        {"question_key": "screen_available",          "answer_policy": "information_only",  "answer_text": "A presentation screen and HDMI connection are available."},
+        {"question_key": "av_available",              "answer_policy": "information_only",  "answer_text": "AV equipment including screen, microphone, and HDMI is available."},
+        {"question_key": "private_room_available",    "answer_policy": "information_only",  "answer_text": "Private dining rooms are available — capacity depends on the room selected."},
+        {"question_key": "room_capacity",             "answer_policy": "information_only",  "answer_text": "Room capacity varies; please confirm your guest count for a suitable recommendation."},
+        {"question_key": "disabled_access",           "answer_policy": "information_only",  "answer_text": "The venue has step-free access and accessible facilities."},
+        {"question_key": "children_allowed",          "answer_policy": "allowed",           "answer_text": "Children are welcome at our venue."},
+        {"question_key": "pets_allowed",              "answer_policy": "not_allowed",       "answer_text": "Unfortunately, we are unable to accommodate pets."},
+        {"question_key": "minimum_spend",             "answer_policy": "information_only",  "answer_text": "Minimum spend requirements vary by room and time; our events team will advise."},
+        {"question_key": "room_hire",                 "answer_policy": "information_only",  "answer_text": "Room hire fees may apply depending on the event and day of week."},
+        {"question_key": "service_charge",            "answer_policy": "information_only",  "answer_text": "A discretionary service charge of 12.5% is added to the final bill."},
+        {"question_key": "agency_commission",         "answer_policy": "approval_required", "answer_text": None},
+    ]
+
+    for restaurant in restaurants:
+        for policy in POLICY_DEFAULTS:
+            # Idempotent: skip if already exists
+            existing = db.scalars(
+                select(RestaurantPolicyFAQ)
+                .where(RestaurantPolicyFAQ.restaurant_id == restaurant.id)
+                .where(RestaurantPolicyFAQ.question_key == policy["question_key"])
+            ).first()
+            if existing:
+                continue
+            faq = RestaurantPolicyFAQ(
+                id=uuid.uuid4(),
+                tenant_id=getattr(restaurant, "tenant_id", "default"),
+                restaurant_id=restaurant.id,
+                question_key=policy["question_key"],
+                answer_policy=policy["answer_policy"],
+                answer_text=policy["answer_text"],
+                requires_human_review=policy["answer_policy"] == "approval_required",
+                is_active=True,
+            )
+            db.add(faq)
+
+
 def _seed_enquiries(
     db: Session,
     restaurants: list[Any],
@@ -745,10 +801,18 @@ def run_seed(db: Session, seed: int = 42) -> dict[str, int]:
     # 7. Enquiries
     _seed_enquiries(db, restaurants, personas, rng)
 
+    # 8. Policy FAQs (DATA-021) — 20 question types per restaurant
+    _seed_policy_faqs(db, restaurants)
+
     db.commit()
 
     # Return summary for logging
-    from app.modules.restaurants.models import Restaurant, Room, RoomAvailability
+    from app.modules.restaurants.models import (
+        Restaurant,
+        Room,
+        RoomAvailability,
+        RestaurantPolicyFAQ,
+    )
     from app.modules.personas.models import Persona, RestaurantPersona
     from app.modules.pricing.models import PricingRule
     from app.modules.enquiries.models import Enquiry, EnquiryMessage
@@ -764,4 +828,5 @@ def run_seed(db: Session, seed: int = 42) -> dict[str, int]:
         "demand_events": db.query(DemandEvent).count(),
         "enquiries": db.query(Enquiry).count(),
         "enquiry_messages": db.query(EnquiryMessage).count(),
+        "restaurant_policy_faqs": db.query(RestaurantPolicyFAQ).count(),
     }

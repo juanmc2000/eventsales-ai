@@ -1021,7 +1021,7 @@ _ENQUIRY_EXTRACTION_V4 = PromptDefinition(
 _ENQUIRY_EXTRACTION_V5 = PromptDefinition(
     key=PROMPT_KEY_ENQUIRY_EXTRACTION,
     version=5,
-    status=VERSION_STATUS_ACTIVE,
+    status=VERSION_STATUS_ARCHIVED,
     category=CATEGORY_INTAKE,
     name="Enquiry Extraction",
     goal="Extract structured enquiry facts with audience evidence fields for deterministic classification.",
@@ -1161,7 +1161,174 @@ _ENQUIRY_EXTRACTION_V5 = PromptDefinition(
         "audience_conflict_notes to the extraction schema. "
         "audience_type retained for backward compatibility. "
         "max_tokens increased to 1400 to accommodate additional audience fields. "
-        "V4 archived. Schema version bumped to 5.0."
+        "V4 archived. Schema version bumped to 5.0. "
+        "Archived in AI-021 — replaced by V6 (policy question extraction)."
+    ),
+)
+
+_ENQUIRY_EXTRACTION_V6 = PromptDefinition(
+    key=PROMPT_KEY_ENQUIRY_EXTRACTION,
+    version=6,
+    status=VERSION_STATUS_ACTIVE,
+    category=CATEGORY_INTAKE,
+    name="Enquiry Extraction",
+    goal=(
+        "Extract structured enquiry facts plus customer policy questions. "
+        "Policy questions are extracted as references only — the LLM must not answer them."
+    ),
+    system_template=(
+        "You are a structured data extraction specialist for {restaurant_name}, a hospitality venue.\n"
+        "Your ONLY task is to extract factual details from the guest's freeform enquiry text.\n\n"
+        "CRITICAL RULES — follow these exactly with no exceptions:\n"
+        "- Extract facts only. Do NOT make pricing decisions.\n"
+        "- Do NOT check, infer, or calculate room availability.\n"
+        "- Do NOT write any customer-facing copy or draft a response.\n"
+        "- Do NOT suggest whether the booking should proceed.\n"
+        "- Do NOT expand flexible date requests into specific candidate dates.\n"
+        "  The backend will expand dates deterministically — your job is fact extraction only.\n"
+        "- Do NOT calculate availability across candidate dates.\n"
+        "- Do NOT choose or rank dates.\n\n"
+        "DATE CONTEXT RULES — extract ALL date information accurately:\n"
+        "- ALWAYS populate month and year whenever inferable from the guest message.\n"
+        "- ALWAYS populate date_range (start_date and end_date) when a range or window is described.\n"
+        "- ALWAYS populate weekdays list whenever the guest mentions specific days of the week.\n"
+        "  Examples: 'Saturdays in October', 'next Friday', 'Friday or Saturday evening'.\n"
+        "- ALWAYS populate relative_period (direction, unit, amount) when the guest uses\n"
+        "  relative time language ('next week', 'next month', 'in three weeks', 'this summer').\n"
+        "  Examples: 'next week' → direction=next, unit=week, amount=1;\n"
+        "  'in about three months' → direction=next, unit=month, amount=3.\n\n"
+        "AUDIENCE EVIDENCE RULES — extract signals that support audience classification:\n"
+        "- audience_type: retain the direct label from the message if stated (social|corporate|agency|unknown).\n"
+        "- audience_type_from_content: classify based ONLY on message content and sender context.\n"
+        "  Do NOT use domain inference — that is done deterministically by the backend.\n"
+        "  Use: social (personal celebrations), corporate (business events), agency (venue-find/RFP language).\n"
+        "- audience_confidence: decimal 0.0–1.0 reflecting how clearly the content signals audience type.\n"
+        "- audience_evidence: list short, factual strings describing what in the message informed the type.\n"
+        "  Examples: 'guest mentions birthday', 'commission requested', 'on behalf of client',\n"
+        "  'corporate team dinner', 'RFP language', 'personal celebration'.\n"
+        "- audience_conflict_notes: if the message contains contradictory signals (e.g. personal occasion\n"
+        "  but commission request), describe the conflict briefly. Set to null if no conflict.\n\n"
+        "POLICY QUESTION EXTRACTION RULES (AI-021) — extract customer questions about venue policies:\n"
+        "- Identify any questions the guest asks about what is or is not permitted, available, or charged.\n"
+        "- Map each question to the nearest supported question_key from this list:\n"
+        "  cake_allowed, candles_allowed, decorations_allowed, balloons_allowed, flowers_allowed,\n"
+        "  external_performer_allowed, live_music_allowed, dj_allowed, microphone_available,\n"
+        "  screen_available, av_available, private_room_available, room_capacity,\n"
+        "  disabled_access, children_allowed, pets_allowed, minimum_spend, room_hire,\n"
+        "  service_charge, agency_commission.\n"
+        "- If the question cannot be mapped to a known key, use question_key='unknown'.\n"
+        "- Set scope_hint to 'room' if the question is clearly about a specific room,\n"
+        "  'restaurant' if clearly about the venue in general, or 'unknown' otherwise.\n"
+        "- CRITICAL: Do NOT answer policy questions. Do NOT infer or state venue policies.\n"
+        "  Extract the question reference only — the backend will look up the answer.\n"
+        "- If no policy questions are asked, return policy_questions as an empty array [].\n\n"
+        "NULL PLACEHOLDER CONVENTION — use these exactly:\n"
+        "- Missing string value: use the string \"NULL\" (not JSON null)\n"
+        "- Missing numeric value: use JSON null\n"
+        "- Missing object value: use JSON null\n"
+        "- Missing array value: use [] (empty array)\n"
+        "- Unknown enum value: use \"unknown\" where the schema permits it\n\n"
+        "schema_name: enquiry_extraction_output\n"
+        "schema_version: 6.0\n\n"
+        "Return ONLY a valid JSON object matching this exact structure.\n"
+        "No explanation. No preamble. No markdown fences. No trailing text.\n\n"
+        "{{\n"
+        "  \"customer_name\": \"<string or NULL>\",\n"
+        "  \"email\": \"<string or NULL>\",\n"
+        "  \"phone\": \"<string or NULL>\",\n"
+        "  \"event_type\": \"<string or NULL>\",\n"
+        "  \"occasion\": \"<string or NULL>\",\n"
+        "  \"date_request\": {{\n"
+        "    \"raw_text\": \"<exact date phrase from guest message, or NULL>\",\n"
+        "    \"date_request_type\": \"<exact|date_range|multiple_choice|month_flexible"
+        "|weekday_range_over_relative_period|recurring_window|mixed_relative_dates"
+        "|ambiguous_numeric_date|unknown>\",\n"
+        "    \"anchor_date\": \"<ISO 8601 date or null>\",\n"
+        "    \"timezone\": \"<timezone string or null>\",\n"
+        "    \"explicit_dates\": [\"<ISO 8601 date>\"],\n"
+        "    \"date_range\": {{\n"
+        "      \"start_date\": \"<ISO 8601 date — ALWAYS populate when a range or window is described>\",\n"
+        "      \"end_date\": \"<ISO 8601 date — ALWAYS populate when a range or window is described>\",\n"
+        "      \"flexibility_notes\": \"<string or null>\"\n"
+        "    }},\n"
+        "    \"relative_period\": {{\n"
+        "      \"amount\": \"<integer or null>\",\n"
+        "      \"unit\": \"<day|week|month|year or null>\",\n"
+        "      \"direction\": \"<next|last|this or null>\"\n"
+        "    }},\n"
+        "    \"weekdays\": [\"<monday|tuesday|wednesday|thursday|friday|saturday|sunday>\"],\n"
+        "    \"month\": \"<integer 1-12 — ALWAYS populate when month is inferable>\",\n"
+        "    \"year\": \"<integer — ALWAYS populate when year is inferable>\",\n"
+        "    \"ambiguous_dates\": [\n"
+        "      {{\n"
+        "        \"raw_value\": \"<string>\",\n"
+        "        \"possible_dates\": [\"<ISO 8601 date>\"],\n"
+        "        \"reason\": \"<string>\"\n"
+        "      }}\n"
+        "    ],\n"
+        "    \"requires_date_clarification\": false,\n"
+        "    \"clarification_question\": \"<string or null>\",\n"
+        "    \"confidence\": 0.9\n"
+        "  }},\n"
+        "  \"event_time\": \"<HH:MM or NULL>\",\n"
+        "  \"guest_count\": null,\n"
+        "  \"meal_period\": \"<lunch|dinner|unknown or NULL>\",\n"
+        "  \"budget\": {{\n"
+        "    \"amount\": null,\n"
+        "    \"currency\": \"<string or null>\",\n"
+        "    \"budget_type\": \"<total|per_head|null>\"\n"
+        "  }},\n"
+        "  \"preferred_room\": \"<string or NULL>\",\n"
+        "  \"special_requirements\": {{\n"
+        "    \"children\": null,\n"
+        "    \"pets\": null,\n"
+        "    \"disabled_access\": null,\n"
+        "    \"music\": null,\n"
+        "    \"microphone\": null,\n"
+        "    \"screen_or_tv\": null\n"
+        "  }},\n"
+        "  \"dietary_requirements\": [],\n"
+        "  \"customer_tone\": \"<formal|informal|casual|unknown>\",\n"
+        "  \"audience_type\": \"<social|corporate|agency|unknown>\",\n"
+        "  \"audience_type_from_content\": \"<social|corporate|agency|unknown>\",\n"
+        "  \"audience_confidence\": null,\n"
+        "  \"audience_evidence\": [],\n"
+        "  \"audience_conflict_notes\": \"<string or null>\",\n"
+        "  \"policy_questions\": [\n"
+        "    {{\n"
+        "      \"question_key\": \"<one of the 20 supported keys or unknown>\",\n"
+        "      \"raw_question\": \"<verbatim question from guest message>\",\n"
+        "      \"scope_hint\": \"<restaurant|room|unknown>\",\n"
+        "      \"confidence\": 0.0\n"
+        "    }}\n"
+        "  ],\n"
+        "  \"missing_fields\": [],\n"
+        "  \"confidence\": {{}},\n"
+        "  \"freeform_notes\": \"<string or NULL>\"\n"
+        "}}"
+    ),
+    user_template=(
+        "Extract structured enquiry details from the following freeform text.\n\n"
+        "Restaurant: {restaurant_name}\n\n"
+        "Guest message:\n{freeform_text}"
+    ),
+    required_variables=frozenset({
+        "restaurant_name",
+        "freeform_text",
+    }),
+    output_schema_name=SCHEMA_ENQUIRY_EXTRACTION_OUTPUT,
+    output_schema_version="6.0",
+    model_name=DEFAULT_DRAFT_MODEL,
+    max_tokens=1600,
+    temperature=0.05,
+    change_notes=(
+        "AI-021 — policy question extraction. "
+        "Adds policy_questions array to extraction schema. "
+        "LLM extracts question_key and raw_question for each policy question in the message. "
+        "LLM does NOT answer policy questions — answer lookup is done deterministically by "
+        "PolicyQuestionResolver (RESP-045). "
+        "max_tokens increased to 1600 to accommodate policy_questions array. "
+        "V5 archived. Schema version bumped to 6.0."
     ),
 )
 
@@ -1291,6 +1458,7 @@ _ALL_DEFINITIONS: list[PromptDefinition] = [
     _ENQUIRY_EXTRACTION_V3,
     _ENQUIRY_EXTRACTION_V4,
     _ENQUIRY_EXTRACTION_V5,
+    _ENQUIRY_EXTRACTION_V6,
     _MISSING_INFO_REQUEST_V1,
     _FOLLOW_UP_RESPONSE_V1,
     _AVAILABILITY_ALTERNATIVE_V1,

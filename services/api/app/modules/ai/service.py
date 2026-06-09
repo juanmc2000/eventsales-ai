@@ -1041,10 +1041,33 @@ def _build_approved_copy_blocks_line(context: DraftContext) -> str:
             blocks.append(("Next step", text))
 
     elif goal == "RESPOND_UNAVAILABLE":
-        text = FirstResponseCopyLibrary.render_safe(
-            "availability_unavailable",
-            {"meal_period": meal_period, "event_date": event_date},
-        )
+        # RESP-043: use alternative-date blocks when alternatives are confirmed available
+        alt_result = getattr(context, "alternative_date_result", None) or {}
+        alt_dates: list[str] = alt_result.get("alternative_dates", [])
+        if len(alt_dates) >= 2:
+            text = FirstResponseCopyLibrary.render_safe(
+                "unavailable_two_alternatives",
+                {
+                    "meal_period": meal_period,
+                    "requested_date": event_date,
+                    "alternative_date_1": alt_dates[0],
+                    "alternative_date_2": alt_dates[1],
+                },
+            )
+        elif len(alt_dates) == 1:
+            text = FirstResponseCopyLibrary.render_safe(
+                "unavailable_one_alternative",
+                {
+                    "meal_period": meal_period,
+                    "requested_date": event_date,
+                    "alternative_date": alt_dates[0],
+                },
+            )
+        else:
+            text = FirstResponseCopyLibrary.render_safe(
+                "unavailable_no_alternatives",
+                {"meal_period": meal_period, "requested_date": event_date},
+            )
         if text:
             blocks.append(("Opening statement", text))
 
@@ -1063,6 +1086,13 @@ def _build_approved_copy_blocks_line(context: DraftContext) -> str:
         text = FirstResponseCopyLibrary.render_safe("clarification_next_step")
         if text:
             blocks.append(("Next step", text))
+
+    # RESP-047: include policy answers when present
+    policy_result = getattr(context, "policy_answer_result", None) or {}
+    if policy_result.get("has_approved_answers"):
+        blocks.append(("Policy answers", policy_result["approved_answers_block"]))
+    if policy_result.get("has_review_required"):
+        blocks.append(("Questions pending team review", policy_result["review_required_block"]))
 
     # Always include signoff
     text = FirstResponseCopyLibrary.render_safe("signoff", {"persona_name": persona_name})

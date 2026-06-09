@@ -173,3 +173,110 @@ class RoomAvailability(Base):
     )
 
     room: Mapped["Room"] = relationship("Room", back_populates="availability")
+
+
+# ── Policy FAQ models (DATA-021) ───────────────────────────────────────────────
+
+# Supported answer_policy values
+ANSWER_POLICY_ALLOWED = "allowed"
+ANSWER_POLICY_NOT_ALLOWED = "not_allowed"
+ANSWER_POLICY_APPROVAL_REQUIRED = "approval_required"
+ANSWER_POLICY_INFORMATION_ONLY = "information_only"
+ANSWER_POLICY_UNKNOWN = "unknown"
+
+ALL_ANSWER_POLICIES = {
+    ANSWER_POLICY_ALLOWED,
+    ANSWER_POLICY_NOT_ALLOWED,
+    ANSWER_POLICY_APPROVAL_REQUIRED,
+    ANSWER_POLICY_INFORMATION_ONLY,
+    ANSWER_POLICY_UNKNOWN,
+}
+
+
+class RestaurantPolicyFAQ(Base):
+    """Restaurant-level policy FAQ entry (DATA-021).
+
+    Stores the restaurant's policy answer for a known question key.
+    Used by PolicyQuestionResolver to answer guest policy questions deterministically.
+    """
+
+    __tablename__ = "restaurant_policy_faqs"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tenant_id: Mapped[str] = mapped_column(
+        String(100), nullable=False, default="default", index=True
+    )
+    restaurant_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("restaurants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    # Canonical question key — one of the 20 supported types (AI-020)
+    question_key: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    # One of the ANSWER_POLICY_* constants
+    answer_policy: Mapped[str] = mapped_column(String(30), nullable=False)
+    # Human-readable answer text for information_only / allowed / not_allowed policies
+    answer_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # True when this question should always be escalated to a human
+    requires_human_review: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False
+    )
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+
+class RoomPolicyFAQ(Base):
+    """Room-level policy FAQ entry (DATA-021).
+
+    Room-specific answers override restaurant-level answers in PolicyQuestionResolver.
+    """
+
+    __tablename__ = "room_policy_faqs"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tenant_id: Mapped[str] = mapped_column(
+        String(100), nullable=False, default="default", index=True
+    )
+    restaurant_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("restaurants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    room_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("rooms.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    question_key: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    answer_policy: Mapped[str] = mapped_column(String(30), nullable=False)
+    answer_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    requires_human_review: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False
+    )
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+    room: Mapped["Room"] = relationship("Room")

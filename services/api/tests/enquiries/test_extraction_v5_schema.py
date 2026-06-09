@@ -23,16 +23,18 @@ from app.modules.ai.prompt_registry import PromptRegistry, _ALL_DEFINITIONS
 
 class TestV5IsActive:
     def test_active_extraction_prompt_is_v5(self):
+        # AI-021: V6 is now active; V5 is archived
         registry = PromptRegistry()
         defn = registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
-        assert defn.version == 5, (
-            f"Expected V5 to be the active extraction prompt, got V{defn.version}"
+        assert defn.version == 6, (
+            f"Expected V6 to be the active extraction prompt, got V{defn.version}"
         )
 
     def test_active_extraction_schema_version_is_5(self):
+        # AI-021: V6 uses schema_version 6.0
         registry = PromptRegistry()
         defn = registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
-        assert defn.output_schema_version == "5.0"
+        assert defn.output_schema_version == "6.0"
 
     def test_active_extraction_status_is_active(self):
         registry = PromptRegistry()
@@ -95,7 +97,8 @@ class TestV5SystemTemplateFields:
         assert "audience_conflict_notes" in v5_system_template
 
     def test_schema_version_declared_in_template(self, v5_system_template):
-        assert "schema_version: 5.0" in v5_system_template
+        # AI-021: active prompt is now V6
+        assert "schema_version: 6.0" in v5_system_template
 
     def test_audience_evidence_rules_section_present(self, v5_system_template):
         assert "AUDIENCE EVIDENCE RULES" in v5_system_template
@@ -109,31 +112,35 @@ class TestV5SystemTemplateFields:
 
 class TestV5SchemaVersion:
     def test_v5_output_schema_version_is_5(self):
+        # AI-021: active prompt is now V6 with schema_version 6.0
         registry = PromptRegistry()
         defn = registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
-        assert defn.output_schema_version == "5.0"
+        assert defn.output_schema_version == "6.0"
 
     def test_v5_change_notes_mention_audience_fields(self):
+        # AI-021: V6 change notes reference policy question extraction
         registry = PromptRegistry()
         defn = registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
-        assert "audience" in defn.change_notes.lower()
-        assert "CUST-003" in defn.change_notes
+        assert "policy" in defn.change_notes.lower()
+        assert "AI-021" in defn.change_notes
 
 
 # ── Older versions still registered ──────────────────────────────────────────
 
 
 class TestOlderVersionsRetained:
-    def test_all_versions_1_to_5_present_in_registry(self):
+    def test_all_versions_1_to_6_present_in_registry(self):
+        # AI-021: V6 added; versions 1–6 must all be registered
         extraction_versions = [
             d.version for d in _ALL_DEFINITIONS
             if d.key == PROMPT_KEY_ENQUIRY_EXTRACTION
         ]
-        for v in range(1, 6):
+        for v in range(1, 7):
             assert v in extraction_versions, f"V{v} missing from extraction registry"
 
-    def test_v1_v2_v3_v4_are_archived(self):
-        for v in range(1, 5):
+    def test_v1_v2_v3_v4_v5_are_archived(self):
+        # AI-021: V5 archived when V6 became active
+        for v in range(1, 6):
             defn = next(
                 (d for d in _ALL_DEFINITIONS
                  if d.key == PROMPT_KEY_ENQUIRY_EXTRACTION and d.version == v),

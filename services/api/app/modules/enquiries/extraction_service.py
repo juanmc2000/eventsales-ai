@@ -221,6 +221,9 @@ class EnquiryExtractionService:
             # ENQ-004: run readiness evaluation and store result in normalized_json
             _readiness = EnquiryReadinessEvaluator().evaluate(parsed)
             normalized["readiness_evaluation"] = _readiness.to_dict()
+            # AI-020: ensure policy_questions is always a list (default empty)
+            if "policy_questions" not in normalized or normalized["policy_questions"] is None:
+                normalized["policy_questions"] = []
 
         try:
             if EnquiryExtraction is None:  # DATA-015 not yet applied

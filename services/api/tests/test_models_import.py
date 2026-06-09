@@ -56,6 +56,13 @@ def test_all_tables_in_metadata() -> None:
         "ai_prompt_experiments",
         "ai_prompt_experiment_runs",
         "ai_training_examples",
+        # DATA-020: phrase library tables
+        "response_phrase_templates",
+        "response_phrase_versions",
+        "response_phrase_assignments",
+        # DATA-021: policy FAQ tables
+        "restaurant_policy_faqs",
+        "room_policy_faqs",
     }
     actual_tables = set(Base.metadata.tables.keys())
     assert expected_tables == actual_tables, (
