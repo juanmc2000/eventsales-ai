@@ -254,148 +254,150 @@
       }
     },
     {
-      "id": "fs1_008",
+      "id": "ca_hard_001",
       "availability_ref": "av_003",
-      "category": "compliance_pass",
-      "description": "Clean CONFIRM_AVAILABLE \u2014 corporate, resolved_with_confirmation",
+      "category": "confirm_available_menu_fail",
+      "description": "CONFIRM_AVAILABLE \u2014 menu discussion in draft (should fail)",
       "response_goal": "CONFIRM_AVAILABLE",
       "availability_contract": "CONFIRMED_AVAILABLE",
-      "date_status": "resolved_with_confirmation",
-      "customer_type": "corporate",
+      "date_status": "resolved",
+      "customer_type": "social",
       "context_restaurant_name": "The Ivy Tower Bridge",
       "context_room_name": "Garden Room",
       "availability_restaurant_name": "The Ivy Tower Bridge",
       "availability_room_name": "Garden Room",
-      "draft_text": "Dear Robert, I can confirm that the Garden Room is available for your board dinner on the evening of Tuesday 14 July 2026. The minimum spend for the private room is \u00a31,500. To proceed, please complete our booking form. Best regards, Eleanor",
+      "draft_text": "Dear Robert, thank you for your enquiry. I am pleased to confirm that our Garden Room is available on the evening of Saturday 27 June 2026. We would love to discuss menu options and food choices to suit your group. The minimum spend is \u00a31,500. Please reply to proceed. Best regards, Eleanor",
       "context": {
         "clarification_questions": [],
         "confirmed_minimum_spend": 1500,
-        "party_size": 18,
+        "party_size": 20,
         "prohibited_times": [],
         "allow_menu_discussion": false,
         "allow_special_touches": false,
         "allow_call_scheduling": false
       },
       "expected": {
-        "compliance_passed": true,
+        "compliance_passed": false,
         "integrity_passed": true,
-        "ready_to_send_allowed": true
+        "ready_to_send_allowed": false
       }
     },
     {
-      "id": "fs1_009",
-      "availability_ref": "av_007",
-      "category": "compliance_pass",
-      "description": "Clean CONFIRM_AVAILABLE \u2014 social, Quaglino's",
+      "id": "ca_hard_002",
+      "availability_ref": "av_001",
+      "category": "confirm_available_special_touches_fail",
+      "description": "CONFIRM_AVAILABLE \u2014 special touches in draft (should fail)",
       "response_goal": "CONFIRM_AVAILABLE",
       "availability_contract": "CONFIRMED_AVAILABLE",
       "date_status": "resolved",
       "customer_type": "social",
-      "context_restaurant_name": "Quaglino's",
-      "context_room_name": "Terrace Room",
-      "availability_restaurant_name": "Quaglino's",
-      "availability_room_name": "Terrace Room",
-      "draft_text": "Dear Hannah, thank you for your message. I am pleased to confirm that our Terrace Room is available on the evening of Saturday 12 July 2026 for your group. Please complete the booking form to proceed. Warm regards, Victoria",
-      "context": {
-        "clarification_questions": [],
-        "confirmed_minimum_spend": null,
-        "party_size": 25,
-        "prohibited_times": [],
-        "allow_menu_discussion": false,
-        "allow_special_touches": false,
-        "allow_call_scheduling": false
-      },
-      "expected": {
-        "compliance_passed": true,
-        "integrity_passed": true,
-        "ready_to_send_allowed": true
-      }
-    },
-    {
-      "id": "fs1_010",
-      "availability_ref": "av_001",
-      "category": "compliance_pass",
-      "description": "Clean CONFIRM_AVAILABLE \u2014 agency, no spend needed",
-      "response_goal": "CONFIRM_AVAILABLE",
-      "availability_contract": "CONFIRMED_AVAILABLE",
-      "date_status": "resolved",
-      "customer_type": "agency",
       "context_restaurant_name": "The Ivy Tower Bridge",
       "context_room_name": "Private Dining Room",
       "availability_restaurant_name": "The Ivy Tower Bridge",
       "availability_room_name": "Private Dining Room",
-      "draft_text": "Dear Lucy, thank you for your enquiry on behalf of your client. I am pleased to confirm that the Private Dining Room is available on the evening of Friday 19 June 2026. Please complete our booking form to proceed. Kind regards, Eleanor",
+      "draft_text": "Dear Emily, I am delighted to confirm that the Private Dining Room is available on the evening of Friday 3 July 2026 for your birthday dinner. We can also arrange special touches to make the evening truly memorable. Please reply to this email to confirm you would like to proceed. Warm regards, Eleanor",
       "context": {
         "clarification_questions": [],
         "confirmed_minimum_spend": null,
-        "party_size": 10,
+        "party_size": 12,
         "prohibited_times": [],
         "allow_menu_discussion": false,
         "allow_special_touches": false,
         "allow_call_scheduling": false
       },
       "expected": {
-        "compliance_passed": true,
+        "compliance_passed": false,
         "integrity_passed": true,
-        "ready_to_send_allowed": true
+        "ready_to_send_allowed": false
       }
     },
     {
-      "id": "fs1_011",
+      "id": "ca_hard_003",
       "availability_ref": "av_004",
-      "category": "compliance_pass",
-      "description": "Clean CONFIRM_AVAILABLE \u2014 social, with spend and party",
+      "category": "confirm_available_booking_form_fail",
+      "description": "CONFIRM_AVAILABLE \u2014 invented placeholder booking form link (should fail)",
       "response_goal": "CONFIRM_AVAILABLE",
       "availability_contract": "CONFIRMED_AVAILABLE",
       "date_status": "resolved",
-      "customer_type": "social",
+      "customer_type": "corporate",
       "context_restaurant_name": "Scott's Mayfair",
       "context_room_name": "Ivory Room",
       "availability_restaurant_name": "Scott's Mayfair",
       "availability_room_name": "Ivory Room",
-      "draft_text": "Dear Olivia, thank you for your enquiry. I am pleased to confirm that our Ivory Room is available on Sunday 19 July 2026. The minimum spend is \u00a32,000 for the evening. Please complete the booking form and I will follow up with all the details. Warm regards, Thomas",
+      "draft_text": "Dear James, thank you for your enquiry. I am pleased to confirm that the Ivory Room is available on Thursday 9 July 2026. The minimum spend is \u00a32,200. Please click here to book or fill in [booking form url] to confirm. Best regards, Thomas",
       "context": {
         "clarification_questions": [],
-        "confirmed_minimum_spend": 2000,
-        "party_size": 22,
+        "confirmed_minimum_spend": 2200,
+        "party_size": 24,
         "prohibited_times": [],
         "allow_menu_discussion": false,
         "allow_special_touches": false,
         "allow_call_scheduling": false
       },
       "expected": {
-        "compliance_passed": true,
+        "compliance_passed": false,
         "integrity_passed": true,
-        "ready_to_send_allowed": true
+        "ready_to_send_allowed": false
       }
     },
     {
-      "id": "fs1_012",
+      "id": "ca_hard_004",
       "availability_ref": "av_007",
-      "category": "compliance_pass",
-      "description": "Clean CONFIRM_AVAILABLE \u2014 corporate, Quaglino's",
+      "category": "confirm_available_section_labels_fail",
+      "description": "CONFIRM_AVAILABLE \u2014 internal section labels leaked into draft (should fail)",
       "response_goal": "CONFIRM_AVAILABLE",
       "availability_contract": "CONFIRMED_AVAILABLE",
-      "date_status": "resolved_with_confirmation",
-      "customer_type": "corporate",
+      "date_status": "resolved",
+      "customer_type": "agency",
       "context_restaurant_name": "Quaglino's",
       "context_room_name": "Terrace Room",
       "availability_restaurant_name": "Quaglino's",
       "availability_room_name": "Terrace Room",
-      "draft_text": "Dear Daniel, thank you for your enquiry. I am pleased to confirm that the Terrace Room is available on the evening of Wednesday 8 July 2026 for your corporate event. The minimum spend is \u00a32,800. Please complete our booking form to proceed. Best regards, Victoria",
+      "draft_text": "**Opening**\nDear Sarah, thank you for your enquiry.\n\n**Availability confirmation**\nI am pleased to confirm that the Terrace Room is available on Saturday 18 July 2026.\n\n**Booking next step**\nPlease reply to this email to confirm you would like to proceed.\n\n**Sign-off**\nKind regards, Victoria",
       "context": {
         "clarification_questions": [],
-        "confirmed_minimum_spend": 2800,
-        "party_size": 28,
+        "confirmed_minimum_spend": null,
+        "party_size": 30,
         "prohibited_times": [],
         "allow_menu_discussion": false,
         "allow_special_touches": false,
         "allow_call_scheduling": false
       },
       "expected": {
-        "compliance_passed": true,
+        "compliance_passed": false,
         "integrity_passed": true,
-        "ready_to_send_allowed": true
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "ca_hard_005",
+      "availability_ref": "av_001",
+      "category": "confirm_available_unconfirmed_time_fail",
+      "description": "CONFIRM_AVAILABLE \u2014 unconfirmed time echoed from guest message (should fail)",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear Alice, thank you for your enquiry. I am pleased to confirm that the Private Dining Room is available on the evening of Saturday 11 July 2026. I can confirm your booking starting at 7pm as requested. The minimum spend is \u00a31,200. Please reply to this email to confirm you would like to proceed. Warm regards, Eleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": 1200,
+        "party_size": 14,
+        "prohibited_times": [
+          "7pm"
+        ],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
       }
     },
     {

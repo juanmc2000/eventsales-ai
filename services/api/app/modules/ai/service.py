@@ -169,6 +169,17 @@ class DraftGenerationService:
                 guest_message=guest_message,
             )
 
+        # ── RESP-038: Deterministic CONFIRM_AVAILABLE path ────────────────────
+        if context.response_goal == "CONFIRM_AVAILABLE":
+            return self._generate_deterministic_confirm_available_draft(
+                enquiry_id=enquiry_id,
+                enquiry=enquiry,
+                context=context,
+                persona_name=persona_name,
+                recommended_minimum_spend=recommended_minimum_spend,
+                guest_message=guest_message,
+            )
+
         # Build input_payload for the draft_response prompt template
         input_payload = _build_draft_input_payload(context)
 
@@ -398,6 +409,139 @@ class DraftGenerationService:
             ai_context=ai_context,
         )
 
+    def _generate_deterministic_confirm_available_draft(
+        self,
+        enquiry_id: uuid.UUID,
+        enquiry,
+        context: "DraftContext",
+        persona_name: str,
+        recommended_minimum_spend: float | None,
+        guest_message: str | None,
+    ) -> "DraftGenerationResult":
+        """RESP-038: Build a CONFIRM_AVAILABLE draft from approved copy blocks + optional warmth.
+
+        Structure:
+          Dear {guest_name},
+
+          [availability_confirmed block]
+          [optional warmth sentence — LLM, max 1 sentence, max 20 words (RESP-039)]
+          [minimum_spend block — if applicable]
+          [confirm_available_next_step block]
+
+          [signoff block]
+
+        RESP-039: LLM produces only one optional warmth sentence.
+        RESP-041: Raw guest message is NOT passed to the warmth LLM — only structured
+                  tone context (occasion, audience type, party size, meal period).
+        RESP-040: Warmth sentence is validated; silently dropped on any failure.
+
+        Model is reported as "deterministic+warmth" when warmth LLM call succeeds,
+        otherwise "deterministic".
+        """
+        from app.modules.ai.first_response_copy_library import (  # noqa: PLC0415
+            FirstResponseCopyLibrary,
+        )
+        from app.modules.ai.confirm_available_warmth_validator import (  # noqa: PLC0415
+            WarmthSentenceValidator,
+        )
+
+        meal_period = context.availability_meal_period or "dinner"
+        event_date = context.availability_date or context.event_date or "the requested date"
+        guest_name = context.guest_first_name or "there"
+
+        opening = FirstResponseCopyLibrary.render(
+            "availability_confirmed",
+            {"meal_period": meal_period, "event_date": event_date},
+        )
+        next_step = FirstResponseCopyLibrary.render("confirm_available_next_step")
+        signoff = FirstResponseCopyLibrary.render(
+            "signoff",
+            {"persona_name": persona_name},
+        )
+
+        # RESP-039 / RESP-041: optional LLM warmth sentence — structured context only,
+        # no raw guest message
+        warmth_sentence: str | None = None
+        warmth_model = "deterministic"
+        warmth_sentence_raw = _generate_warmth_sentence(
+            api_key=settings.anthropic_api_key or "",
+            occasion=context.event_type,
+            audience_type=context.audience_type,
+            party_size=context.party_size,
+            meal_period=meal_period,
+        )
+        if warmth_sentence_raw:
+            validation = WarmthSentenceValidator.validate(warmth_sentence_raw)
+            if validation.passed:
+                warmth_sentence = warmth_sentence_raw
+                warmth_model = "deterministic+warmth"
+            else:
+                logger.info(
+                    "RESP-040: Warmth sentence dropped for enquiry %s — %s",
+                    enquiry_id,
+                    validation.violation_code,
+                )
+
+        # Assemble body from deterministic blocks
+        body_parts: list[str] = [f"Dear {guest_name},", "", opening]
+        if warmth_sentence:
+            body_parts.append(warmth_sentence)
+
+        spend = context.confirmed_minimum_spend or recommended_minimum_spend
+        if spend and spend > 0:
+            spend_block = FirstResponseCopyLibrary.render(
+                "minimum_spend", {"spend_amount": f"£{spend:,.0f}"}
+            )
+            body_parts.extend(["", spend_block])
+
+        body_parts.extend(["", next_step, "", signoff])
+        draft_body = "\n".join(body_parts)
+
+        ai_context = AIContextOut(
+            model=warmth_model,
+            is_fallback=False,
+            persona_name=persona_name,
+            persona_tone=context.persona_tone,
+            persona_style=context.persona_style,
+            guest_message_used=None,  # RESP-041: raw guest message not passed to LLM
+            room_name=context.room_name,
+            recommended_minimum_spend=recommended_minimum_spend,
+            system_prompt=None,
+            user_message=None,
+            prompt_run_id=None,
+        )
+
+        subject = _build_subject(enquiry.first_name, enquiry.last_name, enquiry.event_type)
+        message = self._enquiry_repo.add_message(
+            enquiry_id,
+            {
+                "direction": "outbound",
+                "channel": "draft",
+                "subject": subject,
+                "body": draft_body,
+                "sent_at": None,
+            },
+        )
+        self._db.commit()
+
+        logger.info(
+            "RESP-038: Deterministic CONFIRM_AVAILABLE draft generated for enquiry %s "
+            "(model=%s)",
+            enquiry_id,
+            warmth_model,
+        )
+
+        return DraftGenerationResult(
+            enquiry_id=enquiry_id,
+            message_id=message.id,
+            subject=subject,
+            body=draft_body,
+            persona_name=persona_name,
+            is_fallback=False,
+            model=warmth_model,
+            ai_context=ai_context,
+        )
+
 
 # ── Internal helpers ───────────────────────────────────────────────────────────
 
@@ -484,6 +628,11 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
     return payload
 
 
+# RESP-039 / RESP-041: warmth sentence generation delegated to dedicated module
+# (avoids direct anthropic import in service.py — required by traceability test)
+from app.modules.ai.confirm_available_warmth_generator import (
+    generate_warmth_sentence as _generate_warmth_sentence,
+)
 def _build_spend_line(context: DraftContext) -> str:
     """Build spend line — prefer confirmed_minimum_spend from snapshot over metadata.
 
@@ -886,7 +1035,8 @@ def _build_approved_copy_blocks_line(context: DraftContext) -> str:
             )
             if text:
                 blocks.append(("Minimum spend statement", text))
-        text = FirstResponseCopyLibrary.render_safe("booking_next_step")
+        # RESP-037: use confirm_available_next_step for deterministic CONFIRM_AVAILABLE path
+        text = FirstResponseCopyLibrary.render_safe("confirm_available_next_step")
         if text:
             blocks.append(("Next step", text))
 

@@ -381,9 +381,13 @@ class TestDeterministicUnavailableFallbacks:
 
 
 class TestNonUnavailableGoalsStillUseLLM:
-    """Verify that other goals still route through the normal LLM path."""
+    """Verify that ACKNOWLEDGE still routes through the LLM path.
 
-    def test_confirm_available_calls_gateway(self) -> None:
+    RESP-038: CONFIRM_AVAILABLE is now fully deterministic (no gateway call).
+    """
+
+    def test_confirm_available_does_not_call_gateway(self) -> None:
+        # RESP-038: CONFIRM_AVAILABLE is fully deterministic — gateway must NOT be called
         eid = uuid.uuid4()
         svc, db, mock_enquiry_repo = _build_service_with_mocks(eid)
 
@@ -396,30 +400,25 @@ class TestNonUnavailableGoalsStillUseLLM:
         plan.date_context = {"status": "resolved"}
         plan.known_facts = {}
 
-        mock_gw_result = MagicMock()
-        mock_gw_result.is_fallback = False
-        mock_gw_result.model_name = "claude-haiku-4-5-20251001"
-        mock_gw_result.raw_response = "Dear Alice, great news — we have availability!"
-        mock_gw_result.rendered_system_prompt = None
-        mock_gw_result.rendered_user_prompt = None
-        mock_gw_result.run_id = uuid.uuid4()
-
         with (
             patch("app.modules.ai.service._load_latest_processing_snapshot", return_value=None),
             patch("app.modules.enquiries.repository.ResponsePlanRepository") as mock_plan_cls,
             patch("app.modules.ai.service.AIGateway") as mock_gw_cls,
+            patch(
+                "app.modules.ai.service._generate_warmth_sentence",
+                return_value=None,
+            ),
         ):
             mock_plan_repo = MagicMock()
             mock_plan_repo.get_latest.return_value = plan
             mock_plan_cls.return_value = mock_plan_repo
 
             mock_gw_instance = MagicMock()
-            mock_gw_instance.run.return_value = mock_gw_result
             mock_gw_cls.return_value = mock_gw_instance
 
             svc.generate_draft(eid)
 
-        mock_gw_instance.run.assert_called_once()
+        mock_gw_instance.run.assert_not_called()
 
     def test_acknowledge_and_check_calls_gateway(self) -> None:
         eid = uuid.uuid4()

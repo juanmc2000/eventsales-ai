@@ -1,4 +1,4 @@
-"""First Response Safety Regression Suite — 100 Records (TEST-012).
+"""First Response Safety Regression Suite — 100 Records (TEST-012, strengthened S11-006).
 
 Evaluates 100 first-response scenarios using the full V6 governance stack:
   - DraftComplianceValidator  (10 deterministic checks)
@@ -11,20 +11,27 @@ Fixture: tests/fixtures/first_response_safety_cases_100.json
          (100 scenarios, 8 availability records)
 
 Coverage:
-  compliance_pass              — clean drafts satisfying every rule
-  hallucinated_availability    — overclaim when contract is NOT_CHECKED
-  alternative_dates            — invented alternatives when CONFIRMED_UNAVAILABLE
-  room_suitability_unavailable — suitability language when slot is unavailable
-  spend_soft_language          — 'recommended' instead of mandatory minimum
-  fake_url                     — placeholder booking form links
-  unconfirmed_time             — guest-stated time confirmed as agreed
-  hosting_language             — prohibited 'delighted to host' patterns
-  invented_sla                 — invented 24-hour response commitments
-  invented_questions           — questions not in approved clarification list
-  forbidden_topics_menu        — menu/dietary discussion at acknowledgement stage
-  gate_blocked_goal            — compliance passes but goal not auto-sendable
-  gate_blocked_date            — compliance passes but date status blocks auto-send
-  context_mismatch             — integrity gate blocks on restaurant name mismatch
+  compliance_pass                        — clean drafts satisfying every rule
+  hallucinated_availability              — overclaim when contract is NOT_CHECKED
+  alternative_dates                      — invented alternatives when CONFIRMED_UNAVAILABLE
+  room_suitability_unavailable           — suitability language when slot is unavailable
+  spend_soft_language                    — 'recommended' instead of mandatory minimum
+  fake_url                               — placeholder booking form links
+  unconfirmed_time                       — guest-stated time confirmed as agreed
+  hosting_language                       — prohibited 'delighted to host' patterns
+  invented_sla                           — invented 24-hour response commitments
+  invented_questions                     — questions not in approved clarification list
+  forbidden_topics_menu                  — menu/dietary discussion at acknowledgement stage
+  gate_blocked_goal                      — compliance passes but goal not auto-sendable
+  gate_blocked_date                      — compliance passes but date status blocks auto-send
+  context_mismatch                       — integrity gate blocks on restaurant name mismatch
+
+S11-006 CONFIRM_AVAILABLE hardening categories:
+  confirm_available_menu_fail            — menu discussion in CONFIRM_AVAILABLE (hard fail)
+  confirm_available_special_touches_fail — special touches in CONFIRM_AVAILABLE (hard fail)
+  confirm_available_booking_form_fail    — invented booking form link (hard fail)
+  confirm_available_section_labels_fail  — section headers leaked into draft (hard fail)
+  confirm_available_unconfirmed_time_fail — unconfirmed time echoed (hard fail)
 """
 
 from __future__ import annotations
@@ -488,3 +495,137 @@ class TestSafetyRegressionSummary:
         assert integrity_rate >= 90.0, f"Integrity pass rate {integrity_rate:.1f}% unexpectedly low"
         assert auto_send_rate >= 10.0, f"Auto-send rate {auto_send_rate:.1f}% unexpectedly low"
         assert auto_send_rate <= 50.0, f"Auto-send rate {auto_send_rate:.1f}% unexpectedly high — gate may be too permissive"
+
+
+# ── CONFIRM_AVAILABLE Hardening Tests (TEST-012 / S11-006) ──────────────────────
+
+
+class TestConfirmAvailableHardening:
+    """Hard assertions for CONFIRM_AVAILABLE failure modes (S11-006).
+
+    All drafts with CONFIRM_AVAILABLE goal must have:
+      - zero menu discussion
+      - zero dietary discussion
+      - zero special touches
+      - zero booking form hallucinations
+      - zero internal section headers
+      - zero unconfirmed time confirmations (when prohibited_times is set)
+      - compliance failures reported as hard failures in the regression suite
+
+    These tests also report CONFIRM_AVAILABLE pass rate separately.
+    """
+
+    def _compliance(self, sc: dict[str, Any]) -> Any:
+        return DraftComplianceValidator.validate(sc["draft_text"], _context_from_scenario(sc))
+
+    def _confirm_available_scenarios(self, scenarios: list[dict]) -> list[dict]:
+        return [s for s in scenarios if s["response_goal"] == "CONFIRM_AVAILABLE"]
+
+    def test_confirm_available_menu_fail_scenarios_fail_compliance(self, scenarios: list[dict]) -> None:
+        affected = [s for s in scenarios if s["category"] == "confirm_available_menu_fail"]
+        assert len(affected) >= 1, "Expected >= 1 confirm_available_menu_fail scenario"
+        for sc in affected:
+            result = self._compliance(sc)
+            assert result.passed is False, f"{sc['id']}: expected compliance failure for menu discussion"
+            assert any("menu" in v.lower() or "dietary" in v.lower() for v in result.violations), (
+                f"{sc['id']}: expected menu/dietary violation"
+            )
+
+    def test_confirm_available_special_touches_fail_scenarios_fail_compliance(self, scenarios: list[dict]) -> None:
+        affected = [s for s in scenarios if s["category"] == "confirm_available_special_touches_fail"]
+        assert len(affected) >= 1, "Expected >= 1 confirm_available_special_touches_fail scenario"
+        for sc in affected:
+            result = self._compliance(sc)
+            assert result.passed is False, f"{sc['id']}: expected compliance failure for special touches"
+            assert any("special touch" in v.lower() or "decoration" in v.lower() for v in result.violations), (
+                f"{sc['id']}: expected special touches violation"
+            )
+
+    def test_confirm_available_booking_form_fail_scenarios_fail_compliance(self, scenarios: list[dict]) -> None:
+        affected = [s for s in scenarios if s["category"] == "confirm_available_booking_form_fail"]
+        assert len(affected) >= 1, "Expected >= 1 confirm_available_booking_form_fail scenario"
+        for sc in affected:
+            result = self._compliance(sc)
+            assert result.passed is False, f"{sc['id']}: expected compliance failure for booking form"
+            assert any("link" in v.lower() or "url" in v.lower() or "placeholder" in v.lower() for v in result.violations), (
+                f"{sc['id']}: expected fake URL violation"
+            )
+
+    def test_confirm_available_section_labels_fail_scenarios_fail_compliance(self, scenarios: list[dict]) -> None:
+        affected = [s for s in scenarios if s["category"] == "confirm_available_section_labels_fail"]
+        assert len(affected) >= 1, "Expected >= 1 confirm_available_section_labels_fail scenario"
+        for sc in affected:
+            result = self._compliance(sc)
+            assert result.passed is False, f"{sc['id']}: expected compliance failure for section labels"
+            assert any("section label" in v.lower() or "structural" in v.lower() for v in result.violations), (
+                f"{sc['id']}: expected section label violation"
+            )
+
+    def test_confirm_available_unconfirmed_time_fail_scenarios_fail_compliance(self, scenarios: list[dict]) -> None:
+        affected = [s for s in scenarios if s["category"] == "confirm_available_unconfirmed_time_fail"]
+        assert len(affected) >= 1, "Expected >= 1 confirm_available_unconfirmed_time_fail scenario"
+        for sc in affected:
+            result = self._compliance(sc)
+            assert result.passed is False, f"{sc['id']}: expected compliance failure for unconfirmed time"
+            assert any("time" in v.lower() for v in result.violations), (
+                f"{sc['id']}: expected time violation"
+            )
+
+    def test_confirm_available_hardening_scenarios_blocked_by_gate(self, scenarios: list[dict]) -> None:
+        hardening_cats = {
+            "confirm_available_menu_fail",
+            "confirm_available_special_touches_fail",
+            "confirm_available_booking_form_fail",
+            "confirm_available_section_labels_fail",
+            "confirm_available_unconfirmed_time_fail",
+        }
+        affected = [s for s in scenarios if s["category"] in hardening_cats]
+        assert len(affected) >= 5, f"Expected >= 5 CONFIRM_AVAILABLE hardening scenarios, got {len(affected)}"
+        for sc in affected:
+            assert sc["expected"]["ready_to_send_allowed"] is False, (
+                f"{sc['id']}: hardening scenarios must not be auto-sendable"
+            )
+
+    def test_confirm_available_pass_rate_reported(self, scenarios: list[dict], capsys) -> None:
+        """Report CONFIRM_AVAILABLE-specific compliance pass rate separately."""
+        ca_scenarios = self._confirm_available_scenarios(scenarios)
+        total = len(ca_scenarios)
+        assert total >= 29, f"Expected >= 29 CONFIRM_AVAILABLE scenarios, got {total}"
+
+        passed_count = 0
+        fail_categories: dict[str, int] = {}
+
+        for sc in ca_scenarios:
+            result = self._compliance(sc)
+            if result.passed:
+                passed_count += 1
+            else:
+                cat = sc["category"]
+                fail_categories[cat] = fail_categories.get(cat, 0) + 1
+
+        pass_rate = passed_count / total * 100
+        print(f"\n{'─' * 60}")
+        print(f"CONFIRM_AVAILABLE Compliance Pass Rate (TEST-012 / S11-006)")
+        print(f"{'─' * 60}")
+        print(f"Total CONFIRM_AVAILABLE scenarios: {total}")
+        print(f"Passed: {passed_count}  Failed: {total - passed_count}  Rate: {pass_rate:.1f}%")
+        if fail_categories:
+            print("Failure categories:")
+            for cat, count in sorted(fail_categories.items(), key=lambda x: -x[1]):
+                print(f"  {cat:<45}  {count}")
+        print(f"{'─' * 60}")
+
+        # Hard threshold: clean scenarios must pass; hardening scenarios must fail
+        hardening_cats = {
+            "confirm_available_menu_fail",
+            "confirm_available_special_touches_fail",
+            "confirm_available_booking_form_fail",
+            "confirm_available_section_labels_fail",
+            "confirm_available_unconfirmed_time_fail",
+        }
+        clean_scenarios = [s for s in ca_scenarios if s["category"] == "compliance_pass"]
+        for sc in clean_scenarios:
+            result = self._compliance(sc)
+            assert result.passed is True, (
+                f"{sc['id']}: clean CONFIRM_AVAILABLE scenario must pass compliance"
+            )
