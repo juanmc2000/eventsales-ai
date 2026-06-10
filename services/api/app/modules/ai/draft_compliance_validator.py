@@ -1,4 +1,4 @@
-"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-026, RESP-027).
+"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-026, RESP-027, RESP-033).
 
 Validates generated draft emails against the availability contract, spend rules,
 and prompt constraints before the draft is shown to staff or sent to guests.
@@ -29,6 +29,18 @@ RESP-026 additional checks:
 
 RESP-027 additional checks:
   12. Internal section labels leaked into the customer-facing draft
+
+RESP-031 calibrations:
+  - For CONFIRM_AVAILABLE, copy block check uses semantic validation (availability
+    confirmed) instead of verbatim opening phrase — reduces false failures from
+    harmless paraphrases while preserving all commercial-safety checks.
+  - Mandatory minimum spend, unavailable statement, booking form URL, and date
+    clarification remain strictly verbatim.
+
+RESP-033 additional checks:
+  13. Structured forbidden-topic violations (code, severity, matched_text)
+      Covers: timing discussion, menu, dietary, special touches, call/chat/phone,
+      alternative dates (via alternatives_allowed flag)
 
 Usage::
 
@@ -81,11 +93,39 @@ class ValidationContext:
     allow_menu_discussion: bool = False
     allow_special_touches: bool = False
     allow_call_scheduling: bool = False
+    allow_timing_discussion: bool = False  # RESP-033: True only when timing explicitly allowed
     # RESP-026: required copy block (normalized verbatim match enforced when set)
     required_opening_phrase: str | None = None
+    # RESP-034: rendered approved block texts for post-extension detection
+    approved_blocks: list[str] = field(default_factory=list)
 
 
 # ── Output ─────────────────────────────────────────────────────────────────────
+
+
+@dataclass
+class ViolationDetail:
+    """RESP-033: Structured violation record with code, severity, and matched text.
+
+    Attributes:
+        code:         Short identifier for the violation type (e.g. "forbidden_topic_menu").
+        severity:     "high" | "medium" | "low"
+        matched_text: The text fragment that triggered the violation (or empty string).
+        message:      Human-readable description of the violation.
+    """
+
+    code: str
+    severity: str  # "high" | "medium" | "low"
+    matched_text: str
+    message: str
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "code": self.code,
+            "severity": self.severity,
+            "matched_text": self.matched_text,
+            "message": self.message,
+        }
 
 
 @dataclass
@@ -93,20 +133,23 @@ class ComplianceResult:
     """Result of DraftComplianceValidator.validate().
 
     Attributes:
-        passed:         True when no violations were detected.
-        violations:     List of human-readable violation descriptions.
-        unsafe_to_send: True when any violation prevents sending the draft.
+        passed:              True when no violations were detected.
+        violations:          List of human-readable violation descriptions.
+        unsafe_to_send:      True when any violation prevents sending the draft.
+        structured_violations: RESP-033 structured violation records (code, severity, matched_text).
     """
 
     passed: bool
     violations: list[str]
     unsafe_to_send: bool
+    structured_violations: list[ViolationDetail] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "passed": self.passed,
             "violations": self.violations,
             "unsafe_to_send": self.unsafe_to_send,
+            "structured_violations": [v.to_dict() for v in self.structured_violations],
         }
 
 
@@ -205,6 +248,20 @@ _ROOM_SUITABILITY_UNAVAILABLE_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\b(?:have\s+the\s+)?space\s+and\s+expertise\s+to\b", re.IGNORECASE),
 ]
 
+# RESP-033: Timing-discussion topic — generic timing language (distinct from specific time mentions)
+# Only covers clearly topic-level timing discussion phrases, not incidental time references.
+_TIMING_LANGUAGE_PATTERNS: list[re.Pattern[str]] = [
+    re.compile(r"\bpreferred?\s+timing\b", re.IGNORECASE),
+    re.compile(r"\bdiscuss\s+(?:the\s+)?timing\b", re.IGNORECASE),
+    re.compile(r"\btimings?\s+(?:for|of)\s+(?:the\s+)?(?:event|evening|dinner|lunch)\b", re.IGNORECASE),
+    re.compile(r"\btiming\s+preferences?\b", re.IGNORECASE),
+]
+
+# RESP-032: Subject-line patterns that must not appear in the draft body
+_SUBJECT_LINE_PATTERNS: list[re.Pattern[str]] = [
+    re.compile(r"^\*{0,2}Subject\s*:", re.IGNORECASE | re.MULTILINE),
+]
+
 # RESP-027: Internal section labels that must not appear in customer-facing drafts
 _SECTION_LABEL_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\*\*Opening\*\*", re.IGNORECASE),
@@ -249,6 +306,7 @@ class DraftComplianceValidator:
             ComplianceResult with passed, violations, and unsafe_to_send.
         """
         violations: list[str] = []
+        structured_violations: list[ViolationDetail] = []
 
         # Run all checks
         cls._check_availability_overclaim(draft_text, context, violations)
@@ -260,19 +318,25 @@ class DraftComplianceValidator:
         cls._check_hosting_language(draft_text, context, violations)
         cls._check_invented_sla(draft_text, violations)
         cls._check_invented_questions(draft_text, context, violations)
-        cls._check_forbidden_topics(draft_text, context, violations)
+        # RESP-033: structured forbidden-topic check (also appends to violations)
+        cls._check_forbidden_topics(draft_text, context, violations, structured_violations)
         # RESP-020 additional checks
         cls._check_unavailable_room_suitability(draft_text, context, violations)
         # RESP-026 additional checks
         cls._check_copy_block_compliance(draft_text, context, violations)
         # RESP-027 additional checks
         cls._check_section_labels(draft_text, violations)
+        # RESP-032 additional checks
+        cls._check_subject_line_in_body(draft_text, violations)
+        # RESP-034 additional checks
+        cls._check_copy_block_post_extension(draft_text, context, violations, structured_violations)
 
         passed = len(violations) == 0
         return ComplianceResult(
             passed=passed,
             violations=violations,
             unsafe_to_send=not passed,
+            structured_violations=structured_violations,
         )
 
     # ── Individual checks ──────────────────────────────────────────────────────
@@ -323,22 +387,26 @@ class DraftComplianceValidator:
         context: ValidationContext,
         violations: list[str],
     ) -> None:
-        """Fail if the draft states a specific time that came from an unconfirmed guest preference."""
+        """RESP-035: Fail if the draft mentions any time from an unconfirmed guest preference.
+
+        Any mention of a prohibited time — not just confirming phrases — is a
+        violation.  Prohibited times are extracted from the guest message and
+        represent unconfirmed preferences; they must not appear anywhere in the
+        generated response.
+
+        Confirmed venue times will not be in prohibited_times, so they are
+        unaffected by this check.
+        """
         if not context.prohibited_times:
             return
         for time_str in context.prohibited_times:
-            # Normalise: strip whitespace, lowercase for comparison
-            time_norm = time_str.strip().lower()
-            # Check if the draft uses a phrase that confirms the time
-            confirm_time_pattern = re.compile(
-                r"(?:at|from|starting\s+at|beginning\s+at|for)\s+"
-                + re.escape(time_norm),
-                re.IGNORECASE,
-            )
-            if confirm_time_pattern.search(text.lower()):
+            time_norm = time_str.strip()
+            any_mention_pattern = re.compile(re.escape(time_norm), re.IGNORECASE)
+            if any_mention_pattern.search(text):
                 violations.append(
-                    f"Draft appears to confirm the time '{time_str}' as agreed, but this "
-                    "time came from the guest message and has not been confirmed by the venue."
+                    f"Draft mentions the time '{time_str}', which is an unconfirmed guest "
+                    "preference. Unconfirmed times must not appear anywhere in the response — "
+                    "not even as a preference echo or soft reference."
                 )
                 return
 
@@ -437,30 +505,98 @@ class DraftComplianceValidator:
         text: str,
         context: ValidationContext,
         violations: list[str],
+        structured_violations: list[ViolationDetail] | None = None,
     ) -> None:
-        """Fail if the draft discusses topics not allowed by the context flags."""
+        """RESP-033: Fail if the draft discusses topics not allowed by the context flags.
+
+        Appends human-readable messages to violations (backward-compatible).
+        When structured_violations is provided, also appends ViolationDetail records
+        with code, severity, and matched_text.
+        """
+        def _record(code: str, severity: str, matched_text: str, message: str) -> None:
+            violations.append(message)
+            if structured_violations is not None:
+                structured_violations.append(ViolationDetail(
+                    code=code,
+                    severity=severity,
+                    matched_text=matched_text,
+                    message=message,
+                ))
+
         if not context.allow_menu_discussion:
             for pattern in _MENU_PATTERNS:
-                if pattern.search(text):
-                    violations.append(
-                        "Draft discusses menu or dietary requirements but this topic "
-                        "is not permitted in the current response context."
+                m = pattern.search(text)
+                if m:
+                    _record(
+                        code="forbidden_topic_menu",
+                        severity="high",
+                        matched_text=m.group(0),
+                        message=(
+                            "Draft discusses menu or dietary requirements but this topic "
+                            "is not permitted in the current response context."
+                        ),
                     )
                     break
         if not context.allow_special_touches:
             for pattern in _SPECIAL_TOUCHES_PATTERNS:
-                if pattern.search(text):
-                    violations.append(
-                        "Draft mentions special touches or decorations but this topic "
-                        "is not permitted in the current response context."
+                m = pattern.search(text)
+                if m:
+                    _record(
+                        code="forbidden_topic_special_touches",
+                        severity="medium",
+                        matched_text=m.group(0),
+                        message=(
+                            "Draft mentions special touches or decorations but this topic "
+                            "is not permitted in the current response context."
+                        ),
                     )
                     break
         if not context.allow_call_scheduling:
             for pattern in _CALL_SCHEDULING_PATTERNS:
-                if pattern.search(text):
-                    violations.append(
-                        "Draft invites the guest to schedule a call but call scheduling "
-                        "is not permitted in the current response context."
+                m = pattern.search(text)
+                if m:
+                    _record(
+                        code="forbidden_topic_call_scheduling",
+                        severity="medium",
+                        matched_text=m.group(0),
+                        message=(
+                            "Draft invites the guest to schedule a call but call scheduling "
+                            "is not permitted in the current response context."
+                        ),
+                    )
+                    break
+        # RESP-033: timing discussion topic
+        if not context.allow_timing_discussion:
+            for pattern in _TIMING_LANGUAGE_PATTERNS:
+                m = pattern.search(text)
+                if m:
+                    _record(
+                        code="forbidden_topic_timing",
+                        severity="high",
+                        matched_text=m.group(0),
+                        message=(
+                            "Draft discusses timing or arrival time preferences but this topic "
+                            "is not permitted until confirmed venue facts are established."
+                        ),
+                    )
+                    break
+        # RESP-033: alternative dates topic (via alternatives_allowed flag)
+        # Skip CONFIRMED_UNAVAILABLE (own check) and CONFIRMED_AVAILABLE (alternatives OK)
+        if not context.alternatives_allowed and context.availability_contract not in (
+            "CONFIRMED_UNAVAILABLE",
+            "CONFIRMED_AVAILABLE",
+        ):
+            for pattern in _ALTERNATIVE_PATTERNS:
+                m = pattern.search(text)
+                if m:
+                    _record(
+                        code="forbidden_topic_alternatives",
+                        severity="high",
+                        matched_text=m.group(0),
+                        message=(
+                            "Draft suggests alternative dates or options but alternatives "
+                            "are not permitted in the current response context."
+                        ),
                     )
                     break
 
@@ -519,12 +655,28 @@ class DraftComplianceValidator:
     ) -> None:
         """Fail if a required copy block is missing or paraphrased in the draft.
 
-        When ValidationContext.required_opening_phrase is set, the normalised form
-        of that phrase must appear somewhere in the draft.  Formatting differences
-        (bold markers, extra newlines) are ignored.  Paraphrasing is not allowed.
+        RESP-026: When ValidationContext.required_opening_phrase is set, strict
+        verbatim matching is enforced — EXCEPT for CONFIRM_AVAILABLE (RESP-031).
+
+        RESP-031: For CONFIRM_AVAILABLE, semantic validation replaces verbatim:
+        the draft must contain availability confirmation language (pattern-matched)
+        rather than the exact approved phrase.  This avoids failing on harmless
+        paraphrases while preserving all commercial-safety checks.
+
+        Strict verbatim remains in force for:
+          - CONFIRMED_UNAVAILABLE (unavailable statement must not be softened)
+          - Minimum spend language (handled by _check_spend_soft_language)
+          - Booking form URL (handled by _check_fake_urls)
+          - Any goal other than CONFIRM_AVAILABLE
         """
         if not context.required_opening_phrase:
             return
+
+        if context.response_goal == "CONFIRM_AVAILABLE":
+            # RESP-031: semantic check — availability must be confirmed somewhere in the draft
+            cls._check_confirm_available_semantic(text, violations)
+            return
+
         normalised_draft = cls._normalise_for_comparison(text)
         normalised_required = cls._normalise_for_comparison(context.required_opening_phrase)
         if normalised_required not in normalised_draft:
@@ -533,6 +685,31 @@ class DraftComplianceValidator:
                 f"'{context.required_opening_phrase[:80]}' (or its equivalent) must "
                 "appear verbatim. Paraphrasing operational copy is not permitted."
             )
+
+    @classmethod
+    def _check_confirm_available_semantic(
+        cls,
+        text: str,
+        violations: list[str],
+    ) -> None:
+        """RESP-031: semantic validation for CONFIRM_AVAILABLE drafts.
+
+        Checks that the draft communicates availability confirmation without
+        requiring the exact approved phrase verbatim.  A draft passes when at
+        least one availability-confirm pattern matches.
+
+        This check catches cases where the LLM omits all availability language
+        (e.g. by starting with a sales pitch rather than confirming the date).
+        """
+        for pattern in _AVAILABILITY_CONFIRM_PATTERNS:
+            if pattern.search(text):
+                return  # Availability is confirmed — no violation
+        violations.append(
+            "CONFIRM_AVAILABLE draft does not appear to confirm availability. "
+            "The response must clearly state that the date or slot is available. "
+            "Approved phrases include: 'I'm delighted to confirm', "
+            "'we have availability', 'pleased to confirm', 'date is free'."
+        )
 
     # ── RESP-027 additional checks ──────────────────────────────────────────
 
@@ -555,3 +732,94 @@ class DraftComplianceValidator:
                     "Remove all structural headings from the draft body."
                 )
                 return  # One violation per category
+
+    # ── RESP-032 additional checks ──────────────────────────────────────────
+
+    @classmethod
+    def _check_subject_line_in_body(
+        cls,
+        text: str,
+        violations: list[str],
+    ) -> None:
+        """Fail if a subject line appears anywhere in the draft body.
+
+        Patterns such as 'Subject: ...' or '**Subject: ...**' must not appear
+        in the email body — the subject is set separately by the caller.
+        """
+        for pattern in _SUBJECT_LINE_PATTERNS:
+            if pattern.search(text):
+                violations.append(
+                    "Draft contains a subject line in the email body "
+                    "(e.g. 'Subject: ...' or '**Subject: ...**'). "
+                    "Remove it — the subject field is set separately."
+                )
+                return  # One violation per category
+
+    # ── RESP-034 additional checks ──────────────────────────────────────────
+
+    # Forbidden-extension patterns: content that must not follow an approved block
+    _FORBIDDEN_EXTENSION_PATTERNS: list[re.Pattern[str]] = (
+        _MENU_PATTERNS
+        + _SPECIAL_TOUCHES_PATTERNS
+        + _CALL_SCHEDULING_PATTERNS
+        + _TIMING_LANGUAGE_PATTERNS
+    )
+
+    @classmethod
+    def _check_copy_block_post_extension(
+        cls,
+        text: str,
+        context: ValidationContext,
+        violations: list[str],
+        structured_violations: list[ViolationDetail] | None = None,
+    ) -> None:
+        """RESP-034: Fail if extra text is appended immediately after an approved copy block.
+
+        For each block in context.approved_blocks, locate it in the normalised
+        draft and extract the text that follows it up to the next paragraph break.
+        If that trailing text is non-trivial (more than a salutation) AND mentions
+        a forbidden topic, record a high-severity violation.
+        """
+        if not context.approved_blocks:
+            return
+
+        norm_draft = cls._normalise_for_comparison(text)
+
+        for block_text in context.approved_blocks:
+            norm_block = cls._normalise_for_comparison(block_text)
+            if not norm_block:
+                continue
+
+            pos = norm_draft.find(norm_block)
+            if pos == -1:
+                continue  # Block not present — RESP-026 handles the missing-block case
+
+            # Extract text immediately following this block up to the next sentence break
+            after_pos = pos + len(norm_block)
+            # Grab up to 250 normalised characters after the block
+            trailing = norm_draft[after_pos:after_pos + 250].strip()
+            if not trailing:
+                continue  # Nothing follows the block
+
+            # Skip if trailing is only a short salutation or sign-off
+            if len(trailing.split()) <= 3:
+                continue
+
+            # Check for forbidden-topic content in the trailing text
+            for pattern in cls._FORBIDDEN_EXTENSION_PATTERNS:
+                m = pattern.search(trailing)
+                if m:
+                    message = (
+                        "Draft extends an approved copy block with forbidden-topic language "
+                        f"('{m.group(0)}'). No extra operational content may be appended "
+                        "after an approved block — the block is the complete operational statement."
+                    )
+                    violations.append(message)
+                    if structured_violations is not None:
+                        structured_violations.append(ViolationDetail(
+                            code="copy_block_post_extension",
+                            severity="high",
+                            matched_text=m.group(0),
+                            message=message,
+                        ))
+                    return  # One violation per call

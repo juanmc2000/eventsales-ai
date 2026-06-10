@@ -180,6 +180,17 @@ class DraftGenerationService:
                 guest_message=guest_message,
             )
 
+        # ── RESP-036: Semi-deterministic ACKNOWLEDGE_AND_CHECK_AVAILABILITY path ─
+        if context.response_goal == "ACKNOWLEDGE_AND_CHECK_AVAILABILITY":
+            return self._generate_deterministic_acknowledge_draft(
+                enquiry_id=enquiry_id,
+                enquiry=enquiry,
+                context=context,
+                persona_name=persona_name,
+                recommended_minimum_spend=recommended_minimum_spend,
+                guest_message=guest_message,
+            )
+
         # Build input_payload for the draft_response prompt template
         input_payload = _build_draft_input_payload(context)
 
@@ -269,7 +280,11 @@ class DraftGenerationService:
             # No LLM response — use template-based fallback (pure Python, no API call)
             draft_body = FallbackProvider().generate(context)
         else:
-            draft_body = gateway_result.raw_response
+            # RESP-031: strip standalone section headers before persistence
+            # RESP-032: strip any subject-line leakage
+            draft_body = _strip_subject_line(
+                _strip_section_labels(gateway_result.raw_response)
+            )
 
         # ── Build AI transparency context ─────────────────────────────────────
         ai_context = AIContextOut(
@@ -302,12 +317,22 @@ class DraftGenerationService:
         self._db.commit()
 
         # AUTO-002: compute review state for the LLM-generated draft
+        # RESP-035: wire prohibited_times from guest message into ValidationContext
+        _prohibited_times: list[str] = (
+            _extract_time_mentions(context.guest_message)
+            if context.guest_message
+            else []
+        )
+        # RESP-034: extract rendered approved block texts for post-extension detection
+        _approved_blocks: list[str] = _extract_approved_block_texts(context)
         _compliance = DraftComplianceValidator.validate(
             draft_text=draft_body,
             context=ValidationContext(
                 availability_contract=_availability_status_to_contract(context.availability_status),
                 response_goal=context.response_goal or "",
                 confirmed_minimum_spend=context.confirmed_minimum_spend,
+                prohibited_times=_prohibited_times,
+                approved_blocks=_approved_blocks,
             ),
         )
         _date_status = _plan_date_status or "unknown"
@@ -321,6 +346,18 @@ class DraftGenerationService:
             compliance_result=_compliance,
             readiness_result=_readiness,
         )
+
+        # AUTO-004: persist review state to message record
+        _llm_review_meta = {
+            "review_state": _review_state.status,
+            "validation_status": "passed" if _review_state.validation_passed else "failed",
+            "validation_blockers": _review_state.validation_violations,
+            "auto_send_allowed": _review_state.auto_send_allowed,
+            "auto_send_blockers": _review_state.auto_send_blockers,
+            "generation_path": "llm",
+        }
+        self._enquiry_repo.update_message_review_metadata(message.id, _llm_review_meta)
+        self._db.commit()
 
         return DraftGenerationResult(
             enquiry_id=enquiry_id,
@@ -391,10 +428,151 @@ class DraftGenerationService:
                 "sent_at": None,
             },
         )
+        # AUTO-004: persist review metadata before commit (message already flushed)
+        # Build a partial dict here; full state added after review_state is computed below
         self._db.commit()
 
         logger.info(
             "RESP-023: Deterministic RESPOND_UNAVAILABLE draft generated for enquiry %s",
+            enquiry_id,
+        )
+
+        # RESP-028: compute deterministic review state — no LLM compliance needed;
+        # RESPOND_UNAVAILABLE is not in the auto-send allowlist so always HUMAN_REVIEW.
+        from app.modules.ai.draft_compliance_validator import (  # noqa: PLC0415
+            DraftComplianceValidator, ValidationContext,
+        )
+        from app.modules.ai.auto_send_readiness_gate import AutoSendReadinessGate  # noqa: PLC0415
+        from app.modules.ai.draft_review_state import (  # noqa: PLC0415
+            DraftReviewStateService, DraftReviewState,
+        )
+        from app.modules.enquiries.response_context_integrity_gate import (  # noqa: PLC0415
+            IntegrityCheckResult,
+        )
+
+        _det_compliance = DraftComplianceValidator.validate(
+            draft_text=draft_body,
+            context=ValidationContext(
+                availability_contract="CONFIRMED_UNAVAILABLE",
+                response_goal="RESPOND_UNAVAILABLE",
+            ),
+        )
+        _det_integrity = IntegrityCheckResult(passed=True, violations=[])
+        _det_readiness = AutoSendReadinessGate.evaluate(
+            response_goal="RESPOND_UNAVAILABLE",
+            draft_compliance_result=_det_compliance,
+            date_status="resolved",
+            integrity_result=_det_integrity,
+        )
+        _det_review_state = DraftReviewStateService.evaluate(
+            compliance_result=_det_compliance,
+            readiness_result=_det_readiness,
+        )
+
+        # AUTO-004: persist review state to message record
+        _det_review_meta = {
+            "review_state": _det_review_state.status,
+            "validation_status": "passed" if _det_review_state.validation_passed else "failed",
+            "validation_blockers": _det_review_state.validation_violations,
+            "auto_send_allowed": _det_review_state.auto_send_allowed,
+            "auto_send_blockers": _det_review_state.auto_send_blockers,
+            "generation_path": "deterministic",
+        }
+        self._enquiry_repo.update_message_review_metadata(message.id, _det_review_meta)
+        self._db.commit()
+
+        return DraftGenerationResult(
+            enquiry_id=enquiry_id,
+            message_id=message.id,
+            subject=subject,
+            body=draft_body,
+            persona_name=persona_name,
+            is_fallback=False,
+            model="deterministic",
+            ai_context=ai_context,
+            review_state=_det_review_state,
+        )
+
+    def _generate_deterministic_acknowledge_draft(
+        self,
+        enquiry_id: uuid.UUID,
+        enquiry,
+        context: "DraftContext",
+        persona_name: str,
+        recommended_minimum_spend: float | None,
+        guest_message: str | None,
+    ) -> "DraftGenerationResult":
+        """RESP-036: Build an ACKNOWLEDGE_AND_CHECK_AVAILABILITY draft deterministically.
+
+        Structure:
+          Dear {guest_name},
+
+          [availability_not_checked block]
+          [optional short enquiry-summary sentence from context facts]
+          [availability_check_next_step block]
+
+          [signoff block]
+
+        No LLM call is made.  The optional enquiry-summary is built from
+        structured context fields.  Response is kept under 120 words.
+        """
+        from app.modules.ai.first_response_copy_library import (  # noqa: PLC0415
+            FirstResponseCopyLibrary,
+        )
+
+        meal_period = context.availability_meal_period or "dinner"
+        event_date = context.availability_date or context.event_date or "the requested date"
+        guest_name = context.guest_first_name or "there"
+
+        opening = FirstResponseCopyLibrary.render(
+            "availability_not_checked",
+            {"meal_period": meal_period, "event_date": event_date},
+        )
+        next_step = FirstResponseCopyLibrary.render("availability_check_next_step")
+        signoff = FirstResponseCopyLibrary.render(
+            "signoff",
+            {"persona_name": persona_name},
+        )
+
+        # Optional enquiry-summary — deterministic from structured fields
+        summary = _build_acknowledge_enquiry_summary(context)
+
+        body_parts = [f"Dear {guest_name},", "", opening]
+        if summary:
+            body_parts.append(summary)
+        body_parts.extend(["", next_step, "", signoff])
+        draft_body = "\n".join(body_parts)
+
+        ai_context = AIContextOut(
+            model="deterministic",
+            is_fallback=False,
+            persona_name=persona_name,
+            persona_tone=context.persona_tone,
+            persona_style=context.persona_style,
+            guest_message_used=guest_message,
+            room_name=None,  # No room details until availability is checked
+            recommended_minimum_spend=recommended_minimum_spend,
+            system_prompt=None,
+            user_message=None,
+            prompt_run_id=None,
+        )
+
+        subject = _build_subject(enquiry.first_name, enquiry.last_name, enquiry.event_type)
+        message = self._enquiry_repo.add_message(
+            enquiry_id,
+            {
+                "direction": "outbound",
+                "channel": "draft",
+                "subject": subject,
+                "body": draft_body,
+                "sent_at": None,
+            },
+        )
+        self._db.commit()
+
+        logger.info(
+            "RESP-036: Deterministic ACKNOWLEDGE_AND_CHECK_AVAILABILITY draft generated "
+            "for enquiry %s",
             enquiry_id,
         )
 
@@ -524,6 +702,47 @@ class DraftGenerationService:
         )
         self._db.commit()
 
+        # AUTO-004: compute review state and persist review metadata
+        from app.modules.ai.draft_compliance_validator import (  # noqa: PLC0415
+            DraftComplianceValidator, ValidationContext,
+        )
+        from app.modules.ai.auto_send_readiness_gate import AutoSendReadinessGate  # noqa: PLC0415
+        from app.modules.ai.draft_review_state import (  # noqa: PLC0415
+            DraftReviewStateService,
+        )
+        from app.modules.enquiries.response_context_integrity_gate import (  # noqa: PLC0415
+            IntegrityCheckResult,
+        )
+
+        _ca_compliance = DraftComplianceValidator.validate(
+            draft_text=draft_body,
+            context=ValidationContext(
+                availability_contract="CONFIRMED_AVAILABLE",
+                response_goal="CONFIRM_AVAILABLE",
+            ),
+        )
+        _ca_integrity = IntegrityCheckResult(passed=True, violations=[])
+        _ca_readiness = AutoSendReadinessGate.evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            draft_compliance_result=_ca_compliance,
+            date_status="resolved",
+            integrity_result=_ca_integrity,
+        )
+        _ca_review_state = DraftReviewStateService.evaluate(
+            compliance_result=_ca_compliance,
+            readiness_result=_ca_readiness,
+        )
+        _ca_review_meta = {
+            "review_state": _ca_review_state.status,
+            "validation_status": "passed" if _ca_review_state.validation_passed else "failed",
+            "validation_blockers": _ca_review_state.validation_violations,
+            "auto_send_allowed": _ca_review_state.auto_send_allowed,
+            "auto_send_blockers": _ca_review_state.auto_send_blockers,
+            "generation_path": "deterministic",
+        }
+        self._enquiry_repo.update_message_review_metadata(message.id, _ca_review_meta)
+        self._db.commit()
+
         logger.info(
             "RESP-038: Deterministic CONFIRM_AVAILABLE draft generated for enquiry %s "
             "(model=%s)",
@@ -540,6 +759,7 @@ class DraftGenerationService:
             is_fallback=False,
             model=warmth_model,
             ai_context=ai_context,
+            review_state=_ca_review_state,
         )
 
 
@@ -573,7 +793,12 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
         "party_size_line": (
             f"Party size: {context.party_size}\n" if context.party_size else ""
         ),
-        "spend_line": _build_spend_line(context),
+        # RESP-029: suppress spend for RESPOND_UNAVAILABLE — unavailable response
+        # must not include pricing context; the slot is gone, no minimum spend applies
+        "spend_line": (
+            "" if context.response_goal == "RESPOND_UNAVAILABLE"
+            else _build_spend_line(context)
+        ),
         # RESP-024: suppress room details for goals where room-selling is forbidden
         # RESPOND_UNAVAILABLE — LLM path bypassed, but suppress for safety
         # ACKNOWLEDGE_AND_CHECK_AVAILABILITY — no room suitability claims until confirmed
@@ -588,8 +813,9 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
         "availability_line": _build_availability_line(context),
         # RESP-024: suppress clarification/missing-info context for CONFIRM_AVAILABLE —
         # availability is already confirmed; asking for more info would be contradictory
+        # RESP-029: suppress for RESPOND_UNAVAILABLE — no missing info is relevant
         "missing_questions_line": (
-            "" if context.response_goal == "CONFIRM_AVAILABLE"
+            "" if context.response_goal in ("CONFIRM_AVAILABLE", "RESPOND_UNAVAILABLE")
             else _build_missing_questions_line(context)
         ),
         # RESP-005: response goal — new goals take precedence; legacy alias kept for
@@ -605,16 +831,22 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
             else _build_clarification_questions_line(context)
         ),
         # RESP-006: structured draft context — separates tone from operational facts
-        "guest_message_line": _build_guest_tone_line(context),
+        # RESP-029: suppress for RESPOND_UNAVAILABLE — no tone context needed for
+        # deterministic copy-only drafts; include only unavailable copy block
+        "guest_message_line": (
+            "" if context.response_goal == "RESPOND_UNAVAILABLE"
+            else _build_guest_tone_line(context)
+        ),
         "confirmed_venue_facts_line": _build_confirmed_venue_facts_line(context),
         # RESP-024: suppress unconfirmed time preferences/prohibitions for
         # CONFIRM_AVAILABLE — no need to caveat confirmed responses with time warnings
+        # RESP-029: suppress for RESPOND_UNAVAILABLE — time context is irrelevant
         "requested_preferences_line": (
-            "" if context.response_goal == "CONFIRM_AVAILABLE"
+            "" if context.response_goal in ("CONFIRM_AVAILABLE", "RESPOND_UNAVAILABLE")
             else _build_requested_preferences_line(context)
         ),
         "prohibited_claims_line": (
-            "" if context.response_goal == "CONFIRM_AVAILABLE"
+            "" if context.response_goal in ("CONFIRM_AVAILABLE", "RESPOND_UNAVAILABLE")
             else _build_prohibited_claims_line(context)
         ),
         # RESP-007: phrase guidance — approved opening phrase for the current goal
@@ -727,6 +959,107 @@ def _build_clarification_questions_line(context: DraftContext) -> str:
         return f"Clarification question to ask: {questions[0]}\n"
     formatted = "\n".join(f"  {i + 1}. {q}" for i, q in enumerate(questions))
     return f"Clarification questions to ask (in order):\n{formatted}\n"
+
+
+def _build_acknowledge_enquiry_summary(context: "DraftContext") -> str:
+    """RESP-036: Build a short deterministic enquiry-summary sentence.
+
+    Produces a 1-sentence summary from the structured context fields.
+    Returns empty string if insufficient context is available.
+    """
+    parts: list[str] = []
+    if context.event_type:
+        event_label = context.event_type.replace("_", " ").lower()
+        parts.append(f"a {event_label}")
+    if context.party_size:
+        parts.append(f"for {context.party_size} guests")
+
+    if not parts:
+        return ""
+
+    summary = "I've noted your enquiry for " + " ".join(parts) + "."
+    return summary
+
+
+def _strip_section_labels(text: str) -> str:
+    """RESP-031: Remove standalone section header lines from LLM output.
+
+    Strips lines whose entire content (ignoring surrounding whitespace) is
+    one of the internal section labels defined in _SECTION_LABEL_PATTERNS —
+    e.g. **Opening**, **Sign-off**, **Enquiry summary**.
+
+    Normal bold text inside paragraphs (e.g. **The Grand**) is preserved
+    because those lines contain more than just the label pattern.
+
+    Consecutive blank lines introduced by removal are collapsed to at most one.
+    """
+    from app.modules.ai.draft_compliance_validator import (  # noqa: PLC0415
+        _SECTION_LABEL_PATTERNS,
+    )
+
+    lines = text.split("\n")
+    kept: list[str] = []
+    for line in lines:
+        stripped = line.strip()
+        if stripped and any(
+            p.fullmatch(stripped) for p in _SECTION_LABEL_PATTERNS
+        ):
+            continue  # drop standalone label line
+        kept.append(line)
+
+    # Collapse runs of more than one consecutive blank line
+    result: list[str] = []
+    blank_run = 0
+    for line in kept:
+        if line.strip() == "":
+            blank_run += 1
+            if blank_run <= 1:
+                result.append(line)
+        else:
+            blank_run = 0
+            result.append(line)
+
+    return "\n".join(result).strip()
+
+
+def _strip_subject_line(text: str) -> str:
+    """RESP-032: Remove subject-line leakage from LLM draft output.
+
+    Strips any line that starts with 'Subject:' (plain or markdown bold
+    format), regardless of position in the text.  The subject field is set
+    by the caller — it must never appear inside the email body.
+
+    Examples removed:
+        Subject: Birthday dinner enquiry
+        **Subject: Birthday dinner enquiry**
+
+    Blank lines introduced by removal are collapsed to at most one.
+    """
+    import re
+
+    # Match lines that start with optional ** then "Subject:" (case-insensitive)
+    _subject_re = re.compile(r"^\*{0,2}Subject\s*:", re.IGNORECASE)
+
+    lines = text.split("\n")
+    kept: list[str] = []
+    for line in lines:
+        if _subject_re.match(line.strip()):
+            continue
+        kept.append(line)
+
+    # Collapse runs of more than one consecutive blank line
+    result: list[str] = []
+    blank_run = 0
+    for line in kept:
+        if line.strip() == "":
+            blank_run += 1
+            if blank_run <= 1:
+                result.append(line)
+        else:
+            blank_run = 0
+            result.append(line)
+
+    return "\n".join(result).strip()
 
 
 _TIME_PATTERN = None  # lazy-compiled below
@@ -1002,6 +1335,59 @@ def _availability_status_to_contract(status: str | None) -> str:
         return "CONFIRMED_UNAVAILABLE"
     return "NOT_CHECKED"
 
+
+
+def _extract_approved_block_texts(context: DraftContext) -> list[str]:
+    """RESP-034: Return rendered approved block texts for post-extension detection.
+
+    Returns the same blocks used in _build_approved_copy_blocks_line but as a
+    flat list of rendered strings (without labels or framing text).
+    """
+    from app.modules.ai.first_response_copy_library import FirstResponseCopyLibrary  # noqa: PLC0415
+
+    goal = context.response_goal or "ACKNOWLEDGE_AND_CHECK_AVAILABILITY"
+    meal_period = context.availability_meal_period or "dinner"
+    event_date = context.availability_date or context.event_date or "the requested date"
+    persona_name = context.persona_name
+
+    blocks: list[str] = []
+
+    if goal == "CONFIRM_AVAILABLE":
+        t = FirstResponseCopyLibrary.render_safe(
+            "availability_confirmed",
+            {"meal_period": meal_period, "event_date": event_date},
+        )
+        if t:
+            blocks.append(t)
+        spend = context.confirmed_minimum_spend or context.recommended_minimum_spend
+        if spend and spend > 0:
+            t = FirstResponseCopyLibrary.render_safe(
+                "minimum_spend", {"spend_amount": f"£{spend:,.0f}"}
+            )
+            if t:
+                blocks.append(t)
+        t = FirstResponseCopyLibrary.render_safe("booking_next_step")
+        if t:
+            blocks.append(t)
+    elif goal == "ACKNOWLEDGE_AND_CHECK_AVAILABILITY":
+        t = FirstResponseCopyLibrary.render_safe(
+            "availability_not_checked",
+            {"meal_period": meal_period, "event_date": event_date},
+        )
+        if t:
+            blocks.append(t)
+        t = FirstResponseCopyLibrary.render_safe("availability_check_next_step")
+        if t:
+            blocks.append(t)
+    elif goal == "REQUEST_MISSING_INFORMATION":
+        t = FirstResponseCopyLibrary.render_safe("clarification_next_step")
+        if t:
+            blocks.append(t)
+
+    t = FirstResponseCopyLibrary.render_safe("signoff", {"persona_name": persona_name})
+    if t:
+        blocks.append(t)
+    return blocks
 
 
 def _build_approved_copy_blocks_line(context: DraftContext) -> str:
