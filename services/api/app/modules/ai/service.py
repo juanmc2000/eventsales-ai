@@ -387,6 +387,38 @@ class DraftGenerationService:
             enquiry_id,
         )
 
+        # RESP-028: compute deterministic review state — no LLM compliance needed;
+        # RESPOND_UNAVAILABLE is not in the auto-send allowlist so always HUMAN_REVIEW.
+        from app.modules.ai.draft_compliance_validator import (  # noqa: PLC0415
+            DraftComplianceValidator, ValidationContext,
+        )
+        from app.modules.ai.auto_send_readiness_gate import AutoSendReadinessGate  # noqa: PLC0415
+        from app.modules.ai.draft_review_state import (  # noqa: PLC0415
+            DraftReviewStateService, DraftReviewState,
+        )
+        from app.modules.enquiries.response_context_integrity_gate import (  # noqa: PLC0415
+            IntegrityCheckResult,
+        )
+
+        _det_compliance = DraftComplianceValidator.validate(
+            draft_text=draft_body,
+            context=ValidationContext(
+                availability_contract="CONFIRMED_UNAVAILABLE",
+                response_goal="RESPOND_UNAVAILABLE",
+            ),
+        )
+        _det_integrity = IntegrityCheckResult(passed=True, violations=[])
+        _det_readiness = AutoSendReadinessGate.evaluate(
+            response_goal="RESPOND_UNAVAILABLE",
+            draft_compliance_result=_det_compliance,
+            date_status="resolved",
+            integrity_result=_det_integrity,
+        )
+        _det_review_state = DraftReviewStateService.evaluate(
+            compliance_result=_det_compliance,
+            readiness_result=_det_readiness,
+        )
+
         return DraftGenerationResult(
             enquiry_id=enquiry_id,
             message_id=message.id,
@@ -396,6 +428,7 @@ class DraftGenerationService:
             is_fallback=False,
             model="deterministic",
             ai_context=ai_context,
+            review_state=_det_review_state,
         )
 
 
