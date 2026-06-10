@@ -227,6 +227,34 @@ class TestAcknowledgeAndCheckSections:
         plan = ResponseSectionBuilder.build("ACKNOWLEDGE_AND_CHECK_AVAILABILITY")
         assert SECTION_HOSTING_LANGUAGE in plan.section_reasoning
 
+    # RESP-054: additional forbidden sections
+    def test_webform_redirect_omitted(self) -> None:
+        plan = ResponseSectionBuilder.build("ACKNOWLEDGE_AND_CHECK_AVAILABILITY")
+        assert SECTION_WEBFORM_REDIRECT in plan.omitted_sections
+
+    def test_room_suitability_omitted(self) -> None:
+        plan = ResponseSectionBuilder.build("ACKNOWLEDGE_AND_CHECK_AVAILABILITY")
+        assert SECTION_ROOM_SUITABILITY in plan.omitted_sections
+
+    def test_menu_discussion_reasoning_mentions_dietary_and_av(self) -> None:
+        from app.modules.enquiries.response_section_builder import SECTION_MENU_DISCUSSION
+        plan = ResponseSectionBuilder.build("ACKNOWLEDGE_AND_CHECK_AVAILABILITY")
+        reasoning = plan.section_reasoning.get(SECTION_MENU_DISCUSSION, "")
+        assert "dietary" in reasoning.lower() or "av" in reasoning.lower()
+
+    def test_invented_questions_reasoning_mentions_dietary(self) -> None:
+        plan = ResponseSectionBuilder.build("ACKNOWLEDGE_AND_CHECK_AVAILABILITY")
+        reasoning = plan.section_reasoning.get(SECTION_INVENTED_QUESTIONS, "")
+        assert "dietary" in reasoning.lower()
+
+    def test_room_suitability_reasoning_provided(self) -> None:
+        plan = ResponseSectionBuilder.build("ACKNOWLEDGE_AND_CHECK_AVAILABILITY")
+        assert SECTION_ROOM_SUITABILITY in plan.section_reasoning
+
+    def test_webform_redirect_reasoning_provided(self) -> None:
+        plan = ResponseSectionBuilder.build("ACKNOWLEDGE_AND_CHECK_AVAILABILITY")
+        assert SECTION_WEBFORM_REDIRECT in plan.section_reasoning
+
 
 # ── REQUEST_MISSING_INFORMATION ───────────────────────────────────────────────
 
