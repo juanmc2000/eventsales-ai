@@ -1,4 +1,4 @@
-"""Tests for AlternativeDateService (RESP-042, RESP-049)."""
+"""Tests for AlternativeDateService (RESP-042, RESP-049, RESP-050)."""
 
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ from app.modules.enquiries.alternative_date_service import (
     AlternativeDateResult,
     AlternativeDateService,
 )
+from app.modules.enquiries.alternative_date_strategy import AlternativeDateStrategy
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -224,6 +225,82 @@ def test_specific_room_id_skips_room_lookup():
 
 
 # ── Service: capacity filtering ────────────────────────────────────────────────
+
+
+# ── RESP-050: strategy framework ──────────────────────────────────────────────
+
+
+def test_strategy_enum_values():
+    """AlternativeDateStrategy has all required enum members (RESP-050)."""
+    assert AlternativeDateStrategy.ADJACENT_DATES.value == "adjacent_dates"
+    assert AlternativeDateStrategy.SAME_WEEKDAY.value == "same_weekday"
+    assert AlternativeDateStrategy.EARLIEST_AVAILABLE.value == "earliest_available"
+    assert AlternativeDateStrategy.ALL_AVAILABLE_IN_RANGE.value == "all_available_in_range"
+    assert AlternativeDateStrategy.REVENUE_OPTIMISED.value == "revenue_optimised"
+
+
+def test_build_candidates_adjacent_dates():
+    """ADJACENT_DATES strategy produces D-1 and D+1 (RESP-050)."""
+    req = date(2026, 7, 15)
+    candidates = AlternativeDateService._build_candidates(
+        req, AlternativeDateStrategy.ADJACENT_DATES
+    )
+    assert candidates == [date(2026, 7, 14), date(2026, 7, 16)]
+
+
+def test_default_strategy_is_adjacent_dates():
+    """find_alternatives defaults to ADJACENT_DATES strategy (RESP-050)."""
+    db = MagicMock()
+    room = _room(ROOM_ID)
+    room_repo = MagicMock()
+    room_repo.list_for_restaurant.return_value = [room]
+    avail_repo = MagicMock()
+    avail_repo.get_for_room_date.return_value = [_slot("dinner", "available")]
+
+    with patch(
+        "app.modules.enquiries.alternative_date_service.RoomAvailabilityRepository",
+        return_value=avail_repo,
+    ), patch(
+        "app.modules.enquiries.alternative_date_service.RoomRepository",
+        return_value=room_repo,
+    ):
+        result = AlternativeDateService.find_alternatives(
+            db=db,
+            restaurant_id=RESTAURANT_ID,
+            requested_date=REQ_DATE,
+            meal_period="dinner",
+        )
+
+    assert "2026-07-14" in result.alternative_dates
+    assert "2026-07-16" in result.alternative_dates
+
+
+def test_explicit_adjacent_dates_strategy_same_as_default():
+    """Explicit ADJACENT_DATES strategy produces same result as default (RESP-050)."""
+    db = MagicMock()
+    room = _room(ROOM_ID)
+    room_repo = MagicMock()
+    room_repo.list_for_restaurant.return_value = [room]
+    avail_repo = MagicMock()
+    avail_repo.get_for_room_date.return_value = [_slot("dinner", "available")]
+
+    with patch(
+        "app.modules.enquiries.alternative_date_service.RoomAvailabilityRepository",
+        return_value=avail_repo,
+    ), patch(
+        "app.modules.enquiries.alternative_date_service.RoomRepository",
+        return_value=room_repo,
+    ):
+        result = AlternativeDateService.find_alternatives(
+            db=db,
+            restaurant_id=RESTAURANT_ID,
+            requested_date=REQ_DATE,
+            meal_period="dinner",
+            strategy=AlternativeDateStrategy.ADJACENT_DATES,
+        )
+
+    assert result.alternatives_found is True
+    assert len(result.alternative_dates) == 2
 
 
 def test_capacity_filter_excludes_small_room():
