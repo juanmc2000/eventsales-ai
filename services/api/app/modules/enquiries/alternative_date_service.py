@@ -40,6 +40,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+from app.modules.enquiries.alternative_date_strategy import AlternativeDateStrategy
 from app.modules.restaurants.repository import RoomAvailabilityRepository, RoomRepository
 
 # Availability slot status
@@ -97,8 +98,9 @@ class AlternativeDateService:
         room_id: uuid.UUID | None = None,
         guest_count: int | None = None,
         today: date | None = None,
+        strategy: AlternativeDateStrategy = AlternativeDateStrategy.ADJACENT_DATES,
     ) -> AlternativeDateResult:
-        """Find confirmed available alternative dates for D-1 and D+1.
+        """Find confirmed available alternative dates using the given strategy.
 
         Args:
             db:              SQLAlchemy session.
@@ -109,6 +111,7 @@ class AlternativeDateService:
             guest_count:     Optional — used to filter rooms by seated capacity.
             today:           Reference date for past-date filtering (defaults to
                              date.today()). Candidate dates before this are excluded.
+            strategy:        Candidate-date selection strategy (default ADJACENT_DATES).
 
         Returns:
             AlternativeDateResult with up to two confirmed-available dates.
@@ -118,12 +121,10 @@ class AlternativeDateService:
 
         run_date = today if today is not None else date.today()
 
-        # D-1 and D+1 are only valid if they are >= today (RESP-049 past-date filter)
-        raw_candidates = [
-            requested_date - timedelta(days=1),
-            requested_date + timedelta(days=1),
-        ]
+        # Build strategy-based candidates, then filter out past dates (RESP-049)
+        raw_candidates = cls._build_candidates(requested_date, strategy)
         candidate_dates = [c for c in raw_candidates if c >= run_date]
+
 
         checked: list[str] = []
         confirmed: list[str] = []
@@ -167,6 +168,26 @@ class AlternativeDateService:
         )
 
     # ── Internal helpers ───────────────────────────────────────────────────────
+
+    @staticmethod
+    def _build_candidates(
+        requested_date: date,
+        strategy: AlternativeDateStrategy,
+    ) -> list[date]:
+        """Return ordered candidate dates for the given strategy.
+
+        Only ADJACENT_DATES is implemented; other strategies fall back to it.
+        """
+        if strategy == AlternativeDateStrategy.ADJACENT_DATES:
+            return [
+                requested_date - timedelta(days=1),
+                requested_date + timedelta(days=1),
+            ]
+        # Future strategies are not yet implemented — fall back to ADJACENT_DATES.
+        return [
+            requested_date - timedelta(days=1),
+            requested_date + timedelta(days=1),
+        ]
 
     @staticmethod
     def _any_room_available(
