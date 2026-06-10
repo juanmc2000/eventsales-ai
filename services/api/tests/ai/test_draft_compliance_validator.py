@@ -616,6 +616,86 @@ class TestUnavailableRoomSuitability:
         assert len(suitability_violations) == 0
 
 
+# ── RESP-052: ACKNOWLEDGE room pre-commitment ─────────────────────────────────
+
+
+class TestAcknowledgeRoomPrecommitment:
+    """RESP-052: ACKNOWLEDGE responses must not name rooms or imply suitability."""
+
+    def _ack_ctx(self, **kwargs) -> ValidationContext:
+        return ValidationContext(
+            availability_contract="NOT_CHECKED",
+            response_goal="ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+            **kwargs,
+        )
+
+    def test_room_name_in_acknowledge_fails(self) -> None:
+        """email_100-style: invented room name in ACKNOWLEDGE response (RESP-052)."""
+        draft = (
+            "Thank you for getting in touch. I'll check availability for dinner on "
+            "14th August. Our Main Dining Room exclusive area would seat your group perfectly."
+        )
+        ctx = self._ack_ctx()
+        result = DraftComplianceValidator.validate(draft, ctx)
+        room_violations = [v for v in result.violations if "room pre-commitment" in v.lower() or "Room" in v]
+        assert len(room_violations) >= 1
+
+    def test_would_be_ideal_in_acknowledge_fails(self) -> None:
+        """'would be ideal' in ACKNOWLEDGE response is forbidden (RESP-052)."""
+        draft = (
+            "Thank you for your enquiry. I'll check availability. "
+            "Our private space would be ideal for your celebration."
+        )
+        ctx = self._ack_ctx()
+        result = DraftComplianceValidator.validate(draft, ctx)
+        assert result.passed is False
+        assert any("pre-commitment" in v for v in result.violations)
+
+    def test_recommended_room_in_acknowledge_fails(self) -> None:
+        """'recommended room' in ACKNOWLEDGE response is forbidden (RESP-052)."""
+        draft = "I'll check availability. Our recommended room for 30 guests is the Garden Room."
+        ctx = self._ack_ctx()
+        result = DraftComplianceValidator.validate(draft, ctx)
+        assert result.passed is False
+
+    def test_capacity_promise_in_acknowledge_fails(self) -> None:
+        """Capacity promise in ACKNOWLEDGE response is forbidden (RESP-052)."""
+        draft = "Thank you for your enquiry. We have a space that seats 40 guests. I'll check availability."
+        ctx = self._ack_ctx()
+        result = DraftComplianceValidator.validate(draft, ctx)
+        assert result.passed is False
+
+    def test_clean_acknowledge_passes(self) -> None:
+        """Clean ACKNOWLEDGE with no room name or suitability passes (RESP-052)."""
+        draft = (
+            "Thank you for your enquiry. I'll check availability for dinner on 14th August "
+            "for 30 guests and come back to you shortly."
+        )
+        ctx = self._ack_ctx()
+        result = DraftComplianceValidator.validate(draft, ctx)
+        room_violations = [v for v in result.violations if "pre-commitment" in v]
+        assert len(room_violations) == 0
+
+    def test_check_suitable_space_passes(self) -> None:
+        """'I'll check suitable space' phrasing passes (RESP-052)."""
+        draft = "Thank you for your enquiry. I'll check suitable space for your group on 14th August."
+        ctx = self._ack_ctx()
+        result = DraftComplianceValidator.validate(draft, ctx)
+        room_violations = [v for v in result.violations if "pre-commitment" in v]
+        assert len(room_violations) == 0
+
+    def test_room_precommitment_check_skipped_for_other_goals(self) -> None:
+        """Room pre-commitment check does not fire for CONFIRM_AVAILABLE (RESP-052)."""
+        draft = "I'm delighted to confirm availability. Our Garden Room is perfect for your group."
+        ctx = ValidationContext(
+            availability_contract="CONFIRMED_AVAILABLE",
+            response_goal="CONFIRM_AVAILABLE",
+        )
+        result = DraftComplianceValidator.validate(draft, ctx)
+        room_violations = [v for v in result.violations if "pre-commitment" in v]
+        assert len(room_violations) == 0
+
+
 class TestV5FixtureCoverage:
     """RESP-020: Validates that V5 fixture failure patterns are caught by strengthened validator."""
 
