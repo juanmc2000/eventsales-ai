@@ -268,7 +268,8 @@ def test_draft_generation_service_uses_fallback_when_no_api_key() -> None:
     assert "Claire" in result.body
     assert result.subject is not None
     service._enquiry_repo.add_message.assert_called_once()
-    mock_db.commit.assert_called_once()
+    # AUTO-004: two commits — one after message persist, one after review_metadata persist
+    assert mock_db.commit.call_count == 2
 
 
 def test_draft_generation_service_stores_outbound_draft_message() -> None:

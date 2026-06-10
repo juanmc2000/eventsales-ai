@@ -123,10 +123,11 @@ class TestBuildApprovedCopyBlocksLine:
         )
         assert expected in line
 
-    def test_confirm_available_contains_booking_next_step(self) -> None:
+    def test_confirm_available_contains_confirm_available_next_step(self) -> None:
+        # RESP-030: CONFIRM_AVAILABLE uses confirm_available_next_step block
         ctx = _base_context(response_goal="CONFIRM_AVAILABLE")
         line = _build_approved_copy_blocks_line(ctx)
-        expected = FirstResponseCopyLibrary.render("booking_next_step")
+        expected = FirstResponseCopyLibrary.render("confirm_available_next_step")
         assert expected in line
 
     def test_confirm_available_contains_spend_block_when_spend_set(self) -> None:

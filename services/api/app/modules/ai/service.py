@@ -322,6 +322,18 @@ class DraftGenerationService:
             readiness_result=_readiness,
         )
 
+        # AUTO-004: persist review state to message record
+        _llm_review_meta = {
+            "review_state": _review_state.status,
+            "validation_status": "passed" if _review_state.validation_passed else "failed",
+            "validation_blockers": _review_state.validation_violations,
+            "auto_send_allowed": _review_state.auto_send_allowed,
+            "auto_send_blockers": _review_state.auto_send_blockers,
+            "generation_path": "llm",
+        }
+        self._enquiry_repo.update_message_review_metadata(message.id, _llm_review_meta)
+        self._db.commit()
+
         return DraftGenerationResult(
             enquiry_id=enquiry_id,
             message_id=message.id,
@@ -391,12 +403,58 @@ class DraftGenerationService:
                 "sent_at": None,
             },
         )
+        # AUTO-004: persist review metadata before commit (message already flushed)
+        # Build a partial dict here; full state added after review_state is computed below
         self._db.commit()
 
         logger.info(
             "RESP-023: Deterministic RESPOND_UNAVAILABLE draft generated for enquiry %s",
             enquiry_id,
         )
+
+        # RESP-028: compute deterministic review state — no LLM compliance needed;
+        # RESPOND_UNAVAILABLE is not in the auto-send allowlist so always HUMAN_REVIEW.
+        from app.modules.ai.draft_compliance_validator import (  # noqa: PLC0415
+            DraftComplianceValidator, ValidationContext,
+        )
+        from app.modules.ai.auto_send_readiness_gate import AutoSendReadinessGate  # noqa: PLC0415
+        from app.modules.ai.draft_review_state import (  # noqa: PLC0415
+            DraftReviewStateService, DraftReviewState,
+        )
+        from app.modules.enquiries.response_context_integrity_gate import (  # noqa: PLC0415
+            IntegrityCheckResult,
+        )
+
+        _det_compliance = DraftComplianceValidator.validate(
+            draft_text=draft_body,
+            context=ValidationContext(
+                availability_contract="CONFIRMED_UNAVAILABLE",
+                response_goal="RESPOND_UNAVAILABLE",
+            ),
+        )
+        _det_integrity = IntegrityCheckResult(passed=True, violations=[])
+        _det_readiness = AutoSendReadinessGate.evaluate(
+            response_goal="RESPOND_UNAVAILABLE",
+            draft_compliance_result=_det_compliance,
+            date_status="resolved",
+            integrity_result=_det_integrity,
+        )
+        _det_review_state = DraftReviewStateService.evaluate(
+            compliance_result=_det_compliance,
+            readiness_result=_det_readiness,
+        )
+
+        # AUTO-004: persist review state to message record
+        _det_review_meta = {
+            "review_state": _det_review_state.status,
+            "validation_status": "passed" if _det_review_state.validation_passed else "failed",
+            "validation_blockers": _det_review_state.validation_violations,
+            "auto_send_allowed": _det_review_state.auto_send_allowed,
+            "auto_send_blockers": _det_review_state.auto_send_blockers,
+            "generation_path": "deterministic",
+        }
+        self._enquiry_repo.update_message_review_metadata(message.id, _det_review_meta)
+        self._db.commit()
 
         return DraftGenerationResult(
             enquiry_id=enquiry_id,
@@ -407,6 +465,7 @@ class DraftGenerationService:
             is_fallback=False,
             model="deterministic",
             ai_context=ai_context,
+            review_state=_det_review_state,
         )
 
 
@@ -440,7 +499,12 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
         "party_size_line": (
             f"Party size: {context.party_size}\n" if context.party_size else ""
         ),
-        "spend_line": _build_spend_line(context),
+        # RESP-029: suppress spend for RESPOND_UNAVAILABLE — unavailable response
+        # must not include pricing context; the slot is gone, no minimum spend applies
+        "spend_line": (
+            "" if context.response_goal == "RESPOND_UNAVAILABLE"
+            else _build_spend_line(context)
+        ),
         # RESP-024: suppress room details for goals where room-selling is forbidden
         # RESPOND_UNAVAILABLE — LLM path bypassed, but suppress for safety
         # ACKNOWLEDGE_AND_CHECK_AVAILABILITY — no room suitability claims until confirmed
@@ -455,8 +519,9 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
         "availability_line": _build_availability_line(context),
         # RESP-024: suppress clarification/missing-info context for CONFIRM_AVAILABLE —
         # availability is already confirmed; asking for more info would be contradictory
+        # RESP-029: suppress for RESPOND_UNAVAILABLE — no missing info is relevant
         "missing_questions_line": (
-            "" if context.response_goal == "CONFIRM_AVAILABLE"
+            "" if context.response_goal in ("CONFIRM_AVAILABLE", "RESPOND_UNAVAILABLE")
             else _build_missing_questions_line(context)
         ),
         # RESP-005: response goal — new goals take precedence; legacy alias kept for
@@ -472,16 +537,22 @@ def _build_draft_input_payload(context: DraftContext) -> dict:
             else _build_clarification_questions_line(context)
         ),
         # RESP-006: structured draft context — separates tone from operational facts
-        "guest_message_line": _build_guest_tone_line(context),
+        # RESP-029: suppress for RESPOND_UNAVAILABLE — no tone context needed for
+        # deterministic copy-only drafts; include only unavailable copy block
+        "guest_message_line": (
+            "" if context.response_goal == "RESPOND_UNAVAILABLE"
+            else _build_guest_tone_line(context)
+        ),
         "confirmed_venue_facts_line": _build_confirmed_venue_facts_line(context),
         # RESP-024: suppress unconfirmed time preferences/prohibitions for
         # CONFIRM_AVAILABLE — no need to caveat confirmed responses with time warnings
+        # RESP-029: suppress for RESPOND_UNAVAILABLE — time context is irrelevant
         "requested_preferences_line": (
-            "" if context.response_goal == "CONFIRM_AVAILABLE"
+            "" if context.response_goal in ("CONFIRM_AVAILABLE", "RESPOND_UNAVAILABLE")
             else _build_requested_preferences_line(context)
         ),
         "prohibited_claims_line": (
-            "" if context.response_goal == "CONFIRM_AVAILABLE"
+            "" if context.response_goal in ("CONFIRM_AVAILABLE", "RESPOND_UNAVAILABLE")
             else _build_prohibited_claims_line(context)
         ),
         # RESP-007: phrase guidance — approved opening phrase for the current goal
@@ -978,7 +1049,8 @@ def _build_approved_copy_blocks_line(context: DraftContext) -> str:
             )
             if text:
                 blocks.append(("Minimum spend statement", text))
-        text = FirstResponseCopyLibrary.render_safe("booking_next_step")
+        # RESP-030: use constrained next-step block — no "additional details" invitation
+        text = FirstResponseCopyLibrary.render_safe("confirm_available_next_step")
         if text:
             blocks.append(("Next step", text))
 
