@@ -1,4 +1,4 @@
-"""Response Section Builder (RESP-011, updated RESP-016).
+"""Response Section Builder (RESP-011, updated RESP-016, RESP-054).
 
 Deterministically specifies which sections the draft LLM is allowed to write,
 which are required, and which must be omitted.  No LLM calls are made.
@@ -242,6 +242,7 @@ class ResponseSectionBuilder:
         **_: Any,
     ) -> SectionPlan:
         # RESP-016: availability_check_next_step replaces generic simple_next_step
+        # RESP-054: strengthened — webform redirect and room suitability explicitly forbidden
         allowed = [
             SECTION_OPENING,
             SECTION_ENQUIRY_SUMMARY,
@@ -261,6 +262,9 @@ class ResponseSectionBuilder:
             SECTION_ALTERNATIVE_DATES,
             SECTION_INVENTED_QUESTIONS,
             SECTION_INVENTED_SLA,
+            # RESP-054: explicitly suppress webform redirect and room suitability
+            SECTION_WEBFORM_REDIRECT,
+            SECTION_ROOM_SUITABILITY,
         ]
 
         reasoning: dict[str, str] = {
@@ -270,10 +274,25 @@ class ResponseSectionBuilder:
             ),
             SECTION_AVAILABILITY_CONFIRMATION: "Availability has not been checked — do not confirm it.",
             SECTION_EXACT_TIMING: "Time has not been confirmed — do not state or imply a specific time.",
-            SECTION_MENU_DISCUSSION: "Menu discussion is premature before availability is confirmed.",
-            SECTION_INVENTED_QUESTIONS: "No clarification questions are listed — do not invent any.",
+            SECTION_MENU_DISCUSSION: (
+                "Menu, dietary, and AV discussion is premature before availability is confirmed. "
+                "Do not ask about dietary requirements, menu preferences, AV needs, or special touches."
+            ),
+            SECTION_INVENTED_QUESTIONS: (
+                "No clarification questions are listed — do not invent any. "
+                "Specifically: do not ask about dietary requirements, AV needs, "
+                "decorations, entertainment, or other event-detail questions."
+            ),
             SECTION_INVENTED_SLA: (
                 "Do not commit to a specific response time (e.g. 'within 24 hours')."
+            ),
+            SECTION_WEBFORM_REDIRECT: (
+                "Do not reference a booking form or webform — the goal is only to acknowledge "
+                "the enquiry and confirm the team will check availability."
+            ),
+            SECTION_ROOM_SUITABILITY: (
+                "Do not name specific rooms or imply room suitability before availability is checked. "
+                "Use 'I'll check availability' or 'I'll check suitable space' instead."
             ),
         }
 
