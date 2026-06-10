@@ -1,4 +1,4 @@
-"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-026, RESP-027, RESP-033, RESP-052).
+"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-026, RESP-027, RESP-033, RESP-052, RESP-053).
 
 Validates generated draft emails against the availability contract, spend rules,
 and prompt constraints before the draft is shown to staff or sent to guests.
@@ -46,6 +46,11 @@ RESP-052 additional checks:
   14. Room pre-commitment in ACKNOWLEDGE_AND_CHECK_AVAILABILITY responses
       Forbidden: specific room names, "recommended room", capacity promises,
       suitability promises ("would be ideal", "perfect for your group").
+RESP-053 additional checks:
+  14. Invented room name across all response goals.
+      If ValidationContext.known_room_names is provided and a room name in the
+      draft does not match any known name (case-insensitive), it is flagged as
+      an invented room name with violation code "invented_room_name".
 
 Usage::
 
@@ -103,6 +108,9 @@ class ValidationContext:
     required_opening_phrase: str | None = None
     # RESP-034: rendered approved block texts for post-extension detection
     approved_blocks: list[str] = field(default_factory=list)
+    # RESP-053: known room names for the restaurant — used to detect invented room names
+    # If empty, the invented-room-name check is skipped (caller has no room context)
+    known_room_names: list[str] = field(default_factory=list)
 
 
 # ── Output ─────────────────────────────────────────────────────────────────────
@@ -281,6 +289,15 @@ _SECTION_LABEL_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\*\*Closing\*\*", re.IGNORECASE),
 ]
 
+# RESP-053: Pattern for extracting named room/space references from draft text.
+# Matches names like "The Garden Room", "Private Dining Room", "Rooftop Suite",
+# "Crystal Ballroom", "Executive Lounge", "Loft Hall", "Sunset Terrace".
+# Used to compare against ValidationContext.known_room_names.
+_ROOM_NAME_PATTERN = re.compile(
+    r"\b(?:The\s+)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+"
+    r"(?:Room|Suite|Hall|Lounge|Terrace|Ballroom|Loft|Space|Bar|Gallery|Studio)\b"
+)
+
 # RESP-012: Forbidden topic — call scheduling
 _CALL_SCHEDULING_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\barrange\s+a\s+call\b", re.IGNORECASE),
@@ -293,9 +310,11 @@ _CALL_SCHEDULING_PATTERNS: list[re.Pattern[str]] = [
 
 # RESP-052: Room pre-commitment language — forbidden in ACKNOWLEDGE_AND_CHECK_AVAILABILITY
 # Covers specific room name patterns, suitability promises, and capacity promises.
+_ACKNOWLEDGE_ROOM_NAME_PATTERN: re.Pattern[str] = re.compile(
+    r"\b(?:The\s+)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+Room\b"
+)
 _ACKNOWLEDGE_ROOM_PRECOMMITMENT_PATTERNS: list[re.Pattern[str]] = [
-    # Named room patterns (e.g. "The Garden Room", "Private Dining Room", "Loft Room")
-    re.compile(r"\b(?:The\s+)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+Room\b"),
+    _ACKNOWLEDGE_ROOM_NAME_PATTERN,
     # Suitability / pre-commitment phrases
     re.compile(r"\bwould\s+be\s+ideal\b", re.IGNORECASE),
     re.compile(r"\bperfect\s+for\s+your\s+(?:group|party|event|occasion|celebration)\b", re.IGNORECASE),
@@ -303,6 +322,15 @@ _ACKNOWLEDGE_ROOM_PRECOMMITMENT_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\bsuitable\s+(?:room|venue)\b", re.IGNORECASE),
     # Capacity promises (e.g. "seats 30", "accommodates 40", "capacity for 20")
     re.compile(r"\b(?:seat|seats|seating|accommodate[sd]?|capacity\s+for)\s+\d+\b", re.IGNORECASE),
+]
+
+# RESP-052: Safe-context phrases that precede a room name without constituting pre-commitment.
+# e.g. "We will check availability of the Terrace Room" is checking, not committing.
+_ROOM_NAME_SAFE_CONTEXT_PATTERNS: list[re.Pattern[str]] = [
+    re.compile(r"\bcheck(?:ing)?\s+(?:(?:the|a)\s+)?availability\b", re.IGNORECASE),
+    re.compile(r"\bavailability\s+of\b", re.IGNORECASE),
+    re.compile(r"\bcheck(?:ing)?\s+(?:if|whether)\b", re.IGNORECASE),
+    re.compile(r"\blook(?:ing)?\s+into\s+(?:(?:the|a)\s+)?availability\b", re.IGNORECASE),
 ]
 
 
@@ -354,6 +382,8 @@ class DraftComplianceValidator:
         cls._check_copy_block_post_extension(draft_text, context, violations, structured_violations)
         # RESP-052 additional checks
         cls._check_acknowledge_room_precommitment(draft_text, context, violations)
+        # RESP-053 additional checks
+        cls._check_invented_room_names(draft_text, context, violations, structured_violations)
 
         passed = len(violations) == 0
         return ComplianceResult(
@@ -870,12 +900,69 @@ class DraftComplianceValidator:
         if context.availability_contract == "CONFIRMED_AVAILABLE":
             return
         for pattern in _ACKNOWLEDGE_ROOM_PRECOMMITMENT_PATTERNS:
-            m = pattern.search(text)
-            if m:
-                violations.append(
-                    f"ACKNOWLEDGE response contains room pre-commitment language "
-                    f"('{m.group(0)}'). Room names, suitability claims, and capacity "
-                    "promises must not appear before availability is confirmed. "
-                    "Use 'I'll check availability' or 'I'll check suitable space' instead."
+            if pattern is _ACKNOWLEDGE_ROOM_NAME_PATTERN:
+                # Room name in a safe "checking availability of [Room]" context is allowed.
+                for m in pattern.finditer(text):
+                    start = max(0, m.start() - 35)
+                    preceding = text[start:m.start()]
+                    if any(sp.search(preceding) for sp in _ROOM_NAME_SAFE_CONTEXT_PATTERNS):
+                        continue  # Safe context — availability check, not pre-commitment
+                    violations.append(
+                        f"ACKNOWLEDGE response contains room pre-commitment language "
+                        f"('{m.group(0)}'). Room names, suitability claims, and capacity "
+                        "promises must not appear before availability is confirmed. "
+                        "Use 'I'll check availability' or 'I'll check suitable space' instead."
+                    )
+                    return  # One violation per category
+            else:
+                m = pattern.search(text)
+                if m:
+                    violations.append(
+                        f"ACKNOWLEDGE response contains room pre-commitment language "
+                        f"('{m.group(0)}'). Room names, suitability claims, and capacity "
+                        "promises must not appear before availability is confirmed. "
+                        "Use 'I'll check availability' or 'I'll check suitable space' instead."
+                    )
+                    return  # One violation per category
+
+    # ── RESP-053 additional checks ──────────────────────────────────────────
+
+    @classmethod
+    def _check_invented_room_names(
+        cls,
+        text: str,
+        context: ValidationContext,
+        violations: list[str],
+        structured_violations: list[ViolationDetail] | None = None,
+    ) -> None:
+        """RESP-053: Fail if the draft names a room not present in known_room_names.
+
+        Applies to all response goals.  If ValidationContext.known_room_names is
+        empty, the check is skipped — the caller has not provided room context so
+        validation is not possible.
+
+        If a room name is detected in the draft that does not match any known room
+        (case-insensitive), a structured violation with code "invented_room_name"
+        is recorded.
+        """
+        if not context.known_room_names:
+            return  # No room context — cannot validate room names
+
+        known_lower = {name.strip().lower() for name in context.known_room_names}
+        matches = _ROOM_NAME_PATTERN.findall(text)
+        for match in matches:
+            if match.strip().lower() not in known_lower:
+                message = (
+                    f"Draft mentions room '{match}' which is not in the known room list "
+                    f"for this restaurant. Room names must match confirmed venue context — "
+                    "invented room names must not appear in responses."
                 )
-                return  # One violation per category
+                violations.append(message)
+                if structured_violations is not None:
+                    structured_violations.append(ViolationDetail(
+                        code="invented_room_name",
+                        severity="high",
+                        matched_text=match,
+                        message=message,
+                    ))
+                return  # One violation per check call

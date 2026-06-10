@@ -693,6 +693,80 @@ class TestAcknowledgeRoomPrecommitment:
         )
         result = DraftComplianceValidator.validate(draft, ctx)
         room_violations = [v for v in result.violations if "pre-commitment" in v]
+
+# ── RESP-053: invented room name validator — all goals ────────────────────────
+
+
+class TestInventedRoomNameValidator:
+    """RESP-053: Invented room names must fail validation across all response goals."""
+
+    KNOWN_ROOMS = ["The Garden Room", "Private Dining Room"]
+
+    def _ctx(self, goal: str, contract: str = "CONFIRMED_AVAILABLE") -> ValidationContext:
+        return ValidationContext(
+            availability_contract=contract,
+            response_goal=goal,
+            known_room_names=self.KNOWN_ROOMS,
+        )
+
+    def test_invented_room_name_in_confirm_available_fails(self) -> None:
+        """Invented room name in CONFIRM_AVAILABLE is flagged (RESP-053)."""
+        draft = "I'm delighted to confirm availability. The Rooftop Suite is perfect for your event."
+        ctx = self._ctx("CONFIRM_AVAILABLE")
+        result = DraftComplianceValidator.validate(draft, ctx)
+        assert result.passed is False
+        assert any("Rooftop Suite" in v for v in result.violations)
+
+    def test_invented_room_name_in_respond_unavailable_fails(self) -> None:
+        """Invented room name in RESPOND_UNAVAILABLE is flagged (RESP-053)."""
+        draft = "Unfortunately we are fully booked on that date. The Crystal Ballroom would be available next week."
+        ctx = self._ctx("RESPOND_UNAVAILABLE", contract="CONFIRMED_UNAVAILABLE")
+        result = DraftComplianceValidator.validate(draft, ctx)
+        assert result.passed is False
+        assert any("Crystal Ballroom" in v for v in result.violations)
+
+    def test_invented_room_name_in_request_missing_information_fails(self) -> None:
+        """Invented room name in REQUEST_MISSING_INFORMATION is flagged (RESP-053)."""
+        draft = "Could you confirm the date? Our Executive Lounge is often available."
+        ctx = self._ctx("REQUEST_MISSING_INFORMATION", contract="NOT_CHECKED")
+        result = DraftComplianceValidator.validate(draft, ctx)
+        assert result.passed is False
+        assert any("Executive Lounge" in v for v in result.violations)
+
+    def test_known_room_name_in_confirm_available_passes(self) -> None:
+        """Known room name in CONFIRM_AVAILABLE passes (RESP-053)."""
+        draft = "I'm delighted to confirm availability. The Garden Room is available for dinner on 14th July."
+        ctx = self._ctx("CONFIRM_AVAILABLE")
+        result = DraftComplianceValidator.validate(draft, ctx)
+        room_violations = [v for v in result.violations if "invented" in v.lower()]
+        assert len(room_violations) == 0
+
+    def test_no_known_room_names_skips_check(self) -> None:
+        """When known_room_names is empty, invented room name check is skipped (RESP-053)."""
+        draft = "I'm delighted to confirm availability. The Moonlight Terrace is available."
+        ctx = ValidationContext(
+            availability_contract="CONFIRMED_AVAILABLE",
+            response_goal="CONFIRM_AVAILABLE",
+            known_room_names=[],  # no room context
+        )
+        result = DraftComplianceValidator.validate(draft, ctx)
+        room_violations = [v for v in result.violations if "invented" in v.lower()]
+        assert len(room_violations) == 0
+
+    def test_structured_violation_code_is_invented_room_name(self) -> None:
+        """Structured violation has code 'invented_room_name' (RESP-053)."""
+        draft = "I'm delighted to confirm. The Sunset Terrace is the perfect space."
+        ctx = self._ctx("CONFIRM_AVAILABLE")
+        result = DraftComplianceValidator.validate(draft, ctx)
+        codes = [sv.code for sv in result.structured_violations]
+        assert "invented_room_name" in codes
+
+    def test_case_insensitive_room_name_match(self) -> None:
+        """Known room name comparison is case-insensitive (RESP-053)."""
+        draft = "I'm delighted to confirm. The private dining room is available."
+        ctx = self._ctx("CONFIRM_AVAILABLE")  # known: "Private Dining Room"
+        result = DraftComplianceValidator.validate(draft, ctx)
+        room_violations = [v for v in result.violations if "invented" in v.lower()]
         assert len(room_violations) == 0
 
 
