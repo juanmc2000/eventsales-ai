@@ -262,9 +262,12 @@ _TIMING_LANGUAGE_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\btiming\s+preferences?\b", re.IGNORECASE),
 ]
 
-# RESP-032: Subject-line patterns that must not appear in the draft body
+# RESP-032/RESP-055: Subject-line patterns that must not appear in the draft body.
+# RESP-055: extended to cover "Re:" and "Email subject:" prefixes (ACKNOWLEDGE leakage).
 _SUBJECT_LINE_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"^\*{0,2}Subject\s*:", re.IGNORECASE | re.MULTILINE),
+    re.compile(r"^\*{0,2}Re\s*:", re.IGNORECASE | re.MULTILINE),
+    re.compile(r"^\*{0,2}Email\s+subject\s*:", re.IGNORECASE | re.MULTILINE),
 ]
 
 # RESP-027: Internal section labels that must not appear in customer-facing drafts

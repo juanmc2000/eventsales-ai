@@ -1023,22 +1023,28 @@ def _strip_section_labels(text: str) -> str:
 
 
 def _strip_subject_line(text: str) -> str:
-    """RESP-032: Remove subject-line leakage from LLM draft output.
+    """RESP-032/RESP-055: Remove subject-line leakage from LLM draft output.
 
-    Strips any line that starts with 'Subject:' (plain or markdown bold
-    format), regardless of position in the text.  The subject field is set
-    by the caller — it must never appear inside the email body.
+    Strips any line that starts with a subject-line prefix, regardless of
+    position in the text.  The subject field is set by the caller — it must
+    never appear inside the email body.
 
-    Examples removed:
+    Prefixes removed (RESP-055 extended):
         Subject: Birthday dinner enquiry
         **Subject: Birthday dinner enquiry**
+        Re: Birthday dinner enquiry
+        Email subject: Birthday dinner enquiry
 
     Blank lines introduced by removal are collapsed to at most one.
     """
     import re
 
-    # Match lines that start with optional ** then "Subject:" (case-insensitive)
-    _subject_re = re.compile(r"^\*{0,2}Subject\s*:", re.IGNORECASE)
+    # RESP-032: "Subject:" (plain or markdown bold)
+    # RESP-055: extended to also strip "Re:" and "Email subject:" prefixes
+    _subject_re = re.compile(
+        r"^\*{0,2}(?:Subject|Re|Email\s+subject)\s*:",
+        re.IGNORECASE,
+    )
 
     lines = text.split("\n")
     kept: list[str] = []
