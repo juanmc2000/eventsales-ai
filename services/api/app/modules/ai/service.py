@@ -169,6 +169,17 @@ class DraftGenerationService:
                 guest_message=guest_message,
             )
 
+        # ── RESP-036: Semi-deterministic ACKNOWLEDGE_AND_CHECK_AVAILABILITY path ─
+        if context.response_goal == "ACKNOWLEDGE_AND_CHECK_AVAILABILITY":
+            return self._generate_deterministic_acknowledge_draft(
+                enquiry_id=enquiry_id,
+                enquiry=enquiry,
+                context=context,
+                persona_name=persona_name,
+                recommended_minimum_spend=recommended_minimum_spend,
+                guest_message=guest_message,
+            )
+
         # Build input_payload for the draft_response prompt template
         input_payload = _build_draft_input_payload(context)
 
@@ -471,6 +482,100 @@ class DraftGenerationService:
             review_state=_det_review_state,
         )
 
+    def _generate_deterministic_acknowledge_draft(
+        self,
+        enquiry_id: uuid.UUID,
+        enquiry,
+        context: "DraftContext",
+        persona_name: str,
+        recommended_minimum_spend: float | None,
+        guest_message: str | None,
+    ) -> "DraftGenerationResult":
+        """RESP-036: Build an ACKNOWLEDGE_AND_CHECK_AVAILABILITY draft deterministically.
+
+        Structure:
+          Dear {guest_name},
+
+          [availability_not_checked block]
+          [optional short enquiry-summary sentence from context facts]
+          [availability_check_next_step block]
+
+          [signoff block]
+
+        No LLM call is made.  The optional enquiry-summary is built from
+        structured context fields.  Response is kept under 120 words.
+        """
+        from app.modules.ai.first_response_copy_library import (  # noqa: PLC0415
+            FirstResponseCopyLibrary,
+        )
+
+        meal_period = context.availability_meal_period or "dinner"
+        event_date = context.availability_date or context.event_date or "the requested date"
+        guest_name = context.guest_first_name or "there"
+
+        opening = FirstResponseCopyLibrary.render(
+            "availability_not_checked",
+            {"meal_period": meal_period, "event_date": event_date},
+        )
+        next_step = FirstResponseCopyLibrary.render("availability_check_next_step")
+        signoff = FirstResponseCopyLibrary.render(
+            "signoff",
+            {"persona_name": persona_name},
+        )
+
+        # Optional enquiry-summary — deterministic from structured fields
+        summary = _build_acknowledge_enquiry_summary(context)
+
+        body_parts = [f"Dear {guest_name},", "", opening]
+        if summary:
+            body_parts.append(summary)
+        body_parts.extend(["", next_step, "", signoff])
+        draft_body = "\n".join(body_parts)
+
+        ai_context = AIContextOut(
+            model="deterministic",
+            is_fallback=False,
+            persona_name=persona_name,
+            persona_tone=context.persona_tone,
+            persona_style=context.persona_style,
+            guest_message_used=guest_message,
+            room_name=None,  # No room details until availability is checked
+            recommended_minimum_spend=recommended_minimum_spend,
+            system_prompt=None,
+            user_message=None,
+            prompt_run_id=None,
+        )
+
+        subject = _build_subject(enquiry.first_name, enquiry.last_name, enquiry.event_type)
+        message = self._enquiry_repo.add_message(
+            enquiry_id,
+            {
+                "direction": "outbound",
+                "channel": "draft",
+                "subject": subject,
+                "body": draft_body,
+                "sent_at": None,
+            },
+        )
+        self._db.commit()
+
+        logger.info(
+            "RESP-036: Deterministic ACKNOWLEDGE_AND_CHECK_AVAILABILITY draft generated "
+            "for enquiry %s",
+            enquiry_id,
+        )
+
+        return DraftGenerationResult(
+            enquiry_id=enquiry_id,
+            message_id=message.id,
+            subject=subject,
+            body=draft_body,
+            persona_name=persona_name,
+            is_fallback=False,
+            model="deterministic",
+            ai_context=ai_context,
+        )
+
 
 # ── Internal helpers ───────────────────────────────────────────────────────────
 
@@ -663,6 +768,26 @@ def _build_clarification_questions_line(context: DraftContext) -> str:
         return f"Clarification question to ask: {questions[0]}\n"
     formatted = "\n".join(f"  {i + 1}. {q}" for i, q in enumerate(questions))
     return f"Clarification questions to ask (in order):\n{formatted}\n"
+
+
+def _build_acknowledge_enquiry_summary(context: "DraftContext") -> str:
+    """RESP-036: Build a short deterministic enquiry-summary sentence.
+
+    Produces a 1-sentence summary from the structured context fields.
+    Returns empty string if insufficient context is available.
+    """
+    parts: list[str] = []
+    if context.event_type:
+        event_label = context.event_type.replace("_", " ").lower()
+        parts.append(f"a {event_label}")
+    if context.party_size:
+        parts.append(f"for {context.party_size} guests")
+
+    if not parts:
+        return ""
+
+    summary = "I've noted your enquiry for " + " ".join(parts) + "."
+    return summary
 
 
 def _strip_section_labels(text: str) -> str:
