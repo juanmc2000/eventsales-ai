@@ -1,4 +1,4 @@
-"""First Response Copy Library (RESP-017, updated RESP-037, RESP-043).
+"""First Response Copy Library (RESP-017, updated RESP-037, RESP-043, RESP-051).
 
 Approved deterministic copy blocks for operationally sensitive first-response
 statements.  The LLM must use these blocks verbatim (with variable interpolation)
@@ -96,20 +96,27 @@ _TEMPLATES: dict[str, str] = {
     BLOCK_SIGNOFF: (
         "Warm regards,\n{persona_name}"
     ),
-    # RESP-043: unavailable — no confirmed alternatives available
+    # RESP-043/RESP-051: unavailable — no confirmed alternatives available
+    # Warmer tone: short empathy sentence added, remains concise
     BLOCK_UNAVAILABLE_NO_ALTERNATIVES: (
-        "Unfortunately, we are fully booked for {meal_period} on {requested_date}."
+        "Thank you for your enquiry. Unfortunately, we are fully booked for "
+        "{meal_period} on {requested_date}. We hope to be able to welcome you "
+        "on another occasion."
     ),
-    # RESP-043: unavailable — one confirmed alternative offered
+    # RESP-043/RESP-051: unavailable — one confirmed alternative offered
+    # States unavailable date, offers confirmed alternative, invites guest to confirm
     BLOCK_UNAVAILABLE_ONE_ALTERNATIVE: (
-        "Unfortunately, we are fully booked for {meal_period} on {requested_date}, "
-        "but we do have availability for {meal_period} on {alternative_date}."
+        "Thank you for your enquiry. Unfortunately, we are fully booked for "
+        "{meal_period} on {requested_date}. However, we do have availability "
+        "for {meal_period} on {alternative_date} — would that date work for you?"
     ),
-    # RESP-043: unavailable — two confirmed alternatives offered
+    # RESP-043/RESP-051: unavailable — two confirmed alternatives offered
+    # States unavailable date, offers both alternatives, invites guest to confirm
     BLOCK_UNAVAILABLE_TWO_ALTERNATIVES: (
-        "Unfortunately, we are fully booked for {meal_period} on {requested_date}, "
-        "but we do have availability for {meal_period} on {alternative_date_1} "
-        "or {alternative_date_2}."
+        "Thank you for your enquiry. Unfortunately, we are fully booked for "
+        "{meal_period} on {requested_date}. However, we do have availability "
+        "for {meal_period} on {alternative_date_1} or {alternative_date_2} — "
+        "would either of those dates work for you?"
     ),
 }
 
