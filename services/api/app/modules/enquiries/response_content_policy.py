@@ -176,10 +176,13 @@ _POLICY_ACKNOWLEDGE_AND_CHECK = ContentPolicy(
         TOPIC_INVENTED_QUESTIONS,
         TOPIC_INVENTED_SLA,
         TOPIC_FAKE_LINKS,
+        # RESP-052: room names and suitability must not appear before availability is confirmed
+        TOPIC_VENUE_ROOM_SUITABILITY,
     ),
     policy_notes=(
         "No availability check has been performed. Say we will check and come back. "
-        "Do not imply hosting capability or discuss venue specifics as if confirmed."
+        "Do not imply hosting capability, name specific rooms, or discuss venue specifics "
+        "as if confirmed. Room names must not appear before availability is checked (RESP-052)."
     ),
 )
 

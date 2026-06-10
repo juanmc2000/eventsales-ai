@@ -1,4 +1,4 @@
-"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-026, RESP-027, RESP-033).
+"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-026, RESP-027, RESP-033, RESP-052).
 
 Validates generated draft emails against the availability contract, spend rules,
 and prompt constraints before the draft is shown to staff or sent to guests.
@@ -41,6 +41,11 @@ RESP-033 additional checks:
   13. Structured forbidden-topic violations (code, severity, matched_text)
       Covers: timing discussion, menu, dietary, special touches, call/chat/phone,
       alternative dates (via alternatives_allowed flag)
+
+RESP-052 additional checks:
+  14. Room pre-commitment in ACKNOWLEDGE_AND_CHECK_AVAILABILITY responses
+      Forbidden: specific room names, "recommended room", capacity promises,
+      suitability promises ("would be ideal", "perfect for your group").
 
 Usage::
 
@@ -283,6 +288,20 @@ _CALL_SCHEDULING_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\bspeak\s+(?:on|over)\s+the\s+phone\b", re.IGNORECASE),
 ]
 
+# RESP-052: Room pre-commitment language — forbidden in ACKNOWLEDGE_AND_CHECK_AVAILABILITY
+# Covers specific room name patterns, suitability promises, and capacity promises.
+_ACKNOWLEDGE_ROOM_PRECOMMITMENT_PATTERNS: list[re.Pattern[str]] = [
+    # Named room patterns (e.g. "The Garden Room", "Private Dining Room", "Loft Room")
+    re.compile(r"\b(?:The\s+)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+Room\b"),
+    # Suitability / pre-commitment phrases
+    re.compile(r"\bwould\s+be\s+ideal\b", re.IGNORECASE),
+    re.compile(r"\bperfect\s+for\s+your\s+(?:group|party|event|occasion|celebration)\b", re.IGNORECASE),
+    re.compile(r"\brecommended\s+room\b", re.IGNORECASE),
+    re.compile(r"\bsuitable\s+(?:room|venue)\b", re.IGNORECASE),
+    # Capacity promises (e.g. "seats 30", "accommodates 40", "capacity for 20")
+    re.compile(r"\b(?:seat|seats|seating|accommodate[sd]?|capacity\s+for)\s+\d+\b", re.IGNORECASE),
+]
+
 
 # ── Validator ──────────────────────────────────────────────────────────────────
 
@@ -330,6 +349,8 @@ class DraftComplianceValidator:
         cls._check_subject_line_in_body(draft_text, violations)
         # RESP-034 additional checks
         cls._check_copy_block_post_extension(draft_text, context, violations, structured_violations)
+        # RESP-052 additional checks
+        cls._check_acknowledge_room_precommitment(draft_text, context, violations)
 
         passed = len(violations) == 0
         return ComplianceResult(
@@ -823,3 +844,35 @@ class DraftComplianceValidator:
                             message=message,
                         ))
                     return  # One violation per call
+
+    # ── RESP-052 additional checks ──────────────────────────────────────────
+
+    @classmethod
+    def _check_acknowledge_room_precommitment(
+        cls,
+        text: str,
+        context: ValidationContext,
+        violations: list[str],
+    ) -> None:
+        """RESP-052: Fail if an ACKNOWLEDGE response contains room pre-commitment language.
+
+        Before availability is confirmed, ACKNOWLEDGE_AND_CHECK_AVAILABILITY responses
+        must not name specific rooms, imply room suitability, or promise capacity.
+        Allowed: "I'll check availability" / "I'll check suitable space."
+        Forbidden: room names, "would be ideal", "recommended room", capacity promises.
+        """
+        if context.response_goal != "ACKNOWLEDGE_AND_CHECK_AVAILABILITY":
+            return
+        # Only applies before availability is confirmed — no pre-commitment possible if already confirmed
+        if context.availability_contract == "CONFIRMED_AVAILABLE":
+            return
+        for pattern in _ACKNOWLEDGE_ROOM_PRECOMMITMENT_PATTERNS:
+            m = pattern.search(text)
+            if m:
+                violations.append(
+                    f"ACKNOWLEDGE response contains room pre-commitment language "
+                    f"('{m.group(0)}'). Room names, suitability claims, and capacity "
+                    "promises must not appear before availability is confirmed. "
+                    "Use 'I'll check availability' or 'I'll check suitable space' instead."
+                )
+                return  # One violation per category

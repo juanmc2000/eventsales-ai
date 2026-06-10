@@ -224,6 +224,13 @@ class TestAcknowledgeAndCheckPolicy:
     def test_invented_sla_forbidden(self) -> None:
         assert self.policy.is_forbidden(TOPIC_INVENTED_SLA)
 
+    # RESP-052: room suitability must be forbidden for ACKNOWLEDGE
+    def test_venue_room_suitability_forbidden(self) -> None:
+        assert self.policy.is_forbidden(TOPIC_VENUE_ROOM_SUITABILITY)
+
+    def test_policy_notes_mention_room_names(self) -> None:
+        assert "room" in self.policy.policy_notes.lower()
+
 
 # ── REQUEST_MISSING_INFORMATION policy ───────────────────────────────────────
 
