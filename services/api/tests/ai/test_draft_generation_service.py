@@ -1,4 +1,8 @@
-"""Tests for RESP-028 — Deterministic RESPOND_UNAVAILABLE routing in production and tests.
+"""Tests for RESP-028 + AUTO-004 — DraftGenerationService integration tests.
+
+RESP-028: Deterministic RESPOND_UNAVAILABLE routing returns review_state.
+AUTO-004: review_metadata is persisted to the EnquiryMessage after both LLM
+          and deterministic draft generation paths.
 
 Verifies that:
 - RESPOND_UNAVAILABLE returns a DraftGenerationResult with review_state set
@@ -224,3 +228,123 @@ class TestLlmGoalsReturnReviewState:
     def test_confirm_available_model_is_not_deterministic(self) -> None:
         result = _run_with_goal("CONFIRM_AVAILABLE")
         assert result.model != "deterministic"
+
+
+# ── AUTO-004: review_metadata persistence ────────────────────────────────────
+
+
+def _run_with_goal_and_capture_repo(response_goal: str):
+    """Return (result, mock_enquiry_repo) so callers can inspect side-effects."""
+    eid = uuid.uuid4()
+    svc, db, mock_enquiry_repo = _build_service(eid)
+
+    # Make update_message_review_metadata return a sentinel message
+    sentinel_msg = MagicMock()
+    sentinel_msg.id = uuid.uuid4()
+    mock_enquiry_repo.update_message_review_metadata.return_value = sentinel_msg
+
+    plan = _make_plan(response_goal)
+
+    if response_goal == "RESPOND_UNAVAILABLE":
+        with (
+            patch("app.modules.ai.service._load_latest_processing_snapshot", return_value=None),
+            patch("app.modules.enquiries.repository.ResponsePlanRepository") as mock_plan_cls,
+        ):
+            mock_plan_repo = MagicMock()
+            mock_plan_repo.get_latest.return_value = plan
+            mock_plan_cls.return_value = mock_plan_repo
+            result = svc.generate_draft(eid)
+        return result, mock_enquiry_repo
+
+    mock_gw_result = MagicMock()
+    mock_gw_result.is_fallback = False
+    mock_gw_result.model_name = "claude-haiku-4-5-20251001"
+    mock_gw_result.raw_response = "Dear Alice, we are pleased to confirm availability."
+    mock_gw_result.rendered_system_prompt = None
+    mock_gw_result.rendered_user_prompt = None
+    mock_gw_result.run_id = uuid.uuid4()
+
+    with (
+        patch("app.modules.ai.service._load_latest_processing_snapshot", return_value=None),
+        patch("app.modules.enquiries.repository.ResponsePlanRepository") as mock_plan_cls,
+        patch("app.modules.ai.service.AIGateway") as mock_gw_cls,
+    ):
+        mock_plan_repo = MagicMock()
+        mock_plan_repo.get_latest.return_value = plan
+        mock_plan_cls.return_value = mock_plan_repo
+        mock_gw_instance = MagicMock()
+        mock_gw_instance.run.return_value = mock_gw_result
+        mock_gw_cls.return_value = mock_gw_instance
+        result = svc.generate_draft(eid)
+    return result, mock_enquiry_repo
+
+
+class TestAuto004ReviewMetadataDeterministic:
+    """AUTO-004: review_metadata is persisted on the deterministic path."""
+
+    def test_update_message_review_metadata_called(self) -> None:
+        _, repo = _run_with_goal_and_capture_repo("RESPOND_UNAVAILABLE")
+        repo.update_message_review_metadata.assert_called_once()
+
+    def test_review_metadata_has_generation_path_deterministic(self) -> None:
+        _, repo = _run_with_goal_and_capture_repo("RESPOND_UNAVAILABLE")
+        _msg_id, meta = repo.update_message_review_metadata.call_args[0]
+        assert meta["generation_path"] == "deterministic"
+
+    def test_review_metadata_has_review_state_key(self) -> None:
+        _, repo = _run_with_goal_and_capture_repo("RESPOND_UNAVAILABLE")
+        _msg_id, meta = repo.update_message_review_metadata.call_args[0]
+        assert "review_state" in meta
+
+    def test_review_metadata_has_validation_status_key(self) -> None:
+        _, repo = _run_with_goal_and_capture_repo("RESPOND_UNAVAILABLE")
+        _msg_id, meta = repo.update_message_review_metadata.call_args[0]
+        assert "validation_status" in meta
+
+    def test_review_metadata_validation_status_is_passed(self) -> None:
+        """Deterministic copy always passes compliance."""
+        _, repo = _run_with_goal_and_capture_repo("RESPOND_UNAVAILABLE")
+        _msg_id, meta = repo.update_message_review_metadata.call_args[0]
+        assert meta["validation_status"] == "passed"
+
+    def test_review_metadata_has_auto_send_allowed_false(self) -> None:
+        """RESPOND_UNAVAILABLE is not in auto-send allowlist."""
+        _, repo = _run_with_goal_and_capture_repo("RESPOND_UNAVAILABLE")
+        _msg_id, meta = repo.update_message_review_metadata.call_args[0]
+        assert meta["auto_send_allowed"] is False
+
+    def test_review_metadata_has_all_six_keys(self) -> None:
+        _, repo = _run_with_goal_and_capture_repo("RESPOND_UNAVAILABLE")
+        _msg_id, meta = repo.update_message_review_metadata.call_args[0]
+        expected_keys = {
+            "review_state", "validation_status", "validation_blockers",
+            "auto_send_allowed", "auto_send_blockers", "generation_path",
+        }
+        assert expected_keys == set(meta.keys())
+
+
+class TestAuto004ReviewMetadataLlm:
+    """AUTO-004: review_metadata is also persisted on the LLM path."""
+
+    def test_update_message_review_metadata_called(self) -> None:
+        _, repo = _run_with_goal_and_capture_repo("CONFIRM_AVAILABLE")
+        repo.update_message_review_metadata.assert_called_once()
+
+    def test_review_metadata_has_generation_path_llm(self) -> None:
+        _, repo = _run_with_goal_and_capture_repo("CONFIRM_AVAILABLE")
+        _msg_id, meta = repo.update_message_review_metadata.call_args[0]
+        assert meta["generation_path"] == "llm"
+
+    def test_review_metadata_has_all_six_keys(self) -> None:
+        _, repo = _run_with_goal_and_capture_repo("CONFIRM_AVAILABLE")
+        _msg_id, meta = repo.update_message_review_metadata.call_args[0]
+        expected_keys = {
+            "review_state", "validation_status", "validation_blockers",
+            "auto_send_allowed", "auto_send_blockers", "generation_path",
+        }
+        assert expected_keys == set(meta.keys())
+
+    def test_review_metadata_has_review_state_key(self) -> None:
+        _, repo = _run_with_goal_and_capture_repo("CONFIRM_AVAILABLE")
+        _msg_id, meta = repo.update_message_review_metadata.call_args[0]
+        assert "review_state" in meta

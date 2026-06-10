@@ -99,6 +99,22 @@ class EnquiryRepository:
         )
         return self._db.scalars(stmt).first()
 
+    def update_message_review_metadata(
+        self,
+        message_id: uuid.UUID,
+        review_metadata: dict,
+    ) -> EnquiryMessage | None:
+        """Persist AUTO-004 review_metadata on an existing EnquiryMessage.
+
+        Returns the updated message, or None if not found.
+        """
+        msg = self._db.get(EnquiryMessage, message_id)
+        if msg is None:
+            return None
+        msg.review_metadata = review_metadata
+        self._db.flush()
+        return msg
+
 
 class DateRequestRepository:
     """Read/write access for EnquiryDateRequest and EnquiryCandidateDate rows."""

@@ -131,6 +131,11 @@ class EnquiryMessage(Base):
     subject: Mapped[str | None] = mapped_column(String(500), nullable=True)
     body: Mapped[str] = mapped_column(Text, nullable=False)
     sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # AUTO-004: persisted review state for draft messages.
+    # Stores: review_state, validation_status, validation_blockers,
+    # auto_send_allowed, auto_send_blockers, generation_path.
+    # Null for non-draft or pre-AUTO-004 messages.
+    review_metadata: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
