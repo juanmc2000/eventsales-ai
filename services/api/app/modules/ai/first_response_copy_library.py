@@ -1,4 +1,4 @@
-"""First Response Copy Library (RESP-017, updated RESP-037).
+"""First Response Copy Library (RESP-017, updated RESP-037, RESP-043).
 
 Approved deterministic copy blocks for operationally sensitive first-response
 statements.  The LLM must use these blocks verbatim (with variable interpolation)
@@ -9,12 +9,17 @@ Design rules:
 - Required variables are declared in ``REQUIRED_VARS`` per block key.
 - Rendering fails safely if a required variable is missing (raises ValueError).
 - No block contains: menu wording, special-touches language, call-scheduling
-  invitations, or alternative-date suggestions.
+  invitations.
 - Blocks are keyed by logical name, not by response goal, so they compose cleanly.
 
 RESP-037: Added ``confirm_available_next_step`` — a strict next-step block for
 CONFIRM_AVAILABLE responses that prevents LLM from inventing booking-process
 wording involving menus, dietary, special touches, calls, or booking forms.
+
+RESP-043: Added alternative-date unavailability blocks (zero, one, two alternatives).
+These blocks are rendered deterministically when a requested date is unavailable —
+the LLM must use these verbatim and must not invent alternatives beyond what is
+explicitly provided.
 
 Usage::
 
@@ -40,6 +45,11 @@ BLOCK_CONFIRM_AVAILABLE_NEXT_STEP = "confirm_available_next_step"
 BLOCK_AVAILABILITY_CHECK_NEXT_STEP = "availability_check_next_step"
 BLOCK_CLARIFICATION_NEXT_STEP = "clarification_next_step"
 BLOCK_SIGNOFF = "signoff"
+# RESP-043: alternative-date unavailability blocks — rendered deterministically
+# from confirmed available alternatives only; LLM must not invent alternatives
+BLOCK_UNAVAILABLE_NO_ALTERNATIVES = "unavailable_no_alternatives"
+BLOCK_UNAVAILABLE_ONE_ALTERNATIVE = "unavailable_one_alternative"
+BLOCK_UNAVAILABLE_TWO_ALTERNATIVES = "unavailable_two_alternatives"
 
 # ── Template registry ──────────────────────────────────────────────────────────
 
@@ -86,6 +96,21 @@ _TEMPLATES: dict[str, str] = {
     BLOCK_SIGNOFF: (
         "Warm regards,\n{persona_name}"
     ),
+    # RESP-043: unavailable — no confirmed alternatives available
+    BLOCK_UNAVAILABLE_NO_ALTERNATIVES: (
+        "Unfortunately, we are fully booked for {meal_period} on {requested_date}."
+    ),
+    # RESP-043: unavailable — one confirmed alternative offered
+    BLOCK_UNAVAILABLE_ONE_ALTERNATIVE: (
+        "Unfortunately, we are fully booked for {meal_period} on {requested_date}, "
+        "but we do have availability for {meal_period} on {alternative_date}."
+    ),
+    # RESP-043: unavailable — two confirmed alternatives offered
+    BLOCK_UNAVAILABLE_TWO_ALTERNATIVES: (
+        "Unfortunately, we are fully booked for {meal_period} on {requested_date}, "
+        "but we do have availability for {meal_period} on {alternative_date_1} "
+        "or {alternative_date_2}."
+    ),
 }
 
 # Required variables per block key (empty set = no required vars)
@@ -99,6 +124,9 @@ _REQUIRED_VARS: dict[str, frozenset[str]] = {
     BLOCK_AVAILABILITY_CHECK_NEXT_STEP: frozenset(),
     BLOCK_CLARIFICATION_NEXT_STEP: frozenset(),
     BLOCK_SIGNOFF: frozenset({"persona_name"}),
+    BLOCK_UNAVAILABLE_NO_ALTERNATIVES: frozenset({"meal_period", "requested_date"}),
+    BLOCK_UNAVAILABLE_ONE_ALTERNATIVE: frozenset({"meal_period", "requested_date", "alternative_date"}),
+    BLOCK_UNAVAILABLE_TWO_ALTERNATIVES: frozenset({"meal_period", "requested_date", "alternative_date_1", "alternative_date_2"}),
 }
 
 

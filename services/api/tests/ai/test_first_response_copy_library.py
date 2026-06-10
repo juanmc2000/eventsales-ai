@@ -26,6 +26,9 @@ from app.modules.ai.first_response_copy_library import (
     BLOCK_CONFIRM_AVAILABLE_NEXT_STEP,
     BLOCK_MINIMUM_SPEND,
     BLOCK_SIGNOFF,
+    BLOCK_UNAVAILABLE_NO_ALTERNATIVES,
+    BLOCK_UNAVAILABLE_ONE_ALTERNATIVE,
+    BLOCK_UNAVAILABLE_TWO_ALTERNATIVES,
     FirstResponseCopyLibrary,
 )
 
@@ -243,6 +246,85 @@ class TestForbiddenTopicGuardrails:
         assert "alternative" not in result.lower()
         assert "other date" not in result.lower()
         assert "flexible" not in result.lower()
+
+
+# ── RESP-043: alternative-date copy blocks ────────────────────────────────────
+
+
+class TestAlternativeDateCopyBlocks:
+    """Tests for RESP-043 alternative-date unavailability blocks."""
+
+    def test_no_alternatives_block_renders(self) -> None:
+        result = FirstResponseCopyLibrary.render(
+            BLOCK_UNAVAILABLE_NO_ALTERNATIVES,
+            {"meal_period": "dinner", "requested_date": "15th July"},
+        )
+        assert "fully booked" in result.lower()
+        assert "dinner" in result
+        assert "15th July" in result
+        # Must not mention alternatives
+        assert "alternative" not in result.lower()
+        assert "but we do have" not in result.lower()
+
+    def test_one_alternative_block_renders(self) -> None:
+        result = FirstResponseCopyLibrary.render(
+            BLOCK_UNAVAILABLE_ONE_ALTERNATIVE,
+            {
+                "meal_period": "dinner",
+                "requested_date": "15th July",
+                "alternative_date": "14th July",
+            },
+        )
+        assert "fully booked" in result.lower()
+        assert "14th July" in result
+        assert "15th July" in result
+
+    def test_two_alternatives_block_renders(self) -> None:
+        result = FirstResponseCopyLibrary.render(
+            BLOCK_UNAVAILABLE_TWO_ALTERNATIVES,
+            {
+                "meal_period": "dinner",
+                "requested_date": "15th July",
+                "alternative_date_1": "14th July",
+                "alternative_date_2": "16th July",
+            },
+        )
+        assert "fully booked" in result.lower()
+        assert "14th July" in result
+        assert "16th July" in result
+        assert " or " in result
+
+    def test_no_alternatives_missing_var_raises(self) -> None:
+        with pytest.raises(ValueError, match="meal_period"):
+            FirstResponseCopyLibrary.render(
+                BLOCK_UNAVAILABLE_NO_ALTERNATIVES,
+                {"requested_date": "15th July"},  # missing meal_period
+            )
+
+    def test_one_alternative_missing_alt_raises(self) -> None:
+        with pytest.raises(ValueError, match="alternative_date"):
+            FirstResponseCopyLibrary.render(
+                BLOCK_UNAVAILABLE_ONE_ALTERNATIVE,
+                {"meal_period": "dinner", "requested_date": "15th July"},  # missing alternative_date
+            )
+
+    def test_two_alternatives_missing_alt2_raises(self) -> None:
+        with pytest.raises(ValueError, match="alternative_date_2"):
+            FirstResponseCopyLibrary.render(
+                BLOCK_UNAVAILABLE_TWO_ALTERNATIVES,
+                {
+                    "meal_period": "dinner",
+                    "requested_date": "15th July",
+                    "alternative_date_1": "14th July",
+                    # missing alternative_date_2
+                },
+            )
+
+    def test_all_three_alternative_blocks_are_registered(self) -> None:
+        keys = FirstResponseCopyLibrary.all_keys()
+        assert BLOCK_UNAVAILABLE_NO_ALTERNATIVES in keys
+        assert BLOCK_UNAVAILABLE_ONE_ALTERNATIVE in keys
+        assert BLOCK_UNAVAILABLE_TWO_ALTERNATIVES in keys
 
 
 # ── RESP-030: CONFIRM_AVAILABLE next-step block ───────────────────────────────

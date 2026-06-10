@@ -63,6 +63,10 @@ def test_all_models_registered() -> None:
         "ai_prompt_runs", "ai_prompt_run_reviews",
         "ai_prompt_experiments", "ai_prompt_experiment_runs",
         "ai_training_examples",
+        # DATA-020: phrase library tables (Sprint 12A)
+        "response_phrase_templates", "response_phrase_versions", "response_phrase_assignments",
+        # DATA-021: policy FAQ tables (Sprint 12B)
+        "restaurant_policy_faqs", "room_policy_faqs",
     }
     actual = set(Base.metadata.tables.keys())
     assert expected == actual

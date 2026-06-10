@@ -334,3 +334,73 @@ class TestIntegrityRule:
             integrity_result=_passing_integrity(),
         )
         assert result.auto_send_allowed is True
+
+
+# ── RESP-048: Rule 6 — unknown policy questions block auto-send ───────────────
+
+
+class TestRule6PolicyQuestions:
+    """RESP-048: auto-send blocked when unknown policy questions present."""
+
+    def test_no_policy_questions_does_not_block(self) -> None:
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            integrity_result=_passing_integrity(),
+            review_required_policy_questions=[],
+        )
+        assert result.auto_send_allowed is True
+
+    def test_none_policy_questions_does_not_block(self) -> None:
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            integrity_result=_passing_integrity(),
+            review_required_policy_questions=None,
+        )
+        assert result.auto_send_allowed is True
+
+    def test_one_unknown_policy_question_blocks_auto_send(self) -> None:
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            integrity_result=_passing_integrity(),
+            review_required_policy_questions=[
+                {"question_key": "unknown", "raw_question": "Can we do something unusual?"}
+            ],
+        )
+        assert result.auto_send_allowed is False
+        assert any("policy question" in b.lower() for b in result.auto_send_blockers)
+
+    def test_approval_required_question_blocks_auto_send(self) -> None:
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            integrity_result=_passing_integrity(),
+            review_required_policy_questions=[
+                {"question_key": "external_performer_allowed", "raw_question": "Can we hire a singer?"}
+            ],
+        )
+        assert result.auto_send_allowed is False
+
+    def test_multiple_unknown_questions_reported_in_blocker(self) -> None:
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            integrity_result=_passing_integrity(),
+            review_required_policy_questions=[
+                {"question_key": "unknown", "raw_question": "Q1"},
+                {"question_key": "dj_allowed", "raw_question": "Q2"},
+            ],
+        )
+        assert result.auto_send_allowed is False
+        # The blocker message should indicate count
+        blocker_text = " ".join(result.auto_send_blockers)
+        assert "2" in blocker_text
+
+    def test_policy_questions_plus_other_blockers_all_captured(self) -> None:
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            compliance=_failing_compliance(),
+            integrity_result=_passing_integrity(),
+            review_required_policy_questions=[
+                {"question_key": "unknown", "raw_question": "Can we do X?"}
+            ],
+        )
+        assert result.auto_send_allowed is False
+        assert len(result.auto_send_blockers) >= 2

@@ -177,9 +177,9 @@ class TestPromptRenderer:
         assert "20 guests" in user
 
     def test_enquiry_extraction_is_v5(self) -> None:
-        # CUST-003: V5 is now the active extraction prompt (V4 archived)
+        # AI-021: V6 is now the active extraction prompt (V5 archived)
         defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
-        assert defn.version == 5
+        assert defn.version == 6
 
     def test_enquiry_extraction_v3_prohibits_pricing(self) -> None:
         defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
@@ -226,9 +226,9 @@ class TestPromptRenderer:
         assert defn.max_tokens >= 900
 
     def test_enquiry_extraction_v5_schema_version(self) -> None:
-        # CUST-003: V5 bumped schema version to 5.0
+        # AI-021: V6 bumped schema version to 6.0
         defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)
-        assert defn.output_schema_version == "5.0"
+        assert defn.output_schema_version == "6.0"
 
     def test_enquiry_extraction_v3_contains_schema_name(self) -> None:
         defn = self.registry.get(PROMPT_KEY_ENQUIRY_EXTRACTION)

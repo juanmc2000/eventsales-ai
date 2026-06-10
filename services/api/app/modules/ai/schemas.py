@@ -70,6 +70,12 @@ class DraftContext:
     clarification_questions: list[str] | None = field(default=None)  # ordered questions for the guest
     # RESP-013: section plan from ResponseSectionBuilder — drives allowed/forbidden section lines
     section_plan: dict[str, Any] | None = field(default=None)
+    # RESP-047: composed policy answers from DeterministicPolicyAnswerComposer
+    # dict with keys: approved_answers_block, review_required_block, has_approved_answers, has_review_required
+    policy_answer_result: dict[str, Any] | None = field(default=None)
+    # RESP-042: alternative date result from AlternativeDateService
+    # dict with keys: alternative_dates, alternatives_found
+    alternative_date_result: dict[str, Any] | None = field(default=None)
 
 
 @dataclass

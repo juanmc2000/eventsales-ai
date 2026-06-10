@@ -158,6 +158,8 @@ class TestBuildApprovedCopyBlocksLine:
         assert "mandatory minimum spend" not in line
 
     def test_respond_unavailable_contains_unavailable_block(self) -> None:
+        # RESP-043: RESPOND_UNAVAILABLE now uses unavailable_no_alternatives block
+        # (falls back to no-alternatives path when no alternative_date_result in context)
         ctx = _base_context(
             response_goal="RESPOND_UNAVAILABLE",
             availability_meal_period="dinner",
@@ -165,8 +167,8 @@ class TestBuildApprovedCopyBlocksLine:
         )
         line = _build_approved_copy_blocks_line(ctx)
         expected = FirstResponseCopyLibrary.render(
-            "availability_unavailable",
-            {"meal_period": "dinner", "event_date": "2026-06-12"},
+            "unavailable_no_alternatives",
+            {"meal_period": "dinner", "requested_date": "2026-06-12"},
         )
         assert expected in line
 

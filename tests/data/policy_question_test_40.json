@@ -1,0 +1,938 @@
+{
+  "dataset_name": "policy_question_test_40",
+  "description": "40-record fixture for policy-question extraction and response accuracy testing (TEST-014, Sprint 12C). Covers all 20 supported question keys, multi-question emails, and unknown questions.",
+  "anchor_date": "2026-06-09",
+  "timezone": "Europe/London",
+  "records": [
+    {
+      "id": "pq_01",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Birthday dinner — can we bring birthday candles?",
+      "body": "Hi, we'd like to book a private dinner for my husband's 50th birthday on Saturday 4th July for 12 people. Can we bring birthday candles for the cake? Thanks, Sarah",
+      "target_extraction": {
+        "occasion": "birthday",
+        "guest_count": 12,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "candles_allowed",
+            "raw_question": "Can we bring birthday candles for the cake?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_02",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Candles at private dining room",
+      "body": "Hello, are candles allowed at the table? We're planning a romantic anniversary dinner for two next Friday. Let me know. Kind regards, James",
+      "target_extraction": {
+        "occasion": "anniversary",
+        "guest_count": 2,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "candles_allowed",
+            "raw_question": "are candles allowed at the table?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_03",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Corporate dinner — birthday cake question",
+      "body": "Hi there, I'm looking to book a dinner for 20 people on Friday 26th June for our CEO's leaving party. Are we allowed to bring a cake? Can the kitchen cut and serve it? Many thanks, Rachel",
+      "target_extraction": {
+        "occasion": "leaving party",
+        "guest_count": 20,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "cake_allowed",
+            "raw_question": "Are we allowed to bring a cake?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_04",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Hen party — can we decorate?",
+      "body": "Hey! Looking to book for my bestie's hen party on the 19th July, about 15 ladies. Can we put up some decorations like banners and balloons beforehand? Thanks, Katie",
+      "target_extraction": {
+        "occasion": "hen party",
+        "guest_count": 15,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "decorations_allowed",
+            "raw_question": "Can we put up some decorations like banners and balloons beforehand?",
+            "scope_hint": "unknown",
+            "confidence": 0.9
+          },
+          {
+            "question_key": "balloons_allowed",
+            "raw_question": "Can we put up some decorations like banners and balloons beforehand?",
+            "scope_hint": "unknown",
+            "confidence": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_05",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Engagement celebration dinner enquiry",
+      "body": "Hello, we want to celebrate our engagement with family and friends — about 30 people — sometime in mid-July. Would we be permitted to bring floral arrangements to decorate the table? Best, Emma",
+      "target_extraction": {
+        "occasion": "engagement",
+        "guest_count": 30,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "flowers_allowed",
+            "raw_question": "Would we be permitted to bring floral arrangements to decorate the table?",
+            "scope_hint": "unknown",
+            "confidence": 0.9
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_06",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Birthday party — external magician",
+      "body": "Hi, looking to book a birthday dinner for 25 guests on 12th July. We'd love to have a close-up magician circulating during the meal. Is it possible to bring an external performer? Thank you, Tom",
+      "target_extraction": {
+        "occasion": "birthday",
+        "guest_count": 25,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "external_performer_allowed",
+            "raw_question": "Is it possible to bring an external performer?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_07",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Company summer party — live singer",
+      "body": "Hello, we're organising our company summer party for around 60 people in late July. We'd like to hire a live singer for the evening. Are external performers or live acts allowed in your private dining space? Regards, Natasha",
+      "target_extraction": {
+        "occasion": "company party",
+        "guest_count": 60,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "external_performer_allowed",
+            "raw_question": "Are external performers or live acts allowed in your private dining space?",
+            "scope_hint": "restaurant",
+            "confidence": 0.9
+          },
+          {
+            "question_key": "live_music_allowed",
+            "raw_question": "Are external performers or live acts allowed in your private dining space?",
+            "scope_hint": "restaurant",
+            "confidence": 0.85
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_08",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Charity gala dinner — live band enquiry",
+      "body": "Dear Events Team, we're planning a charity gala dinner for 80 guests on Saturday 18th July. We would like a live jazz band to play during the drinks reception and dinner. Is live music permitted? Kind regards, Michael",
+      "target_extraction": {
+        "occasion": "charity gala",
+        "guest_count": 80,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "live_music_allowed",
+            "raw_question": "Is live music permitted?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_09",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Birthday — DJ for after dinner?",
+      "body": "Hi there, my friend is turning 40 on 25th July and we're planning a dinner for 35 people. Is there any chance we could have a DJ after dinner for a bit of a party? Thanks, Lisa",
+      "target_extraction": {
+        "occasion": "birthday",
+        "guest_count": 35,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "dj_allowed",
+            "raw_question": "Is there any chance we could have a DJ after dinner for a bit of a party?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_10",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Private party room — DJ question",
+      "body": "Hello, I'm enquiring about booking a room for a 30th birthday dinner on 11th July for 20 guests. Can we bring our own DJ and set up some sound equipment? Best, Dan",
+      "target_extraction": {
+        "occasion": "birthday",
+        "guest_count": 20,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "dj_allowed",
+            "raw_question": "Can we bring our own DJ and set up some sound equipment?",
+            "scope_hint": "unknown",
+            "confidence": 0.9
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_11",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Award ceremony dinner — microphone available?",
+      "body": "Hi, we're planning an awards dinner for 50 people in August. We'll need a microphone for speeches. Do you have a microphone available or would we need to bring our own? Many thanks, Patricia",
+      "target_extraction": {
+        "occasion": "awards dinner",
+        "guest_count": 50,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "microphone_available",
+            "raw_question": "Do you have a microphone available or would we need to bring our own?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_12",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Product launch dinner — AV setup",
+      "body": "Hello, we're organising a product launch dinner for 40 guests at the end of July. We need a screen and projector for a short presentation. Do you have AV equipment available in the private dining room? Thanks, Oliver",
+      "target_extraction": {
+        "occasion": "product launch",
+        "guest_count": 40,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "screen_available",
+            "raw_question": "Do you have AV equipment available in the private dining room?",
+            "scope_hint": "room",
+            "confidence": 0.85
+          },
+          {
+            "question_key": "av_available",
+            "raw_question": "Do you have AV equipment available in the private dining room?",
+            "scope_hint": "room",
+            "confidence": 0.9
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_13",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Business dinner — projector screen question",
+      "body": "Hi, we're looking to book a private dinner for 15 people on 14th July. We'd like to present a slideshow. Is there a projector or screen in the room? Kind regards, Sophie",
+      "target_extraction": {
+        "occasion": "business dinner",
+        "guest_count": 15,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "screen_available",
+            "raw_question": "Is there a projector or screen in the room?",
+            "scope_hint": "room",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_14",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "50th birthday — how many can the private room hold?",
+      "body": "Hello, we're thinking about booking for a 50th birthday party on 5th July. How many people can you fit in the private dining room? We're expecting around 45 guests. Thanks, Andrew",
+      "target_extraction": {
+        "occasion": "birthday",
+        "guest_count": 45,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "room_capacity",
+            "raw_question": "How many people can you fit in the private dining room?",
+            "scope_hint": "room",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_15",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Conference dinner — room capacity",
+      "body": "Dear Team, we're hosting a conference dinner in mid-August for approximately 90 delegates. What is the maximum capacity for a seated dinner event? Do you have a fully private space that size? Best wishes, Dr Clarke",
+      "target_extraction": {
+        "occasion": "conference",
+        "guest_count": 90,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "room_capacity",
+            "raw_question": "What is the maximum capacity for a seated dinner event?",
+            "scope_hint": "restaurant",
+            "confidence": 0.9
+          },
+          {
+            "question_key": "private_room_available",
+            "raw_question": "Do you have a fully private space that size?",
+            "scope_hint": "restaurant",
+            "confidence": 0.85
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_16",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Wheelchair access — family dinner",
+      "body": "Hi, we'd like to book a birthday dinner for 10 people on 19th July. One of our guests uses a wheelchair. Is the venue fully wheelchair accessible and is there disabled access to the private dining area? Kind regards, Helen",
+      "target_extraction": {
+        "occasion": "birthday",
+        "guest_count": 10,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "disabled_access",
+            "raw_question": "Is the venue fully wheelchair accessible and is there disabled access to the private dining area?",
+            "scope_hint": "restaurant",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_17",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Family celebration — children welcome?",
+      "body": "Hello, we're planning a family birthday celebration for about 20 people in late July. We'll have 4 children aged between 5 and 10. Are children welcome in the private dining room? Thank you, Fiona",
+      "target_extraction": {
+        "occasion": "birthday",
+        "guest_count": 20,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "children_allowed",
+            "raw_question": "Are children welcome in the private dining room?",
+            "scope_hint": "room",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_18",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Birthday lunch — bringing our dog?",
+      "body": "Hi there, we'd love to book a birthday lunch for 6 people on 27th June. One of our party would like to bring a small dog. Are pets allowed in the restaurant? Thanks, Charlotte",
+      "target_extraction": {
+        "occasion": "birthday",
+        "guest_count": 6,
+        "meal_period": "lunch",
+        "policy_questions": [
+          {
+            "question_key": "pets_allowed",
+            "raw_question": "Are pets allowed in the restaurant?",
+            "scope_hint": "restaurant",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_19",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Anniversary dinner — what is the minimum spend?",
+      "body": "Hi, my husband and I would like to book a private dining experience for our 10th anniversary next Saturday for 2 people. What is the minimum spend for the private room? Thank you, Claire",
+      "target_extraction": {
+        "occasion": "anniversary",
+        "guest_count": 2,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "minimum_spend",
+            "raw_question": "What is the minimum spend for the private room?",
+            "scope_hint": "room",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_20",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Corporate lunch — minimum spend and room hire fee",
+      "body": "Dear Events Team, we're interested in booking a corporate lunch for 18 people on Thursday 16th July. Could you let us know what the minimum spend is and whether there is a room hire charge? Regards, Mark",
+      "target_extraction": {
+        "occasion": "corporate lunch",
+        "guest_count": 18,
+        "meal_period": "lunch",
+        "policy_questions": [
+          {
+            "question_key": "minimum_spend",
+            "raw_question": "what the minimum spend is",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          },
+          {
+            "question_key": "room_hire",
+            "raw_question": "whether there is a room hire charge",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_21",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Private dinner — room hire costs",
+      "body": "Hello, I'd like to enquire about a private dining room for a business dinner for 10 people in the second week of July. Is there a room hire fee on top of the food and drink spend? Many thanks, Lucy",
+      "target_extraction": {
+        "occasion": "business dinner",
+        "guest_count": 10,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "room_hire",
+            "raw_question": "Is there a room hire fee on top of the food and drink spend?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_22",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Agency booking — service charge query",
+      "body": "Hi, I'm booking on behalf of a client for a dinner for 30 people on 10th July. Could you confirm whether a discretionary service charge is added and what the percentage is? Best, Daniel (Events by Daniel)",
+      "target_extraction": {
+        "occasion": "dinner",
+        "guest_count": 30,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "service_charge",
+            "raw_question": "Could you confirm whether a discretionary service charge is added and what the percentage is?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_23",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Agency enquiry — commission rates",
+      "body": "Hello, I'm an event planner and I'm organising a gala dinner for a corporate client, around 50 guests, on 22nd August. Do you offer agency commission? If so, what is the commission rate? Thank you, Alicia (Premium Events)",
+      "target_extraction": {
+        "occasion": "gala dinner",
+        "guest_count": 50,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "agency_commission",
+            "raw_question": "Do you offer agency commission? If so, what is the commission rate?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_24",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Event agency — commission query",
+      "body": "Hi, I represent a luxury events agency. We're looking at several venues for a 100-pax dinner on 15th August. Is a commission payable to agencies for confirmed bookings? Best regards, Victoria (Lux Events Agency)",
+      "target_extraction": {
+        "occasion": "dinner",
+        "guest_count": 100,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "agency_commission",
+            "raw_question": "Is a commission payable to agencies for confirmed bookings?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_25",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Birthday dinner — multiple questions",
+      "body": "Hi! Enquiring about a 30th birthday dinner for 22 people on Saturday 18th July. A few questions: Can we bring a birthday cake and candles? Can we put up some balloons and banners? Is there a minimum spend for the room? Thanks so much, Jessica",
+      "target_extraction": {
+        "occasion": "birthday",
+        "guest_count": 22,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "cake_allowed",
+            "raw_question": "Can we bring a birthday cake and candles?",
+            "scope_hint": "unknown",
+            "confidence": 0.9
+          },
+          {
+            "question_key": "candles_allowed",
+            "raw_question": "Can we bring a birthday cake and candles?",
+            "scope_hint": "unknown",
+            "confidence": 0.9
+          },
+          {
+            "question_key": "balloons_allowed",
+            "raw_question": "Can we put up some balloons and banners?",
+            "scope_hint": "unknown",
+            "confidence": 0.9
+          },
+          {
+            "question_key": "minimum_spend",
+            "raw_question": "Is there a minimum spend for the room?",
+            "scope_hint": "room",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_26",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Corporate dinner — AV, microphone and room capacity",
+      "body": "Hello, we're planning a company awards dinner for 75 people on 8th August. We need to know: (1) Is there AV equipment in the private dining room? (2) Is a microphone available for speeches? (3) What is the maximum seated capacity? Many thanks, Graham",
+      "target_extraction": {
+        "occasion": "awards dinner",
+        "guest_count": 75,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "av_available",
+            "raw_question": "Is there AV equipment in the private dining room?",
+            "scope_hint": "room",
+            "confidence": 0.95
+          },
+          {
+            "question_key": "microphone_available",
+            "raw_question": "Is a microphone available for speeches?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          },
+          {
+            "question_key": "room_capacity",
+            "raw_question": "What is the maximum seated capacity?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_27",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Family celebration — children, disabled access and pets",
+      "body": "Hi, we're celebrating my parents' golden wedding anniversary on 26th July — about 35 people. We have elderly guests in wheelchairs and children aged 3–8. We're also hoping to bring a guide dog. Could you let us know: (1) Is disabled access available? (2) Are children welcome? (3) Are assistance dogs permitted? Thank you, Robert",
+      "target_extraction": {
+        "occasion": "anniversary",
+        "guest_count": 35,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "disabled_access",
+            "raw_question": "Is disabled access available?",
+            "scope_hint": "restaurant",
+            "confidence": 0.95
+          },
+          {
+            "question_key": "children_allowed",
+            "raw_question": "Are children welcome?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          },
+          {
+            "question_key": "pets_allowed",
+            "raw_question": "Are assistance dogs permitted?",
+            "scope_hint": "unknown",
+            "confidence": 0.85
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_28",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Agency booking — commission and service charge",
+      "body": "Dear Events Team, I'm enquiring about availability on 3rd August for a high-end dinner for 40 guests. I'm booking on behalf of my agency. Please confirm: (1) whether you pay agency commission, and (2) whether a service charge is applied to the final bill. Best, Andrea (Prestige Dining Agency)",
+      "target_extraction": {
+        "occasion": "dinner",
+        "guest_count": 40,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "agency_commission",
+            "raw_question": "whether you pay agency commission",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          },
+          {
+            "question_key": "service_charge",
+            "raw_question": "whether a service charge is applied to the final bill",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_29",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Hen do dinner — DJ and decorations",
+      "body": "Hey, planning a hen do dinner for 18 girls on 11th July. Can we bring a DJ for after the meal? And can we decorate the room with our own props and photo booth? Thanks, Gemma",
+      "target_extraction": {
+        "occasion": "hen party",
+        "guest_count": 18,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "dj_allowed",
+            "raw_question": "Can we bring a DJ for after the meal?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          },
+          {
+            "question_key": "decorations_allowed",
+            "raw_question": "can we decorate the room with our own props and photo booth?",
+            "scope_hint": "room",
+            "confidence": 0.9
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_30",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Corporate lunch — room hire, minimum spend and service charge",
+      "body": "Hello, we'd like to book a private lunch for 14 people on 22nd July. Before we proceed, could you tell us: (1) Is there a room hire charge? (2) What is the minimum food and drink spend? (3) Is a service charge included in the pricing? Kind regards, Natasha",
+      "target_extraction": {
+        "occasion": "corporate lunch",
+        "guest_count": 14,
+        "meal_period": "lunch",
+        "policy_questions": [
+          {
+            "question_key": "room_hire",
+            "raw_question": "Is there a room hire charge?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          },
+          {
+            "question_key": "minimum_spend",
+            "raw_question": "What is the minimum food and drink spend?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          },
+          {
+            "question_key": "service_charge",
+            "raw_question": "Is a service charge included in the pricing?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_31",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Wedding anniversary — flowers and candles",
+      "body": "Hello, my wife and I are celebrating our 25th anniversary on 29th July and would like to book a private dining experience for 8 family members. Can we arrange flowers on the table ourselves? And are table candles allowed? Thank you, Philip",
+      "target_extraction": {
+        "occasion": "anniversary",
+        "guest_count": 8,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "flowers_allowed",
+            "raw_question": "Can we arrange flowers on the table ourselves?",
+            "scope_hint": "unknown",
+            "confidence": 0.9
+          },
+          {
+            "question_key": "candles_allowed",
+            "raw_question": "are table candles allowed?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_32",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Live music at charity gala",
+      "body": "Dear Team, we're organising a charity fundraising gala dinner for 120 guests on 7th August. We would like a string quartet during the drinks reception. Is live background music permitted? Thanks, Caroline",
+      "target_extraction": {
+        "occasion": "charity gala",
+        "guest_count": 120,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "live_music_allowed",
+            "raw_question": "Is live background music permitted?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_33",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Birthday — private room available?",
+      "body": "Hi, I'd like to book a surprise birthday dinner for 16 people on 24th July. Do you have a fully private dining room that could accommodate this size? We don't want to be seated in the main restaurant. Thanks, Simon",
+      "target_extraction": {
+        "occasion": "birthday",
+        "guest_count": 16,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "private_room_available",
+            "raw_question": "Do you have a fully private dining room that could accommodate this size?",
+            "scope_hint": "restaurant",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_34",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Unknown policy — bespoke request",
+      "body": "Hello, we're planning a dinner for 30 people on 2nd August. We'd like to arrange for a professional photographer to be present throughout the meal. Is this something that can be accommodated? Many thanks, Rachel",
+      "target_extraction": {
+        "occasion": "dinner",
+        "guest_count": 30,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "unknown",
+            "raw_question": "We'd like to arrange for a professional photographer to be present throughout the meal. Is this something that can be accommodated?",
+            "scope_hint": "unknown",
+            "confidence": 0.7
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_35",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Unusual request — bespoke entertainment",
+      "body": "Hi there, looking to book a birthday dinner for 40 people on 1st August. We'd like to set up an immersive theatre experience as a surprise for the guest of honour. Is that type of entertainment possible to accommodate? Thanks, Josh",
+      "target_extraction": {
+        "occasion": "birthday",
+        "guest_count": 40,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "unknown",
+            "raw_question": "We'd like to set up an immersive theatre experience as a surprise for the guest of honour. Is that type of entertainment possible to accommodate?",
+            "scope_hint": "unknown",
+            "confidence": 0.65
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_36",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Simple birthday dinner enquiry — no policy questions",
+      "body": "Hi, I'd like to book a birthday dinner for 8 people on Saturday 18th July. We're just looking for a nice meal with no special requirements. Could you let me know if you have availability? Thank you, Amy",
+      "target_extraction": {
+        "occasion": "birthday",
+        "guest_count": 8,
+        "meal_period": "dinner",
+        "policy_questions": []
+      }
+    },
+    {
+      "id": "pq_37",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Corporate dinner — no special requests",
+      "body": "Dear Events Team, we'd like to book a private dinner for 20 people on Thursday 23rd July. Standard set menu will be fine. No special requirements. Could you confirm availability? Best regards, David",
+      "target_extraction": {
+        "occasion": "corporate dinner",
+        "guest_count": 20,
+        "meal_period": "dinner",
+        "policy_questions": []
+      }
+    },
+    {
+      "id": "pq_38",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Full event package — external performer, AV, decorations and costs",
+      "body": "Hello, we're organising a 60th birthday celebration dinner for 55 people on Saturday 15th August. We want to make it very special and have several questions: (1) Can we bring an external comedian or speaker? (2) Is there a screen and projector for a video tribute? (3) Can we bring our own balloons and flower arrangements? (4) Is there a room hire fee? (5) What is the minimum spend per head? Thank you, Catherine",
+      "target_extraction": {
+        "occasion": "birthday",
+        "guest_count": 55,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "external_performer_allowed",
+            "raw_question": "Can we bring an external comedian or speaker?",
+            "scope_hint": "unknown",
+            "confidence": 0.9
+          },
+          {
+            "question_key": "screen_available",
+            "raw_question": "Is there a screen and projector for a video tribute?",
+            "scope_hint": "room",
+            "confidence": 0.9
+          },
+          {
+            "question_key": "balloons_allowed",
+            "raw_question": "Can we bring our own balloons and flower arrangements?",
+            "scope_hint": "unknown",
+            "confidence": 0.9
+          },
+          {
+            "question_key": "flowers_allowed",
+            "raw_question": "Can we bring our own balloons and flower arrangements?",
+            "scope_hint": "unknown",
+            "confidence": 0.85
+          },
+          {
+            "question_key": "room_hire",
+            "raw_question": "Is there a room hire fee?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          },
+          {
+            "question_key": "minimum_spend",
+            "raw_question": "What is the minimum spend per head?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_39",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Stag dinner — bring our own drinks?",
+      "body": "Hi, we're planning a stag dinner for 14 people on 17th July. We'd like to bring our own whisky selection. Do you allow guests to bring their own spirits or drinks? Is there a corkage charge? Cheers, Ben",
+      "target_extraction": {
+        "occasion": "stag party",
+        "guest_count": 14,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "unknown",
+            "raw_question": "Do you allow guests to bring their own spirits or drinks? Is there a corkage charge?",
+            "scope_hint": "restaurant",
+            "confidence": 0.6
+          }
+        ]
+      }
+    },
+    {
+      "id": "pq_40",
+      "anchor_date": "2026-06-09",
+      "timezone": "Europe/London",
+      "subject": "Agency booking — full commercial terms",
+      "body": "Dear Team, I'm enquiring on behalf of a client for a dinner for 45 guests on 29th August. As we are a booking agency, please confirm: (1) Do you offer agency commission and at what rate? (2) Is there a discretionary service charge and is it mandatory? (3) Is there a room hire fee separate to the food and drink minimum? Best, Francesca (EventCo Agency)",
+      "target_extraction": {
+        "occasion": "dinner",
+        "guest_count": 45,
+        "meal_period": "dinner",
+        "policy_questions": [
+          {
+            "question_key": "agency_commission",
+            "raw_question": "Do you offer agency commission and at what rate?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          },
+          {
+            "question_key": "service_charge",
+            "raw_question": "Is there a discretionary service charge and is it mandatory?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          },
+          {
+            "question_key": "room_hire",
+            "raw_question": "Is there a room hire fee separate to the food and drink minimum?",
+            "scope_hint": "unknown",
+            "confidence": 0.95
+          }
+        ]
+      }
+    }
+  ]
+}

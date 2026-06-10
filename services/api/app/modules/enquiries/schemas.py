@@ -272,6 +272,26 @@ class EnquiryDiagnosticsOut(BaseModel):
     created_at: datetime | None = None
 
 
+# ── Policy question extraction schema (AI-020) ────────────────────────────────
+
+
+class PolicyQuestionExtracted(BaseModel):
+    """A single policy question extracted from guest message (AI-020).
+
+    LLM1 extracts the question reference only — it does not answer it.
+    The PolicyQuestionResolver (RESP-045) handles answer lookup.
+    """
+
+    # One of the 20 supported question keys, or "unknown"
+    question_key: str
+    # The verbatim question fragment from the guest message
+    raw_question: str
+    # "restaurant" | "room" | "unknown" — helps resolver pick the right FAQ scope
+    scope_hint: str = "unknown"
+    # LLM confidence 0.0–1.0 for the question_key mapping
+    confidence: float = 0.0
+
+
 # ── Date request and candidate date schemas ────────────────────────────────────
 
 

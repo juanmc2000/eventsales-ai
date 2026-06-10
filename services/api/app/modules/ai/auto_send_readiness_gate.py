@@ -14,6 +14,7 @@ Auto-send is allowed only when ALL of the following conditions are met:
   3. Date status is explicitly resolved or resolved_with_confirmation.
   4. No human escalation is flagged (ESCALATE_TO_HUMAN goal).
   5. Context integrity gate passed (ResponseContextIntegrityGate returned passed=True).
+  6. No unknown or approval-required policy questions present (RESP-048).
 
 Usage::
 
@@ -91,6 +92,7 @@ class AutoSendReadinessGate:
       3. Date status must be resolved or resolved_with_confirmation.
       4. Response goal must not be ESCALATE_TO_HUMAN.
       5. Context integrity gate must have passed.
+      6. No high-risk unknown policy questions present (RESP-048).
     """
 
     @classmethod
@@ -103,6 +105,7 @@ class AutoSendReadinessGate:
         availability_status: str | None = None,
         customer_type_confidence: float = 0.0,
         response_plan: dict[str, Any] | None = None,
+        review_required_policy_questions: list[Any] | None = None,
     ) -> AutoSendReadinessResult:
         """Evaluate auto-send readiness.
 
@@ -116,6 +119,8 @@ class AutoSendReadinessGate:
             availability_status:       Availability decision status (informational).
             customer_type_confidence:  Confidence of customer type classification (0–1).
             response_plan:             The full ResponsePlan dict (reserved for future checks).
+            review_required_policy_questions: List of policy questions that could not be
+                                       answered and require human review (RESP-048).
 
         Returns:
             AutoSendReadinessResult.
@@ -136,6 +141,9 @@ class AutoSendReadinessGate:
 
         # Rule 5: context integrity gate must have passed
         cls._check_integrity(integrity_result, blockers)
+
+        # Rule 6: no high-risk unknown policy questions
+        cls._check_policy_questions(review_required_policy_questions, blockers)
 
         auto_send_allowed = len(blockers) == 0
         review_required_reason = (
@@ -207,4 +215,21 @@ class AutoSendReadinessGate:
             violation_summary = "; ".join(integrity_result.violations) if integrity_result.violations else "unknown"
             blockers.append(
                 f"Context integrity gate failed: {violation_summary}"
+            )
+
+    @staticmethod
+    def _check_policy_questions(
+        review_required_policy_questions: list[Any] | None,
+        blockers: list[str],
+    ) -> None:
+        """Block auto-send when unknown or approval-required policy questions exist (RESP-048).
+
+        Sending a response that contains holding phrases without human confirmation
+        of the actual policy answer is unsafe and could mislead the guest.
+        """
+        if review_required_policy_questions:
+            count = len(review_required_policy_questions)
+            blockers.append(
+                f"{count} policy question(s) require human review before auto-send — "
+                "unknown or approval-required policy questions must be resolved by a human."
             )
