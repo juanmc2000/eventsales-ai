@@ -295,12 +295,19 @@ class DraftGenerationService:
         self._db.commit()
 
         # AUTO-002: compute review state for the LLM-generated draft
+        # RESP-035: wire prohibited_times from guest message into ValidationContext
+        _prohibited_times: list[str] = (
+            _extract_time_mentions(context.guest_message)
+            if context.guest_message
+            else []
+        )
         _compliance = DraftComplianceValidator.validate(
             draft_text=draft_body,
             context=ValidationContext(
                 availability_contract=_availability_status_to_contract(context.availability_status),
                 response_goal=context.response_goal or "",
                 confirmed_minimum_spend=context.confirmed_minimum_spend,
+                prohibited_times=_prohibited_times,
             ),
         )
         _date_status = _plan_date_status or "unknown"

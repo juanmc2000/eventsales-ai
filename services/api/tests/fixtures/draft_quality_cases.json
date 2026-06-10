@@ -347,7 +347,7 @@
     {
       "id": "tc_017",
       "category": "unconfirmed_time",
-      "description": "CONFIRM_AVAILABLE \u2014 time just mentioned, not confirmed (pass)",
+      "description": "CONFIRM_AVAILABLE \u2014 time mentioned as preference echo (fail \u2014 RESP-035)",
       "response_goal": "CONFIRM_AVAILABLE",
       "availability_contract": "CONFIRMED_AVAILABLE",
       "date_status": "resolved",
@@ -360,8 +360,8 @@
         ]
       },
       "expected": {
-        "compliance_passed": true,
-        "ready_to_send_allowed": true
+        "compliance_passed": false,
+        "ready_to_send_allowed": false
       }
     },
     {
