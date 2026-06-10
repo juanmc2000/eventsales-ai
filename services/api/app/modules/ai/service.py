@@ -931,7 +931,8 @@ def _build_approved_copy_blocks_line(context: DraftContext) -> str:
             )
             if text:
                 blocks.append(("Minimum spend statement", text))
-        text = FirstResponseCopyLibrary.render_safe("booking_next_step")
+        # RESP-030: use constrained next-step block — no "additional details" invitation
+        text = FirstResponseCopyLibrary.render_safe("confirm_available_next_step")
         if text:
             blocks.append(("Next step", text))
 
