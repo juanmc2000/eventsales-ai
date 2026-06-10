@@ -818,3 +818,125 @@ class TestCopyBlockCompliance:
         )
         copy_violations = [v for v in result.violations if "copy block" in v.lower()]
         assert len(copy_violations) == 0
+
+
+# ── RESP-031: Calibrated copy block check for CONFIRM_AVAILABLE ───────────────
+
+
+class TestConfirmAvailableSemanticValidation:
+    """RESP-031: CONFIRM_AVAILABLE uses semantic availability check, not verbatim phrase."""
+
+    _PHRASE = (
+        "Thank you for your enquiry — I'm delighted to confirm that we have "
+        "availability for dinner on 12th June."
+    )
+
+    def _ctx_confirm(self, **kwargs) -> ValidationContext:
+        return ValidationContext(
+            response_goal="CONFIRM_AVAILABLE",
+            availability_contract="CONFIRMED_AVAILABLE",
+            required_opening_phrase=self._PHRASE,
+            **kwargs,
+        )
+
+    def test_paraphrase_with_availability_language_passes(self) -> None:
+        """RESP-031: harmless paraphrase is accepted if availability is confirmed."""
+        draft = (
+            "Dear Alice, I am delighted to confirm that we are available on 12th June "
+            "for dinner. Warm regards, Sophie."
+        )
+        result = DraftComplianceValidator.validate(draft, self._ctx_confirm())
+        copy_violations = [v for v in result.violations if "copy block" in v.lower() or "confirm_available" in v.lower()]
+        assert len(copy_violations) == 0, copy_violations
+
+    def test_draft_without_availability_language_fails(self) -> None:
+        """Draft must confirm availability — not just greet the guest."""
+        draft = (
+            "Dear Alice, thank you for getting in touch. Please find our details below. "
+            "Warm regards, Sophie."
+        )
+        result = DraftComplianceValidator.validate(draft, self._ctx_confirm())
+        assert result.passed is False
+        assert any("confirm_available" in v.lower() or "availability" in v.lower() for v in result.violations)
+
+    def test_standard_approved_phrase_passes(self) -> None:
+        """The exact approved phrase also passes the semantic check."""
+        draft = (
+            "Dear Alice, "
+            + self._PHRASE
+            + " Warm regards, Sophie."
+        )
+        result = DraftComplianceValidator.validate(draft, self._ctx_confirm())
+        copy_violations = [v for v in result.violations if "copy block" in v.lower()]
+        assert len(copy_violations) == 0
+
+    def test_variant_availability_phrases_pass(self) -> None:
+        """Common availability confirmation forms must be accepted."""
+        phrases = [
+            "Dear Alice, we are available on 12th June.",
+            "Dear Alice, I'm pleased to confirm your booking is available.",
+            "Dear Alice, the date is free for your event.",
+            "Dear Alice, we have the date available for you.",
+        ]
+        for draft in phrases:
+            result = DraftComplianceValidator.validate(draft, self._ctx_confirm())
+            copy_violations = [
+                v for v in result.violations
+                if "copy block" in v.lower() or "confirm_available" in v.lower()
+            ]
+            assert len(copy_violations) == 0, f"Failed for: {draft!r}\nViolations: {result.violations}"
+
+    def test_respond_unavailable_still_requires_verbatim(self) -> None:
+        """RESP-031: other goals keep strict verbatim enforcement."""
+        phrase = "Thank you for your enquiry. Unfortunately, we are fully booked for dinner on 12th June."
+        result = _validate(
+            "Dear Alice, I regret to inform you that we cannot accommodate your request.",
+            required_opening_phrase=phrase,
+            availability_contract="CONFIRMED_UNAVAILABLE",
+            response_goal="RESPOND_UNAVAILABLE",
+        )
+        assert result.passed is False
+        assert any("copy block" in v.lower() or "required" in v.lower() for v in result.violations)
+
+    def test_confirm_available_no_required_phrase_skips_check(self) -> None:
+        """When required_opening_phrase is not set, check does not fire even for CONFIRM_AVAILABLE."""
+        draft = "Dear Alice, I am happy to assist. Warm regards, Sophie."
+        result = DraftComplianceValidator.validate(
+            draft,
+            ValidationContext(
+                response_goal="CONFIRM_AVAILABLE",
+                availability_contract="CONFIRMED_AVAILABLE",
+            ),
+        )
+        copy_violations = [v for v in result.violations if "copy block" in v.lower()]
+        assert len(copy_violations) == 0
+
+    def test_forbidden_topics_still_caught_for_confirm_available(self) -> None:
+        """Semantic open-phrase check does not exempt other compliance violations."""
+        draft = (
+            "Dear Alice, we are available on 12th June. "
+            "Please let us know your menu preferences and dietary requirements. "
+            "Warm regards, Sophie."
+        )
+        result = DraftComplianceValidator.validate(draft, self._ctx_confirm())
+        # Availability phrase is fine — but menu/dietary must still be caught
+        topic_violations = [v for v in result.violations if "menu" in v.lower() or "dietary" in v.lower()]
+        assert len(topic_violations) > 0, "Menu/dietary violation was not caught"
+
+    def test_minimum_spend_soft_language_still_caught(self) -> None:
+        """Spend soft-language check remains strict regardless of RESP-031."""
+        draft = (
+            "Dear Alice, we are available on 12th June. "
+            "The recommended minimum spend is £2,000. Warm regards, Sophie."
+        )
+        result = DraftComplianceValidator.validate(
+            draft,
+            ValidationContext(
+                response_goal="CONFIRM_AVAILABLE",
+                availability_contract="CONFIRMED_AVAILABLE",
+                confirmed_minimum_spend=2000.0,
+                required_opening_phrase=self._PHRASE,
+            ),
+        )
+        spend_violations = [v for v in result.violations if "spend" in v.lower() or "mandatory" in v.lower()]
+        assert len(spend_violations) > 0, "Spend soft-language violation was not caught"
