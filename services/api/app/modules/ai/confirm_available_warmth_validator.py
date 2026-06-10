@@ -1,4 +1,4 @@
-"""CONFIRM_AVAILABLE Warmth Sentence Validator (RESP-040).
+"""CONFIRM_AVAILABLE Warmth Sentence Validator (RESP-040, RESP-056).
 
 Validates the optional LLM-generated warmth sentence before it is inserted
 into a deterministic CONFIRM_AVAILABLE draft.
@@ -7,6 +7,8 @@ The warmth sentence must be:
   - A single sentence (no full-stop mid-sentence allowed)
   - 20 words or fewer
   - Free of all operational claims
+  - Occasion-consistent — must not reference an occasion type different from
+    the extracted occasion (RESP-056)
 
 If validation fails the sentence is silently dropped — the deterministic
 draft is still safe without it.
@@ -114,6 +116,48 @@ _PRICING_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\brate\b", re.IGNORECASE),
 ]
 
+# RESP-056: Occasion keyword mapping — used to detect wrong-occasion mentions.
+# Maps canonical occasion type (lowercase) → list of re.Patterns for that occasion.
+# "unknown" and "social" (generic) are intentionally omitted — no keywords to detect.
+_OCCASION_KEYWORDS: dict[str, list[re.Pattern[str]]] = {
+    "birthday": [
+        re.compile(r"\bbirthday\b", re.IGNORECASE),
+        re.compile(r"\bbday\b", re.IGNORECASE),
+    ],
+    "engagement": [
+        re.compile(r"\bengagement\b", re.IGNORECASE),
+        re.compile(r"\bproposal\b", re.IGNORECASE),
+        re.compile(r"\bengaged\b", re.IGNORECASE),
+    ],
+    "anniversary": [
+        re.compile(r"\banniversary\b", re.IGNORECASE),
+    ],
+    "wedding": [
+        re.compile(r"\bwedding\b", re.IGNORECASE),
+        re.compile(r"\bbride\b", re.IGNORECASE),
+        re.compile(r"\bgroom\b", re.IGNORECASE),
+    ],
+    "corporate": [
+        re.compile(r"\bcorporate\b", re.IGNORECASE),
+        re.compile(r"\bbusiness\s+(?:meeting|event|dinner|lunch|function)\b", re.IGNORECASE),
+        re.compile(r"\bwork\s+(?:event|dinner|function)\b", re.IGNORECASE),
+        re.compile(r"\bclient\s+(?:dinner|event|function)\b", re.IGNORECASE),
+        re.compile(r"\bteam\s+(?:dinner|event|function)\b", re.IGNORECASE),
+    ],
+    "christmas": [
+        re.compile(r"\bchristmas\b", re.IGNORECASE),
+        re.compile(r"\bfestive\b", re.IGNORECASE),
+    ],
+    "retirement": [
+        re.compile(r"\bretirement\b", re.IGNORECASE),
+        re.compile(r"\bretiring\b", re.IGNORECASE),
+    ],
+    "graduation": [
+        re.compile(r"\bgraduation\b", re.IGNORECASE),
+        re.compile(r"\bgraduating\b", re.IGNORECASE),
+    ],
+}
+
 # Room suitability claims
 _ROOM_SUITABILITY_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\bperfect\s+for\b", re.IGNORECASE),
@@ -136,6 +180,8 @@ class WarmthSentenceValidator:
       - Contains at most 20 words
       - Makes no operational claims (timing, menu, dietary, special touches,
         booking forms, calls, availability, pricing, room suitability)
+      - Does not mention an occasion type different from the extracted occasion
+        (RESP-056 occasion consistency check)
 
     On failure the sentence should be discarded — do not retry.
     """
@@ -143,11 +189,15 @@ class WarmthSentenceValidator:
     _MAX_WORDS = 20
 
     @classmethod
-    def validate(cls, text: str) -> WarmthValidationResult:
+    def validate(cls, text: str, occasion: str | None = None) -> WarmthValidationResult:
         """Validate a candidate warmth sentence.
 
         Args:
-            text: The raw warmth sentence from the LLM.
+            text:     The raw warmth sentence from the LLM.
+            occasion: The canonical extracted occasion type (e.g. "birthday",
+                      "engagement", "corporate").  If provided and not "unknown",
+                      the warmth sentence must not mention any OTHER occasion type.
+                      Pass None or "unknown" to skip the occasion consistency check.
 
         Returns:
             WarmthValidationResult with passed=True when the sentence is safe.
@@ -201,6 +251,14 @@ class WarmthSentenceValidator:
                         violation_msg=msg,
                     )
 
+        # RESP-056: occasion consistency check
+        # If a known occasion is provided, the warmth sentence must not mention
+        # any OTHER occasion type's keywords.
+        if occasion and occasion.strip().lower() not in ("unknown", ""):
+            occasion_result = cls._check_occasion_consistency(sentence, occasion.strip().lower())
+            if occasion_result is not None:
+                return occasion_result
+
         return WarmthValidationResult(passed=True)
 
     @staticmethod
@@ -225,3 +283,37 @@ class WarmthSentenceValidator:
             return True
 
         return False
+
+    @staticmethod
+    def _check_occasion_consistency(
+        sentence: str,
+        occasion: str,
+    ) -> WarmthValidationResult | None:
+        """RESP-056: Return a violation if the warmth sentence references the wrong occasion.
+
+        If the extracted occasion is, say, "birthday", a warmth sentence mentioning
+        "corporate celebration" or "engagement" is inconsistent and must be dropped.
+
+        Args:
+            sentence: The warmth sentence to check (already stripped).
+            occasion: The canonical extracted occasion (lowercase, not "unknown").
+
+        Returns:
+            WarmthValidationResult with passed=False if a wrong-occasion keyword is found,
+            or None if the sentence is occasion-consistent.
+        """
+        for other_occasion, patterns in _OCCASION_KEYWORDS.items():
+            if other_occasion == occasion:
+                continue  # Same occasion — skip
+            for pattern in patterns:
+                if pattern.search(sentence):
+                    return WarmthValidationResult(
+                        passed=False,
+                        violation_code="occasion_mismatch",
+                        violation_msg=(
+                            f"Warmth sentence mentions '{other_occasion}' occasion keywords "
+                            f"but the extracted occasion is '{occasion}'. "
+                            "Wrong-occasion warmth sentences must be dropped."
+                        ),
+                    )
+        return None
