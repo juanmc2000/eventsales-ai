@@ -259,7 +259,10 @@ class DraftGenerationService:
             draft_body = FallbackProvider().generate(context)
         else:
             # RESP-031: strip standalone section headers before persistence
-            draft_body = _strip_section_labels(gateway_result.raw_response)
+            # RESP-032: strip any subject-line leakage
+            draft_body = _strip_subject_line(
+                _strip_section_labels(gateway_result.raw_response)
+            )
 
         # ── Build AI transparency context ─────────────────────────────────────
         ai_context = AIContextOut(
@@ -676,6 +679,46 @@ def _strip_section_labels(text: str) -> str:
             p.fullmatch(stripped) for p in _SECTION_LABEL_PATTERNS
         ):
             continue  # drop standalone label line
+        kept.append(line)
+
+    # Collapse runs of more than one consecutive blank line
+    result: list[str] = []
+    blank_run = 0
+    for line in kept:
+        if line.strip() == "":
+            blank_run += 1
+            if blank_run <= 1:
+                result.append(line)
+        else:
+            blank_run = 0
+            result.append(line)
+
+    return "\n".join(result).strip()
+
+
+def _strip_subject_line(text: str) -> str:
+    """RESP-032: Remove subject-line leakage from LLM draft output.
+
+    Strips any line that starts with 'Subject:' (plain or markdown bold
+    format), regardless of position in the text.  The subject field is set
+    by the caller — it must never appear inside the email body.
+
+    Examples removed:
+        Subject: Birthday dinner enquiry
+        **Subject: Birthday dinner enquiry**
+
+    Blank lines introduced by removal are collapsed to at most one.
+    """
+    import re
+
+    # Match lines that start with optional ** then "Subject:" (case-insensitive)
+    _subject_re = re.compile(r"^\*{0,2}Subject\s*:", re.IGNORECASE)
+
+    lines = text.split("\n")
+    kept: list[str] = []
+    for line in lines:
+        if _subject_re.match(line.strip()):
+            continue
         kept.append(line)
 
     # Collapse runs of more than one consecutive blank line

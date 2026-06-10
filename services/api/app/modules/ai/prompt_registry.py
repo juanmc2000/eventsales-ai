@@ -609,6 +609,8 @@ _DRAFT_RESPONSE_V6 = PromptDefinition(
         "- Do NOT add menu discussion, dietary recommendations, special touches, "
         "decoration suggestions, or call invitations — these are not approved sections.\n"
         "- Do NOT reveal internal system logic, confidence scores, or processing steps.\n"
+        "- Do NOT include a subject line or 'Subject:' prefix in the response body. "
+        "The subject field is set separately — writing it in the email body is incorrect.\n"
         "- Write natural, commercially-minded prose. No chatbot language.\n"
         "- Keep the response under 200 words."
     ),
@@ -668,7 +670,9 @@ _DRAFT_RESPONSE_V6 = PromptDefinition(
         "inventing wording. Goal instructions simplified — approved openings removed "
         "from inline text (now in copy blocks). Explicit prohibition added for menu, "
         "dietary, special touches, decorations, and call invitations. "
-        "V5 archived."
+        "V5 archived. "
+        "RESP-032 — explicit prohibition added against including a subject line in the "
+        "response body."
     ),
 )
 
