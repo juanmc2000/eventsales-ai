@@ -1,4 +1,4 @@
-"""Tests for RESP-032 — subject-line stripping and compliance check.
+"""Tests for RESP-032/RESP-055 — subject-line stripping and compliance check.
 
 Validates that:
 - _strip_subject_line removes plain and markdown-bold subject lines
@@ -128,3 +128,57 @@ class TestComplianceValidatorSubjectLine:
         subject_violations = [v for v in result.violations if "subject line" in v.lower()]
         assert subject_violations
         assert "subject" in subject_violations[0].lower()
+
+
+# ── RESP-055: extended subject-line stripping (Re: / Email subject:) ──────────
+
+
+class TestReSubjectLineStripping:
+    """RESP-055: 'Re:' and 'Email subject:' lines stripped from ACKNOWLEDGE responses."""
+
+    def test_strips_re_prefix(self) -> None:
+        """email_26/53-style: 'Re: Birthday dinner enquiry' stripped (RESP-055)."""
+        text = "Re: Birthday dinner enquiry\n\nDear Alice, thank you for your enquiry."
+        result = _strip_subject_line(text)
+        assert not result.strip().startswith("Re:")
+        assert "Dear Alice" in result
+
+    def test_strips_email_subject_prefix(self) -> None:
+        """email_63-style: 'Email subject: ...' stripped (RESP-055)."""
+        text = "Email subject: Birthday dinner enquiry\n\nDear Alice,"
+        result = _strip_subject_line(text)
+        assert "Email subject:" not in result
+        assert "Dear Alice" in result
+
+    def test_strips_bold_re_prefix(self) -> None:
+        """email_80-style: '**Re: ...**' stripped (RESP-055)."""
+        text = "**Re: Birthday dinner enquiry**\n\nDear Alice,"
+        result = _strip_subject_line(text)
+        assert "Re:" not in result
+        assert "Dear Alice" in result
+
+    def test_re_mid_sentence_not_stripped(self) -> None:
+        """'Re:' appearing mid-sentence (not at line start) is preserved (RESP-055)."""
+        text = "Dear Alice, regarding your enquiry, re: the date you mentioned."
+        result = _strip_subject_line(text)
+        # The 're:' here is not at the start of a line — should not be stripped
+        # (The function strips lines where the entire line starts with Re:)
+        assert "Dear Alice" in result
+
+    def test_validator_catches_re_subject_line(self) -> None:
+        """email_100-style: validator catches 'Re: ...' in draft body (RESP-055)."""
+        result = DraftComplianceValidator.validate(
+            draft_text="Re: Birthday dinner enquiry\n\nDear Alice, thank you.",
+            context=_ctx(),
+        )
+        subject_violations = [v for v in result.violations if "subject line" in v.lower()]
+        assert len(subject_violations) == 1
+
+    def test_validator_catches_email_subject_line(self) -> None:
+        """Validator catches 'Email subject: ...' in draft body (RESP-055)."""
+        result = DraftComplianceValidator.validate(
+            draft_text="Email subject: Birthday dinner\n\nDear Alice, thank you.",
+            context=_ctx(),
+        )
+        subject_violations = [v for v in result.violations if "subject line" in v.lower()]
+        assert len(subject_violations) == 1
