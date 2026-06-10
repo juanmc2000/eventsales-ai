@@ -225,9 +225,11 @@ class TestLlmGoalsReturnReviewState:
         result = _run_with_goal("CONFIRM_AVAILABLE")
         assert result.review_state is not None
 
-    def test_confirm_available_model_is_not_deterministic(self) -> None:
+    def test_confirm_available_model_is_deterministic(self) -> None:
+        # RESP-038: CONFIRM_AVAILABLE is now fully deterministic; warmth may produce
+        # "deterministic+warmth" but both are valid deterministic-path models.
         result = _run_with_goal("CONFIRM_AVAILABLE")
-        assert result.model != "deterministic"
+        assert result.model in {"deterministic", "deterministic+warmth"}
 
 
 # ── AUTO-004: review_metadata persistence ────────────────────────────────────
@@ -330,10 +332,11 @@ class TestAuto004ReviewMetadataLlm:
         _, repo = _run_with_goal_and_capture_repo("CONFIRM_AVAILABLE")
         repo.update_message_review_metadata.assert_called_once()
 
-    def test_review_metadata_has_generation_path_llm(self) -> None:
+    def test_review_metadata_has_generation_path_deterministic(self) -> None:
+        # RESP-038: CONFIRM_AVAILABLE is now deterministic, not LLM
         _, repo = _run_with_goal_and_capture_repo("CONFIRM_AVAILABLE")
         _msg_id, meta = repo.update_message_review_metadata.call_args[0]
-        assert meta["generation_path"] == "llm"
+        assert meta["generation_path"] == "deterministic"
 
     def test_review_metadata_has_all_six_keys(self) -> None:
         _, repo = _run_with_goal_and_capture_repo("CONFIRM_AVAILABLE")

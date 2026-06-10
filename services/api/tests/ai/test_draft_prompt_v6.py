@@ -124,11 +124,18 @@ class TestBuildApprovedCopyBlocksLine:
         assert expected in line
 
     def test_confirm_available_contains_confirm_available_next_step(self) -> None:
-        # RESP-030: CONFIRM_AVAILABLE uses confirm_available_next_step block
+        # RESP-037: CONFIRM_AVAILABLE uses confirm_available_next_step, not booking_next_step
         ctx = _base_context(response_goal="CONFIRM_AVAILABLE")
         line = _build_approved_copy_blocks_line(ctx)
         expected = FirstResponseCopyLibrary.render("confirm_available_next_step")
         assert expected in line
+
+    def test_confirm_available_does_not_contain_booking_next_step(self) -> None:
+        # RESP-037: booking_next_step is no longer used for CONFIRM_AVAILABLE
+        ctx = _base_context(response_goal="CONFIRM_AVAILABLE")
+        line = _build_approved_copy_blocks_line(ctx)
+        old_block = FirstResponseCopyLibrary.render("booking_next_step")
+        assert old_block not in line
 
     def test_confirm_available_contains_spend_block_when_spend_set(self) -> None:
         ctx = _base_context(
