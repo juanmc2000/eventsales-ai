@@ -63,7 +63,8 @@ class TestComplianceResult:
     def test_to_dict_has_all_keys(self) -> None:
         r = ComplianceResult(passed=True, violations=[], unsafe_to_send=False)
         d = r.to_dict()
-        assert set(d.keys()) == {"passed", "violations", "unsafe_to_send"}
+        # RESP-033: structured_violations added
+        assert set(d.keys()) == {"passed", "violations", "unsafe_to_send", "structured_violations"}
 
     def test_passed_result(self) -> None:
         r = ComplianceResult(passed=True, violations=[], unsafe_to_send=False)
