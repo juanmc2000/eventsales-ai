@@ -51,9 +51,36 @@ _FIXTURE_PATH = Path(__file__).parent.parent / "fixtures" / "first_response_safe
 # ── Helpers ─────────────────────────────────────────────────────────────────────
 
 
+_DETERMINISTIC_GOALS: frozenset[str] = frozenset({"RESPOND_UNAVAILABLE"})
+
+
 def _load_scenarios() -> list[dict[str, Any]]:
     data = json.loads(_FIXTURE_PATH.read_text())
     return data["scenarios"]
+
+
+def _get_production_draft_text(scenario: dict[str, Any]) -> str:
+    """RESP-032: Return production-equivalent draft text for a scenario.
+
+    For RESPOND_UNAVAILABLE, build the deterministic unavailable draft using
+    FirstResponseCopyLibrary — matching production DraftGenerationService routing.
+    For all other goals, use the fixture draft_text (LLM-generated test draft).
+    """
+    goal = scenario.get("response_goal", "")
+    if goal in _DETERMINISTIC_GOALS:
+        from app.modules.ai.first_response_copy_library import FirstResponseCopyLibrary
+        ctx = scenario.get("context", {})
+        meal_period = ctx.get("meal_period") or "dinner"
+        event_date = ctx.get("event_date") or "the requested date"
+        guest_name = ctx.get("guest_first_name") or "there"
+        persona_name = ctx.get("persona_name") or "Events Team"
+        opening = FirstResponseCopyLibrary.render(
+            "availability_unavailable",
+            {"meal_period": meal_period, "event_date": event_date},
+        )
+        signoff = FirstResponseCopyLibrary.render("signoff", {"persona_name": persona_name})
+        return f"Dear {guest_name},\n\n{opening}\n\n{signoff}"
+    return scenario.get("draft_text", "")
 
 
 def _context_from_scenario(scenario: dict[str, Any]) -> ValidationContext:
@@ -181,7 +208,9 @@ class TestComplianceOutcomes:
             if not sc["expected"].get("compliance_passed", True):
                 continue
             ctx = _context_from_scenario(sc)
-            result = DraftComplianceValidator.validate(sc["draft_text"], ctx)
+            # RESP-032: use production-equivalent draft text (deterministic for RESPOND_UNAVAILABLE)
+            draft_text = _get_production_draft_text(sc)
+            result = DraftComplianceValidator.validate(draft_text, ctx)
             if not result.passed:
                 failures.append(
                     f"{sc['id']} ({sc['description']}): unexpected violations: "
@@ -195,7 +224,9 @@ class TestComplianceOutcomes:
             if sc["expected"].get("compliance_passed", True):
                 continue
             ctx = _context_from_scenario(sc)
-            result = DraftComplianceValidator.validate(sc["draft_text"], ctx)
+            # RESP-032: use production-equivalent draft text
+            draft_text = _get_production_draft_text(sc)
+            result = DraftComplianceValidator.validate(draft_text, ctx)
             if result.passed:
                 surprises.append(f"{sc['id']} ({sc['description']}): expected violation but none found")
         assert not surprises, "Expected-fail scenarios passed unexpectedly:\n" + "\n".join(surprises)
@@ -203,7 +234,9 @@ class TestComplianceOutcomes:
     def test_validator_returns_valid_result_for_all_scenarios(self, scenarios: list[dict]) -> None:
         for sc in scenarios:
             ctx = _context_from_scenario(sc)
-            result = DraftComplianceValidator.validate(sc["draft_text"], ctx)
+            # RESP-032: use production-equivalent draft text
+            draft_text = _get_production_draft_text(sc)
+            result = DraftComplianceValidator.validate(draft_text, ctx)
             assert isinstance(result.passed, bool), f"{sc['id']}: passed must be bool"
             assert isinstance(result.violations, list), f"{sc['id']}: violations must be list"
             assert result.unsafe_to_send == (not result.passed), f"{sc['id']}: unsafe_to_send mismatch"
@@ -471,3 +504,77 @@ class TestSafetyRegressionSummary:
         assert integrity_rate >= 95.0, f"Integrity pass rate {integrity_rate:.1f}% unexpectedly low"
         assert auto_send_rate >= 10.0, f"Auto-send rate {auto_send_rate:.1f}% unexpectedly low"
         assert auto_send_rate <= 50.0, f"Auto-send rate {auto_send_rate:.1f}% unexpectedly high — gate may be too permissive"
+
+
+# ── RESP-032: Generation path ──────────────────────────────────────────────────
+
+
+class TestGenerationPath:
+    """RESP-032: production-equivalent generation routing."""
+
+    def test_all_scenarios_have_generation_path_field(self, scenarios: list[dict]) -> None:
+        missing = [sc["id"] for sc in scenarios if "generation_path" not in sc]
+        assert not missing, f"Scenarios missing generation_path: {missing}"
+
+    def test_respond_unavailable_scenarios_are_deterministic(self, scenarios: list[dict]) -> None:
+        unavailable = [sc for sc in scenarios if sc.get("response_goal") == "RESPOND_UNAVAILABLE"]
+        assert len(unavailable) > 0, "No RESPOND_UNAVAILABLE scenarios in fixture"
+        for sc in unavailable:
+            assert sc["generation_path"] == "deterministic", (
+                f"{sc['id']}: RESPOND_UNAVAILABLE must have generation_path='deterministic'"
+            )
+
+    def test_non_unavailable_scenarios_are_llm(self, scenarios: list[dict]) -> None:
+        non_unavailable = [sc for sc in scenarios if sc.get("response_goal") != "RESPOND_UNAVAILABLE"]
+        for sc in non_unavailable:
+            assert sc["generation_path"] == "llm", (
+                f"{sc['id']}: non-RESPOND_UNAVAILABLE must have generation_path='llm'"
+            )
+
+    def test_deterministic_unavailable_drafts_pass_compliance(self, scenarios: list[dict]) -> None:
+        """RESP-032: deterministic unavailable drafts must always be compliant."""
+        unavailable = [sc for sc in scenarios if sc.get("response_goal") == "RESPOND_UNAVAILABLE"]
+        failures = []
+        for sc in unavailable:
+            draft_text = _get_production_draft_text(sc)
+            ctx = _context_from_scenario(sc)
+            result = DraftComplianceValidator.validate(draft_text, ctx)
+            if not result.passed:
+                failures.append(
+                    f"{sc['id']}: deterministic draft failed compliance: "
+                    + "; ".join(result.violations)
+                )
+        assert not failures, "Deterministic RESPOND_UNAVAILABLE drafts failed compliance:\n" + "\n".join(failures)
+
+    def test_deterministic_unavailable_drafts_are_never_auto_sendable(self, scenarios: list[dict]) -> None:
+        """RESPOND_UNAVAILABLE is not in the auto-send allowlist."""
+        unavailable = [sc for sc in scenarios if sc.get("response_goal") == "RESPOND_UNAVAILABLE"]
+        for sc in unavailable:
+            draft_text = _get_production_draft_text(sc)
+            ctx = _context_from_scenario(sc)
+            compliance = DraftComplianceValidator.validate(draft_text, ctx)
+            gate = AutoSendReadinessGate.evaluate(
+                response_goal="RESPOND_UNAVAILABLE",
+                draft_compliance_result=compliance,
+                date_status=sc.get("date_status", "resolved"),
+                integrity_result=_integrity_from_scenario(sc),
+            )
+            assert gate.auto_send_allowed is False, (
+                f"{sc['id']}: RESPOND_UNAVAILABLE must never be auto-sendable"
+            )
+
+    def test_fixture_expected_compliance_matches_deterministic_routing(self, scenarios: list[dict]) -> None:
+        """All fixture expected.compliance_passed values align with production routing."""
+        mismatches = []
+        for sc in scenarios:
+            expected_pass = sc["expected"].get("compliance_passed")
+            if expected_pass is None:
+                continue
+            draft_text = _get_production_draft_text(sc)
+            ctx = _context_from_scenario(sc)
+            result = DraftComplianceValidator.validate(draft_text, ctx)
+            if result.passed != expected_pass:
+                mismatches.append(
+                    f"{sc['id']}: expected compliance_passed={expected_pass}, got {result.passed}"
+                )
+        assert not mismatches, "Fixture compliance expectations mismatch production:\n" + "\n".join(mismatches)

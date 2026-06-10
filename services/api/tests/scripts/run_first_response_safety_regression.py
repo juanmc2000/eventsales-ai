@@ -1,18 +1,27 @@
-"""First Response Safety Regression Runner (TEST-011).
+"""First Response Safety Regression Runner (TEST-011, updated RESP-032).
 
 Standalone script that evaluates all 25 first-response safety scenarios
 using DraftComplianceValidator, ResponseContextIntegrityGate, and
 AutoSendReadinessGate. No pytest required — no LLM calls made.
+
+RESP-032: Production-equivalent routing
+- RESPOND_UNAVAILABLE scenarios use the deterministic unavailable builder
+  (FirstResponseCopyLibrary) rather than the LLM-generated draft_text.
+  This matches production behaviour where RESPOND_UNAVAILABLE bypasses LLM.
+- Each result includes generation_path: "llm" | "deterministic"
+- Report separates CONFIRM_AVAILABLE pass rate, RESPOND_UNAVAILABLE
+  deterministic pass rate, validator failure rate, and auto-send rate.
 
 Run from the services/api/ directory:
 
     python tests/scripts/run_first_response_safety_regression.py
 
 Outputs:
-  - Per-scenario pass/fail with violation/blocker detail
+  - Per-scenario pass/fail with generation_path, violation/blocker detail
   - Compliance pass rate
   - Integrity pass rate
   - Auto-send eligibility rate
+  - Per-goal summary (CONFIRM_AVAILABLE, RESPOND_UNAVAILABLE, others)
   - Violation breakdown by category
   - Auto-send block reason breakdown
   - Ready-to-send rate
@@ -36,6 +45,52 @@ from app.modules.enquiries.response_context_integrity_gate import ResponseContex
 # ── Paths ───────────────────────────────────────────────────────────────────────
 
 _FIXTURE_PATH = Path(__file__).parent.parent / "fixtures" / "first_response_safety_cases.json"
+
+# ── Deterministic unavailable draft text constants ────────────────────────────
+
+_DETERMINISTIC_GOALS = frozenset({"RESPOND_UNAVAILABLE"})
+
+
+def _get_generation_path(response_goal: str) -> str:
+    """Return 'deterministic' for goals that bypass the LLM, 'llm' for all others."""
+    return "deterministic" if response_goal in _DETERMINISTIC_GOALS else "llm"
+
+
+def _build_deterministic_unavailable_text(scenario: dict) -> str:
+    """RESP-032: Build deterministic unavailable draft using FirstResponseCopyLibrary.
+
+    Matches what DraftGenerationService._generate_deterministic_unavailable_draft()
+    produces in production — approved copy blocks only, no LLM.
+    """
+    from app.modules.ai.first_response_copy_library import FirstResponseCopyLibrary
+
+    ctx = scenario.get("context", {})
+    meal_period = ctx.get("meal_period") or "dinner"
+    event_date = ctx.get("event_date") or "the requested date"
+    guest_name = ctx.get("guest_first_name") or "there"
+    persona_name = ctx.get("persona_name") or "Events Team"
+
+    opening = FirstResponseCopyLibrary.render(
+        "availability_unavailable",
+        {"meal_period": meal_period, "event_date": event_date},
+    )
+    signoff = FirstResponseCopyLibrary.render(
+        "signoff",
+        {"persona_name": persona_name},
+    )
+    return f"Dear {guest_name},\n\n{opening}\n\n{signoff}"
+
+
+def _get_draft_text(scenario: dict) -> str:
+    """RESP-032: Return the draft text to evaluate.
+
+    For RESPOND_UNAVAILABLE, return the production-equivalent deterministic text.
+    For all other goals, use the fixture draft_text (LLM-generated test draft).
+    """
+    goal = scenario.get("response_goal", "")
+    if goal == "RESPOND_UNAVAILABLE":
+        return _build_deterministic_unavailable_text(scenario)
+    return scenario.get("draft_text", "")
 
 
 # ── Helpers ─────────────────────────────────────────────────────────────────────
@@ -119,7 +174,7 @@ def run() -> None:
     total = len(scenarios)
 
     print(f"\n{'=' * 68}")
-    print("FIRST RESPONSE SAFETY REGRESSION RUNNER — TEST-011")
+    print("FIRST RESPONSE SAFETY REGRESSION RUNNER — TEST-011 / RESP-032")
     print(f"{'=' * 68}")
     print(f"Fixture:  {_FIXTURE_PATH.name}")
     print(f"Records:  {len(availability_records)} availability records  |  {total} scenarios\n")
@@ -133,16 +188,27 @@ def run() -> None:
     integrity_regressions: list[str] = []
     auto_send_regressions: list[str] = []
 
+    # RESP-032: per-goal tracking
+    per_goal_totals: dict[str, int] = {}
+    per_goal_compliance_passed: dict[str, int] = {}
+    per_goal_auto_send_allowed: dict[str, int] = {}
+    per_goal_deterministic: dict[str, int] = {}
+
     for sc in scenarios:
         sc_id = sc["id"]
         expected = sc["expected"]
         category = sc.get("category", "")
+        response_goal = sc.get("response_goal", "")
+        generation_path = _get_generation_path(response_goal)
+
+        # RESP-032: use production-equivalent draft text
+        draft_text = _get_draft_text(sc)
 
         ctx = _context_from_scenario(sc)
-        compliance = DraftComplianceValidator.validate(sc["draft_text"], ctx)
+        compliance = DraftComplianceValidator.validate(draft_text, ctx)
         integrity = _integrity_from_scenario(sc)
         gate = AutoSendReadinessGate.evaluate(
-            response_goal=sc.get("response_goal", ""),
+            response_goal=response_goal,
             draft_compliance_result=compliance,
             date_status=sc.get("date_status", "resolved"),
             integrity_result=integrity,
@@ -155,6 +221,15 @@ def run() -> None:
             integrity_passed_count += 1
         if gate.auto_send_allowed:
             auto_send_allowed_count += 1
+
+        # RESP-032: per-goal aggregation
+        per_goal_totals[response_goal] = per_goal_totals.get(response_goal, 0) + 1
+        if compliance.passed:
+            per_goal_compliance_passed[response_goal] = per_goal_compliance_passed.get(response_goal, 0) + 1
+        if gate.auto_send_allowed:
+            per_goal_auto_send_allowed[response_goal] = per_goal_auto_send_allowed.get(response_goal, 0) + 1
+        if generation_path == "deterministic":
+            per_goal_deterministic[response_goal] = per_goal_deterministic.get(response_goal, 0) + 1
 
         for v in compliance.violations:
             cat = _categorise_violation(v)
@@ -179,8 +254,9 @@ def run() -> None:
         c_status = "PASS" if compliance.passed else "FAIL"
         i_status = "PASS" if integrity.passed else "FAIL"
         g_status = "ALLOW" if gate.auto_send_allowed else "BLOCK"
+        path_label = f"[{generation_path}]"
 
-        print(f"  {status_icon} {sc_id:<8}  {category:<30}  C:{c_status}  I:{i_status}  G:{g_status}")
+        print(f"  {status_icon} {sc_id:<8}  {path_label:<15}  {category:<28}  C:{c_status}  I:{i_status}  G:{g_status}")
 
         if not compliance_ok:
             exp_txt = "pass" if exp_compliance else "fail"
@@ -222,6 +298,23 @@ def run() -> None:
     print(f"  Integrity pass rate:    {integrity_rate:.1f}%  ({integrity_passed_count}/{total})")
     print(f"  Auto-send allowed rate: {auto_send_rate:.1f}%  ({auto_send_allowed_count}/{total})")
     print(f"  Ready-to-send rate:     {auto_send_rate:.1f}%  (same as auto-send allowed)")
+
+    # ── RESP-032: Per-goal summary ────────────────────────────────────────────
+    print(f"\n{'─' * 68}")
+    print("PER-GOAL SUMMARY  (RESP-032)")
+    print(f"{'─' * 68}")
+    for goal in sorted(per_goal_totals.keys()):
+        n = per_goal_totals[goal]
+        c_pass = per_goal_compliance_passed.get(goal, 0)
+        g_allow = per_goal_auto_send_allowed.get(goal, 0)
+        det = per_goal_deterministic.get(goal, 0)
+        path_note = f" [deterministic x{det}]" if det > 0 else " [llm]"
+        print(
+            f"  {goal:<40}  n={n}  "
+            f"compliance={c_pass}/{n}  "
+            f"auto-send={g_allow}/{n}"
+            f"{path_note}"
+        )
 
     if violation_category_counts:
         print(f"\n  Compliance violation breakdown:")

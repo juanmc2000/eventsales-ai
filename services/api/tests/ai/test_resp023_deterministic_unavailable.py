@@ -420,7 +420,8 @@ class TestNonUnavailableGoalsStillUseLLM:
 
         mock_gw_instance.run.assert_not_called()
 
-    def test_acknowledge_and_check_calls_gateway(self) -> None:
+    def test_acknowledge_and_check_uses_deterministic_path(self) -> None:
+        # RESP-036: ACKNOWLEDGE_AND_CHECK_AVAILABILITY is now fully deterministic
         eid = uuid.uuid4()
         svc, db, mock_enquiry_repo = _build_service_with_mocks(eid)
 
@@ -433,14 +434,6 @@ class TestNonUnavailableGoalsStillUseLLM:
         plan.date_context = {"status": "resolved"}
         plan.known_facts = {}
 
-        mock_gw_result = MagicMock()
-        mock_gw_result.is_fallback = False
-        mock_gw_result.model_name = "claude-haiku-4-5-20251001"
-        mock_gw_result.raw_response = "Dear Alice, we will check availability shortly."
-        mock_gw_result.rendered_system_prompt = None
-        mock_gw_result.rendered_user_prompt = None
-        mock_gw_result.run_id = uuid.uuid4()
-
         with (
             patch("app.modules.ai.service._load_latest_processing_snapshot", return_value=None),
             patch("app.modules.enquiries.repository.ResponsePlanRepository") as mock_plan_cls,
@@ -451,9 +444,11 @@ class TestNonUnavailableGoalsStillUseLLM:
             mock_plan_cls.return_value = mock_plan_repo
 
             mock_gw_instance = MagicMock()
-            mock_gw_instance.run.return_value = mock_gw_result
             mock_gw_cls.return_value = mock_gw_instance
 
-            svc.generate_draft(eid)
+            result = svc.generate_draft(eid)
 
-        mock_gw_instance.run.assert_called_once()
+        # Gateway must NOT be called — response is deterministic
+        mock_gw_instance.run.assert_not_called()
+        assert result.model == "deterministic"
+        assert "availability" in result.body.lower() or "check" in result.body.lower()

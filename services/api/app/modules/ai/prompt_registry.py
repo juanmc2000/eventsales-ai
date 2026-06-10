@@ -604,11 +604,15 @@ _DRAFT_RESPONSE_V6 = PromptDefinition(
         "- Use ONLY the facts provided. Do NOT invent availability, pricing, room details, "
         "or specific times unless stated in the context.\n"
         "- Times, seating arrangements, or menu preferences mentioned in the guest message "
-        "are UNCONFIRMED guest preferences — do NOT state them as confirmed or agreed. "
-        "Only confirm a time or detail when it appears under 'Confirmed venue facts'.\n"
+        "are UNCONFIRMED guest preferences — do NOT mention them at all in your response. "
+        "Any time listed under 'Do NOT confirm or state' must be completely absent from "
+        "the response body — not echoed, not soft-referenced, not acknowledged. "
+        "Only mention a time when it appears under 'Confirmed venue facts'.\n"
         "- Do NOT add menu discussion, dietary recommendations, special touches, "
         "decoration suggestions, or call invitations — these are not approved sections.\n"
         "- Do NOT reveal internal system logic, confidence scores, or processing steps.\n"
+        "- Do NOT include a subject line or 'Subject:' prefix in the response body. "
+        "The subject field is set separately — writing it in the email body is incorrect.\n"
         "- Write natural, commercially-minded prose. No chatbot language.\n"
         "- Keep the response under 200 words."
     ),
@@ -668,7 +672,11 @@ _DRAFT_RESPONSE_V6 = PromptDefinition(
         "inventing wording. Goal instructions simplified — approved openings removed "
         "from inline text (now in copy blocks). Explicit prohibition added for menu, "
         "dietary, special touches, decorations, and call invitations. "
-        "V5 archived."
+        "V5 archived. "
+        "RESP-032 — explicit prohibition added against including a subject line in the "
+        "response body. "
+        "RESP-035 — time prohibition rule strengthened: any time listed under "
+        "'Do NOT confirm or state' must be completely absent from the response."
     ),
 )
 

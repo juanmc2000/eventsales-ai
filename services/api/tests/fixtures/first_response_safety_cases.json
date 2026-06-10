@@ -83,7 +83,8 @@
         "compliance_passed": true,
         "integrity_passed": true,
         "ready_to_send_allowed": true
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_002",
@@ -112,7 +113,8 @@
         "compliance_passed": true,
         "integrity_passed": true,
         "ready_to_send_allowed": true
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_003",
@@ -141,7 +143,8 @@
         "compliance_passed": true,
         "integrity_passed": true,
         "ready_to_send_allowed": true
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_004",
@@ -170,7 +173,8 @@
         "compliance_passed": true,
         "integrity_passed": true,
         "ready_to_send_allowed": true
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_005",
@@ -199,7 +203,8 @@
         "compliance_passed": true,
         "integrity_passed": true,
         "ready_to_send_allowed": true
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_006",
@@ -228,7 +233,8 @@
         "compliance_passed": true,
         "integrity_passed": true,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "deterministic"
     },
     {
       "id": "fs_007",
@@ -254,10 +260,11 @@
         "allow_call_scheduling": false
       },
       "expected": {
-        "compliance_passed": false,
+        "compliance_passed": true,
         "integrity_passed": true,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "deterministic"
     },
     {
       "id": "fs_008",
@@ -283,10 +290,11 @@
         "allow_call_scheduling": false
       },
       "expected": {
-        "compliance_passed": false,
+        "compliance_passed": true,
         "integrity_passed": true,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "deterministic"
     },
     {
       "id": "fs_009",
@@ -312,10 +320,11 @@
         "allow_call_scheduling": false
       },
       "expected": {
-        "compliance_passed": false,
+        "compliance_passed": true,
         "integrity_passed": true,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "deterministic"
     },
     {
       "id": "fs_010",
@@ -346,7 +355,8 @@
         "compliance_passed": true,
         "integrity_passed": true,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_011",
@@ -377,7 +387,8 @@
         "compliance_passed": true,
         "integrity_passed": true,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_012",
@@ -406,7 +417,8 @@
         "compliance_passed": false,
         "integrity_passed": true,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_013",
@@ -435,7 +447,8 @@
         "compliance_passed": false,
         "integrity_passed": true,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_014",
@@ -464,7 +477,8 @@
         "compliance_passed": false,
         "integrity_passed": true,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_015",
@@ -495,7 +509,8 @@
         "compliance_passed": false,
         "integrity_passed": true,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_016",
@@ -524,7 +539,8 @@
         "compliance_passed": false,
         "integrity_passed": true,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_017",
@@ -553,7 +569,8 @@
         "compliance_passed": false,
         "integrity_passed": true,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_018",
@@ -582,7 +599,8 @@
         "compliance_passed": false,
         "integrity_passed": true,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_019",
@@ -611,7 +629,8 @@
         "compliance_passed": false,
         "integrity_passed": true,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_020",
@@ -640,7 +659,8 @@
         "compliance_passed": false,
         "integrity_passed": true,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_021",
@@ -669,7 +689,8 @@
         "compliance_passed": true,
         "integrity_passed": true,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_022",
@@ -698,7 +719,8 @@
         "compliance_passed": true,
         "integrity_passed": true,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_023",
@@ -727,7 +749,8 @@
         "compliance_passed": true,
         "integrity_passed": false,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_024",
@@ -756,7 +779,8 @@
         "compliance_passed": true,
         "integrity_passed": true,
         "ready_to_send_allowed": false
-      }
+      },
+      "generation_path": "llm"
     },
     {
       "id": "fs_025",
@@ -785,7 +809,8 @@
         "compliance_passed": true,
         "integrity_passed": true,
         "ready_to_send_allowed": true
-      }
+      },
+      "generation_path": "llm"
     }
   ]
 }

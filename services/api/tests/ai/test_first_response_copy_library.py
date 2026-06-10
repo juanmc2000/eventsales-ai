@@ -23,6 +23,7 @@ from app.modules.ai.first_response_copy_library import (
     BLOCK_AVAILABILITY_UNAVAILABLE,
     BLOCK_BOOKING_NEXT_STEP,
     BLOCK_CLARIFICATION_NEXT_STEP,
+    BLOCK_CONFIRM_AVAILABLE_NEXT_STEP,
     BLOCK_MINIMUM_SPEND,
     BLOCK_SIGNOFF,
     BLOCK_UNAVAILABLE_NO_ALTERNATIVES,
@@ -37,6 +38,7 @@ ALL_BLOCKS = [
     BLOCK_AVAILABILITY_UNAVAILABLE,
     BLOCK_MINIMUM_SPEND,
     BLOCK_BOOKING_NEXT_STEP,
+    BLOCK_CONFIRM_AVAILABLE_NEXT_STEP,
     BLOCK_AVAILABILITY_CHECK_NEXT_STEP,
     BLOCK_CLARIFICATION_NEXT_STEP,
     BLOCK_SIGNOFF,
@@ -243,6 +245,7 @@ class TestForbiddenTopicGuardrails:
         result = FirstResponseCopyLibrary.render(BLOCK_AVAILABILITY_UNAVAILABLE, _AVAIL_VARS)
         assert "alternative" not in result.lower()
         assert "other date" not in result.lower()
+        assert "flexible" not in result.lower()
 
 
 # ── RESP-043: alternative-date copy blocks ────────────────────────────────────
@@ -322,3 +325,64 @@ class TestAlternativeDateCopyBlocks:
         assert BLOCK_UNAVAILABLE_NO_ALTERNATIVES in keys
         assert BLOCK_UNAVAILABLE_ONE_ALTERNATIVE in keys
         assert BLOCK_UNAVAILABLE_TWO_ALTERNATIVES in keys
+
+
+# ── RESP-030: CONFIRM_AVAILABLE next-step block ───────────────────────────────
+
+
+class TestConfirmAvailableNextStepBlock:
+    """RESP-030: constrained next-step block for CONFIRM_AVAILABLE."""
+
+    def test_block_is_registered(self) -> None:
+        assert BLOCK_CONFIRM_AVAILABLE_NEXT_STEP in FirstResponseCopyLibrary.all_keys()
+
+    def test_no_required_vars(self) -> None:
+        """Block renders with no variables required."""
+        text = FirstResponseCopyLibrary.render(BLOCK_CONFIRM_AVAILABLE_NEXT_STEP)
+        assert isinstance(text, str)
+        assert len(text) > 10
+
+    def test_required_vars_is_empty_set(self) -> None:
+        assert FirstResponseCopyLibrary.required_vars(BLOCK_CONFIRM_AVAILABLE_NEXT_STEP) == frozenset()
+
+    def test_contains_proceed_language(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_CONFIRM_AVAILABLE_NEXT_STEP)
+        assert "proceed" in text.lower()
+
+    def test_contains_events_team_language(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_CONFIRM_AVAILABLE_NEXT_STEP)
+        assert "events team" in text.lower()
+
+    def test_contains_finalise_booking_language(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_CONFIRM_AVAILABLE_NEXT_STEP)
+        assert "booking" in text.lower()
+
+    def test_no_menu_language(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_CONFIRM_AVAILABLE_NEXT_STEP)
+        for phrase in ("menu", "dietary", "food options"):
+            assert phrase not in text.lower(), f"Forbidden phrase {phrase!r} in block"
+
+    def test_no_timing_language(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_CONFIRM_AVAILABLE_NEXT_STEP)
+        for phrase in ("preferred timing", "time of day", "start time"):
+            assert phrase not in text.lower(), f"Forbidden phrase {phrase!r} in block"
+
+    def test_no_special_requests_language(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_CONFIRM_AVAILABLE_NEXT_STEP)
+        for phrase in ("special request", "special arrangement", "decoration"):
+            assert phrase not in text.lower(), f"Forbidden phrase {phrase!r} in block"
+
+    def test_no_call_scheduling_language(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_CONFIRM_AVAILABLE_NEXT_STEP)
+        for phrase in ("arrange a call", "schedule a call", "give us a call"):
+            assert phrase not in text.lower(), f"Forbidden phrase {phrase!r} in block"
+
+    def test_no_additional_details_invitation(self) -> None:
+        """Must not invite 'additional details' which leads LLM to ask follow-up questions."""
+        text = FirstResponseCopyLibrary.render(BLOCK_CONFIRM_AVAILABLE_NEXT_STEP)
+        assert "additional details" not in text.lower()
+
+    def test_render_safe_returns_text(self) -> None:
+        text = FirstResponseCopyLibrary.render_safe(BLOCK_CONFIRM_AVAILABLE_NEXT_STEP)
+        assert text is not None
+        assert len(text) > 10
