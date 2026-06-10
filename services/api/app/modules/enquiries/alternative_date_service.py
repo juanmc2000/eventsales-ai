@@ -1,4 +1,4 @@
-"""Alternative Date Service (RESP-042).
+"""Alternative Date Service (RESP-042, RESP-049).
 
 When a requested date is UNAVAILABLE, checks D-1 and D+1 for confirmed
 available alternatives.  Only dates confirmed available in room_availability
@@ -7,6 +7,7 @@ data are offered — no invented alternatives are returned.
 Rules:
 - Check one day before the requested date (D-1)
 - Check one day after the requested date (D+1)
+- Candidates must be >= today (RESP-049: past-date filter)
 - Same restaurant
 - Same room (if room_id provided) or any active room in the restaurant
 - Same meal period
@@ -95,6 +96,7 @@ class AlternativeDateService:
         meal_period: str,
         room_id: uuid.UUID | None = None,
         guest_count: int | None = None,
+        today: date | None = None,
     ) -> AlternativeDateResult:
         """Find confirmed available alternative dates for D-1 and D+1.
 
@@ -105,6 +107,8 @@ class AlternativeDateService:
             meal_period:     "lunch" or "dinner".
             room_id:         Specific room to check; if None checks all active rooms.
             guest_count:     Optional — used to filter rooms by seated capacity.
+            today:           Reference date for past-date filtering (defaults to
+                             date.today()). Candidate dates before this are excluded.
 
         Returns:
             AlternativeDateResult with up to two confirmed-available dates.
@@ -112,10 +116,15 @@ class AlternativeDateService:
         avail_repo = RoomAvailabilityRepository(db)
         room_repo = RoomRepository(db)
 
-        candidate_dates = [
+        run_date = today if today is not None else date.today()
+
+        # D-1 and D+1 are only valid if they are >= today (RESP-049 past-date filter)
+        raw_candidates = [
             requested_date - timedelta(days=1),
             requested_date + timedelta(days=1),
         ]
+        candidate_dates = [c for c in raw_candidates if c >= run_date]
+
         checked: list[str] = []
         confirmed: list[str] = []
 

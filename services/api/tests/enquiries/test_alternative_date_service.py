@@ -1,4 +1,4 @@
-"""Tests for AlternativeDateService (RESP-042)."""
+"""Tests for AlternativeDateService (RESP-042, RESP-049)."""
 
 from __future__ import annotations
 
@@ -250,3 +250,80 @@ def test_capacity_filter_excludes_small_room():
 
     assert result.alternatives_found is False
     assert "No suitable rooms" in result.check_reason
+
+
+# ── RESP-049: past-date filter ─────────────────────────────────────────────────
+
+
+def _make_db_with_room_available():
+    """Return (db, room_repo, avail_repo) where the room always has an available slot."""
+    db = MagicMock()
+    room = _room(ROOM_ID)
+    room_repo = MagicMock()
+    room_repo.list_for_restaurant.return_value = [room]
+    avail_repo = MagicMock()
+    avail_repo.get_for_room_date.return_value = [_slot("dinner", "available")]
+    return db, room_repo, avail_repo
+
+
+def _call_find(db, room_repo, avail_repo, requested_date, today):
+    with patch(
+        "app.modules.enquiries.alternative_date_service.RoomAvailabilityRepository",
+        return_value=avail_repo,
+    ), patch(
+        "app.modules.enquiries.alternative_date_service.RoomRepository",
+        return_value=room_repo,
+    ):
+        return AlternativeDateService.find_alternatives(
+            db=db,
+            restaurant_id=RESTAURANT_ID,
+            requested_date=requested_date,
+            meal_period="dinner",
+            today=today,
+        )
+
+
+def test_past_date_d_minus_1_excluded():
+    """email_27-style: D-1 is in the past — only D+1 offered (RESP-049)."""
+    # requested_date = 2026-02-10, today = 2026-02-10 → D-1 = 2026-02-09 (past), D+1 = 2026-02-11 (future)
+    req = date(2026, 2, 10)
+    today = date(2026, 2, 10)
+    db, room_repo, avail_repo = _make_db_with_room_available()
+    result = _call_find(db, room_repo, avail_repo, req, today)
+
+    assert "2026-02-09" not in result.alternative_dates  # D-1 excluded (past)
+    assert "2026-02-11" in result.alternative_dates  # D+1 offered
+
+
+def test_both_alternatives_past_returns_empty():
+    """email_34-style: requested date is in the past → both D-1 and D+1 excluded (RESP-049)."""
+    req = date(2026, 1, 5)
+    today = date(2026, 6, 10)  # far in the future
+    db, room_repo, avail_repo = _make_db_with_room_available()
+    result = _call_find(db, room_repo, avail_repo, req, today)
+
+    assert result.alternatives_found is False
+    assert result.alternative_dates == []
+
+
+def test_d_plus_1_today_is_included():
+    """email_48-style: D+1 equals today — should be included (RESP-049)."""
+    req = date(2026, 6, 9)
+    today = date(2026, 6, 10)  # D+1 = 2026-06-10 == today → allowed
+    db, room_repo, avail_repo = _make_db_with_room_available()
+    result = _call_find(db, room_repo, avail_repo, req, today)
+
+    # D-1 = 2026-06-08 (past), D+1 = 2026-06-10 (today, allowed)
+    assert "2026-06-08" not in result.alternative_dates
+    assert "2026-06-10" in result.alternative_dates
+
+
+def test_future_request_both_alternatives_returned():
+    """Future requested date: both D-1 and D+1 in future — both returned as before (RESP-049)."""
+    req = date(2026, 8, 15)
+    today = date(2026, 6, 10)
+    db, room_repo, avail_repo = _make_db_with_room_available()
+    result = _call_find(db, room_repo, avail_repo, req, today)
+
+    assert "2026-08-14" in result.alternative_dates
+    assert "2026-08-16" in result.alternative_dates
