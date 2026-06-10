@@ -301,6 +301,8 @@ class DraftGenerationService:
             if context.guest_message
             else []
         )
+        # RESP-034: extract rendered approved block texts for post-extension detection
+        _approved_blocks: list[str] = _extract_approved_block_texts(context)
         _compliance = DraftComplianceValidator.validate(
             draft_text=draft_body,
             context=ValidationContext(
@@ -308,6 +310,7 @@ class DraftGenerationService:
                 response_goal=context.response_goal or "",
                 confirmed_minimum_spend=context.confirmed_minimum_spend,
                 prohibited_times=_prohibited_times,
+                approved_blocks=_approved_blocks,
             ),
         )
         _date_status = _plan_date_status or "unknown"
@@ -1016,6 +1019,59 @@ def _availability_status_to_contract(status: str | None) -> str:
         return "CONFIRMED_UNAVAILABLE"
     return "NOT_CHECKED"
 
+
+
+def _extract_approved_block_texts(context: DraftContext) -> list[str]:
+    """RESP-034: Return rendered approved block texts for post-extension detection.
+
+    Returns the same blocks used in _build_approved_copy_blocks_line but as a
+    flat list of rendered strings (without labels or framing text).
+    """
+    from app.modules.ai.first_response_copy_library import FirstResponseCopyLibrary  # noqa: PLC0415
+
+    goal = context.response_goal or "ACKNOWLEDGE_AND_CHECK_AVAILABILITY"
+    meal_period = context.availability_meal_period or "dinner"
+    event_date = context.availability_date or context.event_date or "the requested date"
+    persona_name = context.persona_name
+
+    blocks: list[str] = []
+
+    if goal == "CONFIRM_AVAILABLE":
+        t = FirstResponseCopyLibrary.render_safe(
+            "availability_confirmed",
+            {"meal_period": meal_period, "event_date": event_date},
+        )
+        if t:
+            blocks.append(t)
+        spend = context.confirmed_minimum_spend or context.recommended_minimum_spend
+        if spend and spend > 0:
+            t = FirstResponseCopyLibrary.render_safe(
+                "minimum_spend", {"spend_amount": f"£{spend:,.0f}"}
+            )
+            if t:
+                blocks.append(t)
+        t = FirstResponseCopyLibrary.render_safe("booking_next_step")
+        if t:
+            blocks.append(t)
+    elif goal == "ACKNOWLEDGE_AND_CHECK_AVAILABILITY":
+        t = FirstResponseCopyLibrary.render_safe(
+            "availability_not_checked",
+            {"meal_period": meal_period, "event_date": event_date},
+        )
+        if t:
+            blocks.append(t)
+        t = FirstResponseCopyLibrary.render_safe("availability_check_next_step")
+        if t:
+            blocks.append(t)
+    elif goal == "REQUEST_MISSING_INFORMATION":
+        t = FirstResponseCopyLibrary.render_safe("clarification_next_step")
+        if t:
+            blocks.append(t)
+
+    t = FirstResponseCopyLibrary.render_safe("signoff", {"persona_name": persona_name})
+    if t:
+        blocks.append(t)
+    return blocks
 
 
 def _build_approved_copy_blocks_line(context: DraftContext) -> str:
