@@ -327,6 +327,80 @@ class TestAlternativeDateCopyBlocks:
         assert BLOCK_UNAVAILABLE_TWO_ALTERNATIVES in keys
 
 
+# ── RESP-051: improved unavailable copy tone ──────────────────────────────────
+
+
+class TestImprovedUnavailableCopy:
+    """RESP-051: warmer tone, invitation to confirm for alternative-date blocks."""
+
+    def test_no_alternatives_contains_empathy_sentence(self) -> None:
+        result = FirstResponseCopyLibrary.render(
+            BLOCK_UNAVAILABLE_NO_ALTERNATIVES,
+            {"meal_period": "dinner", "requested_date": "15th July"},
+        )
+        # Empathy / warmth sentence present
+        assert "thank you" in result.lower()
+        # Core unavailability statement
+        assert "fully booked" in result.lower()
+        # Must NOT suggest alternatives or invite confirmation of a date
+        assert "alternative" not in result.lower()
+        assert "would that" not in result.lower()
+        assert "would either" not in result.lower()
+        # Must not mention room names, menus, or pricing
+        assert "room" not in result.lower()
+        assert "menu" not in result.lower()
+        assert "price" not in result.lower()
+
+    def test_one_alternative_invites_guest_to_confirm(self) -> None:
+        result = FirstResponseCopyLibrary.render(
+            BLOCK_UNAVAILABLE_ONE_ALTERNATIVE,
+            {
+                "meal_period": "lunch",
+                "requested_date": "20th August",
+                "alternative_date": "19th August",
+            },
+        )
+        assert "thank you" in result.lower()
+        assert "fully booked" in result.lower()
+        assert "19th August" in result
+        assert "20th August" in result
+        # Guest should be invited to confirm
+        assert "?" in result
+        # Must not mention rooms, menus, or pricing
+        assert "room" not in result.lower()
+        assert "menu" not in result.lower()
+
+    def test_two_alternatives_invites_guest_to_confirm_either(self) -> None:
+        result = FirstResponseCopyLibrary.render(
+            BLOCK_UNAVAILABLE_TWO_ALTERNATIVES,
+            {
+                "meal_period": "dinner",
+                "requested_date": "15th July",
+                "alternative_date_1": "14th July",
+                "alternative_date_2": "16th July",
+            },
+        )
+        assert "thank you" in result.lower()
+        assert "fully booked" in result.lower()
+        assert "14th July" in result
+        assert "16th July" in result
+        assert " or " in result
+        # Guest should be invited to confirm either date
+        assert "?" in result
+        # Must not mention rooms, menus, or pricing
+        assert "room" not in result.lower()
+        assert "menu" not in result.lower()
+
+    def test_no_alternatives_does_not_invent_alternatives(self) -> None:
+        result = FirstResponseCopyLibrary.render(
+            BLOCK_UNAVAILABLE_NO_ALTERNATIVES,
+            {"meal_period": "dinner", "requested_date": "15th July"},
+        )
+        # Must not mention any date that could be interpreted as an alternative
+        assert "but we do have" not in result.lower()
+        assert "however" not in result.lower()
+
+
 # ── RESP-030: CONFIRM_AVAILABLE next-step block ───────────────────────────────
 
 
