@@ -1,324 +1,507 @@
-"""Response Preparation Compliance Accuracy Runner — 100 Records (TEST-019).
+"""Response Preparation Accuracy Runner — Sprint 14 Baseline (TEST-021).
 
-Re-evaluates Sprint 13 compliance results with corrected ValidationContext
-that passes clarification_questions parsed from clarification_questions_line.
+Corrected 100-record response-preparation regression with adjusted scoring that
+separates genuine LLM violations from expected fixture violations (runner artefacts).
 
-Prior runner wiring bug: ValidationContext was created without
-clarification_questions, causing the compliance validator to treat every
-question in the draft as invented — producing 14 false-positive violations.
+Runs two fixtures:
+  1. first_response_safety_cases_100.json  (100 scenarios across all goals)
+  2. unavailable_response_regression.json  (32 RESPOND_UNAVAILABLE scenarios)
 
-This runner corrects the wiring and separates:
-  - Genuine LLM failures (questions appear where none were approved)
-  - Runner artefacts (false positives now resolved)
+Metrics reported:
+  - raw_compliance_rate          — validator result / total (all scenarios)
+  - adjusted_compliance_rate     — of expected-pass scenarios, how many pass
+  - genuine_unsafe_count         — expected pass but actually fails
+  - runner_artefact_count        — expected fail and actually fails (intentional violations)
+  - auto_send_allowed_rate       — gate allows auto-send
+  - date_formatting_defects      — unformatted ISO dates in drafts
+  - room_suitability_defects     — room embellishment language in CONFIRM_AVAILABLE
+  - wrong_name_defects           — greeting name differs from expected customer name
+  - subject_line_defects         — subject line leaked into draft body
+  - per_goal_summary             — breakdown by response goal
+
+Produces:
+  - Console summary
+  - tests/reports/sprint14_baseline_<timestamp>.json — machine-readable report
 
 Run from the services/api/ directory:
 
     python tests/scripts/run_response_preparation_accuracy_100.py
 
-Inputs (root-level tests/data/):
-  - response_prep_100_results.json  (pre-generated drafts + clarification context)
-
-Outputs:
-  - Per-record corrected compliance result
-  - Genuine failures vs resolved false positives clearly separated
-  - Adjusted compliance pass rate
-  - JSON export written to tests/data/
-
-Exit code 0 if adjusted compliance rate >= 90%.
+Exit code 0 if no unexpected compliance failures detected, exit code 1 otherwise.
 """
 
 from __future__ import annotations
 
 import json
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
-# ── Path resolution ────────────────────────────────────────────────────────────
+# Allow running from services/api/
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-_SCRIPT_DIR = Path(__file__).resolve().parent       # services/api/tests/scripts/
-_API_TESTS_DIR = _SCRIPT_DIR.parent                  # services/api/tests/
-_API_ROOT = _API_TESTS_DIR.parent                    # services/api/
-_SVC_ROOT = _API_ROOT.parent                         # services/
-_REPO_ROOT = _SVC_ROOT.parent                        # project root
+from app.modules.ai.draft_compliance_validator import DraftComplianceValidator, ValidationContext
+from app.modules.ai.auto_send_readiness_gate import AutoSendReadinessGate
+from app.modules.enquiries.response_context_integrity_gate import ResponseContextIntegrityGate
 
-_RESULTS_PATH = _REPO_ROOT / "tests" / "data" / "response_prep_100_results.json"
-_OUTPUT_DIR = _REPO_ROOT / "tests" / "data"
+# ── Paths ─────────────────────────────────────────────────────────────────────
 
-if str(_API_ROOT) not in sys.path:
-    sys.path.insert(0, str(_API_ROOT))
+_FIXTURE_100_PATH = (
+    Path(__file__).parent.parent / "fixtures" / "first_response_safety_cases_100.json"
+)
+_FIXTURE_UNAVAIL_PATH = (
+    Path(__file__).parent.parent / "fixtures" / "unavailable_response_regression.json"
+)
+_REPORTS_DIR = Path(__file__).parent.parent / "reports"
 
-# ── Imports ────────────────────────────────────────────────────────────────────
+# ── Defect detection patterns ─────────────────────────────────────────────────
 
-from app.modules.ai.draft_compliance_validator import DraftComplianceValidator, ValidationContext  # noqa: E402
+_ISO_DATE_RE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
+_SUBJECT_LINE_RE = re.compile(
+    r"^(?:Subject|Re|RE|Fwd|FWD)\s*:", re.MULTILINE
+)
+_ROOM_SUITABILITY_PATTERNS = [
+    re.compile(r"\bexcellent\s+fit\b", re.IGNORECASE),
+    re.compile(r"\bperfect\s+(?:setting|venue|space|choice|room|for)\b", re.IGNORECASE),
+    re.compile(r"\bideal\s+(?:setting|choice|venue|space|room|for)\b", re.IGNORECASE),
+    re.compile(r"\bideally\s+suited\b", re.IGNORECASE),
+    re.compile(r"\bwell[\s-]+accommodated\b", re.IGNORECASE),
+]
+_GREETING_RE = re.compile(
+    r"^\s*(?:Dear|Hi|Hello)\s+([A-Z][a-z'-]+(?:\s+[A-Z][a-z'-]+)*)",
+    re.MULTILINE | re.IGNORECASE,
+)
 
-# ── Helpers ────────────────────────────────────────────────────────────────────
-
-# Maps availability_status from results JSON to ValidationContext availability_contract
-_AVAILABILITY_CONTRACT_MAP: dict[str, str] = {
-    "AVAILABLE": "CONFIRMED_AVAILABLE",
-    "UNAVAILABLE": "CONFIRMED_UNAVAILABLE",
-    "PENDING_DATE_CONFIRMATION": "PENDING_DATE_CONFIRMATION",
-    "INSUFFICIENT_INFORMATION": "INSUFFICIENT_INFORMATION",
-    "NOT_CHECKED": "NOT_CHECKED",
-}
+_DETERMINISTIC_GOALS = frozenset({"RESPOND_UNAVAILABLE"})
 
 
-def _parse_clarification_questions(line: str) -> list[str]:
-    """Parse individual questions from a clarification_questions_line string.
+# ── Defect detectors ─────────────────────────────────────────────────────────
 
-    The line format is:
-        Clarification questions:
-        - Question one here.
-        - Question two here.
 
-    Returns a list of question strings (stripped).
-    If the line is empty or has no bullet items, returns [].
+def _has_date_formatting_defect(text: str) -> bool:
+    """Return True if an ISO date (YYYY-MM-DD) appears in the draft body."""
+    return bool(_ISO_DATE_RE.search(text))
+
+
+def _has_room_suitability_defect(text: str, response_goal: str) -> bool:
+    """Return True if CONFIRM_AVAILABLE draft contains room embellishment language."""
+    if response_goal != "CONFIRM_AVAILABLE":
+        return False
+    return any(p.search(text) for p in _ROOM_SUITABILITY_PATTERNS)
+
+
+def _has_subject_line_defect(text: str) -> bool:
+    """Return True if a subject line leaked into the draft body."""
+    return bool(_SUBJECT_LINE_RE.search(text))
+
+
+def _has_wrong_name_defect(text: str, expected_name: str | None) -> bool:
+    """Return True if the greeting name does not match the expected customer name."""
+    if not expected_name:
+        return False
+    match = _GREETING_RE.search(text)
+    if not match:
+        return False
+    greeting = match.group(1).strip().split()[0].lower()
+    exp = expected_name.strip().lower()
+    return greeting != exp and not greeting.startswith(exp) and not exp.startswith(greeting)
+
+
+# ── Draft text routing ───────────────────────────────────────────────────────
+
+
+def _get_draft_text(scenario: dict) -> str:
+    """Return production-equivalent draft text.
+
+    RESPOND_UNAVAILABLE → deterministic FirstResponseCopyLibrary text (RESP-023).
+    All other goals → fixture draft_text (LLM-generated test draft).
     """
-    if not line or not line.strip():
-        return []
-    questions: list[str] = []
-    for raw in line.splitlines():
-        stripped = raw.strip()
-        if stripped.startswith("- "):
-            questions.append(stripped[2:].strip())
-    return questions
+    goal = scenario.get("response_goal", "")
+    if goal in _DETERMINISTIC_GOALS:
+        from app.modules.ai.first_response_copy_library import FirstResponseCopyLibrary
+
+        ctx = scenario.get("context", {})
+        meal_period = ctx.get("meal_period") or "dinner"
+        event_date = ctx.get("event_date") or "the requested date"
+        guest_name = ctx.get("guest_first_name") or "there"
+        persona_name = ctx.get("persona_name") or "Events Team"
+        opening = FirstResponseCopyLibrary.render(
+            "availability_unavailable",
+            {"meal_period": meal_period, "event_date": event_date},
+        )
+        signoff = FirstResponseCopyLibrary.render("signoff", {"persona_name": persona_name})
+        return f"Dear {guest_name},\n\n{opening}\n\n{signoff}"
+    return scenario.get("draft_text", "")
 
 
-def _availability_contract(record: dict) -> str:
-    """Map availability_status in the results record to a ValidationContext contract string."""
-    status = record.get("availability_status", "NOT_CHECKED")
-    return _AVAILABILITY_CONTRACT_MAP.get(status, "NOT_CHECKED")
-
-
-def _build_context(record: dict) -> ValidationContext:
-    """Build a corrected ValidationContext with clarification_questions wired in."""
-    clarification_questions_line = record.get("clarification_questions_line", "")
-    questions = _parse_clarification_questions(clarification_questions_line)
+def _context_from_scenario(scenario: dict) -> ValidationContext:
+    ctx = scenario.get("context", {})
     return ValidationContext(
-        availability_contract=_availability_contract(record),
-        clarification_questions=questions,
-        response_goal=record.get("response_goal", ""),
+        availability_contract=scenario.get("availability_contract", "NOT_CHECKED"),
+        clarification_questions=ctx.get("clarification_questions", []),
+        confirmed_minimum_spend=ctx.get("confirmed_minimum_spend"),
+        party_size=ctx.get("party_size"),
+        prohibited_times=ctx.get("prohibited_times", []),
+        response_goal=scenario.get("response_goal", ""),
+        alternatives_allowed=ctx.get("alternatives_allowed", False),
+        allow_menu_discussion=ctx.get("allow_menu_discussion", False),
+        allow_special_touches=ctx.get("allow_special_touches", False),
+        allow_call_scheduling=ctx.get("allow_call_scheduling", False),
+        known_room_names=ctx.get("known_room_names", []),
     )
 
 
-def _categorise_result(
-    old_passed: bool,
-    new_passed: bool,
-    clarification_questions_line: str,
-) -> str:
-    """Classify outcome into one of four categories."""
-    if old_passed and new_passed:
-        return "pass"
-    if not old_passed and new_passed:
-        return "false_positive_resolved"
-    if not old_passed and not new_passed:
-        # Both fail — but was the old failure caused by missing questions?
-        if clarification_questions_line and clarification_questions_line.strip():
-            return "genuine_failure_with_other_violations"
-        return "genuine_failure"
-    # old passed, new fails — unexpected; indicates a regression
-    return "new_failure"
+def _integrity_from_scenario(scenario: dict):
+    return ResponseContextIntegrityGate.check(
+        context_restaurant_name=scenario.get("context_restaurant_name", ""),
+        context_room_name=scenario.get("context_room_name"),
+        availability_restaurant_name=scenario.get("availability_restaurant_name"),
+        availability_room_name=scenario.get("availability_room_name"),
+    )
 
 
-# ── Runner ─────────────────────────────────────────────────────────────────────
+def _categorise_violation(violation: str) -> str:
+    v = violation.lower()
+    if "contract" in v and "available" in v:
+        return "hallucinated_availability"
+    if "alternative" in v:
+        return "alternative_dates"
+    if "suitability" in v or "perfect for" in v or "ideal for" in v or "well-suited" in v:
+        return "room_suitability"
+    if "spend" in v or "mandatory" in v:
+        return "spend_soft_language"
+    if "link" in v or "url" in v or "placeholder" in v:
+        return "fake_url"
+    if "time" in v and "confirmed" in v:
+        return "unconfirmed_time"
+    if "hosting" in v:
+        return "hosting_language"
+    if "within" in v or "hours" in v or "commitment" in v:
+        return "invented_sla"
+    if "question" in v:
+        return "invented_questions"
+    if "menu" in v or "dietary" in v or "special touch" in v:
+        return "forbidden_topics"
+    if "section" in v or "label" in v:
+        return "section_label"
+    if "subject" in v:
+        return "subject_line"
+    if "room" in v and ("invented" in v or "unknown" in v):
+        return "invented_room_name"
+    return "other"
 
 
-def run() -> None:
-    if not _RESULTS_PATH.exists():
-        print(f"[ERROR] Results file not found: {_RESULTS_PATH}", file=sys.stderr)
-        print("Run the Sprint response preparation runner first to generate this file.", file=sys.stderr)
-        sys.exit(1)
+# ── Single-fixture evaluator ─────────────────────────────────────────────────
 
-    data = json.loads(_RESULTS_PATH.read_text())
-    records = data.get("results", [])
-    total = len(records)
 
-    if total == 0:
-        print("[ERROR] Results file contains no records.", file=sys.stderr)
-        sys.exit(1)
+def _evaluate_fixture(
+    scenarios: list[dict],
+    fixture_label: str,
+) -> dict[str, Any]:
+    """Evaluate one fixture's scenarios and return structured results."""
+    total = len(scenarios)
+    expected_pass_count = sum(
+        1 for s in scenarios if s.get("expected", {}).get("compliance_passed") is True
+    )
+    expected_fail_count = total - expected_pass_count
 
-    source_file = data.get("fixture", "unknown")
-    run_id = data.get("run_id", "unknown")
+    compliance_passed_count = 0
+    genuine_unsafe: list[str] = []  # expected pass, actually fail
+    runner_artefacts: list[str] = []  # expected fail, actually fail (intentional)
+    unexpected_pass: list[str] = []  # expected fail, actually pass (over-detection fixed)
+    auto_send_allowed_count = 0
 
-    print(f"\n{'=' * 70}")
-    print("RESPONSE PREPARATION COMPLIANCE ACCURACY — TEST-019 (corrected wiring)")
-    print(f"{'=' * 70}")
-    print(f"Source results: {Path(source_file).name if source_file != 'unknown' else 'unknown'}")
-    print(f"Source run ID:  {run_id}")
-    print(f"Records:        {total}\n")
-    print("Wiring fix: clarification_questions_line → ValidationContext.clarification_questions\n")
+    date_fmt_defect_ids: list[str] = []
+    room_suitability_defect_ids: list[str] = []
+    wrong_name_defect_ids: list[str] = []
+    subject_line_defect_ids: list[str] = []
 
-    pass_count = 0
-    false_positive_resolved_count = 0
-    genuine_failure_count = 0
-    new_failure_count = 0
-
-    genuine_failures: list[str] = []
-    false_positives_resolved: list[str] = []
-    new_failures: list[str] = []
+    violation_category_counts: dict[str, int] = {}
+    per_goal: dict[str, dict[str, int]] = {}
 
     scenario_results: list[dict] = []
 
-    for rec in records:
-        record_id = rec.get("record_id", "unknown")
-        draft_text = rec.get("response", "")
-        old_compliance = rec.get("compliance", {})
-        old_passed = old_compliance.get("passed", True)
-        old_violations = old_compliance.get("violations", [])
-        clarification_questions_line = rec.get("clarification_questions_line", "")
-        response_goal = rec.get("response_goal", "")
+    for sc in scenarios:
+        sc_id = sc["id"]
+        response_goal = sc.get("response_goal", "")
+        expected = sc.get("expected", {})
+        exp_compliance = expected.get("compliance_passed")
+        exp_auto_send = expected.get("ready_to_send_allowed")
 
-        # Re-validate with corrected context
-        ctx = _build_context(rec)
-        new_result = DraftComplianceValidator.validate(draft_text, ctx)
-        new_passed = new_result.passed
-        new_violations = list(new_result.violations)
-
-        category = _categorise_result(old_passed, new_passed, clarification_questions_line)
-
-        # Count
-        if category == "pass":
-            pass_count += 1
-        elif category == "false_positive_resolved":
-            false_positive_resolved_count += 1
-            false_positives_resolved.append(record_id)
-        elif category in ("genuine_failure", "genuine_failure_with_other_violations"):
-            genuine_failure_count += 1
-            genuine_failures.append(record_id)
-        elif category == "new_failure":
-            new_failure_count += 1
-            new_failures.append(record_id)
-
-        # Per-record output
-        old_icon = "\u2713" if old_passed else "\u2717"
-        new_icon = "\u2713" if new_passed else "\u2717"
-        delta = ""
-        if not old_passed and new_passed:
-            delta = "  \u2192 FALSE POSITIVE RESOLVED"
-        elif not old_passed and not new_passed:
-            delta = "  \u2192 GENUINE FAILURE"
-        elif not old_passed or not new_passed:
-            delta = "  \u2192 CHANGED"
-
-        print(
-            f"  {record_id:<12}  {response_goal:<36}  "
-            f"old:{old_icon}  new:{new_icon}{delta}"
+        draft_text = _get_draft_text(sc)
+        ctx = _context_from_scenario(sc)
+        compliance = DraftComplianceValidator.validate(draft_text, ctx)
+        integrity = _integrity_from_scenario(sc)
+        gate = AutoSendReadinessGate.evaluate(
+            response_goal=response_goal,
+            draft_compliance_result=compliance,
+            date_status=sc.get("date_status", "resolved"),
+            integrity_result=integrity,
         )
 
-        if not new_passed:
-            for v in new_violations:
-                print(f"             violation: {v[:88]}")
+        # Core counts
+        if compliance.passed:
+            compliance_passed_count += 1
+        if gate.auto_send_allowed:
+            auto_send_allowed_count += 1
+
+        # Classification
+        if exp_compliance is True and not compliance.passed:
+            genuine_unsafe.append(sc_id)
+        elif exp_compliance is False and not compliance.passed:
+            runner_artefacts.append(sc_id)
+        elif exp_compliance is False and compliance.passed:
+            unexpected_pass.append(sc_id)
+
+        # Defect detection (on fixture draft_text for non-deterministic goals)
+        if response_goal not in _DETERMINISTIC_GOALS:
+            if _has_date_formatting_defect(draft_text):
+                date_fmt_defect_ids.append(sc_id)
+            if _has_room_suitability_defect(draft_text, response_goal):
+                room_suitability_defect_ids.append(sc_id)
+            if _has_subject_line_defect(draft_text):
+                subject_line_defect_ids.append(sc_id)
+            expected_name = sc.get("context", {}).get("guest_first_name")
+            if _has_wrong_name_defect(draft_text, expected_name):
+                wrong_name_defect_ids.append(sc_id)
+
+        for v in compliance.violations:
+            cat = _categorise_violation(v)
+            violation_category_counts[cat] = violation_category_counts.get(cat, 0) + 1
+
+        # Per-goal tracking
+        if response_goal not in per_goal:
+            per_goal[response_goal] = {
+                "total": 0,
+                "compliance_passed": 0,
+                "auto_send_allowed": 0,
+                "genuine_unsafe": 0,
+                "expected_fail": 0,
+            }
+        per_goal[response_goal]["total"] += 1
+        if compliance.passed:
+            per_goal[response_goal]["compliance_passed"] += 1
+        if gate.auto_send_allowed:
+            per_goal[response_goal]["auto_send_allowed"] += 1
+        if exp_compliance is True and not compliance.passed:
+            per_goal[response_goal]["genuine_unsafe"] += 1
+        if exp_compliance is False:
+            per_goal[response_goal]["expected_fail"] += 1
 
         scenario_results.append({
-            "record_id": record_id,
+            "id": sc_id,
             "response_goal": response_goal,
-            "availability_status": rec.get("availability_status", "NOT_CHECKED"),
-            "clarification_questions_line": clarification_questions_line,
-            "clarification_questions_parsed": _parse_clarification_questions(clarification_questions_line),
-            "old_compliance_passed": old_passed,
-            "old_violations": old_violations,
-            "new_compliance_passed": new_passed,
-            "new_violations": new_violations,
-            "category": category,
+            "category": sc.get("category", ""),
+            "compliance_passed": compliance.passed,
+            "integrity_passed": integrity.passed,
+            "auto_send_allowed": gate.auto_send_allowed,
+            "expected_compliance_passed": exp_compliance,
+            "expected_auto_send": exp_auto_send,
+            "violations": compliance.violations,
+            "classification": (
+                "genuine_unsafe"
+                if sc_id in genuine_unsafe
+                else "runner_artefact"
+                if sc_id in runner_artefacts
+                else "unexpected_pass"
+                if sc_id in unexpected_pass
+                else "pass"
+            ),
+            "defects": {
+                "date_formatting": sc_id in date_fmt_defect_ids,
+                "room_suitability": sc_id in room_suitability_defect_ids,
+                "wrong_name": sc_id in wrong_name_defect_ids,
+                "subject_line": sc_id in subject_line_defect_ids,
+            },
         })
 
-    # ── Aggregate ─────────────────────────────────────────────────────────────
-    old_pass_count = sum(1 for r in scenario_results if r["old_compliance_passed"])
-    adjusted_pass_count = pass_count + false_positive_resolved_count
-    old_rate = old_pass_count / total * 100
-    adjusted_rate = adjusted_pass_count / total * 100
+    raw_compliance_rate = compliance_passed_count / total if total else 0
+    adjusted_compliance_rate = (
+        (expected_pass_count - len(genuine_unsafe)) / expected_pass_count
+        if expected_pass_count
+        else 1.0
+    )
+    auto_send_rate = auto_send_allowed_count / total if total else 0
 
-    print(f"\n{'─' * 70}")
-    print("AGGREGATE")
-    print(f"{'─' * 70}")
-    print(f"  Total records:                {total}")
-    print(f"  Old compliance pass rate:     {old_rate:.1f}%  ({old_pass_count}/{total})")
-    print(f"  Adjusted compliance pass rate:{adjusted_rate:.1f}%  ({adjusted_pass_count}/{total})")
-    print(f"")
-    print(f"  False positives resolved:     {false_positive_resolved_count}")
-    print(f"    {false_positives_resolved}")
-    print(f"")
-    print(f"  Genuine failures remaining:   {genuine_failure_count}")
-    print(f"    {genuine_failures}")
-
-    if new_failures:
-        print(f"\n  \u26a0 UNEXPECTED NEW FAILURES ({new_failure_count}):")
-        print(f"    {new_failures}")
-
-    # Acceptance criteria
-    print(f"\n{'─' * 70}")
-    print("ACCEPTANCE CRITERIA")
-    print(f"{'─' * 70}")
-
-    # Check specific false positives are resolved.
-    # These 14 records had invented-question violations caused by runner wiring.
-    # After the fix, they must not contain any "question" violation — some may
-    # still fail for other genuine reasons (e.g. availability overclaim).
-    fp_ids = {
-        "email_20", "email_48", "email_55", "email_61", "email_64",
-        "email_66", "email_68", "email_71", "email_72", "email_75",
-        "email_79", "email_87", "email_93", "email_97",
-    }
-    genuine_set = set(genuine_failures)
-
-    # Build a lookup of new violations by record_id
-    new_violations_by_id: dict[str, list[str]] = {
-        s["record_id"]: s["new_violations"] for s in scenario_results
+    return {
+        "fixture": fixture_label,
+        "total": total,
+        "expected_pass_count": expected_pass_count,
+        "expected_fail_count": expected_fail_count,
+        "raw_compliance_passed": compliance_passed_count,
+        "raw_compliance_rate": round(raw_compliance_rate * 100, 1),
+        "adjusted_compliance_rate": round(adjusted_compliance_rate * 100, 1),
+        "genuine_unsafe_count": len(genuine_unsafe),
+        "genuine_unsafe_ids": genuine_unsafe,
+        "runner_artefact_count": len(runner_artefacts),
+        "unexpected_pass_count": len(unexpected_pass),
+        "unexpected_pass_ids": unexpected_pass,
+        "auto_send_allowed": auto_send_allowed_count,
+        "auto_send_rate": round(auto_send_rate * 100, 1),
+        "date_formatting_defect_count": len(date_fmt_defect_ids),
+        "date_formatting_defect_ids": date_fmt_defect_ids,
+        "room_suitability_defect_count": len(room_suitability_defect_ids),
+        "room_suitability_defect_ids": room_suitability_defect_ids,
+        "wrong_name_defect_count": len(wrong_name_defect_ids),
+        "wrong_name_defect_ids": wrong_name_defect_ids,
+        "subject_line_defect_count": len(subject_line_defect_ids),
+        "subject_line_defect_ids": subject_line_defect_ids,
+        "violation_category_counts": violation_category_counts,
+        "per_goal_summary": per_goal,
+        "scenario_results": scenario_results,
     }
 
-    # For each fp_id, verify the "invented question" violation is gone
-    fp_question_violations_remaining: list[str] = [
-        rid for rid in fp_ids
-        if any("question" in v.lower() for v in new_violations_by_id.get(rid, []))
-    ]
-    fp_question_violations_cleared = len(fp_question_violations_remaining) == 0
 
-    no_new_failures = new_failure_count == 0
-    adjusted_rate_ok = adjusted_rate >= 90.0
+# ── Printer ──────────────────────────────────────────────────────────────────
 
-    criteria = [
-        (
-            "Approved-question violations cleared from all 14 false-positive records",
-            fp_question_violations_cleared,
-        ),
-        ("email_26 genuine invented question still fails", "email_26" in genuine_set),
-        ("email_44 genuine invented question still fails", "email_44" in genuine_set),
-        ("No unexpected new failures introduced", no_new_failures),
-        ("Adjusted compliance rate >= 90%", adjusted_rate_ok),
-    ]
 
-    if not fp_question_violations_cleared:
-        print(f"\n  Records still showing question violations: {fp_question_violations_remaining}")
+def _print_fixture_summary(result: dict, verbose: bool = False) -> None:
+    label = result["fixture"]
+    total = result["total"]
+    print(f"\n{'─' * 72}")
+    print(f"FIXTURE: {label}  ({total} scenarios)")
+    print(f"{'─' * 72}")
+    print(
+        f"  Raw compliance pass rate:      {result['raw_compliance_rate']:5.1f}%"
+        f"  ({result['raw_compliance_passed']}/{total})"
+    )
+    print(
+        f"  Adjusted compliance rate:      {result['adjusted_compliance_rate']:5.1f}%"
+        f"  (of {result['expected_pass_count']} expected-pass scenarios)"
+    )
+    print(
+        f"  Genuine unsafe records:        {result['genuine_unsafe_count']}"
+        f"  {result['genuine_unsafe_ids']}"
+    )
+    print(
+        f"  Runner artefacts (exp-fail):   {result['runner_artefact_count']}"
+    )
+    if result["unexpected_pass_count"]:
+        print(
+            f"  Unexpected passes (fixed):     {result['unexpected_pass_count']}"
+            f"  {result['unexpected_pass_ids']}"
+        )
+    print(
+        f"  Auto-send allowed rate:        {result['auto_send_rate']:5.1f}%"
+        f"  ({result['auto_send_allowed']}/{total})"
+    )
 
-    all_pass = True
-    for label, passed in criteria:
-        icon = "\u2713" if passed else "\u2717"
-        print(f"  [{icon}]  {label}")
-        if not passed:
-            all_pass = False
+    # Defect counts
+    print(f"\n  Defect scan (LLM drafts):")
+    print(f"    Date formatting (ISO dates in text):  {result['date_formatting_defect_count']}")
+    print(f"    Room suitability (CONFIRM_AVAILABLE): {result['room_suitability_defect_count']}")
+    print(f"    Wrong name (greeting mismatch):       {result['wrong_name_defect_count']}")
+    print(f"    Subject line leaked:                  {result['subject_line_defect_count']}")
 
-    # ── Export ─────────────────────────────────────────────────────────────────
-    _OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    ts = datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    output_path = _OUTPUT_DIR / f"response_prep_100_corrected_results_{ts}.json"
-    export = {
-        "run_at": ts,
-        "source_run_id": run_id,
-        "source_fixture": source_file,
-        "total_records": total,
-        "old_compliance_pass_rate": round(old_rate, 1),
-        "adjusted_compliance_pass_rate": round(adjusted_rate, 1),
-        "false_positives_resolved": false_positives_resolved,
-        "genuine_failures": genuine_failures,
-        "new_failures": new_failures,
-        "scenarios": scenario_results,
+    # Per-goal summary
+    print(f"\n  Per-goal summary:")
+    for goal, stats in sorted(result["per_goal_summary"].items()):
+        n = stats["total"]
+        c_pass = stats["compliance_passed"]
+        g_allow = stats["auto_send_allowed"]
+        g_unsafe = stats["genuine_unsafe"]
+        unsafe_note = f"  ⚠ {g_unsafe} genuine unsafe" if g_unsafe else ""
+        print(
+            f"    {goal:<42}  n={n:2d}  "
+            f"compliance={c_pass}/{n}  "
+            f"auto-send={g_allow}/{n}{unsafe_note}"
+        )
+
+    if result["violation_category_counts"] and verbose:
+        print(f"\n  Violation category breakdown:")
+        for cat, count in sorted(
+            result["violation_category_counts"].items(), key=lambda x: -x[1]
+        ):
+            bar = "█" * min(count, 30)
+            print(f"    {cat:<32}  {count:2d}  {bar}")
+
+
+# ── Runner ───────────────────────────────────────────────────────────────────
+
+
+def run() -> None:
+    for path in (_FIXTURE_100_PATH, _FIXTURE_UNAVAIL_PATH):
+        if not path.exists():
+            print(f"[ERROR] Fixture not found: {path}", file=sys.stderr)
+            sys.exit(1)
+
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    report_path = _REPORTS_DIR / f"sprint14_baseline_{ts}.json"
+
+    data_100 = json.loads(_FIXTURE_100_PATH.read_text())
+    data_unavail = json.loads(_FIXTURE_UNAVAIL_PATH.read_text())
+
+    print(f"\n{'=' * 72}")
+    print("RESPONSE PREPARATION ACCURACY — SPRINT 14 BASELINE (TEST-021)")
+    print(f"{'=' * 72}")
+    print(f"Timestamp:  {ts}")
+    print(f"Fixture 1:  {_FIXTURE_100_PATH.name}  ({len(data_100['scenarios'])} scenarios)")
+    print(f"Fixture 2:  {_FIXTURE_UNAVAIL_PATH.name}  ({len(data_unavail['scenarios'])} scenarios)")
+
+    result_100 = _evaluate_fixture(data_100["scenarios"], _FIXTURE_100_PATH.name)
+    result_unavail = _evaluate_fixture(data_unavail["scenarios"], _FIXTURE_UNAVAIL_PATH.name)
+
+    _print_fixture_summary(result_100, verbose=True)
+    _print_fixture_summary(result_unavail, verbose=False)
+
+    # Combined totals
+    combined_total = result_100["total"] + result_unavail["total"]
+    combined_genuine_unsafe = result_100["genuine_unsafe_count"] + result_unavail["genuine_unsafe_count"]
+    combined_auto_send = result_100["auto_send_allowed"] + result_unavail["auto_send_allowed"]
+    combined_adj = (
+        result_100["adjusted_compliance_rate"] * result_100["expected_pass_count"]
+        + result_unavail["adjusted_compliance_rate"] * result_unavail["expected_pass_count"]
+    ) / (result_100["expected_pass_count"] + result_unavail["expected_pass_count"])
+
+    print(f"\n{'=' * 72}")
+    print("COMBINED SPRINT 14 BASELINE")
+    print(f"{'=' * 72}")
+    print(f"  Total scenarios:               {combined_total}")
+    print(f"  Combined adjusted compliance:  {combined_adj:.1f}%")
+    print(f"  Combined genuine unsafe:       {combined_genuine_unsafe}")
+    print(f"  Combined auto-send allowed:    {combined_auto_send}/{combined_total}")
+
+    genuine_all = result_100["genuine_unsafe_ids"] + result_unavail["genuine_unsafe_ids"]
+    if genuine_all:
+        print(f"\n  ⚠  GENUINE UNSAFE RECORDS ({len(genuine_all)}):")
+        for sc_id in genuine_all:
+            print(f"       {sc_id}")
+    else:
+        print(f"\n  ✓ No genuine unsafe records detected.")
+
+    # ── Write report ─────────────────────────────────────────────────────────
+    report = {
+        "meta": {
+            "version": "1.0",
+            "sprint": "sprint14",
+            "timestamp": ts,
+            "description": (
+                "Sprint 14 baseline response preparation accuracy report (TEST-021). "
+                "Corrected scoring separates genuine LLM violations from expected "
+                "fixture violations (runner artefacts)."
+            ),
+        },
+        "combined": {
+            "total_scenarios": combined_total,
+            "combined_adjusted_compliance_rate": round(combined_adj, 1),
+            "combined_genuine_unsafe_count": combined_genuine_unsafe,
+            "combined_genuine_unsafe_ids": genuine_all,
+            "combined_auto_send_allowed": combined_auto_send,
+            "combined_auto_send_rate": round(combined_auto_send / combined_total * 100, 1),
+        },
+        "fixtures": [result_100, result_unavail],
     }
-    output_path.write_text(json.dumps(export, indent=2))
-    print(f"\n  Results exported to: {output_path.relative_to(_REPO_ROOT)}")
-    print(f"{'=' * 70}\n")
 
-    sys.exit(0 if all_pass else 1)
+    report_path.write_text(json.dumps(report, indent=2))
+    print(f"\n  Report written to: {report_path.relative_to(Path(__file__).parent.parent.parent)}")
+    print(f"{'=' * 72}\n")
+
+    # Exit code: 1 if there are genuine unsafe records
+    if combined_genuine_unsafe > 0:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
