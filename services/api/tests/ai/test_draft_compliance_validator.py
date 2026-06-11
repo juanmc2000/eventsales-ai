@@ -1207,3 +1207,138 @@ class TestClarificationContextWiring:
         result = DraftComplianceValidator.validate(draft, ctx)
         invented_q_violations = [v for v in result.violations if "question" in v.lower() and "invented" in v.lower()]
         assert len(invented_q_violations) == 0
+
+
+# ── RESP-058: Provisional availability claim check ────────────────────────────
+
+
+class TestProvisionalAvailabilityClaim:
+    """RESP-058: Drafts must not imply availability has been provisionally checked
+    when the contract is NOT_CHECKED, PENDING_DATE_CONFIRMATION, or
+    INSUFFICIENT_INFORMATION.
+
+    Mirrors the email_66/email_71/email_75/email_79/email_87 patterns from the
+    Sprint 13 evaluation.
+    """
+
+    def _ctx(self, contract: str = "PENDING_DATE_CONFIRMATION") -> ValidationContext:
+        return ValidationContext(
+            availability_contract=contract,
+            response_goal="REQUEST_DATE_CONFIRMATION",
+        )
+
+    # ── Patterns that must fail ────────────────────────────────────────────────
+
+    def test_i_have_provisionally_checked_fails(self) -> None:
+        """email_66/75/79 pattern: 'I have provisionally checked availability for [date]'."""
+        draft = (
+            "Dear Fiona,\n\n"
+            "Thank you for your enquiry — I'll check availability for dinner on "
+            "4 July and come back to you shortly.\n\n"
+            "Before I proceed, could you confirm whether you mean 4 July or 7 April? "
+            "I have provisionally checked availability for 4 July.\n\n"
+            "Warm regards,\nJames"
+        )
+        result = DraftComplianceValidator.validate(draft, self._ctx())
+        assert result.passed is False
+        assert any("provisionally" in v.lower() for v in result.violations)
+
+    def test_ive_provisionally_checked_fails(self) -> None:
+        """Contracted form: 'I've provisionally checked availability'."""
+        draft = (
+            "Before I proceed, could you confirm the date? "
+            "I've provisionally checked availability for 11 August."
+        )
+        result = DraftComplianceValidator.validate(draft, self._ctx())
+        assert result.passed is False
+        assert any("provisionally" in v.lower() for v in result.violations)
+
+    def test_self_contradictory_draft_fails(self) -> None:
+        """email_87 pattern: 'I'll check availability' + 'I have provisionally checked'."""
+        draft = (
+            "Thank you for your enquiry — I'll check availability for dinner on "
+            "2026-08-11 and come back to you shortly.\n\n"
+            "Before I proceed, I need to confirm the date: could you confirm whether "
+            "you mean 11 August or 8 November? I have provisionally checked availability "
+            "for 11 August."
+        )
+        result = DraftComplianceValidator.validate(draft, self._ctx())
+        assert result.passed is False
+        assert any("provisionally" in v.lower() for v in result.violations)
+
+    def test_provisional_check_also_fails_not_checked(self) -> None:
+        """Pattern fires for NOT_CHECKED contract too."""
+        draft = (
+            "Before I proceed, could you confirm the date? "
+            "I have provisionally checked availability for 4 July."
+        )
+        result = DraftComplianceValidator.validate(
+            draft,
+            ValidationContext(
+                availability_contract="NOT_CHECKED",
+                response_goal="ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+            ),
+        )
+        assert result.passed is False
+        assert any("provisionally" in v.lower() for v in result.violations)
+
+    def test_already_checked_availability_fails(self) -> None:
+        """'already checked availability' is also a provisional claim."""
+        draft = (
+            "I have already checked availability for that date — "
+            "could you just confirm whether you mean 4 July or 7 April?"
+        )
+        result = DraftComplianceValidator.validate(draft, self._ctx())
+        assert result.passed is False
+
+    # ── Patterns that must pass ────────────────────────────────────────────────
+
+    def test_clean_date_confirmation_passes(self) -> None:
+        """email_64-style: clean REQUEST_DATE_CONFIRMATION without provisional language."""
+        draft = (
+            "Dear Fiona,\n\n"
+            "Thank you for your enquiry — I'll check availability for dinner on "
+            "4 July and come back to you shortly.\n\n"
+            "Before checking availability, could you confirm whether you mean "
+            "4 July or 7 April?\n\n"
+            "Warm regards,\nJames"
+        )
+        result = DraftComplianceValidator.validate(
+            draft,
+            ValidationContext(
+                availability_contract="PENDING_DATE_CONFIRMATION",
+                clarification_questions=[
+                    "Before checking availability, could you confirm whether you mean "
+                    "4 July or 7 April?"
+                ],
+                response_goal="REQUEST_DATE_CONFIRMATION",
+            ),
+        )
+        provisional_violations = [v for v in result.violations if "provisionally" in v.lower()]
+        assert len(provisional_violations) == 0
+
+    def test_provisional_language_allowed_when_confirmed_available(self) -> None:
+        """Check does not fire when contract is CONFIRMED_AVAILABLE."""
+        draft = (
+            "I am pleased to confirm that we have provisionally checked availability "
+            "and the date is available."
+        )
+        result = DraftComplianceValidator.validate(
+            draft,
+            ValidationContext(availability_contract="CONFIRMED_AVAILABLE"),
+        )
+        provisional_violations = [v for v in result.violations if "provisionally" in v.lower()]
+        assert len(provisional_violations) == 0
+
+    def test_provisional_language_allowed_when_confirmed_unavailable(self) -> None:
+        """Check does not fire when contract is CONFIRMED_UNAVAILABLE."""
+        draft = (
+            "Unfortunately, we are fully booked for that date. "
+            "We have provisionally checked availability for the following week."
+        )
+        result = DraftComplianceValidator.validate(
+            draft,
+            ValidationContext(availability_contract="CONFIRMED_UNAVAILABLE"),
+        )
+        provisional_violations = [v for v in result.violations if "provisionally" in v.lower()]
+        assert len(provisional_violations) == 0

@@ -1,4 +1,4 @@
-"""First Response Copy Library (RESP-017, updated RESP-037, RESP-043, RESP-051, RESP-057).
+"""First Response Copy Library (RESP-017, updated RESP-037, RESP-043, RESP-051, RESP-057, RESP-058).
 
 Approved deterministic copy blocks for operationally sensitive first-response
 statements.  The LLM must use these blocks verbatim (with variable interpolation)
@@ -20,6 +20,11 @@ RESP-043: Added alternative-date unavailability blocks (zero, one, two alternati
 These blocks are rendered deterministically when a requested date is unavailable —
 the LLM must use these verbatim and must not invent alternatives beyond what is
 explicitly provided.
+
+RESP-058: Added ``date_confirmation_question`` — a safe date disambiguation block
+for REQUEST_DATE_CONFIRMATION responses. Replaces the previous "I have provisionally
+checked availability" pattern, which created an implicit availability commitment
+before the availability contract was resolved.
 
 Usage::
 
@@ -52,6 +57,9 @@ BLOCK_SIGNOFF = "signoff"
 BLOCK_UNAVAILABLE_NO_ALTERNATIVES = "unavailable_no_alternatives"
 BLOCK_UNAVAILABLE_ONE_ALTERNATIVE = "unavailable_one_alternative"
 BLOCK_UNAVAILABLE_TWO_ALTERNATIVES = "unavailable_two_alternatives"
+# RESP-058: safe date-confirmation disambiguation block — no "provisionally checked"
+# language; asks the guest to clarify the date before availability is checked
+BLOCK_DATE_CONFIRMATION_QUESTION = "date_confirmation_question"
 
 # ── Template registry ──────────────────────────────────────────────────────────
 
@@ -120,6 +128,13 @@ _TEMPLATES: dict[str, str] = {
         "for {meal_period} on {alternative_date_1} or {alternative_date_2} — "
         "would either of those dates work for you?"
     ),
+    # RESP-058: safe date disambiguation question — no provisional availability claim.
+    # Asks the guest to confirm which interpretation of their date is correct before
+    # any availability check is performed.
+    BLOCK_DATE_CONFIRMATION_QUESTION: (
+        "Before checking availability, could you confirm whether you mean "
+        "{date_option_1} or {date_option_2}?"
+    ),
 }
 
 # Required variables per block key (empty set = no required vars)
@@ -136,6 +151,7 @@ _REQUIRED_VARS: dict[str, frozenset[str]] = {
     BLOCK_UNAVAILABLE_NO_ALTERNATIVES: frozenset({"meal_period", "requested_date"}),
     BLOCK_UNAVAILABLE_ONE_ALTERNATIVE: frozenset({"meal_period", "requested_date", "alternative_date"}),
     BLOCK_UNAVAILABLE_TWO_ALTERNATIVES: frozenset({"meal_period", "requested_date", "alternative_date_1", "alternative_date_2"}),
+    BLOCK_DATE_CONFIRMATION_QUESTION: frozenset({"date_option_1", "date_option_2"}),
 }
 
 
