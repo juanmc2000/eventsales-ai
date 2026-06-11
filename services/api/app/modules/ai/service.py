@@ -29,6 +29,7 @@ from app.modules.ai.constants import (
     TRIGGER_MANUAL_GENERATE_DRAFT,
     TRIGGER_SOURCE_API,
 )
+from app.modules.ai.draft_post_processor import DraftPostProcessor
 from app.modules.ai.gateway import AIGateway
 from app.modules.ai.provider import FallbackProvider
 from app.modules.ai.schemas import (
@@ -280,11 +281,21 @@ class DraftGenerationService:
             # No LLM response — use template-based fallback (pure Python, no API call)
             draft_body = FallbackProvider().generate(context)
         else:
-            # RESP-031: strip standalone section headers before persistence
-            # RESP-032: strip any subject-line leakage
-            draft_body = _strip_subject_line(
-                _strip_section_labels(gateway_result.raw_response)
-            )
+            # RESP-061: post-process LLM output — strip section labels and subject-line leakage
+            _post = DraftPostProcessor.process(gateway_result.raw_response)
+            draft_body = _post.cleaned_body
+            if _post.stripped_subject_lines:
+                logger.warning(
+                    "RESP-061 subject-line leakage stripped for enquiry %s: %s",
+                    enquiry_id,
+                    _post.stripped_subject_lines,
+                )
+            if _post.stripped_section_labels:
+                logger.debug(
+                    "RESP-061 section labels stripped for enquiry %s: %s",
+                    enquiry_id,
+                    _post.stripped_section_labels,
+                )
 
         # ── Build AI transparency context ─────────────────────────────────────
         ai_context = AIContextOut(
