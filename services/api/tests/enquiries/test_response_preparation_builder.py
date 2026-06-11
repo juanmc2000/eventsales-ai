@@ -563,3 +563,77 @@ def test_availability_contract_key_always_present():
             f"availability_contract key missing when decision={decision!r}"
         )
 
+
+# ── RESP-059: CONFIRM_AVAILABLE clears clarification_questions ─────────────────
+
+
+def test_confirm_available_clears_questions_from_date_status() -> None:
+    """RESP-059: date_resolution_status.clarification_question is dropped when goal is CONFIRM_AVAILABLE.
+
+    A RESOLVED date can carry a clarification_question (e.g., from a secondary hint)
+    without triggering REQUEST_DATE_CONFIRMATION.  Without RESP-059 that question would
+    leak into the draft context even after availability has been confirmed.
+    """
+    # STATUS_RESOLVED date with a dangling clarification_question — goal engine
+    # skips Rule 3 (only fires for AMBIGUOUS / RESOLVED_WITH_CONFIRMATION) and
+    # the builder's elif branch would set clarification_questions from this field.
+    resolved_with_hint = DateResolutionStatus(
+        status=STATUS_RESOLVED,
+        original_text="15th March",
+        resolution_method="explicit_date",
+        resolved_date="2026-03-15",
+        alternative_date=None,
+        clarification_required=False,
+        clarification_reason=None,
+        clarification_question="Did you mean 15th March or 22nd March?",
+        candidate_dates=["2026-03-15"],
+    )
+
+    plan = ResponsePreparationBuilder.build(
+        readiness_evaluation=_ready_readiness(),
+        date_resolution_status=resolved_with_hint,
+        availability_decision=_available_decision(),
+    )
+    assert plan.response_goal == GOAL_CONFIRM_AVAILABLE
+    assert plan.clarification_questions == [], (
+        f"Expected empty clarification_questions for CONFIRM_AVAILABLE, got: {plan.clarification_questions}"
+    )
+
+
+def test_confirm_available_clears_questions_from_missing_info() -> None:
+    """RESP-059: MissingInformationResult.clarification_questions is dropped when goal is CONFIRM_AVAILABLE."""
+    missing = MissingInformationResult(
+        missing_fields=[],
+        critical_missing_fields=[],
+        clarification_questions=["How many guests are you expecting?"],
+        can_ask_by_email=True,
+        should_send_webform=False,
+        missing_info_reason="test",
+    )
+
+    plan = ResponsePreparationBuilder.build(
+        readiness_evaluation=_ready_readiness(),
+        availability_decision=_available_decision(),
+        missing_information_result=missing,
+    )
+    assert plan.response_goal == GOAL_CONFIRM_AVAILABLE
+    assert plan.clarification_questions == [], (
+        f"Expected empty clarification_questions for CONFIRM_AVAILABLE, got: {plan.clarification_questions}"
+    )
+
+
+def test_non_confirm_available_goal_retains_questions() -> None:
+    """RESP-059: goals other than CONFIRM_AVAILABLE must keep clarification_questions intact."""
+    ambiguous_date = _ambiguous_date_status()
+    assert ambiguous_date.clarification_question  # pre-condition
+
+    plan = ResponsePreparationBuilder.build(
+        readiness_evaluation=_ready_readiness(),
+        date_resolution_status=ambiguous_date,
+        # no availability_decision → goal will not be CONFIRM_AVAILABLE
+    )
+    assert plan.response_goal != GOAL_CONFIRM_AVAILABLE
+    assert plan.clarification_questions, (
+        f"Expected non-empty clarification_questions for {plan.response_goal!r}, got empty"
+    )
+

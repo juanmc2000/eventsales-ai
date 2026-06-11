@@ -1,4 +1,4 @@
-"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-026, RESP-027, RESP-033, RESP-052, RESP-053, RESP-062).
+"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-026, RESP-027, RESP-033, RESP-052, RESP-053, RESP-059, RESP-062).
 
 Validates generated draft emails against the availability contract, spend rules,
 and prompt constraints before the draft is shown to staff or sent to guests.
@@ -52,8 +52,13 @@ RESP-053 additional checks:
       draft does not match any known name (case-insensitive), it is flagged as
       an invented room name with violation code "invented_room_name".
 
+RESP-059 additional checks:
+  15. Clarification questions in CONFIRM_AVAILABLE responses.
+      Availability has already been confirmed — the draft must not ask the guest
+      to clarify dates or any other information.
+
 RESP-062 additional checks:
-  15. Customer name consistency guard.
+  16. Customer name consistency guard.
       If ValidationContext.expected_customer_name is set, the draft greeting
       must match the expected name (case-insensitive, prefix-allows).  A mismatch
       is a high-trust failure.
@@ -394,6 +399,8 @@ class DraftComplianceValidator:
         cls._check_hosting_language(draft_text, context, violations)
         cls._check_invented_sla(draft_text, violations)
         cls._check_invented_questions(draft_text, context, violations)
+        # RESP-059 additional checks
+        cls._check_confirm_available_questions(draft_text, context, violations)
         # RESP-033: structured forbidden-topic check (also appends to violations)
         cls._check_forbidden_topics(draft_text, context, violations, structured_violations)
         # RESP-020 additional checks
@@ -610,6 +617,29 @@ class DraftComplianceValidator:
                 "Draft contains a question but no clarification questions were provided "
                 "in the context. Questions must not be invented — only use the approved "
                 "clarification questions."
+            )
+
+    @classmethod
+    def _check_confirm_available_questions(
+        cls,
+        text: str,
+        context: ValidationContext,
+        violations: list[str],
+    ) -> None:
+        """RESP-059: Fail if a CONFIRM_AVAILABLE draft contains any question.
+
+        Availability has already been deterministically confirmed — the draft must
+        not ask the guest to clarify dates or any other information, regardless of
+        what clarification_questions contains.
+        """
+        if context.response_goal != "CONFIRM_AVAILABLE":
+            return
+        matches = _QUESTION_SENTENCE_PATTERN.findall(text)
+        if matches:
+            violations.append(
+                "Draft contains a question but the response goal is CONFIRM_AVAILABLE. "
+                "Availability has been confirmed — the draft must not ask the guest to "
+                "clarify dates or any other information."
             )
 
     @classmethod
