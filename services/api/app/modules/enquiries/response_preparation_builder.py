@@ -41,6 +41,7 @@ from typing import TYPE_CHECKING, Any
 
 from app.modules.enquiries.date_formatting import format_event_date, format_event_date_list
 from app.modules.enquiries.response_goal_engine import (
+    GOAL_CONFIRM_AVAILABLE,
     ResponseGoalEngine,
     ResponseGoalResult,
 )
@@ -217,6 +218,10 @@ class ResponsePreparationBuilder:
             )
         elif date_resolution_status and date_resolution_status.clarification_question:
             clarification_questions = [date_resolution_status.clarification_question]
+
+        # RESP-059: availability is confirmed — no date clarification questions needed
+        if goal_result.response_goal == GOAL_CONFIRM_AVAILABLE:
+            clarification_questions = []
 
         # ── Step 5: draft instructions ────────────────────────────────────────
         draft_instructions = cls._build_draft_instructions(

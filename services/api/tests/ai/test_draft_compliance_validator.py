@@ -1342,3 +1342,81 @@ class TestProvisionalAvailabilityClaim:
         )
         provisional_violations = [v for v in result.violations if "provisionally" in v.lower()]
         assert len(provisional_violations) == 0
+
+
+# ── RESP-059: Block questions in CONFIRM_AVAILABLE ─────────────────────────────
+
+
+class TestConfirmAvailableQuestions:
+    """RESP-059: CONFIRM_AVAILABLE drafts must not ask any questions."""
+
+    _CONFIRM_CTX = ValidationContext(
+        response_goal="CONFIRM_AVAILABLE",
+        availability_contract="CONFIRMED_AVAILABLE",
+        clarification_questions=[],
+    )
+
+    def test_email_26_style_confirm_then_clarify_fails(self) -> None:
+        """email_26 pattern: confirms availability then asks guest to confirm the date."""
+        draft = (
+            "Dear James, I'm delighted to confirm that we have availability for dinner "
+            "on 15th March. Can you please confirm which date you'd like to book: "
+            "15th March or 22nd March? Warm regards, Sophie."
+        )
+        result = DraftComplianceValidator.validate(draft, self._CONFIRM_CTX)
+        assert result.passed is False
+        assert any("CONFIRM_AVAILABLE" in v for v in result.violations)
+
+    def test_email_44_style_confirm_then_clarify_fails(self) -> None:
+        """email_44 pattern: confirms availability then asks if guest meant a different date."""
+        draft = (
+            "Dear Emma, thank you for your enquiry — I'm pleased to confirm we have "
+            "availability for dinner on 14th February. Could you please let us know "
+            "if you meant 14th or 21st February? Warm regards, Sophie."
+        )
+        result = DraftComplianceValidator.validate(draft, self._CONFIRM_CTX)
+        assert result.passed is False
+        assert any("CONFIRM_AVAILABLE" in v for v in result.violations)
+
+    def test_confirm_available_no_question_passes(self) -> None:
+        """Clean CONFIRM_AVAILABLE draft without any question passes."""
+        draft = (
+            "Dear Alice, I'm delighted to confirm that we have availability for dinner "
+            "on 12th June. Please reply to this email to confirm you would like to proceed. "
+            "Warm regards, Sophie."
+        )
+        result = DraftComplianceValidator.validate(draft, self._CONFIRM_CTX)
+        question_violations = [
+            v for v in result.violations if "CONFIRM_AVAILABLE" in v
+        ]
+        assert len(question_violations) == 0, question_violations
+
+    def test_request_date_confirmation_allows_approved_questions(self) -> None:
+        """REQUEST_DATE_CONFIRMATION with approved questions must not be blocked."""
+        draft = (
+            "Dear Alex, thank you for your enquiry. Before checking availability, "
+            "could you confirm whether you mean 6th July or 7th June?"
+        )
+        result = _validate(
+            draft,
+            availability_contract="PENDING_DATE_CONFIRMATION",
+            response_goal="REQUEST_DATE_CONFIRMATION",
+            clarification_questions=["Could you confirm whether you mean 6th July or 7th June?"],
+        )
+        question_violations = [v for v in result.violations if "CONFIRM_AVAILABLE" in v]
+        assert len(question_violations) == 0, question_violations
+
+    def test_confirm_available_question_fails_even_when_clarification_questions_populated(self) -> None:
+        """RESP-059: even if clarification_questions is non-empty, questions fail for CONFIRM_AVAILABLE."""
+        draft = (
+            "Dear Alice, we have availability for dinner on 12th June. "
+            "Could you confirm whether 12th or 19th June works better?"
+        )
+        ctx = ValidationContext(
+            response_goal="CONFIRM_AVAILABLE",
+            availability_contract="CONFIRMED_AVAILABLE",
+            clarification_questions=["Could you confirm whether 12th or 19th June works better?"],
+        )
+        result = DraftComplianceValidator.validate(draft, ctx)
+        assert result.passed is False
+        assert any("CONFIRM_AVAILABLE" in v for v in result.violations)
