@@ -1096,3 +1096,114 @@ class TestConfirmAvailableSemanticValidation:
         )
         spend_violations = [v for v in result.violations if "spend" in v.lower() or "mandatory" in v.lower()]
         assert len(spend_violations) > 0, "Spend soft-language violation was not caught"
+
+
+# ── TEST-019: Clarification context wiring ────────────────────────────────────
+
+
+class TestClarificationContextWiring:
+    """TEST-019: ValidationContext.clarification_questions wiring correctness.
+
+    Validates that approved clarification questions suppress the invented-question
+    check, and that genuine invented questions (no approved questions provided)
+    still fail.  Mirrors the specific email patterns from the Sprint 13 evaluation.
+    """
+
+    def test_approved_date_question_passes_when_wired(self) -> None:
+        """email_20 pattern: REQUEST_DATE_CONFIRMATION with approved question passes."""
+        draft = (
+            "Dear Neil,\n\n"
+            "Thank you for your enquiry — I'll check availability for dinner on "
+            "2026-06-07 and come back to you shortly.\n\n"
+            "Before I proceed, could you confirm whether you mean 7 June or 6 July? "
+            "I have provisionally checked availability for 7 June.\n\n"
+            "Warm regards,\nEleanor"
+        )
+        ctx = ValidationContext(
+            availability_contract="PENDING_DATE_CONFIRMATION",
+            clarification_questions=[
+                "Could you confirm whether you mean 7 June or 6 July? "
+                "I have provisionally checked availability for 7 June."
+            ],
+            response_goal="REQUEST_DATE_CONFIRMATION",
+        )
+        result = DraftComplianceValidator.validate(draft, ctx)
+        invented_q_violations = [v for v in result.violations if "question" in v.lower() and "invented" in v.lower()]
+        assert len(invented_q_violations) == 0, (
+            "Approved question was incorrectly flagged as invented: "
+            + str(invented_q_violations)
+        )
+
+    def test_approved_meal_period_question_passes_when_wired(self) -> None:
+        """email_48 pattern: REQUEST_MISSING_INFORMATION with approved question passes."""
+        draft = (
+            "Dear Sarah,\n\n"
+            "Thank you for your enquiry about hosting your work team meal with us.\n\n"
+            "Could you confirm whether you are looking for breakfast, lunch or dinner?\n\n"
+            "Warm regards,\nEleanor"
+        )
+        ctx = ValidationContext(
+            availability_contract="INSUFFICIENT_INFORMATION",
+            clarification_questions=[
+                "Could you confirm whether you are looking for breakfast, lunch or dinner?"
+            ],
+            response_goal="REQUEST_MISSING_INFORMATION",
+        )
+        result = DraftComplianceValidator.validate(draft, ctx)
+        invented_q_violations = [v for v in result.violations if "question" in v.lower()]
+        assert len(invented_q_violations) == 0, (
+            "Approved meal-period question was incorrectly flagged: "
+            + str(invented_q_violations)
+        )
+
+    def test_empty_clarification_questions_still_fails(self) -> None:
+        """email_26 pattern: CONFIRM_AVAILABLE with no approved questions fails."""
+        draft = (
+            "Dear Natalie,\n\n"
+            "Thank you for your enquiry — I'm delighted to confirm that we have "
+            "availability for dinner on 2026-07-04.\n\n"
+            "I notice you've mentioned both 2026-07-04 and 2026-07-05 as potential dates. "
+            "To move forward, could you please confirm which date you'd prefer for your "
+            "engagement party?\n\n"
+            "Warm regards,\nEleanor"
+        )
+        ctx = ValidationContext(
+            availability_contract="CONFIRMED_AVAILABLE",
+            clarification_questions=[],  # no approved questions — question is invented
+            response_goal="CONFIRM_AVAILABLE",
+        )
+        result = DraftComplianceValidator.validate(draft, ctx)
+        assert result.passed is False
+        assert any("question" in v.lower() for v in result.violations)
+
+    def test_confirm_available_with_invented_question_fails(self) -> None:
+        """email_44 pattern: CONFIRM_AVAILABLE invents clarification after confirming."""
+        draft = (
+            "Dear Chris,\n\n"
+            "What a lovely occasion — we'd be delighted to host your leaving do.\n\n"
+            "Thank you for your enquiry — I'm delighted to confirm that we have "
+            "availability for dinner on 2026-07-03.\n\n"
+            "Before we proceed, I'd like to clarify one detail: you've listed several dates. "
+            "Could you confirm that 2026-07-03 is your preferred date for the celebration?\n\n"
+            "Warm regards,\nEleanor"
+        )
+        ctx = ValidationContext(
+            availability_contract="CONFIRMED_AVAILABLE",
+            clarification_questions=[],  # no approved questions
+            response_goal="CONFIRM_AVAILABLE",
+        )
+        result = DraftComplianceValidator.validate(draft, ctx)
+        assert result.passed is False
+        assert any("question" in v.lower() for v in result.violations)
+
+    def test_question_passes_when_any_approved_question_present(self) -> None:
+        """Non-empty clarification_questions suppresses the invented-question check entirely."""
+        draft = "Could you let us know your preferred start time? We look forward to welcoming you."
+        ctx = ValidationContext(
+            availability_contract="NOT_CHECKED",
+            clarification_questions=["What time were you thinking of starting?"],
+            response_goal="ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+        )
+        result = DraftComplianceValidator.validate(draft, ctx)
+        invented_q_violations = [v for v in result.violations if "question" in v.lower() and "invented" in v.lower()]
+        assert len(invented_q_violations) == 0
