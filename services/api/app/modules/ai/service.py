@@ -181,6 +181,17 @@ class DraftGenerationService:
                 guest_message=guest_message,
             )
 
+        # ── RESP-063: Deterministic REQUEST_DATE_CONFIRMATION path ────────────
+        if context.response_goal == "REQUEST_DATE_CONFIRMATION":
+            return self._generate_deterministic_request_date_confirmation_draft(
+                enquiry_id=enquiry_id,
+                enquiry=enquiry,
+                context=context,
+                persona_name=persona_name,
+                recommended_minimum_spend=recommended_minimum_spend,
+                guest_message=guest_message,
+            )
+
         # ── RESP-036: Semi-deterministic ACKNOWLEDGE_AND_CHECK_AVAILABILITY path ─
         if context.response_goal == "ACKNOWLEDGE_AND_CHECK_AVAILABILITY":
             return self._generate_deterministic_acknowledge_draft(
@@ -596,6 +607,167 @@ class DraftGenerationService:
             is_fallback=False,
             model="deterministic",
             ai_context=ai_context,
+        )
+
+    def _generate_deterministic_request_date_confirmation_draft(
+        self,
+        enquiry_id: uuid.UUID,
+        enquiry,
+        context: "DraftContext",
+        persona_name: str,
+        recommended_minimum_spend: float | None,
+        guest_message: str | None,
+    ) -> "DraftGenerationResult":
+        """RESP-063: Build a REQUEST_DATE_CONFIRMATION draft from copy blocks only.
+
+        Bypasses the LLM entirely.  The LLM was consistently fabricating
+        "I've provisionally checked availability" language (RESP-058 violation)
+        for this goal — all four required elements are available as copy blocks.
+
+        Structure:
+          Dear {guest_name},
+
+          [availability_not_checked block]
+
+          {clarification_question from context}
+
+          [availability_check_next_step block]
+
+          [signoff block]
+
+        The clarification question is taken verbatim from
+        context.clarification_questions[0] (set by the response preparation
+        pipeline from the date disambiguation service).  If no clarification
+        question is available a generic date-confirmation fallback is used.
+        """
+        from app.modules.ai.first_response_copy_library import (  # noqa: PLC0415
+            FirstResponseCopyLibrary,
+        )
+
+        meal_period = context.availability_meal_period or "dinner"
+        event_date = context.availability_date or context.event_date or "the requested date"
+        guest_name = context.guest_first_name or "there"
+
+        opening = FirstResponseCopyLibrary.render(
+            "availability_not_checked",
+            {"meal_period": meal_period, "event_date": event_date},
+        )
+        next_step = FirstResponseCopyLibrary.render("availability_check_next_step")
+        signoff = FirstResponseCopyLibrary.render(
+            "signoff",
+            {"persona_name": persona_name},
+        )
+
+        # Use approved clarification question verbatim — never invent one
+        clarification_questions = context.clarification_questions or []
+        if clarification_questions:
+            date_question = clarification_questions[0]
+        else:
+            logger.warning(
+                "RESP-063: No clarification question available for REQUEST_DATE_CONFIRMATION "
+                "on enquiry %s — using generic fallback",
+                enquiry_id,
+            )
+            date_question = "Could you please confirm which date you mean?"
+
+        body_parts = [
+            f"Dear {guest_name},",
+            "",
+            opening,
+            "",
+            date_question,
+            "",
+            next_step,
+            "",
+            signoff,
+        ]
+        draft_body = "\n".join(body_parts)
+
+        ai_context = AIContextOut(
+            model="deterministic",
+            is_fallback=False,
+            persona_name=persona_name,
+            persona_tone=context.persona_tone,
+            persona_style=context.persona_style,
+            guest_message_used=None,
+            room_name=None,
+            recommended_minimum_spend=recommended_minimum_spend,
+            system_prompt=None,
+            user_message=None,
+            prompt_run_id=None,
+        )
+
+        subject = _build_subject(enquiry.first_name, enquiry.last_name, enquiry.event_type)
+        message = self._enquiry_repo.add_message(
+            enquiry_id,
+            {
+                "direction": "outbound",
+                "channel": "draft",
+                "subject": subject,
+                "body": draft_body,
+                "sent_at": None,
+            },
+        )
+        self._db.commit()
+
+        logger.info(
+            "RESP-063: Deterministic REQUEST_DATE_CONFIRMATION draft generated "
+            "for enquiry %s",
+            enquiry_id,
+        )
+
+        from app.modules.ai.draft_compliance_validator import (  # noqa: PLC0415
+            DraftComplianceValidator, ValidationContext,
+        )
+        from app.modules.ai.auto_send_readiness_gate import AutoSendReadinessGate  # noqa: PLC0415
+        from app.modules.ai.draft_review_state import (  # noqa: PLC0415
+            DraftReviewStateService,
+        )
+        from app.modules.enquiries.response_context_integrity_gate import (  # noqa: PLC0415
+            IntegrityCheckResult,
+        )
+
+        _rdtc_compliance = DraftComplianceValidator.validate(
+            draft_text=draft_body,
+            context=ValidationContext(
+                availability_contract="PENDING_DATE_CONFIRMATION",
+                response_goal="REQUEST_DATE_CONFIRMATION",
+                clarification_questions=clarification_questions,
+            ),
+        )
+        _rdtc_integrity = IntegrityCheckResult(passed=True, violations=[])
+        _rdtc_readiness = AutoSendReadinessGate.evaluate(
+            response_goal="REQUEST_DATE_CONFIRMATION",
+            draft_compliance_result=_rdtc_compliance,
+            date_status="ambiguous",
+            integrity_result=_rdtc_integrity,
+        )
+        _rdtc_review_state = DraftReviewStateService.evaluate(
+            compliance_result=_rdtc_compliance,
+            readiness_result=_rdtc_readiness,
+        )
+
+        _rdtc_review_meta = {
+            "review_state": _rdtc_review_state.status,
+            "validation_status": "passed" if _rdtc_review_state.validation_passed else "failed",
+            "validation_blockers": _rdtc_review_state.validation_violations,
+            "auto_send_allowed": _rdtc_review_state.auto_send_allowed,
+            "auto_send_blockers": _rdtc_review_state.auto_send_blockers,
+            "generation_path": "deterministic",
+        }
+        self._enquiry_repo.update_message_review_metadata(message.id, _rdtc_review_meta)
+        self._db.commit()
+
+        return DraftGenerationResult(
+            enquiry_id=enquiry_id,
+            message_id=message.id,
+            subject=subject,
+            body=draft_body,
+            persona_name=persona_name,
+            is_fallback=False,
+            model="deterministic",
+            ai_context=ai_context,
+            review_state=_rdtc_review_state,
         )
 
     def _generate_deterministic_confirm_available_draft(
