@@ -1,0 +1,2635 @@
+{
+  "meta": {
+    "version": "1.0",
+    "sprint": "sprint14",
+    "timestamp": "20260611T131053Z",
+    "description": "Sprint 14 baseline response preparation accuracy report (TEST-021). Corrected scoring separates genuine LLM violations from expected fixture violations (runner artefacts)."
+  },
+  "combined": {
+    "total_scenarios": 132,
+    "combined_adjusted_compliance_rate": 100.0,
+    "combined_genuine_unsafe_count": 0,
+    "combined_genuine_unsafe_ids": [],
+    "combined_auto_send_allowed": 19,
+    "combined_auto_send_rate": 14.4
+  },
+  "fixtures": [
+    {
+      "fixture": "first_response_safety_cases_100.json",
+      "total": 100,
+      "expected_pass_count": 35,
+      "expected_fail_count": 65,
+      "raw_compliance_passed": 47,
+      "raw_compliance_rate": 47.0,
+      "adjusted_compliance_rate": 100.0,
+      "genuine_unsafe_count": 0,
+      "genuine_unsafe_ids": [],
+      "runner_artefact_count": 53,
+      "unexpected_pass_count": 12,
+      "unexpected_pass_ids": [
+        "fs1_051",
+        "fs1_052",
+        "fs1_053",
+        "fs1_054",
+        "fs1_055",
+        "fs1_056",
+        "fs1_057",
+        "fs1_058",
+        "fs1_097",
+        "fs1_098",
+        "fs1_099",
+        "fs1_100"
+      ],
+      "auto_send_allowed": 19,
+      "auto_send_rate": 19.0,
+      "date_formatting_defect_count": 0,
+      "date_formatting_defect_ids": [],
+      "room_suitability_defect_count": 0,
+      "room_suitability_defect_ids": [],
+      "wrong_name_defect_count": 0,
+      "wrong_name_defect_ids": [],
+      "subject_line_defect_count": 0,
+      "subject_line_defect_ids": [],
+      "violation_category_counts": {
+        "forbidden_topics": 8,
+        "fake_url": 6,
+        "section_label": 1,
+        "unconfirmed_time": 7,
+        "hallucinated_availability": 15,
+        "room_suitability": 4,
+        "spend_soft_language": 7,
+        "invented_sla": 5,
+        "invented_questions": 5
+      },
+      "per_goal_summary": {
+        "CONFIRM_AVAILABLE": {
+          "total": 34,
+          "compliance_passed": 13,
+          "auto_send_allowed": 7,
+          "genuine_unsafe": 0,
+          "expected_fail": 21
+        },
+        "ACKNOWLEDGE_AND_CHECK_AVAILABILITY": {
+          "total": 42,
+          "compliance_passed": 14,
+          "auto_send_allowed": 12,
+          "genuine_unsafe": 0,
+          "expected_fail": 28
+        },
+        "RESPOND_UNAVAILABLE": {
+          "total": 14,
+          "compliance_passed": 14,
+          "auto_send_allowed": 0,
+          "genuine_unsafe": 0,
+          "expected_fail": 12
+        },
+        "REQUEST_MISSING_INFORMATION": {
+          "total": 4,
+          "compliance_passed": 2,
+          "auto_send_allowed": 0,
+          "genuine_unsafe": 0,
+          "expected_fail": 2
+        },
+        "REQUEST_DATE_CONFIRMATION": {
+          "total": 4,
+          "compliance_passed": 2,
+          "auto_send_allowed": 0,
+          "genuine_unsafe": 0,
+          "expected_fail": 2
+        },
+        "REQUEST_WEBFORM": {
+          "total": 2,
+          "compliance_passed": 2,
+          "auto_send_allowed": 0,
+          "genuine_unsafe": 0,
+          "expected_fail": 0
+        }
+      },
+      "scenario_results": [
+        {
+          "id": "fs1_001",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_002",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_003",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_004",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_005",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_006",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_007",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "ca_hard_001",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "confirm_available_menu_fail",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft discusses menu or dietary requirements but this topic is not permitted in the current response context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "ca_hard_002",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "confirm_available_special_touches_fail",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft mentions special touches or decorations but this topic is not permitted in the current response context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "ca_hard_003",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "confirm_available_booking_form_fail",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft contains a placeholder or invented booking form link. No URL or form link may appear unless explicitly provided in the context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "ca_hard_004",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "confirm_available_section_labels_fail",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft contains an internal section label (e.g. **Opening**, **Sign-off**) that must not appear in customer-facing emails. Remove all structural headings from the draft body."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "ca_hard_005",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "confirm_available_unconfirmed_time_fail",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft mentions the time '7pm', which is an unconfirmed guest preference. Unconfirmed times must not appear anywhere in the response \u2014 not even as a preference echo or soft reference."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_013",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_014",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_015",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_016",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_017",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_018",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_019",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_020",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_021",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_022",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_023",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_024",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "compliance_pass",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": true,
+          "expected_compliance_passed": true,
+          "expected_auto_send": true,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_025",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "gate_blocked_goal",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_026",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "gate_blocked_goal",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_027",
+          "response_goal": "REQUEST_MISSING_INFORMATION",
+          "category": "gate_blocked_goal",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_028",
+          "response_goal": "REQUEST_MISSING_INFORMATION",
+          "category": "gate_blocked_goal",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_029",
+          "response_goal": "REQUEST_DATE_CONFIRMATION",
+          "category": "gate_blocked_goal",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_030",
+          "response_goal": "REQUEST_DATE_CONFIRMATION",
+          "category": "gate_blocked_goal",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_031",
+          "response_goal": "REQUEST_WEBFORM",
+          "category": "gate_blocked_goal",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_032",
+          "response_goal": "REQUEST_WEBFORM",
+          "category": "gate_blocked_goal",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_033",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "gate_blocked_date",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_034",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "gate_blocked_date",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_035",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "gate_blocked_date",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_036",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "gate_blocked_date",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_037",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "context_mismatch",
+          "compliance_passed": true,
+          "integrity_passed": false,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_038",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "context_mismatch",
+          "compliance_passed": true,
+          "integrity_passed": false,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_039",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "context_mismatch",
+          "compliance_passed": true,
+          "integrity_passed": false,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_040",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "context_mismatch",
+          "compliance_passed": true,
+          "integrity_passed": false,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_041",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "hallucinated_availability",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft appears to confirm availability but contract state is NOT_CHECKED. Availability must not be confirmed until the venue system returns CONFIRMED_AVAILABLE."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_042",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "hallucinated_availability",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft appears to confirm availability but contract state is NOT_CHECKED. Availability must not be confirmed until the venue system returns CONFIRMED_AVAILABLE."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_043",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "hallucinated_availability",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft appears to confirm availability but contract state is NOT_CHECKED. Availability must not be confirmed until the venue system returns CONFIRMED_AVAILABLE.",
+            "ACKNOWLEDGE response contains room pre-commitment language ('Private Room'). Room names, suitability claims, and capacity promises must not appear before availability is confirmed. Use 'I'll check availability' or 'I'll check suitable space' instead."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_044",
+          "response_goal": "REQUEST_DATE_CONFIRMATION",
+          "category": "hallucinated_availability",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft appears to confirm availability but contract state is PENDING_DATE_CONFIRMATION. Availability must not be confirmed until the venue system returns CONFIRMED_AVAILABLE."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_045",
+          "response_goal": "REQUEST_DATE_CONFIRMATION",
+          "category": "hallucinated_availability",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft appears to confirm availability but contract state is PENDING_DATE_CONFIRMATION. Availability must not be confirmed until the venue system returns CONFIRMED_AVAILABLE."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_046",
+          "response_goal": "REQUEST_MISSING_INFORMATION",
+          "category": "hallucinated_availability",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft appears to confirm availability but contract state is INSUFFICIENT_INFORMATION. Availability must not be confirmed until the venue system returns CONFIRMED_AVAILABLE."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_047",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "hallucinated_availability",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft appears to confirm availability but contract state is NOT_CHECKED. Availability must not be confirmed until the venue system returns CONFIRMED_AVAILABLE."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_048",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "hallucinated_availability",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft appears to confirm availability but contract state is NOT_CHECKED. Availability must not be confirmed until the venue system returns CONFIRMED_AVAILABLE.",
+            "ACKNOWLEDGE response contains room pre-commitment language ('Private Room'). Room names, suitability claims, and capacity promises must not appear before availability is confirmed. Use 'I'll check availability' or 'I'll check suitable space' instead."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_049",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "hallucinated_availability",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft appears to confirm availability but contract state is NOT_CHECKED. Availability must not be confirmed until the venue system returns CONFIRMED_AVAILABLE."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_050",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "hallucinated_availability",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft appears to confirm availability but contract state is NOT_CHECKED. Availability must not be confirmed until the venue system returns CONFIRMED_AVAILABLE."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_051",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "alternative_dates",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "unexpected_pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_052",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "alternative_dates",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "unexpected_pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_053",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "alternative_dates",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "unexpected_pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_054",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "alternative_dates",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "unexpected_pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_055",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "alternative_dates",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "unexpected_pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_056",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "alternative_dates",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "unexpected_pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_057",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "alternative_dates",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "unexpected_pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_058",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "alternative_dates",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "unexpected_pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_059",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "spend_soft_language",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft describes minimum spend as recommended or optional. Minimum spend is a MANDATORY requirement and must be described as such."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_060",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "spend_soft_language",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft describes minimum spend as recommended or optional. Minimum spend is a MANDATORY requirement and must be described as such."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_061",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "spend_soft_language",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft describes minimum spend as recommended or optional. Minimum spend is a MANDATORY requirement and must be described as such."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_062",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "spend_soft_language",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft describes minimum spend as recommended or optional. Minimum spend is a MANDATORY requirement and must be described as such."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_063",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "spend_soft_language",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft describes minimum spend as recommended or optional. Minimum spend is a MANDATORY requirement and must be described as such."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_064",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "spend_soft_language",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft describes minimum spend as recommended or optional. Minimum spend is a MANDATORY requirement and must be described as such."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_065",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "spend_soft_language",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft describes minimum spend as recommended or optional. Minimum spend is a MANDATORY requirement and must be described as such."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_066",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "unconfirmed_time",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft mentions the time '7pm', which is an unconfirmed guest preference. Unconfirmed times must not appear anywhere in the response \u2014 not even as a preference echo or soft reference."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_067",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "unconfirmed_time",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft mentions the time '7:30pm', which is an unconfirmed guest preference. Unconfirmed times must not appear anywhere in the response \u2014 not even as a preference echo or soft reference."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_068",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "unconfirmed_time",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft mentions the time '7pm', which is an unconfirmed guest preference. Unconfirmed times must not appear anywhere in the response \u2014 not even as a preference echo or soft reference."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_069",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "unconfirmed_time",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft mentions the time '8pm', which is an unconfirmed guest preference. Unconfirmed times must not appear anywhere in the response \u2014 not even as a preference echo or soft reference."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_070",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "unconfirmed_time",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft mentions the time '7pm', which is an unconfirmed guest preference. Unconfirmed times must not appear anywhere in the response \u2014 not even as a preference echo or soft reference."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_071",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "unconfirmed_time",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft mentions the time '19:00', which is an unconfirmed guest preference. Unconfirmed times must not appear anywhere in the response \u2014 not even as a preference echo or soft reference."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_072",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "fake_url",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft contains a placeholder or invented booking form link. No URL or form link may appear unless explicitly provided in the context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_073",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "fake_url",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft contains a placeholder or invented booking form link. No URL or form link may appear unless explicitly provided in the context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_074",
+          "response_goal": "CONFIRM_AVAILABLE",
+          "category": "fake_url",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft contains a placeholder or invented booking form link. No URL or form link may appear unless explicitly provided in the context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_075",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "fake_url",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft contains a placeholder or invented booking form link. No URL or form link may appear unless explicitly provided in the context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_076",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "fake_url",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft contains a placeholder or invented booking form link. No URL or form link may appear unless explicitly provided in the context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_077",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "hosting_language",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft uses hosting language (e.g. 'looking forward to hosting', 'would be perfect for') when availability has not been checked. Hosting language must not be used until the contract state is CONFIRMED_AVAILABLE."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_078",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "hosting_language",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft uses hosting language (e.g. 'looking forward to hosting', 'would be perfect for') when availability has not been checked. Hosting language must not be used until the contract state is CONFIRMED_AVAILABLE."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_079",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "hosting_language",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft uses hosting language (e.g. 'looking forward to hosting', 'would be perfect for') when availability has not been checked. Hosting language must not be used until the contract state is CONFIRMED_AVAILABLE.",
+            "Draft describes the room or space as suitable or perfect for the guest's event when the availability contract is NOT_CHECKED. Room suitability language must not be used before availability is confirmed.",
+            "ACKNOWLEDGE response contains room pre-commitment language ('Private Room'). Room names, suitability claims, and capacity promises must not appear before availability is confirmed. Use 'I'll check availability' or 'I'll check suitable space' instead."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_080",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "hosting_language",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft uses hosting language (e.g. 'looking forward to hosting', 'would be perfect for') when availability has not been checked. Hosting language must not be used until the contract state is CONFIRMED_AVAILABLE."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_081",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "hosting_language",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft uses hosting language (e.g. 'looking forward to hosting', 'would be perfect for') when availability has not been checked. Hosting language must not be used until the contract state is CONFIRMED_AVAILABLE."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_082",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "invented_sla",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft contains an invented SLA commitment (e.g. 'within 24 hours', 'by tomorrow'). No response-time commitment may be made unless explicitly provided in the context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_083",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "invented_sla",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft contains an invented SLA commitment (e.g. 'within 24 hours', 'by tomorrow'). No response-time commitment may be made unless explicitly provided in the context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_084",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "invented_sla",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft contains an invented SLA commitment (e.g. 'within 24 hours', 'by tomorrow'). No response-time commitment may be made unless explicitly provided in the context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_085",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "invented_sla",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft contains an invented SLA commitment (e.g. 'within 24 hours', 'by tomorrow'). No response-time commitment may be made unless explicitly provided in the context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_086",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "invented_sla",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft contains an invented SLA commitment (e.g. 'within 24 hours', 'by tomorrow'). No response-time commitment may be made unless explicitly provided in the context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_087",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "invented_questions",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft contains a question but no clarification questions were provided in the context. Questions must not be invented \u2014 only use the approved clarification questions.",
+            "Draft discusses menu or dietary requirements but this topic is not permitted in the current response context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_088",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "invented_questions",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft contains a question but no clarification questions were provided in the context. Questions must not be invented \u2014 only use the approved clarification questions."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_089",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "invented_questions",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft contains a question but no clarification questions were provided in the context. Questions must not be invented \u2014 only use the approved clarification questions."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_090",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "invented_questions",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft contains a question but no clarification questions were provided in the context. Questions must not be invented \u2014 only use the approved clarification questions."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_091",
+          "response_goal": "REQUEST_MISSING_INFORMATION",
+          "category": "invented_questions",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft contains a question but no clarification questions were provided in the context. Questions must not be invented \u2014 only use the approved clarification questions."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_092",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "forbidden_topics_menu",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft discusses menu or dietary requirements but this topic is not permitted in the current response context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_093",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "forbidden_topics_menu",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft discusses menu or dietary requirements but this topic is not permitted in the current response context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_094",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "forbidden_topics_menu",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft discusses menu or dietary requirements but this topic is not permitted in the current response context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_095",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "forbidden_topics_menu",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft discusses menu or dietary requirements but this topic is not permitted in the current response context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_096",
+          "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+          "category": "forbidden_topics_menu",
+          "compliance_passed": false,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [
+            "Draft discusses menu or dietary requirements but this topic is not permitted in the current response context."
+          ],
+          "classification": "runner_artefact",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_097",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "room_suitability_unavailable",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "unexpected_pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_098",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "room_suitability_unavailable",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "unexpected_pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_099",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "room_suitability_unavailable",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "unexpected_pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "fs1_100",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "room_suitability_unavailable",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": false,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "unexpected_pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        }
+      ]
+    },
+    {
+      "fixture": "unavailable_response_regression.json",
+      "total": 32,
+      "expected_pass_count": 32,
+      "expected_fail_count": 0,
+      "raw_compliance_passed": 32,
+      "raw_compliance_rate": 100.0,
+      "adjusted_compliance_rate": 100.0,
+      "genuine_unsafe_count": 0,
+      "genuine_unsafe_ids": [],
+      "runner_artefact_count": 0,
+      "unexpected_pass_count": 0,
+      "unexpected_pass_ids": [],
+      "auto_send_allowed": 0,
+      "auto_send_rate": 0.0,
+      "date_formatting_defect_count": 0,
+      "date_formatting_defect_ids": [],
+      "room_suitability_defect_count": 0,
+      "room_suitability_defect_ids": [],
+      "wrong_name_defect_count": 0,
+      "wrong_name_defect_ids": [],
+      "subject_line_defect_count": 0,
+      "subject_line_defect_ids": [],
+      "violation_category_counts": {},
+      "per_goal_summary": {
+        "RESPOND_UNAVAILABLE": {
+          "total": 32,
+          "compliance_passed": 32,
+          "auto_send_allowed": 0,
+          "genuine_unsafe": 0,
+          "expected_fail": 0
+        }
+      },
+      "scenario_results": [
+        {
+          "id": "un_001",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "no_alternatives",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_002",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "no_alternatives",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_003",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "no_alternatives",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_004",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "no_alternatives",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_005",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "no_alternatives",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_006",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "no_alternatives",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_007",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "no_alternatives_weekend",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_008",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "no_alternatives_weekend",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_009",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "no_alternatives_weekend",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_010",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "no_alternatives",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_011",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "no_alternatives_weekend",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_012",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "no_alternatives",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_013",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "one_alternative_available",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_014",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "one_alternative_available",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_015",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "one_alternative_available",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_016",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "one_alternative_available",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_017",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "one_alternative_available",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_018",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "one_alternative_available",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_019",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "two_alternatives_available",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_020",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "two_alternatives_available",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_021",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "two_alternatives_available",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_022",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "past_alternative_rejected",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_023",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "past_alternative_rejected",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_024",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "past_alternative_rejected",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_025",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "future_alternative_d_plus_1",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_026",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "future_alternative_d_plus_1",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_027",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "requested_date_in_past",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_028",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "requested_date_in_past",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_029",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "requested_date_in_past",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_030",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "capacity_unsuitable_alternative",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_031",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "capacity_unsuitable_alternative",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        },
+        {
+          "id": "un_032",
+          "response_goal": "RESPOND_UNAVAILABLE",
+          "category": "capacity_unsuitable_alternative",
+          "compliance_passed": true,
+          "integrity_passed": true,
+          "auto_send_allowed": false,
+          "expected_compliance_passed": true,
+          "expected_auto_send": false,
+          "violations": [],
+          "classification": "pass",
+          "defects": {
+            "date_formatting": false,
+            "room_suitability": false,
+            "wrong_name": false,
+            "subject_line": false
+          }
+        }
+      ]
+    }
+  ]
+}
