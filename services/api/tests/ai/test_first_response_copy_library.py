@@ -460,3 +460,88 @@ class TestConfirmAvailableNextStepBlock:
         text = FirstResponseCopyLibrary.render_safe(BLOCK_CONFIRM_AVAILABLE_NEXT_STEP)
         assert text is not None
         assert len(text) > 10
+
+
+# ── RESP-057: ISO date auto-formatting in render() ─────────────────────────────
+
+
+class TestISODateAutoFormatting:
+    """RESP-057: render() auto-formats ISO date strings to natural hospitality format."""
+
+    def test_availability_confirmed_iso_date_formatted(self) -> None:
+        text = FirstResponseCopyLibrary.render(
+            BLOCK_AVAILABILITY_CONFIRMED,
+            {"meal_period": "dinner", "event_date": "2026-06-12"},
+        )
+        assert "2026-06-12" not in text
+        assert "Friday, 12 June 2026" in text
+
+    def test_availability_not_checked_iso_date_formatted(self) -> None:
+        text = FirstResponseCopyLibrary.render(
+            BLOCK_AVAILABILITY_NOT_CHECKED,
+            {"meal_period": "lunch", "event_date": "2026-07-04"},
+        )
+        assert "2026-07-04" not in text
+        assert "Saturday, 4 July 2026" in text
+
+    def test_unavailable_no_alternatives_iso_date_formatted(self) -> None:
+        text = FirstResponseCopyLibrary.render(
+            BLOCK_UNAVAILABLE_NO_ALTERNATIVES,
+            {"meal_period": "dinner", "requested_date": "2026-08-15"},
+        )
+        assert "2026-08-15" not in text
+        assert "15 August 2026" in text
+
+    def test_unavailable_one_alternative_all_dates_formatted(self) -> None:
+        text = FirstResponseCopyLibrary.render(
+            BLOCK_UNAVAILABLE_ONE_ALTERNATIVE,
+            {
+                "meal_period": "dinner",
+                "requested_date": "2026-06-12",
+                "alternative_date": "2026-06-19",
+            },
+        )
+        assert "2026-06-12" not in text
+        assert "2026-06-19" not in text
+        assert "Friday, 12 June 2026" in text
+        assert "Friday, 19 June 2026" in text
+
+    def test_unavailable_two_alternatives_all_dates_formatted(self) -> None:
+        text = FirstResponseCopyLibrary.render(
+            BLOCK_UNAVAILABLE_TWO_ALTERNATIVES,
+            {
+                "meal_period": "dinner",
+                "requested_date": "2026-06-12",
+                "alternative_date_1": "2026-06-19",
+                "alternative_date_2": "2026-06-26",
+            },
+        )
+        assert "2026-06-12" not in text
+        assert "2026-06-19" not in text
+        assert "2026-06-26" not in text
+        assert "Friday, 12 June 2026" in text
+        assert "Friday, 19 June 2026" in text
+        assert "Friday, 26 June 2026" in text
+
+    def test_already_formatted_date_passes_through(self) -> None:
+        """Pre-formatted dates must not be double-formatted."""
+        text = FirstResponseCopyLibrary.render(
+            BLOCK_AVAILABILITY_CONFIRMED,
+            {"meal_period": "dinner", "event_date": "Friday, 12 June 2026"},
+        )
+        assert "Friday, 12 June 2026" in text
+
+    def test_non_date_variable_unchanged(self) -> None:
+        """Non-date variables must not be altered by the auto-formatter."""
+        text = FirstResponseCopyLibrary.render(
+            BLOCK_MINIMUM_SPEND,
+            {"spend_amount": "£2,500"},
+        )
+        assert "£2,500" in text
+
+    def test_signoff_persona_name_unchanged(self) -> None:
+        text = FirstResponseCopyLibrary.render(
+            BLOCK_SIGNOFF,
+            {"persona_name": "Sophie"},
+        )
+        assert "Sophie" in text

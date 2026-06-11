@@ -395,7 +395,8 @@ def test_availability_context_included():
         availability_decision=_available_decision(),
     )
     assert plan.availability_context["availability_status"] == STATUS_AVAILABLE
-    assert plan.availability_context["selected_candidate_date"] == "2026-06-13"
+    # RESP-057: dates in availability_context are formatted for LLM context
+    assert plan.availability_context["selected_candidate_date"] == "Saturday, 13 June 2026"
 
 
 def test_no_availability_defaults_to_not_checked():

@@ -1,4 +1,4 @@
-"""First Response Copy Library (RESP-017, updated RESP-037, RESP-043, RESP-051).
+"""First Response Copy Library (RESP-017, updated RESP-037, RESP-043, RESP-051, RESP-057).
 
 Approved deterministic copy blocks for operationally sensitive first-response
 statements.  The LLM must use these blocks verbatim (with variable interpolation)
@@ -32,6 +32,8 @@ Usage::
 """
 
 from __future__ import annotations
+
+from app.modules.enquiries.date_formatting import format_event_date
 
 # ── Copy block keys ───────────────────────────────────────────────────────────
 
@@ -185,7 +187,13 @@ class FirstResponseCopyLibrary:
                 f"but they were not provided."
             )
 
-        return _TEMPLATES[key].format(**vars_)
+        # RESP-057: auto-format ISO date strings to natural hospitality format
+        # so that callers never need to pre-format dates before rendering.
+        formatted_vars = {
+            k: format_event_date(v) if isinstance(v, str) else v
+            for k, v in vars_.items()
+        }
+        return _TEMPLATES[key].format(**formatted_vars)
 
     @classmethod
     def render_safe(cls, key: str, variables: dict[str, str] | None = None) -> str | None:
