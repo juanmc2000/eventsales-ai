@@ -1,4 +1,4 @@
-"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-026, RESP-027, RESP-033, RESP-052, RESP-053).
+"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-026, RESP-027, RESP-033, RESP-052, RESP-053, RESP-062).
 
 Validates generated draft emails against the availability contract, spend rules,
 and prompt constraints before the draft is shown to staff or sent to guests.
@@ -52,6 +52,12 @@ RESP-053 additional checks:
       draft does not match any known name (case-insensitive), it is flagged as
       an invented room name with violation code "invented_room_name".
 
+RESP-062 additional checks:
+  15. Customer name consistency guard.
+      If ValidationContext.expected_customer_name is set, the draft greeting
+      must match the expected name (case-insensitive, prefix-allows).  A mismatch
+      is a high-trust failure.
+
 Usage::
 
     from app.modules.ai.draft_compliance_validator import DraftComplianceValidator, ValidationContext
@@ -73,6 +79,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from typing import Any
+
+from app.modules.ai.customer_name_validator import CustomerNameConsistencyValidator
 
 
 # ── Input context ──────────────────────────────────────────────────────────────
@@ -111,6 +119,9 @@ class ValidationContext:
     # RESP-053: known room names for the restaurant — used to detect invented room names
     # If empty, the invented-room-name check is skipped (caller has no room context)
     known_room_names: list[str] = field(default_factory=list)
+    # RESP-062: expected customer first name for greeting consistency check
+    # If None or empty, the name check is skipped
+    expected_customer_name: str | None = None
 
 
 # ── Output ─────────────────────────────────────────────────────────────────────
@@ -384,6 +395,8 @@ class DraftComplianceValidator:
         cls._check_acknowledge_room_precommitment(draft_text, context, violations)
         # RESP-053 additional checks
         cls._check_invented_room_names(draft_text, context, violations, structured_violations)
+        # RESP-062 additional checks
+        cls._check_customer_name_consistency(draft_text, context, violations)
 
         passed = len(violations) == 0
         return ComplianceResult(
@@ -966,3 +979,26 @@ class DraftComplianceValidator:
                         message=message,
                     ))
                 return  # One violation per check call
+
+    # ── RESP-062 additional checks ─────────────────────────────────────────
+
+    @classmethod
+    def _check_customer_name_consistency(
+        cls,
+        text: str,
+        context: ValidationContext,
+        violations: list[str],
+    ) -> None:
+        """RESP-062: Fail if the draft greeting does not match the expected customer name.
+
+        Delegates to CustomerNameConsistencyValidator.  The check is skipped when
+        expected_customer_name is not set on the context.
+        """
+        if not context.expected_customer_name:
+            return
+        result = CustomerNameConsistencyValidator.validate(
+            draft_text=text,
+            expected_customer_name=context.expected_customer_name,
+        )
+        if not result.passed and result.violation:
+            violations.append(result.violation)
