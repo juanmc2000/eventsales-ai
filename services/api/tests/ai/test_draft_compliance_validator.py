@@ -1420,3 +1420,131 @@ class TestConfirmAvailableQuestions:
         result = DraftComplianceValidator.validate(draft, ctx)
         assert result.passed is False
         assert any("CONFIRM_AVAILABLE" in v for v in result.violations)
+
+
+# ── RESP-060: Room suitability embellishments in CONFIRM_AVAILABLE ─────────────
+
+
+class TestConfirmAvailableRoomSuitability:
+    """RESP-060: CONFIRM_AVAILABLE drafts must not contain unsupported suitability embellishments."""
+
+    _CONFIRM_CTX = ValidationContext(
+        response_goal="CONFIRM_AVAILABLE",
+        availability_contract="CONFIRMED_AVAILABLE",
+    )
+
+    # ── Failing cases (embellishments) ────────────────────────────────────────
+
+    def test_email_06_style_excellent_fit_fails(self) -> None:
+        """email_06 pattern: 'excellent fit for your event'."""
+        draft = (
+            "Dear James, I'm pleased to confirm availability for dinner on 12th June. "
+            "The Oak Room is an excellent fit for your corporate dinner. Warm regards, Sophie."
+        )
+        result = DraftComplianceValidator.validate(draft, self._CONFIRM_CTX)
+        assert result.passed is False
+        assert any("suitability" in v.lower() or "embellishment" in v.lower() for v in result.violations)
+
+    def test_email_18_style_perfect_setting_fails(self) -> None:
+        """email_18 pattern: 'a perfect setting for your event'."""
+        draft = (
+            "Dear Alice, we have availability for dinner on 19th June. "
+            "The Garden Room is a perfect setting for your celebration. Warm regards, Sophie."
+        )
+        result = DraftComplianceValidator.validate(draft, self._CONFIRM_CTX)
+        assert result.passed is False
+        assert any("suitability" in v.lower() or "embellishment" in v.lower() for v in result.violations)
+
+    def test_email_31_style_excellent_choice_fails(self) -> None:
+        """email_31 pattern: 'an excellent choice for your group'."""
+        draft = (
+            "Dear Mark, I'm delighted to confirm availability. The Riverside Room is an excellent choice "
+            "for your team lunch. Warm regards, Sophie."
+        )
+        result = DraftComplianceValidator.validate(draft, self._CONFIRM_CTX)
+        assert result.passed is False
+
+    def test_email_96_style_well_accommodated_fails(self) -> None:
+        """email_96 pattern: 'your group will be well accommodated'."""
+        draft = (
+            "Dear Laura, we have availability for dinner on 5th July. "
+            "Your group of 20 will be well accommodated in our private dining space. "
+            "Warm regards, Sophie."
+        )
+        result = DraftComplianceValidator.validate(draft, self._CONFIRM_CTX)
+        assert result.passed is False
+
+    def test_ideal_setting_fails(self) -> None:
+        draft = (
+            "Dear Tom, I'm pleased to confirm availability. "
+            "The venue is an ideal setting for your event. Warm regards, Sophie."
+        )
+        result = DraftComplianceValidator.validate(draft, self._CONFIRM_CTX)
+        assert result.passed is False
+
+    def test_perfect_for_fails(self) -> None:
+        draft = (
+            "Dear Sara, we are available for dinner on 12th June. "
+            "Our private dining room is perfect for groups of this size. Warm regards, Sophie."
+        )
+        result = DraftComplianceValidator.validate(draft, self._CONFIRM_CTX)
+        assert result.passed is False
+
+    # ── Passing cases ─────────────────────────────────────────────────────────
+
+    def test_neutral_room_wording_passes(self) -> None:
+        """Neutral phrasing: 'The selected space is available for your enquiry' passes."""
+        draft = (
+            "Dear Alice, I'm delighted to confirm that we have availability for dinner on 12th June. "
+            "The selected space is available for your enquiry. "
+            "Please reply to confirm you would like to proceed. Warm regards, Sophie."
+        )
+        result = DraftComplianceValidator.validate(draft, self._CONFIRM_CTX)
+        suitability_violations = [
+            v for v in result.violations if "suitability" in v.lower() or "embellishment" in v.lower()
+        ]
+        assert len(suitability_violations) == 0, suitability_violations
+
+    def test_sourced_room_name_passes(self) -> None:
+        """Room name can appear in CONFIRM_AVAILABLE without triggering the check."""
+        draft = (
+            "Dear James, I'm pleased to confirm we have availability for dinner on 12th June "
+            "in the Oak Room. Please reply to confirm you would like to proceed. Warm regards, Sophie."
+        )
+        result = DraftComplianceValidator.validate(draft, self._CONFIRM_CTX)
+        suitability_violations = [
+            v for v in result.violations if "suitability" in v.lower() or "embellishment" in v.lower()
+        ]
+        assert len(suitability_violations) == 0, suitability_violations
+
+    def test_check_does_not_fire_for_acknowledge_goal(self) -> None:
+        """Embellishment check must not fire for ACKNOWLEDGE_AND_CHECK_AVAILABILITY."""
+        draft = (
+            "Dear Alice, our Garden Room is a perfect setting for your party — "
+            "we will check availability and come back to you shortly."
+        )
+        result = _validate(
+            draft,
+            availability_contract="NOT_CHECKED",
+            response_goal="ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+        )
+        # Other checks (hosting language) may fire, but NOT the RESP-060 embellishment check
+        suitability060_violations = [
+            v for v in result.violations if "embellishment" in v.lower()
+        ]
+        assert len(suitability060_violations) == 0, suitability060_violations
+
+    def test_check_does_not_fire_for_unavailable_goal(self) -> None:
+        """Embellishment check must not fire for RESPOND_UNAVAILABLE."""
+        draft = (
+            "Dear Alice, unfortunately we are fully booked for dinner on 12th June."
+        )
+        result = _validate(
+            draft,
+            availability_contract="CONFIRMED_UNAVAILABLE",
+            response_goal="RESPOND_UNAVAILABLE",
+        )
+        suitability060_violations = [
+            v for v in result.violations if "embellishment" in v.lower()
+        ]
+        assert len(suitability060_violations) == 0, suitability060_violations

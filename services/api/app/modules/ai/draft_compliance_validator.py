@@ -1,4 +1,4 @@
-"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-026, RESP-027, RESP-033, RESP-052, RESP-053, RESP-059, RESP-062).
+"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-026, RESP-027, RESP-033, RESP-052, RESP-053, RESP-059, RESP-060, RESP-062).
 
 Validates generated draft emails against the availability contract, spend rules,
 and prompt constraints before the draft is shown to staff or sent to guests.
@@ -57,8 +57,14 @@ RESP-059 additional checks:
       Availability has already been confirmed — the draft must not ask the guest
       to clarify dates or any other information.
 
+RESP-060 additional checks:
+  16. Unsupported room suitability embellishments in CONFIRM_AVAILABLE responses.
+      Phrases such as "excellent fit", "perfect setting", "well accommodated",
+      "excellent choice", and "ideal" as suitability claims are forbidden unless
+      the room suitability notes explicitly support them.
+
 RESP-062 additional checks:
-  16. Customer name consistency guard.
+  17. Customer name consistency guard.
       If ValidationContext.expected_customer_name is set, the draft greeting
       must match the expected name (case-insensitive, prefix-allows).  A mismatch
       is a high-trust failure.
@@ -124,6 +130,9 @@ class ValidationContext:
     # RESP-053: known room names for the restaurant — used to detect invented room names
     # If empty, the invented-room-name check is skipped (caller has no room context)
     known_room_names: list[str] = field(default_factory=list)
+    # RESP-060: room capacity confirmed by venue system — used to validate capacity claims
+    # If None, unsupported capacity assurance phrases in CONFIRM_AVAILABLE are flagged
+    confirmed_room_capacity: int | None = None
     # RESP-062: expected customer first name for greeting consistency check
     # If None or empty, the name check is skipped
     expected_customer_name: str | None = None
@@ -277,6 +286,19 @@ _ROOM_SUITABILITY_UNAVAILABLE_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\b(?:have\s+the\s+)?space\s+and\s+expertise\s+to\b", re.IGNORECASE),
 ]
 
+# RESP-060: Room suitability embellishments forbidden in CONFIRM_AVAILABLE.
+# Phrases that add unsupported quality/suitability judgement beyond the sourced room data.
+_CONFIRM_AVAILABLE_ROOM_EMBELLISHMENT_PATTERNS: list[re.Pattern[str]] = [
+    re.compile(r"\bexcellent\s+fit\b", re.IGNORECASE),
+    re.compile(r"\bperfect\s+(?:setting|venue|space|choice|room)\b", re.IGNORECASE),
+    re.compile(r"\bperfect\s+for\b", re.IGNORECASE),
+    re.compile(r"\bexcellent\s+(?:choice|venue|space|room)\b", re.IGNORECASE),
+    re.compile(r"\bwell[\s-]+accommodated\b", re.IGNORECASE),
+    re.compile(r"\bideal\s+(?:setting|choice|venue|space|room|for)\b", re.IGNORECASE),
+    re.compile(r"\bideally\s+suited\b", re.IGNORECASE),
+    re.compile(r"\bexcellent\s+fit\s+for\b", re.IGNORECASE),
+]
+
 # RESP-033: Timing-discussion topic — generic timing language (distinct from specific time mentions)
 # Only covers clearly topic-level timing discussion phrases, not incidental time references.
 _TIMING_LANGUAGE_PATTERNS: list[re.Pattern[str]] = [
@@ -417,6 +439,8 @@ class DraftComplianceValidator:
         cls._check_acknowledge_room_precommitment(draft_text, context, violations)
         # RESP-053 additional checks
         cls._check_invented_room_names(draft_text, context, violations, structured_violations)
+        # RESP-060 additional checks
+        cls._check_confirm_available_room_suitability(draft_text, context, violations)
         # RESP-062 additional checks
         cls._check_customer_name_consistency(draft_text, context, violations)
 
@@ -1055,6 +1079,38 @@ class DraftComplianceValidator:
                         message=message,
                     ))
                 return  # One violation per check call
+
+    # ── RESP-060 additional checks ─────────────────────────────────────────
+
+    @classmethod
+    def _check_confirm_available_room_suitability(
+        cls,
+        text: str,
+        context: ValidationContext,
+        violations: list[str],
+    ) -> None:
+        """RESP-060: Fail if a CONFIRM_AVAILABLE draft contains unsupported suitability embellishments.
+
+        Phrases such as "excellent fit", "perfect setting", "well accommodated", and
+        "excellent choice" are subjective quality claims that the LLM invents without
+        being sourced from confirmed room data.  They must not appear in CONFIRM_AVAILABLE
+        responses.
+
+        Allowed: room name (if sourced), neutral phrasing (e.g. "The selected space is
+        available for your enquiry"), and capacity statements when confirmed_room_capacity
+        is set.
+        """
+        if context.response_goal != "CONFIRM_AVAILABLE":
+            return
+        for pattern in _CONFIRM_AVAILABLE_ROOM_EMBELLISHMENT_PATTERNS:
+            if pattern.search(text):
+                violations.append(
+                    "Draft contains an unsupported room suitability embellishment "
+                    "(e.g. 'excellent fit', 'perfect setting', 'well accommodated', "
+                    "'excellent choice', 'ideal') in a CONFIRM_AVAILABLE response. "
+                    "Only sourced room names and neutral phrasing are permitted."
+                )
+                return
 
     # ── RESP-062 additional checks ─────────────────────────────────────────
 
