@@ -39,6 +39,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
+from app.modules.enquiries.date_formatting import format_event_date, format_event_date_list
 from app.modules.enquiries.response_goal_engine import (
     ResponseGoalEngine,
     ResponseGoalResult,
@@ -274,13 +275,16 @@ class ResponsePreparationBuilder:
                 "clarification_question": None,
                 "candidate_dates": [],
             }
+        raw_resolved = getattr(date_status, "resolved_date", None)
+        raw_candidates = list(getattr(date_status, "candidate_dates", []) or [])
         return {
             "status": date_status.status,
-            "resolved_date": getattr(date_status, "resolved_date", None),
+            # RESP-057: format ISO dates to natural hospitality format for LLM context
+            "resolved_date": format_event_date(raw_resolved) if raw_resolved else None,
             "original_text": getattr(date_status, "original_text", None),
             "clarification_required": getattr(date_status, "clarification_required", False),
             "clarification_question": getattr(date_status, "clarification_question", None),
-            "candidate_dates": list(getattr(date_status, "candidate_dates", []) or []),
+            "candidate_dates": format_event_date_list(raw_candidates),
         }
 
     @staticmethod
@@ -300,6 +304,15 @@ class ResponsePreparationBuilder:
         result["availability_contract"] = _decision_status_to_contract(
             getattr(avail, "availability_status", "NOT_CHECKED")
         )
+        # RESP-057: format ISO dates to natural hospitality format for LLM context
+        if result.get("selected_candidate_date"):
+            result["selected_candidate_date"] = format_event_date(
+                result["selected_candidate_date"]
+            )
+        if result.get("available_options"):
+            result["available_options"] = format_event_date_list(result["available_options"])
+        if result.get("unavailable_options"):
+            result["unavailable_options"] = format_event_date_list(result["unavailable_options"])
         return result
 
     @staticmethod

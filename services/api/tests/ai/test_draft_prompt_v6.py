@@ -243,7 +243,8 @@ class TestBuildApprovedCopyBlocksLine:
             event_date="2026-07-20",
         )
         line = _build_approved_copy_blocks_line(ctx)
-        assert "2026-07-20" in line
+        # RESP-057: ISO dates are formatted to natural hospitality format in copy blocks
+        assert "Monday, 20 July 2026" in line
 
 
 # ── Payload integration ───────────────────────────────────────────────────────

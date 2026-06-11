@@ -216,7 +216,8 @@ class TestDeterministicUnavailableDraft:
             mock_plan_repo.get_latest.return_value = _make_unavailable_plan(availability_date="2026-09-20")
             mock_plan_cls.return_value = mock_plan_repo
             result = svc.generate_draft(eid)
-        assert "2026-09-20" in result.body
+        # RESP-057: ISO dates are formatted to natural hospitality format in copy blocks
+        assert "Sunday, 20 September 2026" in result.body
 
     def test_enquiry_id_matches(self) -> None:
         eid = uuid.uuid4()
