@@ -24,6 +24,7 @@ from app.modules.ai.first_response_copy_library import (
     BLOCK_BOOKING_NEXT_STEP,
     BLOCK_CLARIFICATION_NEXT_STEP,
     BLOCK_CONFIRM_AVAILABLE_NEXT_STEP,
+    BLOCK_DATE_CONFIRMATION_QUESTION,
     BLOCK_MINIMUM_SPEND,
     BLOCK_SIGNOFF,
     BLOCK_UNAVAILABLE_NO_ALTERNATIVES,
@@ -545,3 +546,64 @@ class TestISODateAutoFormatting:
             {"persona_name": "Sophie"},
         )
         assert "Sophie" in text
+
+
+# ── RESP-058: Date-confirmation question block ────────────────────────────────
+
+
+class TestDateConfirmationQuestionBlock:
+    """RESP-058: safe date disambiguation block for REQUEST_DATE_CONFIRMATION.
+
+    Must not contain provisional availability language.
+    """
+
+    _VARS = {"date_option_1": "7 June", "date_option_2": "6 July"}
+
+    def test_block_is_registered(self) -> None:
+        assert BLOCK_DATE_CONFIRMATION_QUESTION in FirstResponseCopyLibrary.all_keys()
+
+    def test_required_vars_includes_both_date_options(self) -> None:
+        req = FirstResponseCopyLibrary.required_vars(BLOCK_DATE_CONFIRMATION_QUESTION)
+        assert "date_option_1" in req
+        assert "date_option_2" in req
+
+    def test_renders_with_date_options(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_DATE_CONFIRMATION_QUESTION, self._VARS)
+        assert "7 June" in text
+        assert "6 July" in text
+
+    def test_contains_question_mark(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_DATE_CONFIRMATION_QUESTION, self._VARS)
+        assert "?" in text
+
+    def test_contains_confirm_language(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_DATE_CONFIRMATION_QUESTION, self._VARS)
+        assert "confirm" in text.lower()
+
+    def test_no_provisionally_checked_availability(self) -> None:
+        """RESP-058: must not contain provisional availability language."""
+        text = FirstResponseCopyLibrary.render(BLOCK_DATE_CONFIRMATION_QUESTION, self._VARS)
+        assert "provisionally" not in text.lower()
+        assert "checked availability" not in text.lower()
+        assert "have checked" not in text.lower()
+
+    def test_says_before_checking_availability(self) -> None:
+        """Block must defer availability check explicitly."""
+        text = FirstResponseCopyLibrary.render(BLOCK_DATE_CONFIRMATION_QUESTION, self._VARS)
+        assert "before checking availability" in text.lower()
+
+    def test_missing_date_option_raises(self) -> None:
+        with pytest.raises(ValueError, match="date_option_2"):
+            FirstResponseCopyLibrary.render(
+                BLOCK_DATE_CONFIRMATION_QUESTION,
+                {"date_option_1": "7 June"},
+            )
+
+    def test_render_safe_returns_text_with_vars(self) -> None:
+        text = FirstResponseCopyLibrary.render_safe(BLOCK_DATE_CONFIRMATION_QUESTION, self._VARS)
+        assert text is not None
+        assert "7 June" in text
+
+    def test_render_safe_returns_none_missing_var(self) -> None:
+        text = FirstResponseCopyLibrary.render_safe(BLOCK_DATE_CONFIRMATION_QUESTION, {})
+        assert text is None

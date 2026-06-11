@@ -300,6 +300,19 @@ _SECTION_LABEL_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\*\*Closing\*\*", re.IGNORECASE),
 ]
 
+# RESP-058: Provisional availability language that must not appear when the
+# availability contract has not been resolved (NOT_CHECKED, PENDING_DATE_CONFIRMATION,
+# INSUFFICIENT_INFORMATION).  These phrases imply the venue has already checked
+# availability, contradicting the contract state.
+_PROVISIONAL_AVAILABILITY_PATTERNS: list[re.Pattern[str]] = [
+    re.compile(r"\bprovisionally\s+checked\s+availability\b", re.IGNORECASE),
+    re.compile(r"\bhave\s+provisionally\s+checked\b", re.IGNORECASE),
+    re.compile(r"\bwe\s+have\s+provisionally\s+checked\b", re.IGNORECASE),
+    re.compile(r"\bavailability\s+has\s+been\s+provisionally\s+checked\b", re.IGNORECASE),
+    re.compile(r"\bprovisionally\s+confirmed\s+availability\b", re.IGNORECASE),
+    re.compile(r"\balready\s+checked\s+availability\b", re.IGNORECASE),
+]
+
 # RESP-053: Pattern for extracting named room/space references from draft text.
 # Matches names like "The Garden Room", "Private Dining Room", "Rooftop Suite",
 # "Crystal Ballroom", "Executive Lounge", "Loft Hall", "Sunset Terrace".
@@ -371,6 +384,8 @@ class DraftComplianceValidator:
 
         # Run all checks
         cls._check_availability_overclaim(draft_text, context, violations)
+        # RESP-058: provisional availability claim check (must run after overclaim check)
+        cls._check_provisional_availability_claim(draft_text, context, violations)
         cls._check_confirmed_unavailable_alternatives(draft_text, context, violations)
         cls._check_unconfirmed_times(draft_text, context, violations)
         cls._check_spend_soft_language(draft_text, context, violations)
@@ -425,6 +440,37 @@ class DraftComplianceValidator:
                     f"Draft appears to confirm availability but contract state is {contract}. "
                     "Availability must not be confirmed until the venue system returns "
                     "CONFIRMED_AVAILABLE."
+                )
+                return  # One violation per category
+
+    @classmethod
+    def _check_provisional_availability_claim(
+        cls,
+        text: str,
+        context: ValidationContext,
+        violations: list[str],
+    ) -> None:
+        """RESP-058: Fail if the draft claims availability has been provisionally checked.
+
+        Phrases such as "I have provisionally checked availability for [date]" imply
+        the venue has already queried the availability system — a commitment that
+        cannot be made when the contract is NOT_CHECKED, PENDING_DATE_CONFIRMATION,
+        or INSUFFICIENT_INFORMATION.
+
+        This check also catches self-contradictory drafts where the opening says
+        "I'll check availability" immediately followed by "I have provisionally
+        checked availability", e.g. email_87 in the Sprint 13 evaluation.
+        """
+        _UNRESOLVED_CONTRACTS = {"NOT_CHECKED", "PENDING_DATE_CONFIRMATION", "INSUFFICIENT_INFORMATION"}
+        if context.availability_contract not in _UNRESOLVED_CONTRACTS:
+            return
+        for pattern in _PROVISIONAL_AVAILABILITY_PATTERNS:
+            if pattern.search(text):
+                violations.append(
+                    "Draft implies availability has been provisionally checked but "
+                    f"the contract state is {context.availability_contract}. "
+                    "Do not claim availability has been checked until the contract "
+                    "state is CONFIRMED_AVAILABLE."
                 )
                 return  # One violation per category
 
