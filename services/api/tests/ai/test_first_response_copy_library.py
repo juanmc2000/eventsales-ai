@@ -547,6 +547,17 @@ class TestISODateAutoFormatting:
         )
         assert "Sophie" in text
 
+    def test_date_confirmation_question_iso_dates_formatted(self) -> None:
+        """RESP-057: date_option_1/2 ISO dates must be auto-formatted in date confirmation block."""
+        text = FirstResponseCopyLibrary.render(
+            BLOCK_DATE_CONFIRMATION_QUESTION,
+            {"date_option_1": "2026-06-07", "date_option_2": "2026-07-06"},
+        )
+        assert "2026-06-07" not in text
+        assert "2026-07-06" not in text
+        assert "Sunday, 7 June 2026" in text
+        assert "Monday, 6 July 2026" in text
+
 
 # ── RESP-058: Date-confirmation question block ────────────────────────────────
 
