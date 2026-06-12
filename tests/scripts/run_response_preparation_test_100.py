@@ -61,6 +61,7 @@ from app.modules.ai.first_response_copy_library import (
 )
 from app.modules.ai.draft_compliance_validator import DraftComplianceValidator, ValidationContext
 from app.modules.ai.auto_send_readiness_gate import AutoSendReadinessGate
+from app.modules.ai.service import _strip_provisional_sentences
 from app.modules.enquiries.response_context_integrity_gate import IntegrityCheckResult
 
 # ── Env setup ─────────────────────────────────────────────────────────────────
@@ -273,11 +274,12 @@ def _build_rdtc_deterministic(record: dict, idx: int, total: int) -> dict:
     signoff = FirstResponseCopyLibrary.render_safe(BLOCK_SIGNOFF, {"persona_name": persona_name})
 
     clarification_questions = _extract_clarification_questions(record)
-    date_question = (
-        clarification_questions[0]
-        if clarification_questions
-        else "Could you please confirm which date you mean?"
-    )
+    if clarification_questions:
+        date_question = _strip_provisional_sentences(clarification_questions[0])
+        if not date_question:
+            date_question = "Could you please confirm which date you mean?"
+    else:
+        date_question = "Could you please confirm which date you mean?"
 
     path_label = "det/RDTC"
     print(f"  [{idx:3d}/{total}] [{path_label}] {record['id']} ... done (deterministic)")
@@ -464,8 +466,8 @@ def _process_record(record: dict, idx: int, total: int) -> dict:
     availability_contract = {
         "AVAILABLE": "CONFIRMED_AVAILABLE",
         "UNAVAILABLE": "CONFIRMED_UNAVAILABLE",
-        "PENDING_DATE_CONFIRMATION": "NOT_CHECKED",
-        "INSUFFICIENT_INFORMATION": "NOT_CHECKED",
+        "PENDING_DATE_CONFIRMATION": "PENDING_DATE_CONFIRMATION",
+        "INSUFFICIENT_INFORMATION": "INSUFFICIENT_INFORMATION",
     }.get(av_status, "NOT_CHECKED")
 
     # Generate
