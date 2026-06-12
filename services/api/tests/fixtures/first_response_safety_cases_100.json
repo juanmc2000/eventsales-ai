@@ -2979,6 +2979,35 @@
         "integrity_passed": true,
         "ready_to_send_allowed": false
       }
+    },
+    {
+      "id": "resp061_001",
+      "availability_ref": "av_001",
+      "category": "resp061_subject_line_stripping",
+      "description": "RESP-061: email_71-style subject-line leakage in draft body fails compliance",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Subject: Re: Engagement Party Enquiry\n\nDear Alice, I'm delighted to confirm that we have availability for dinner on Friday, 12 June 2026. Please reply to confirm you would like to proceed. Warm regards, Sophie.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
     }
   ]
 }
