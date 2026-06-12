@@ -1548,3 +1548,158 @@ class TestConfirmAvailableRoomSuitability:
             v for v in result.violations if "embellishment" in v.lower()
         ]
         assert len(suitability060_violations) == 0, suitability060_violations
+
+
+# ── RESP-063: REQUEST_DATE_CONFIRMATION deterministic output compliance ────────
+
+
+class TestRequestDateConfirmationDeterministic:
+    """RESP-063: Deterministic RDTC drafts must pass all compliance checks.
+
+    Validates that the copy-block-only RDTC structure does not trigger:
+    - RESP-058 provisional availability claim check
+    - RESP-059 invented question check (when questions are wired)
+    - Any other RESP checks
+
+    Also validates that the auto-send gate correctly blocks RDTC regardless
+    of compliance outcome (REQUEST_DATE_CONFIRMATION is in BLOCKED_GOALS).
+    """
+
+    _DATE_QUESTION = "Could you confirm whether you mean 14th June or 16th April?"
+
+    def _make_draft(self, date_question: str = _DATE_QUESTION) -> str:
+        from app.modules.ai.first_response_copy_library import FirstResponseCopyLibrary
+        opening = FirstResponseCopyLibrary.render(
+            "availability_not_checked",
+            {"meal_period": "dinner", "event_date": "14th June 2026"},
+        )
+        next_step = FirstResponseCopyLibrary.render("availability_check_next_step")
+        signoff = FirstResponseCopyLibrary.render("signoff", {"persona_name": "Eleanor"})
+        return "\n\n".join([
+            "Dear Sophie,",
+            opening,
+            date_question,
+            next_step,
+            signoff,
+        ])
+
+    def test_deterministic_draft_passes_compliance(self) -> None:
+        """Canonical deterministic RDTC draft passes all compliance checks."""
+        draft = self._make_draft()
+        result = _validate(
+            draft,
+            availability_contract="PENDING_DATE_CONFIRMATION",
+            response_goal="REQUEST_DATE_CONFIRMATION",
+            clarification_questions=[self._DATE_QUESTION],
+        )
+        assert result.passed, (
+            f"Deterministic RDTC draft should pass compliance. Violations: {result.violations}"
+        )
+
+    def test_no_provisional_claim_violation(self) -> None:
+        """Deterministic draft contains no provisional availability language."""
+        draft = self._make_draft()
+        result = _validate(
+            draft,
+            availability_contract="PENDING_DATE_CONFIRMATION",
+            response_goal="REQUEST_DATE_CONFIRMATION",
+            clarification_questions=[self._DATE_QUESTION],
+        )
+        provisional_violations = [v for v in result.violations if "provisionally" in v.lower()]
+        assert len(provisional_violations) == 0, provisional_violations
+
+    def test_no_invented_question_violation_when_wired(self) -> None:
+        """Approved clarification question suppresses invented-question check."""
+        draft = self._make_draft()
+        result = _validate(
+            draft,
+            availability_contract="PENDING_DATE_CONFIRMATION",
+            response_goal="REQUEST_DATE_CONFIRMATION",
+            clarification_questions=[self._DATE_QUESTION],
+        )
+        invented_q_violations = [
+            v for v in result.violations if "question" in v.lower() and "invented" in v.lower()
+        ]
+        assert len(invented_q_violations) == 0, invented_q_violations
+
+    def test_provisional_language_still_fails(self) -> None:
+        """A draft that sneaks in provisional language still fails RESP-058."""
+        draft = (
+            "Dear Sophie,\n\n"
+            "Thank you for your enquiry — I'll check availability for dinner on "
+            "14th June 2026 and come back to you shortly.\n\n"
+            "I've provisionally checked availability for 14th June. "
+            "Could you confirm whether you mean 14th June or 16th April?\n\n"
+            "I will check availability and follow up with you as soon as possible.\n\n"
+            "Warm regards,\nEleanor"
+        )
+        result = _validate(
+            draft,
+            availability_contract="PENDING_DATE_CONFIRMATION",
+            response_goal="REQUEST_DATE_CONFIRMATION",
+            clarification_questions=[self._DATE_QUESTION],
+        )
+        assert result.passed is False
+        provisional_violations = [v for v in result.violations if "provisionally" in v.lower()]
+        assert len(provisional_violations) > 0, (
+            "Expected provisional availability violation but got none"
+        )
+
+    def test_auto_send_gate_blocks_rdtc(self) -> None:
+        """Auto-send gate always blocks REQUEST_DATE_CONFIRMATION (BLOCKED_GOALS)."""
+        from app.modules.ai.auto_send_readiness_gate import AutoSendReadinessGate
+        from app.modules.ai.draft_compliance_validator import ComplianceResult
+        from app.modules.enquiries.response_context_integrity_gate import IntegrityCheckResult
+
+        # Even a fully compliant RDTC draft must be blocked
+        compliance = ComplianceResult(passed=True, violations=[], unsafe_to_send=False)
+        integrity = IntegrityCheckResult(passed=True, violations=[])
+        result = AutoSendReadinessGate.evaluate(
+            response_goal="REQUEST_DATE_CONFIRMATION",
+            draft_compliance_result=compliance,
+            date_status="ambiguous",
+            integrity_result=integrity,
+        )
+        assert result.auto_send_allowed is False, (
+            "REQUEST_DATE_CONFIRMATION must never be auto-sent"
+        )
+
+    def test_multiple_rdtc_drafts_all_pass(self) -> None:
+        """Verify compliance across all 13 fixture date-disambiguation patterns."""
+        fixture_questions = [
+            "Could you confirm whether you mean 7 June or 6 July?",
+            "Could you confirm whether you mean 9 August or 8 September?",
+            "Could you confirm whether you mean 6 August or 8 June?",
+            "Could you confirm whether you mean 4 July or April 7?",
+            "Could you confirm whether you mean 5 August or May 8?",
+            "Could you confirm whether you mean 11 July or 7 November?",
+            "Could you confirm whether you mean 7 October or 10 July?",
+            "Could you confirm whether you mean 6 September or 9 June?",
+            "Could you confirm whether you mean 8 September or 9 August?",
+            "Could you confirm whether you mean 10 August or 8 October?",
+            "Could you confirm whether you mean 11 August or 8 November?",
+            "Could you confirm whether you mean 5 July or 7 May?",
+            "Could you confirm whether you mean 8 September or 9 August?",
+        ]
+        from app.modules.ai.first_response_copy_library import FirstResponseCopyLibrary
+        failures = []
+        for q in fixture_questions:
+            opening = FirstResponseCopyLibrary.render(
+                "availability_not_checked",
+                {"meal_period": "dinner", "event_date": "the requested date"},
+            )
+            next_step = FirstResponseCopyLibrary.render("availability_check_next_step")
+            signoff = FirstResponseCopyLibrary.render("signoff", {"persona_name": "James"})
+            draft = "\n\n".join(["Dear Guest,", opening, q, next_step, signoff])
+            result = _validate(
+                draft,
+                availability_contract="PENDING_DATE_CONFIRMATION",
+                response_goal="REQUEST_DATE_CONFIRMATION",
+                clarification_questions=[q],
+            )
+            if not result.passed:
+                failures.append((q[:60], result.violations))
+        assert len(failures) == 0, (
+            f"{len(failures)} of {len(fixture_questions)} RDTC patterns failed:\n"
+            + "\n".join(f"  {q!r}: {v}" for q, v in failures)
+        )
