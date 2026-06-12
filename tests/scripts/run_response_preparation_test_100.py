@@ -464,8 +464,8 @@ def _process_record(record: dict, idx: int, total: int) -> dict:
     availability_contract = {
         "AVAILABLE": "CONFIRMED_AVAILABLE",
         "UNAVAILABLE": "CONFIRMED_UNAVAILABLE",
-        "PENDING_DATE_CONFIRMATION": "NOT_CHECKED",
-        "INSUFFICIENT_INFORMATION": "NOT_CHECKED",
+        "PENDING_DATE_CONFIRMATION": "PENDING_DATE_CONFIRMATION",
+        "INSUFFICIENT_INFORMATION": "INSUFFICIENT_INFORMATION",
     }.get(av_status, "NOT_CHECKED")
 
     # Generate

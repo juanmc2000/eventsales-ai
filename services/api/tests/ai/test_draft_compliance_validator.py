@@ -1664,6 +1664,39 @@ class TestRequestDateConfirmationDeterministic:
             "REQUEST_DATE_CONFIRMATION must never be auto-sent"
         )
 
+    def test_provisional_language_in_question_stripped_before_embedding(self) -> None:
+        """RESP-063: Clarification question with provisional language is sanitized.
+
+        Old clarification questions from the LLM era may contain sentences like
+        "I have provisionally checked availability for 7 June." which would cause
+        a RESP-058 violation if embedded verbatim.  After _strip_provisional_sentences
+        the RDTC draft must pass compliance.
+        """
+        from app.modules.ai.service import _strip_provisional_sentences
+
+        raw_question = (
+            "Could you confirm whether you mean 7 June or 6 July? "
+            "I have provisionally checked availability for 7 June."
+        )
+        clean_question = _strip_provisional_sentences(raw_question)
+        assert "provisionally" not in clean_question.lower(), (
+            f"Expected provisional language stripped, got: {clean_question!r}"
+        )
+        # The date disambiguation part must survive
+        assert "7 June" in clean_question or "6 July" in clean_question
+
+        # A draft built with the clean question must pass RESP-058
+        draft = self._make_draft(date_question=clean_question)
+        result = _validate(
+            draft,
+            availability_contract="PENDING_DATE_CONFIRMATION",
+            response_goal="REQUEST_DATE_CONFIRMATION",
+            clarification_questions=[clean_question],
+        )
+        assert result.passed, (
+            f"Draft with sanitized question should pass. Violations: {result.violations}"
+        )
+
     def test_multiple_rdtc_drafts_all_pass(self) -> None:
         """Verify compliance across all 13 fixture date-disambiguation patterns."""
         fixture_questions = [
