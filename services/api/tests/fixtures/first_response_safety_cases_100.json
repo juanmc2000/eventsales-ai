@@ -2979,6 +2979,37 @@
         "integrity_passed": true,
         "ready_to_send_allowed": false
       }
+    },
+    {
+      "id": "resp059_003",
+      "availability_ref": "av_001",
+      "category": "clarification_question_in_confirm",
+      "description": "RESP-059: CONFIRM_AVAILABLE with question even when clarification_questions set \u2014 should fail (email_44 pattern)",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "agency",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Sophie,\n\nThank you for your enquiry \u2014 I am delighted to confirm that we have availability for dinner on Friday, 12 June 2026. Before we proceed, could you confirm whether you meant 12 June or 21 June? Please reply to confirm.\n\nKind regards,\nSophia",
+      "context": {
+        "clarification_questions": [
+          "Could you confirm whether you mean 12 June or 21 June?"
+        ],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
     }
   ]
 }
