@@ -2979,6 +2979,243 @@
         "integrity_passed": true,
         "ready_to_send_allowed": false
       }
+    },
+    {
+      "id": "resp058_001",
+      "availability_ref": "av_006",
+      "category": "provisional_availability_claim",
+      "description": "RESP-058: RDTC draft with provisional availability claim \u2014 should fail (email_66/75/79/87 pattern)",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_contract": "PENDING_DATE_CONFIRMATION",
+      "date_status": "ambiguous",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Alice,\n\nThank you for your enquiry. I have provisionally checked availability for 7 June \u2014 could you confirm whether you mean 7 June or 6 July? Once confirmed I will be in touch.\n\nKind regards,\nEleanor",
+      "context": {
+        "clarification_questions": [
+          "Could you confirm whether you mean 7 June or 6 July?"
+        ],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "resp058_002",
+      "availability_ref": "av_006",
+      "category": "gate_blocked_goal",
+      "description": "RESP-058: RDTC draft without provisional availability claim \u2014 should pass (email_64 pattern)",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_contract": "PENDING_DATE_CONFIRMATION",
+      "date_status": "ambiguous",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Alice,\n\nThank you for your enquiry. Before checking availability, could you confirm whether you mean 7 June or 6 July? Once confirmed, I will check availability and come back to you.\n\nKind regards,\nEleanor",
+      "context": {
+        "clarification_questions": [
+          "Could you confirm whether you mean 7 June or 6 July?"
+        ],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "resp059_001",
+      "availability_ref": "av_001",
+      "category": "clarification_question_in_confirm",
+      "description": "RESP-059: CONFIRM_AVAILABLE draft with date clarification question \u2014 should fail (email_26/44 pattern)",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Alice,\n\nThank you for your enquiry \u2014 I am delighted to confirm that we have availability for dinner on Friday, 12 June 2026. Could you confirm whether you mean 12 June or 21 June? Please reply to proceed.\n\nKind regards,\nEleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "resp059_002",
+      "availability_ref": "av_001",
+      "category": "gate_allowed",
+      "description": "RESP-059: CONFIRM_AVAILABLE draft without clarification question \u2014 should pass",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Alice,\n\nThank you for your enquiry \u2014 I am delighted to confirm that we have availability for dinner on Friday, 12 June 2026. Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nKind regards,\nEleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "resp060_001",
+      "availability_ref": "av_001",
+      "category": "room_suitability_embellishment",
+      "description": "RESP-060: CONFIRM_AVAILABLE draft with room suitability embellishment \u2014 should fail (email_06/18/96 pattern)",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear James,\n\nThank you for your enquiry \u2014 I am pleased to confirm that we have availability for dinner on Friday, 12 June 2026. The Belgravia Suite is an excellent fit for your corporate group. Please reply to confirm and our events team will be in touch.\n\nKind regards,\nJames",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "resp060_002",
+      "availability_ref": "av_001",
+      "category": "gate_allowed",
+      "description": "RESP-060: CONFIRM_AVAILABLE with neutral room reference \u2014 should pass",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear James,\n\nThank you for your enquiry \u2014 I am pleased to confirm that we have availability for dinner on Friday, 12 June 2026. Please reply to confirm and our events team will be in touch to finalise the booking.\n\nKind regards,\nJames",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
+    },
+    {
+      "id": "resp061_001",
+      "availability_ref": "av_001",
+      "category": "subject_line_in_body",
+      "description": "RESP-061: Draft body with subject line leaked \u2014 should fail (email_71/79 pattern)",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Subject: Re: Birthday Dinner Enquiry at The Wolseley\n\nDear Alice,\n\nThank you for your enquiry \u2014 I am delighted to confirm that we have availability for dinner on Friday, 12 June 2026. Please reply to confirm.\n\nKind regards,\nEleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "resp062_001",
+      "availability_ref": "av_001",
+      "category": "wrong_customer_name",
+      "description": "RESP-062: Draft greeting with wrong customer name \u2014 should fail (email_69/70 pattern)",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "social",
+      "context_restaurant_name": "The Wolseley",
+      "context_room_name": "Belgravia Suite",
+      "availability_restaurant_name": "The Wolseley",
+      "availability_room_name": "Belgravia Suite",
+      "draft_text": "Dear Bob,\n\nThank you for your enquiry \u2014 I am delighted to confirm that we have availability for dinner on Friday, 12 June 2026. Please reply to confirm.\n\nKind regards,\nEleanor",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false,
+        "guest_first_name": "Alice"
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
     }
   ]
 }

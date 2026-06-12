@@ -150,6 +150,8 @@ def _context_from_scenario(scenario: dict) -> ValidationContext:
         allow_special_touches=ctx.get("allow_special_touches", False),
         allow_call_scheduling=ctx.get("allow_call_scheduling", False),
         known_room_names=ctx.get("known_room_names", []),
+        # RESP-062: pass expected customer name so the name consistency check fires
+        expected_customer_name=ctx.get("guest_first_name"),
     )
 
 
