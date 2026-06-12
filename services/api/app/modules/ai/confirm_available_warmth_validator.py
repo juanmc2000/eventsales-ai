@@ -1,4 +1,4 @@
-"""CONFIRM_AVAILABLE Warmth Sentence Validator (RESP-040, RESP-056).
+"""CONFIRM_AVAILABLE Warmth Sentence Validator (RESP-040, RESP-056, RESP-070).
 
 Validates the optional LLM-generated warmth sentence before it is inserted
 into a deterministic CONFIRM_AVAILABLE draft.
@@ -9,6 +9,9 @@ The warmth sentence must be:
   - Free of all operational claims
   - Occasion-consistent — must not reference an occasion type different from
     the extracted occasion (RESP-056)
+  - Not start with "Thank you" or "Thanks" — the BLOCK_AVAILABILITY_CONFIRMED
+    copy block already opens with "Thank you for your enquiry —", so a warmth
+    sentence starting with "Thank you" creates a duplicate introduction (RESP-070)
 
 If validation fails the sentence is silently dropped — the deterministic
 draft is still safe without it.
@@ -158,6 +161,11 @@ _OCCASION_KEYWORDS: dict[str, list[re.Pattern[str]]] = {
     ],
 }
 
+# RESP-070: "Thank you" openers — forbidden because BLOCK_AVAILABILITY_CONFIRMED
+# already opens with "Thank you for your enquiry —".  A warmth sentence starting
+# with "Thank you" or "Thanks" creates a duplicate introduction.
+_THANK_YOU_OPENER_PATTERN = re.compile(r"^thank(?:\s+you|\s*s)\b", re.IGNORECASE)
+
 # Room suitability claims
 _ROOM_SUITABILITY_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\bperfect\s+for\b", re.IGNORECASE),
@@ -210,6 +218,20 @@ class WarmthSentenceValidator:
             )
 
         sentence = text.strip()
+
+        # RESP-070: Must not start with "Thank you" or "Thanks" — the copy block that
+        # precedes the warmth sentence already opens with "Thank you for your enquiry —",
+        # so a "Thank you" warmth opener creates a duplicate introduction.
+        if _THANK_YOU_OPENER_PATTERN.match(sentence):
+            return WarmthValidationResult(
+                passed=False,
+                violation_code="thank_you_opener",
+                violation_msg=(
+                    "Warmth sentence starts with 'Thank you' or 'Thanks', which duplicates "
+                    "the opening of the BLOCK_AVAILABILITY_CONFIRMED copy block. "
+                    "Use a celebratory opener instead (e.g. 'How wonderful —', 'How lovely —')."
+                ),
+            )
 
         # Must be a single sentence — detect multiple sentences via sentence-ending punctuation
         if cls._has_multiple_sentences(sentence):

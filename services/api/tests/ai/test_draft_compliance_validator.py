@@ -1736,3 +1736,65 @@ class TestRequestDateConfirmationDeterministic:
             f"{len(failures)} of {len(fixture_questions)} RDTC patterns failed:\n"
             + "\n".join(f"  {q!r}: {v}" for q, v in failures)
         )
+
+
+# ── RESP-070: duplicate opening check ─────────────────────────────────────────
+
+
+class TestDuplicateOpening:
+    """RESP-070: CONFIRM_AVAILABLE drafts must not have two 'Thank you' phrases in the opening."""
+
+    _OPENING_BLOCK = (
+        "Thank you for your enquiry — I'm delighted to confirm that we have "
+        "availability for dinner on Saturday, 7 June 2026."
+    )
+    _NEXT_STEP = (
+        "Please reply to this email to confirm you would like to proceed, and our "
+        "events team will be in touch to finalise the booking."
+    )
+    _SIGNOFF = "Kind regards,\nSophia"
+
+    def _make_draft(self, warmth: str | None = None) -> str:
+        parts = ["Dear Emily,", "", self._OPENING_BLOCK]
+        if warmth:
+            parts.append(warmth)
+        parts.extend(["", self._NEXT_STEP, "", self._SIGNOFF])
+        return "\n".join(parts)
+
+    def test_thank_you_warmth_creates_duplicate_violation(self) -> None:
+        """RESP-070: 'Thank you' warmth after copy block must be flagged."""
+        draft = self._make_draft(
+            warmth="Thank you for thinking of The Ivy Tower Bridge for Maya's celebration."
+        )
+        result = _validate(draft, response_goal="CONFIRM_AVAILABLE", availability_contract="CONFIRMED_AVAILABLE")
+        assert not result.passed
+        assert any("duplicate" in v.lower() for v in result.violations)
+
+    def test_thanks_warmth_creates_duplicate_violation(self) -> None:
+        """RESP-070: 'Thanks' opener after copy block also triggers duplicate check."""
+        draft = self._make_draft(warmth="Thanks for reaching out to us for your birthday dinner.")
+        result = _validate(draft, response_goal="CONFIRM_AVAILABLE", availability_contract="CONFIRMED_AVAILABLE")
+        assert not result.passed
+        assert any("duplicate" in v.lower() for v in result.violations)
+
+    def test_celebratory_warmth_does_not_trigger_duplicate(self) -> None:
+        """RESP-070: Celebratory warmth (no 'Thank you') must not trigger duplicate check."""
+        draft = self._make_draft(warmth="How wonderful — a birthday dinner for 20 guests!")
+        result = _validate(draft, response_goal="CONFIRM_AVAILABLE", availability_contract="CONFIRMED_AVAILABLE")
+        # Only check there is no duplicate-opening violation; other violations may exist
+        assert not any("duplicate" in v.lower() for v in result.violations)
+
+    def test_no_warmth_no_duplicate_violation(self) -> None:
+        """RESP-070: Draft without warmth sentence must not trigger duplicate check."""
+        draft = self._make_draft(warmth=None)
+        result = _validate(draft, response_goal="CONFIRM_AVAILABLE", availability_contract="CONFIRMED_AVAILABLE")
+        assert not any("duplicate" in v.lower() for v in result.violations)
+
+    def test_check_only_applies_to_confirm_available(self) -> None:
+        """RESP-070: Duplicate-opening check must not apply to other response goals."""
+        draft = self._make_draft(
+            warmth="Thank you for reaching out to us about your event."
+        )
+        # ACKNOWLEDGE goal — check must be skipped
+        result = _validate(draft, response_goal="ACKNOWLEDGE_AND_CHECK_AVAILABILITY", availability_contract="NOT_CHECKED")
+        assert not any("duplicate" in v.lower() for v in result.violations)

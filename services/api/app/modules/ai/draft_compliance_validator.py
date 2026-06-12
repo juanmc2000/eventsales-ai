@@ -1,4 +1,4 @@
-"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-026, RESP-027, RESP-033, RESP-052, RESP-053, RESP-059, RESP-060, RESP-062).
+"""Draft Compliance Validator (RESP-008, strengthened in RESP-012, RESP-020, RESP-025, RESP-026, RESP-027, RESP-033, RESP-052, RESP-053, RESP-059, RESP-060, RESP-062, RESP-070).
 
 Validates generated draft emails against the availability contract, spend rules,
 and prompt constraints before the draft is shown to staff or sent to guests.
@@ -68,6 +68,13 @@ RESP-062 additional checks:
       If ValidationContext.expected_customer_name is set, the draft greeting
       must match the expected name (case-insensitive, prefix-allows).  A mismatch
       is a high-trust failure.
+
+RESP-070 additional checks:
+  18. Duplicate opening detection in CONFIRM_AVAILABLE responses.
+      The BLOCK_AVAILABILITY_CONFIRMED copy block opens with "Thank you for your
+      enquiry —".  If the draft contains a second "Thank you" occurrence within
+      the first 400 characters, a duplicate introduction has leaked through and
+      must be flagged.
 
 Usage::
 
@@ -340,6 +347,12 @@ _PROVISIONAL_AVAILABILITY_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\balready\s+checked\s+availability\b", re.IGNORECASE),
 ]
 
+# RESP-070: Detect duplicate "Thank you" openings in the first 400 characters.
+# The BLOCK_AVAILABILITY_CONFIRMED copy block opens with "Thank you for your enquiry —".
+# A second "Thank you" in the same opening section indicates a warmth sentence that
+# leaked a duplicate introduction.
+_THANK_YOU_PATTERN = re.compile(r"\bthank(?:\s+you|\s*s)\b", re.IGNORECASE)
+
 # RESP-053: Pattern for extracting named room/space references from draft text.
 # Matches names like "The Garden Room", "Private Dining Room", "Rooftop Suite",
 # "Crystal Ballroom", "Executive Lounge", "Loft Hall", "Sunset Terrace".
@@ -443,6 +456,8 @@ class DraftComplianceValidator:
         cls._check_confirm_available_room_suitability(draft_text, context, violations)
         # RESP-062 additional checks
         cls._check_customer_name_consistency(draft_text, context, violations)
+        # RESP-070 additional checks
+        cls._check_duplicate_opening(draft_text, context, violations)
 
         passed = len(violations) == 0
         return ComplianceResult(
@@ -1134,3 +1149,33 @@ class DraftComplianceValidator:
         )
         if not result.passed and result.violation:
             violations.append(result.violation)
+
+    # ── RESP-070 additional checks ─────────────────────────────────────────
+
+    @classmethod
+    def _check_duplicate_opening(
+        cls,
+        text: str,
+        context: ValidationContext,
+        violations: list[str],
+    ) -> None:
+        """RESP-070: Fail if a CONFIRM_AVAILABLE draft has duplicate 'Thank you' openings.
+
+        The BLOCK_AVAILABILITY_CONFIRMED copy block opens with "Thank you for your
+        enquiry —".  If a second "Thank you" appears within the first 400 characters
+        of the draft, a warmth sentence with a forbidden opener has leaked through —
+        creating a duplicate introduction visible to the guest.
+
+        Only applied to CONFIRM_AVAILABLE responses where the copy block is present.
+        """
+        if context.response_goal != "CONFIRM_AVAILABLE":
+            return
+        opening_window = text[:400]
+        matches = _THANK_YOU_PATTERN.findall(opening_window)
+        if len(matches) >= 2:
+            violations.append(
+                "CONFIRM_AVAILABLE draft contains two 'Thank you' phrases in the opening "
+                "section, creating a duplicate introduction. The warmth sentence must not "
+                "start with 'Thank you' — use a celebratory opener instead "
+                "(e.g. 'How wonderful —', 'How lovely —')."
+            )
