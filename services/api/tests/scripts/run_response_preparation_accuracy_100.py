@@ -136,11 +136,35 @@ def _get_draft_text(scenario: dict) -> str:
     return scenario.get("draft_text", "")
 
 
+def _parse_clarification_questions_line(line: str) -> list[str]:
+    """Parse a clarification_questions_line text into a list of question strings.
+
+    Handles two formats:
+      - "Could you confirm whether you mean X or Y?"  (single question, no bullet)
+      - "- Could you confirm whether you mean X or Y?\n- ..."  (bulleted list)
+
+    Returns a list of non-empty stripped question strings.
+    """
+    if not line or not line.strip():
+        return []
+    questions: list[str] = []
+    for part in line.split("\n"):
+        part = part.strip().lstrip("-").strip()
+        if part:
+            questions.append(part)
+    return questions
+
+
 def _context_from_scenario(scenario: dict) -> ValidationContext:
     ctx = scenario.get("context", {})
+    # Prefer structured list; fall back to parsing clarification_questions_line text.
+    clarification_questions: list[str] = ctx.get("clarification_questions") or []
+    if not clarification_questions:
+        raw_line = ctx.get("clarification_questions_line", "") or ""
+        clarification_questions = _parse_clarification_questions_line(raw_line)
     return ValidationContext(
         availability_contract=scenario.get("availability_contract", "NOT_CHECKED"),
-        clarification_questions=ctx.get("clarification_questions", []),
+        clarification_questions=clarification_questions,
         confirmed_minimum_spend=ctx.get("confirmed_minimum_spend"),
         party_size=ctx.get("party_size"),
         prohibited_times=ctx.get("prohibited_times", []),
