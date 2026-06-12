@@ -2,7 +2,7 @@
 
 **Project:** EventSales AI
 **Phase:** POC (Proof of Concept)
-**Last Updated:** 2026-06-03 (post-Sprint-8C)
+**Last Updated:** 2026-06-12 (post-Sprint-15)
 
 ---
 
@@ -25,6 +25,13 @@
 | Sprint 8 | Prompt Run Experimentation & Quality Scoring | ✓ Complete | #207–#216 |
 | Sprint 8B | Extraction Schema Hardening & Deterministic Date Resolution | ✓ Complete | #217–#236 |
 | Sprint 8C | Extraction Quality & Deterministic Enrichment | ✓ Complete | #247–#252 |
+| Sprint 9 | Customer Classification + Date Status + Response Preparation | ✓ Complete | #271–#277 |
+| Sprint 10 | Response Preparation Pipeline | ✓ Complete | #291–#299 |
+| Sprint 11 | CONFIRM_AVAILABLE Hardening (RESP-037–041) | ✓ Complete | #396 |
+| Sprint 12 | Alternatives + Policy FAQ + Phrase Library | ✓ Complete | #410 |
+| Sprint 13 | Alt-date Hardening + ACKNOWLEDGE Hardening + Room/Warmth Checks | ✓ Complete | #427–#437 |
+| Sprint 14 | Date Formatting + Subject Stripping + Name Guard + RESP-063–065 | ✓ Complete | #447–#460 |
+| Sprint 15 | TEST-019 + RESP-057–062 + TEST-020/021 | ✓ Complete | #470–#474 (issues #461–#469) |
 
 ---
 
@@ -207,6 +214,28 @@
 | DiagnosticsAggregator — unified per-enquiry diagnostic view aggregated from stored normalized_json; covers missing critical fields, occasion normalisation, date context warnings, date ambiguity, date clarification flag, and readiness outcome; graceful on-the-fly fallback when stored values absent | 8C | ✓ |
 | GET /enquiries/{id}/diagnostics endpoint returning EnquiryDiagnosticsOut; returns INSUFFICIENT_INFORMATION when no extraction exists | 8C | ✓ |
 | Tests: 998 backend, 126 frontend (1,124 total) | 8C | ✓ |
+| CustomerTypeResolver — corporate/social/agency/unknown, domain registry, rule precedence | 9 | ✓ |
+| Date status enrichment (resolved / ambiguous / not_provided) wired into processing snapshot | 9 | ✓ |
+| Response preparation pipeline skeleton (ORCH-001–008): ResponseGoalRouter, ValidationContext, AutoSendReadinessGate | 9 | ✓ |
+| ORCH-005 PersonaRoutingContextBuilder — tone guidance and persona selection | 9 | ✓ |
+| DraftComplianceValidator — 17 deterministic checks (hosting language, SLA, topics, subject leakage, etc.) | 10 | ✓ |
+| ResponseSectionBuilder — deterministic SectionPlan per response goal | 10 | ✓ |
+| ResponseContextIntegrityGate — ID-first then name comparison, absent data → pass | 10 | ✓ |
+| AutoSendReadinessGate — 5-rule gate for auto-send eligibility | 10 | ✓ |
+| Draft prompt V5 — consumes section plan; temperature 0.4 | 10 | ✓ |
+| ResponseContentPolicy — per-goal allowed/forbidden topic sets | 10 | ✓ |
+| RESPOND_UNAVAILABLE fully deterministic — LLM bypassed, copy-block only | Sprint 11+ | ✓ |
+| CONFIRM_AVAILABLE fully deterministic — LLM only for optional warmth sentence (max 1 sentence, 20 words) | Sprint 11 | ✓ |
+| WarmthSentenceValidator — validates warmth sentence; drops on any violation | Sprint 11 | ✓ |
+| REQUEST_DATE_CONFIRMATION fully deterministic — copy blocks only, no LLM call | RESP-063 | ✓ |
+| DraftPostProcessor — strips section labels and subject-line leakage before persistence | RESP-061 | ✓ |
+| CustomerNameConsistencyValidator — greeting name check against expected_customer_name | RESP-062 | ✓ |
+| ISO → natural date formatting (format_event_date) applied to all copy-block date variables | RESP-057 | ✓ |
+| RESP-060: CONFIRM_AVAILABLE room suitability embellishment check (17th validator check) | Sprint 14 | ✓ |
+| RESP-065: provisional availability sentence stripped from RDTC clarification questions | Sprint 14 | ✓ |
+| 100-record response-preparation regression fixture + Sprint 14 baseline runner | Sprint 14 | ✓ |
+| 32-scenario RESPOND_UNAVAILABLE regression fixture + offline runner (TEST-020) | Sprint 14 | ✓ |
+| Tests: 2,739 backend, 126 frontend (2,865 total, post-Sprint-15) | Sprint 15 | ✓ |
 
 ---
 
@@ -326,10 +355,140 @@ UI display for the diagnostics endpoint is deferred — the ENQ-005 issue lacks 
 
 ---
 
+## Sprint 9 Issues
+
+| Issue | PR | Title | Status |
+|-------|----|-------|--------|
+| ORCH-001 | #271 | CustomerTypeResolver (corporate/social/agency/unknown) | ✓ Merged |
+| ORCH-002 | #272 | Date status enrichment (resolved/ambiguous/not_provided) | ✓ Merged |
+| ORCH-003 | #273 | CriticalFieldChecker — missing-field detection | ✓ Merged |
+| ORCH-004 | #274 | ResponseGoalRouter — maps state to CONFIRM_AVAILABLE / RESPOND_UNAVAILABLE / ACKNOWLEDGE / REQUEST_MISSING / REQUEST_DATE | ✓ Merged |
+| ORCH-005 | #295 | PersonaRoutingContextBuilder — tone guidance and persona selection | ✓ Merged |
+| TEST-011 | #341 | First response safety regression suite (25 scenarios, pytest + standalone) | ✓ Merged |
+| HOTFIX-004 | #280 | Fix CustomerTypeResolver rule precedence (agency keyword before extraction social) | ✓ Merged |
+| HOTFIX-005 | #281 | Expand known corporate domain registry with UK variants | ✓ Merged |
+
+---
+
+## Sprint 10 Issues
+
+| Issue | PR | Title | Status |
+|-------|----|-------|--------|
+| RESP-003 | #300 | Draft prompt V3 — LLM acts on deterministic goal | ✓ Merged |
+| RESP-004 | #303 | Harden draft response availability contract — V4 prompt, 5-state contract | ✓ Merged |
+| RESP-005 | #309 | Split response goals by availability status | ✓ Merged |
+| RESP-006 | #310 | Structured draft context — tone-only guest message, confirmed facts, prohibited claims | ✓ Merged |
+| RESP-007 | #311 | Approved phrase library for per-goal opening phrases | ✓ Merged |
+| RESP-008 | #312 | DraftComplianceValidator — deterministic pre-send validation (5 checks) | ✓ Merged |
+| RESP-010 | #324 | ResponseContentPolicy — per-goal allowed/forbidden topic sets | ✓ Merged |
+| RESP-011 | #325 | ResponseSectionBuilder — deterministic SectionPlan per response goal | ✓ Merged |
+| RESP-012 | #320 | Strengthen DraftComplianceValidator (hosting language, SLA, questions, topics) | ✓ Merged |
+| RESP-013 | #321 | Draft prompt V5 — consumes section plan; temperature 0.4; V4 archived | ✓ Merged |
+| RESP-014 | #322 | AutoSendReadinessGate — deterministic 4-rule gate for auto-send | ✓ Merged |
+| RESP-015 | #323 | Draft quality regression runner — 25-scenario fixture + pytest | ✓ Merged |
+| RESP-021 | #339 | ResponseContextIntegrityGate — ID-first comparison, absent data → pass | ✓ Merged |
+| RESP-022 | #340 | AutoSendReadinessGate hardening — Rule 5 integrity gate | ✓ Merged |
+| AUTO-001 | #357 | AutoSendEligibilityPolicy V1 — single source of truth for gate rules | ✓ Merged |
+| AUTO-002 | #358 | DraftReviewState lifecycle + service.py wiring | ✓ Merged |
+| AUTO-003 | #361 | Auto-send dry run mode — POST /enquiries/{id}/auto-send/dry-run | ✓ Merged |
+| TEST-012 | #359 | Expand first response safety regression to 100 records | ✓ Merged |
+| EVAL-001 | #360 | Human review calibration sheet export + comparator scripts | ✓ Merged |
+
+---
+
+## Sprint 11 Issues (RESP-023–041)
+
+| Issue | PR | Title | Status |
+|-------|----|-------|--------|
+| RESP-023 | #352 | RESPOND_UNAVAILABLE fully deterministic — LLM bypassed, copy-block only | ✓ Merged |
+| RESP-024 | #353 | Goal-based context pruning in _build_draft_input_payload | ✓ Merged |
+| RESP-025 | #354 | Extend room suitability check to NOT_CHECKED contract | ✓ Merged |
+| RESP-026 | #362 | Verbatim copy block enforcement in DraftComplianceValidator | ✓ Merged |
+| RESP-027 | #356 | Suppress internal section labels (**Opening** etc.) in drafts | ✓ Merged |
+| RESP-037 | #396 | Add confirm_available_next_step copy block to FirstResponseCopyLibrary | ✓ Merged |
+| RESP-038 | #396 | CONFIRM_AVAILABLE fully deterministic — LLM only for optional warmth sentence | ✓ Merged |
+| RESP-039 | #396 | Warmth LLM: max 1 sentence, 20 words, claude-haiku-4-5-20251001 | ✓ Merged |
+| RESP-040 | #396 | WarmthSentenceValidator — validates warmth sentence, drops on any violation | ✓ Merged |
+| RESP-041 | #396 | Remove raw guest message from warmth LLM prompt | ✓ Merged |
+
+---
+
+## Sprint 12 Issues
+
+| Issue | PR | Title | Status |
+|-------|----|-------|--------|
+| RESP-042–048, DATA-020/021, AI-020/021, TEST-014/015 | #410 | Alternatives + Policy FAQ + Phrase Library | ✓ Merged |
+
+---
+
+## Sprint 13 Issues
+
+| Issue | PR | Title | Status |
+|-------|----|-------|--------|
+| RESP-049–056, TEST-016/017/018 | #427–#437 | Alt-date hardening, ACKNOWLEDGE hardening, room-name validation, warmth occasion check | ✓ All merged |
+
+---
+
+## Sprint 14 Issues
+
+| Issue | PR | Title | Status |
+|-------|----|-------|--------|
+| RESP-057 | #447 | Format customer-facing dates — ISO → natural hospitality format | ✓ Merged |
+| RESP-058 | #448 | Remove provisional availability claim from RDTC copy block | ✓ Merged |
+| RESP-059 | #449 | Block clarification questions in CONFIRM_AVAILABLE drafts | ✓ Merged |
+| RESP-060 | #451 | Restrict room suitability embellishments in CONFIRM_AVAILABLE (Check 16) | ✓ Merged |
+| RESP-061 | #452 | Subject-line stripping in DraftPostProcessor | ✓ Merged |
+| RESP-062 | #453 | CustomerNameConsistencyValidator — greeting name check (Check 17) | ✓ Merged |
+| TEST-020 | #454 | 32-scenario RESPOND_UNAVAILABLE regression fixture + runner | ✓ Merged |
+| TEST-021 | #455 | Sprint 14 baseline runner (100-record response-preparation regression) | ✓ Merged |
+| RESP-063 | #458 | REQUEST_DATE_CONFIRMATION fully deterministic — bypass LLM | ✓ Merged |
+| RESP-064 | #459 | Draft prompt V7 — harden CONFIRM_AVAILABLE, forbid unsourced room embellishments | ✓ Merged |
+| RESP-065 | #460 | Strip provisional availability language from RDTC clarification questions | ✓ Merged |
+
+### Sprint 14 Baseline (post-RESP-065, 2026-06-12)
+
+| Goal | Count | Compliance | Auto-send |
+|---|---|---|---|
+| CONFIRM_AVAILABLE | 86 | 86/86 (100%) | 86/86 allowed |
+| REQUEST_DATE_CONFIRMATION | 13 | 13/13 (100%) | 0/13 (BLOCKED_GOALS) |
+| REQUEST_MISSING_INFORMATION | 1 | 1/1 (100%) | 0/1 (BLOCKED_GOALS) |
+| **Overall** | **100** | **100/100 (100%)** | **86/100** |
+
+---
+
+## Sprint 15 Issues
+
+| Issue | PR | Title | Status |
+|-------|----|-------|--------|
+| TEST-019 (#461) | PR #470 | Fix clarification question validation context wiring — move `strip_provisional_sentences` to `draft_post_processor.py`, fix 12 stale fixture expectations | ✓ Merged |
+| RESP-057 (#462) | PR #473 | Add ISO date format test for `BLOCK_DATE_CONFIRMATION_QUESTION` | ✓ Merged |
+| RESP-058 (#463) | PR #471 | Acceptance-criteria fixture scenarios for date confirmation copy | ✓ Merged |
+| RESP-059 (#464) | PR #472 | Acceptance-criteria fixture scenarios for clarification question blocking | ✓ Merged |
+| RESP-060 (#465) | PR #474 | Acceptance-criteria fixture scenarios for room suitability check | ✓ Merged |
+| RESP-061 (#466) | — | Subject-line stripping scenario already in main via #471 | ✓ Closed |
+| RESP-062 (#467) | — | Customer name scenario already in main via #471 | ✓ Closed |
+| TEST-020 (#468) | — | All 3 files (32 scenarios) already in main via Sprint 14 PR #454 | ✓ Closed |
+| TEST-021 (#469) | — | Runner + baseline reports already in main; 100% adjusted compliance confirmed | ✓ Closed |
+
+### Test count (post-Sprint 15, 2026-06-12)
+
+| Scope | Count |
+|---|---|
+| Backend (pytest) | 2,739 |
+| Frontend (vitest) | 126 |
+| **Total** | **2,865** |
+
+---
+
 ## Remaining Gaps
 
 | Gap | Priority | Sprint |
 |-----|----------|--------|
+| Date resolver: "next Friday or Saturday" resolves current week (should be next) | P2 | Known L4 |
+| Date resolver: "any morning next week" → Mon–Fri only (test expects Mon–Sun) | P3 | Known L4 |
+| Date resolver: "end of month weekends" → all weekends not just last | P3 | Known L4 |
+| Date resolver: "mid-July" month context wrong when anchor in May | P3 | Known L4 |
+| CustomerTypeResolver: `eventsbyemma.com` (agency keyword) but sender is personal organiser → resolves agency, expected social | P2 | Known CT |
 | ENQ-005 UI — diagnostics display in enquiry detail view (blocked: no UI/UX Reference Requirements in issue) | P2 | 8C |
 | Gmail App Password not in CI/CD | P1 | 6 |
 | Celery send-draft dispatch not wired in main.py | P1 | 6 |
@@ -339,7 +498,6 @@ UI display for the diagnostics endpoint is deferred — the ENQ-005 issue lacks 
 | Audience auto-detection from email domain + CRM lookup | P2 | 6 |
 | Production email relay (SendGrid/Postmark) | P2 | Post-POC |
 | Room availability — replace seed with live booking system API | P3 | Post-POC |
-| Third LLM call for response planning | P2 | Post-POC |
 | token_input_count / token_output_count population (Anthropic usage API) | P3 | Post-POC |
 | Automated experiment parameter sweep | P3 | Post-POC |
 | Experiment comparison dashboard UI | P3 | Post-POC |
