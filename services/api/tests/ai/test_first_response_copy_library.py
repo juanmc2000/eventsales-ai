@@ -131,9 +131,13 @@ class TestRender:
         result = FirstResponseCopyLibrary.render(BLOCK_MINIMUM_SPEND, _SPEND_VARS)
         assert "£1,500" in result
 
-    def test_minimum_spend_uses_mandatory_framing(self) -> None:
+    def test_minimum_spend_uses_neutral_framing(self) -> None:
+        """RESP-072: 'mandatory' removed — block uses neutral 'minimum spend' framing."""
         result = FirstResponseCopyLibrary.render(BLOCK_MINIMUM_SPEND, _SPEND_VARS)
-        assert "mandatory" in result.lower()
+        assert "minimum spend" in result.lower()
+        assert "mandatory" not in result.lower()
+        assert "optional" not in result.lower()
+        assert "recommended" not in result.lower()
 
     def test_booking_next_step_renders_without_variables(self) -> None:
         result = FirstResponseCopyLibrary.render(BLOCK_BOOKING_NEXT_STEP)

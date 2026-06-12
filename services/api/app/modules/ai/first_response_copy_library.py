@@ -1,4 +1,4 @@
-"""First Response Copy Library (RESP-017, updated RESP-037, RESP-043, RESP-051, RESP-057, RESP-058, RESP-071).
+"""First Response Copy Library (RESP-017, updated RESP-037, RESP-043, RESP-051, RESP-057, RESP-058, RESP-071, RESP-072).
 
 Approved deterministic copy blocks for operationally sensitive first-response
 statements.  The LLM must use these blocks verbatim (with variable interpolation)
@@ -94,9 +94,9 @@ _TEMPLATES: dict[str, str] = {
         "Thank you for your enquiry. Unfortunately, we are fully booked for "
         "{meal_period} on {event_date}."
     ),
-    # Mandatory minimum spend statement — must use mandatory framing only
+    # Minimum spend statement — factual, no "mandatory"/"optional"/"recommended" qualifier
     BLOCK_MINIMUM_SPEND: (
-        "Please note that our mandatory minimum spend for this space is {spend_amount}."
+        "Please note that our minimum spend for this space is {spend_amount}."
     ),
     # Next step after confirming availability (booking process)
     BLOCK_BOOKING_NEXT_STEP: (
