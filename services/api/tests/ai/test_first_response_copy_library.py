@@ -19,6 +19,7 @@ import pytest
 from app.modules.ai.first_response_copy_library import (
     BLOCK_AVAILABILITY_CHECK_NEXT_STEP,
     BLOCK_AVAILABILITY_CONFIRMED,
+    BLOCK_AVAILABILITY_CONFIRMED_SHORT,
     BLOCK_AVAILABILITY_NOT_CHECKED,
     BLOCK_AVAILABILITY_UNAVAILABLE,
     BLOCK_BOOKING_NEXT_STEP,
@@ -618,3 +619,47 @@ class TestDateConfirmationQuestionBlock:
     def test_render_safe_returns_none_missing_var(self) -> None:
         text = FirstResponseCopyLibrary.render_safe(BLOCK_DATE_CONFIRMATION_QUESTION, {})
         assert text is None
+
+
+# ── RESP-071: availability_confirmed_short block ───────────────────────────────
+
+
+class TestAvailabilityConfirmedShortBlock:
+    """RESP-071: Compact availability block used when warmth sentence is present."""
+
+    _VARS = {"meal_period": "dinner", "event_date": "Saturday, 7 June 2026"}
+
+    def test_block_is_registered(self) -> None:
+        assert BLOCK_AVAILABILITY_CONFIRMED_SHORT in FirstResponseCopyLibrary.all_keys()
+
+    def test_required_vars(self) -> None:
+        assert FirstResponseCopyLibrary.required_vars(BLOCK_AVAILABILITY_CONFIRMED_SHORT) == frozenset({"meal_period", "event_date"})
+
+    def test_renders_correctly(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_AVAILABILITY_CONFIRMED_SHORT, self._VARS)
+        assert "I'm delighted to confirm" in text
+        assert "dinner" in text
+        assert "7 June 2026" in text
+
+    def test_does_not_start_with_thank_you(self) -> None:
+        """RESP-071: Short block must NOT start with 'Thank you for your enquiry —'."""
+        text = FirstResponseCopyLibrary.render(BLOCK_AVAILABILITY_CONFIRMED_SHORT, self._VARS)
+        assert not text.lower().startswith("thank you")
+
+    def test_full_block_still_starts_with_thank_you(self) -> None:
+        """RESP-071: Full block is unchanged — still starts with 'Thank you for your enquiry —'."""
+        text = FirstResponseCopyLibrary.render(BLOCK_AVAILABILITY_CONFIRMED, self._VARS)
+        assert text.lower().startswith("thank you for your enquiry")
+
+    def test_missing_var_raises(self) -> None:
+        with pytest.raises(ValueError):
+            FirstResponseCopyLibrary.render(BLOCK_AVAILABILITY_CONFIRMED_SHORT, {"meal_period": "lunch"})
+
+    def test_iso_date_auto_formatted(self) -> None:
+        """RESP-057/071: ISO date in short block is auto-formatted to natural hospitality format."""
+        text = FirstResponseCopyLibrary.render(
+            BLOCK_AVAILABILITY_CONFIRMED_SHORT,
+            {"meal_period": "dinner", "event_date": "2026-06-07"},
+        )
+        assert "2026-06-07" not in text
+        assert "7 June 2026" in text

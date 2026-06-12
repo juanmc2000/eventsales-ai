@@ -204,8 +204,11 @@ class ComplianceResult:
 _AVAILABILITY_CONFIRM_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\b(?:is|are)\s+available\b", re.IGNORECASE),
     re.compile(r"\bwe\s+(?:do|can)\s+have\s+availability\b", re.IGNORECASE),
+    re.compile(r"\bwe\s+have\s+availability\b", re.IGNORECASE),
     re.compile(r"\bconfirm(?:ed)?\s+(?:your|the)\s+(?:date|booking|reservation)\b", re.IGNORECASE),
     re.compile(r"\bpleas(?:ed|ure)\s+to\s+confirm\b", re.IGNORECASE),
+    # RESP-071: short availability block uses "I'm delighted to confirm" without "pleased"
+    re.compile(r"\bdelighted\s+to\s+confirm\b", re.IGNORECASE),
     re.compile(r"\bdate\s+is\s+free\b", re.IGNORECASE),
     re.compile(r"\bhave\s+(?:the\s+)?(?:date|room|slot)\s+available\b", re.IGNORECASE),
 ]

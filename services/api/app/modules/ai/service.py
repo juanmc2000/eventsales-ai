@@ -783,11 +783,21 @@ class DraftGenerationService:
     ) -> "DraftGenerationResult":
         """RESP-038: Build a CONFIRM_AVAILABLE draft from approved copy blocks + optional warmth.
 
-        Structure:
+        Structure (with warmth — RESP-071):
           Dear {guest_name},
 
-          [availability_confirmed block]
-          [optional warmth sentence — LLM, max 1 sentence, max 20 words (RESP-039)]
+          [warmth sentence — LLM, max 1 sentence, max 20 words (RESP-039)]
+
+          [availability_confirmed_short block — no "Thank you" prefix]
+          [minimum_spend block — if applicable]
+          [confirm_available_next_step block]
+
+          [signoff block]
+
+        Structure (without warmth):
+          Dear {guest_name},
+
+          [availability_confirmed block — full "Thank you for your enquiry —" prefix]
           [minimum_spend block — if applicable]
           [confirm_available_next_step block]
 
@@ -797,6 +807,8 @@ class DraftGenerationService:
         RESP-041: Raw guest message is NOT passed to the warmth LLM — only structured
                   tone context (occasion, audience type, party size, meal period).
         RESP-040: Warmth sentence is validated; silently dropped on any failure.
+        RESP-071: When warmth is present, warmth appears first and the shorter
+                  availability block (no "Thank you" prefix) follows.
 
         Model is reported as "deterministic+warmth" when warmth LLM call succeeds,
         otherwise "deterministic".
@@ -812,10 +824,9 @@ class DraftGenerationService:
         event_date = context.availability_date or context.event_date or "the requested date"
         guest_name = context.guest_first_name or "there"
 
-        opening = FirstResponseCopyLibrary.render(
-            "availability_confirmed",
-            {"meal_period": meal_period, "event_date": event_date},
-        )
+        date_vars = {"meal_period": meal_period, "event_date": event_date}
+        opening_full = FirstResponseCopyLibrary.render("availability_confirmed", date_vars)
+        opening_short = FirstResponseCopyLibrary.render("availability_confirmed_short", date_vars)
         next_step = FirstResponseCopyLibrary.render("confirm_available_next_step")
         signoff = FirstResponseCopyLibrary.render(
             "signoff",
@@ -845,10 +856,13 @@ class DraftGenerationService:
                     validation.violation_code,
                 )
 
-        # Assemble body from deterministic blocks
-        body_parts: list[str] = [f"Dear {guest_name},", "", opening]
+        # RESP-071: Assemble body — warmth-first ordering when a warmth sentence is present.
+        # With warmth:    Dear name, [warmth], [short availability block (no "Thank you" prefix)]
+        # Without warmth: Dear name, [full availability block ("Thank you for your enquiry — ...")]
         if warmth_sentence:
-            body_parts.append(warmth_sentence)
+            body_parts: list[str] = [f"Dear {guest_name},", "", warmth_sentence, "", opening_short]
+        else:
+            body_parts = [f"Dear {guest_name},", "", opening_full]
 
         spend = context.confirmed_minimum_spend or recommended_minimum_spend
         if spend and spend > 0:

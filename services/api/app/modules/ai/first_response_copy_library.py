@@ -1,4 +1,4 @@
-"""First Response Copy Library (RESP-017, updated RESP-037, RESP-043, RESP-051, RESP-057, RESP-058).
+"""First Response Copy Library (RESP-017, updated RESP-037, RESP-043, RESP-051, RESP-057, RESP-058, RESP-071).
 
 Approved deterministic copy blocks for operationally sensitive first-response
 statements.  The LLM must use these blocks verbatim (with variable interpolation)
@@ -25,6 +25,12 @@ RESP-058: Added ``date_confirmation_question`` — a safe date disambiguation bl
 for REQUEST_DATE_CONFIRMATION responses. Replaces the previous "I have provisionally
 checked availability" pattern, which created an implicit availability commitment
 before the availability contract was resolved.
+
+RESP-071: Added ``availability_confirmed_short`` — a compact availability confirmation
+block used when a validated warmth sentence is present.  Omits the "Thank you for
+your enquiry —" prefix because the warmth sentence already opens the email with a
+celebration acknowledgement.  The full ``availability_confirmed`` block is still used
+when no warmth is present.
 
 Usage::
 
@@ -60,13 +66,22 @@ BLOCK_UNAVAILABLE_TWO_ALTERNATIVES = "unavailable_two_alternatives"
 # RESP-058: safe date-confirmation disambiguation block — no "provisionally checked"
 # language; asks the guest to clarify the date before availability is checked
 BLOCK_DATE_CONFIRMATION_QUESTION = "date_confirmation_question"
+# RESP-071: compact availability confirmation — used when a warmth sentence is present.
+# Omits "Thank you for your enquiry —" because warmth already opens the email.
+BLOCK_AVAILABILITY_CONFIRMED_SHORT = "availability_confirmed_short"
 
 # ── Template registry ──────────────────────────────────────────────────────────
 
 _TEMPLATES: dict[str, str] = {
-    # Confirmed available opening statement
+    # Confirmed available opening statement (used when no warmth sentence is present)
     BLOCK_AVAILABILITY_CONFIRMED: (
         "Thank you for your enquiry — I'm delighted to confirm that we have availability "
+        "for {meal_period} on {event_date}."
+    ),
+    # RESP-071: compact availability confirmation — used when a warmth sentence precedes it.
+    # Omits "Thank you for your enquiry —" to avoid a duplicate opener.
+    BLOCK_AVAILABILITY_CONFIRMED_SHORT: (
+        "I'm delighted to confirm that we have availability "
         "for {meal_period} on {event_date}."
     ),
     # Availability not yet checked — acknowledge and promise follow-up
@@ -152,6 +167,7 @@ _REQUIRED_VARS: dict[str, frozenset[str]] = {
     BLOCK_UNAVAILABLE_ONE_ALTERNATIVE: frozenset({"meal_period", "requested_date", "alternative_date"}),
     BLOCK_UNAVAILABLE_TWO_ALTERNATIVES: frozenset({"meal_period", "requested_date", "alternative_date_1", "alternative_date_2"}),
     BLOCK_DATE_CONFIRMATION_QUESTION: frozenset({"date_option_1", "date_option_2"}),
+    BLOCK_AVAILABILITY_CONFIRMED_SHORT: frozenset({"meal_period", "event_date"}),
 }
 
 
