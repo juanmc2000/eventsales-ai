@@ -188,7 +188,12 @@ def _build_confirm_available(record: dict, idx: int, total: int) -> dict:
         blocks.append(f"[Sign-off]\n{signoff}\n\n")
     blocks.append(
         "You MUST use all the approved blocks above verbatim. "
-        "You may add ONE warmth sentence before the Opening block only. "
+        "You may add ONE warmth sentence before the Opening block only — "
+        "it must acknowledge the occasion or guest context, not describe the venue. "
+        "Do NOT add any sentence about the room, space, or venue suitability. "
+        "Forbidden phrases: 'excellent choice', 'perfect for', 'perfect setting', "
+        "'ideal', 'ideal for', 'ideal setting', 'well accommodated', 'excellent fit', "
+        "'intimate setting', 'excellent setting', 'would be ideal', 'ideally suited'. "
         "Do not paraphrase, shorten, or replace approved blocks.\n"
     )
 
