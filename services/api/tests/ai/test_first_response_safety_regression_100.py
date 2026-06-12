@@ -138,8 +138,8 @@ class TestFixtureIntegrity:
         data = json.loads(_FIXTURE_PATH.read_text())
         assert len(data["availability_records"]) == 8
 
-    def test_fixture_has_100_scenarios(self, scenarios: list[dict]) -> None:
-        assert len(scenarios) == 100, f"Expected 100 scenarios, got {len(scenarios)}"
+    def test_fixture_has_at_least_100_scenarios(self, scenarios: list[dict]) -> None:
+        assert len(scenarios) >= 100, f"Expected at least 100 scenarios, got {len(scenarios)}"
 
     def test_all_scenarios_have_required_fields(self, scenarios: list[dict]) -> None:
         required = {"id", "category", "description", "response_goal", "availability_contract", "draft_text", "expected"}

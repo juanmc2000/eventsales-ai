@@ -1,4 +1,4 @@
-"""Tests for WarmthSentenceValidator (RESP-040, RESP-056).
+"""Tests for WarmthSentenceValidator (RESP-040, RESP-056, RESP-070).
 
 Validates:
 - Empty/multi-sentence/too-long rejection
@@ -6,6 +6,7 @@ Validates:
   pricing, room suitability)
 - RESP-056: occasion consistency check (wrong-occasion sentence dropped)
 - Known-occasion warmth passes; unknown occasion skips check
+- RESP-070: "Thank you" opener rejection to prevent duplicate introductions
 """
 
 from __future__ import annotations
@@ -72,6 +73,44 @@ class TestForbiddenTopics:
     def test_pricing_mention_fails(self) -> None:
         result = WarmthSentenceValidator.validate("Our minimum spend is £2000 per table.")
         assert result.passed is False
+
+    # RESP-070: "Thank you" opener tests
+
+    def test_thank_you_opener_fails(self) -> None:
+        """RESP-070: Warmth sentence starting with 'Thank you' must be rejected."""
+        result = WarmthSentenceValidator.validate(
+            "Thank you for thinking of us for your birthday celebration."
+        )
+        assert result.passed is False
+        assert result.violation_code == "thank_you_opener"
+
+    def test_thanks_opener_fails(self) -> None:
+        """RESP-070: Warmth sentence starting with 'Thanks' must also be rejected."""
+        result = WarmthSentenceValidator.validate("Thanks for reaching out to us.")
+        assert result.passed is False
+        assert result.violation_code == "thank_you_opener"
+
+    def test_thank_you_enquiry_opener_fails(self) -> None:
+        """RESP-070: 'Thank you for your enquiry —' warmth opener duplicates the copy block."""
+        result = WarmthSentenceValidator.validate(
+            "Thank you for your enquiry — we'd be delighted to host your celebration."
+        )
+        assert result.passed is False
+        assert result.violation_code == "thank_you_opener"
+
+    def test_celebratory_opener_passes(self) -> None:
+        """RESP-070: Celebratory openers that don't start with 'Thank you' must pass."""
+        result = WarmthSentenceValidator.validate(
+            "How wonderful — a birthday dinner for 20 guests!"
+        )
+        assert result.passed is True
+
+    def test_that_sounds_opener_passes(self) -> None:
+        """RESP-070: 'That sounds...' opener is not a 'Thank you' opener and should pass."""
+        result = WarmthSentenceValidator.validate(
+            "That sounds like a lovely birthday celebration."
+        )
+        assert result.passed is True
 
 
 # ── RESP-056: occasion consistency check ──────────────────────────────────────
