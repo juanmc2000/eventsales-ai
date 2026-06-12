@@ -1669,16 +1669,16 @@ class TestRequestDateConfirmationDeterministic:
 
         Old clarification questions from the LLM era may contain sentences like
         "I have provisionally checked availability for 7 June." which would cause
-        a RESP-058 violation if embedded verbatim.  After _strip_provisional_sentences
+        a RESP-058 violation if embedded verbatim.  After strip_provisional_sentences
         the RDTC draft must pass compliance.
         """
-        from app.modules.ai.service import _strip_provisional_sentences
+        from app.modules.ai.draft_post_processor import strip_provisional_sentences
 
         raw_question = (
             "Could you confirm whether you mean 7 June or 6 July? "
             "I have provisionally checked availability for 7 June."
         )
-        clean_question = _strip_provisional_sentences(raw_question)
+        clean_question = strip_provisional_sentences(raw_question)
         assert "provisionally" not in clean_question.lower(), (
             f"Expected provisional language stripped, got: {clean_question!r}"
         )
