@@ -3247,6 +3247,64 @@
         "integrity_passed": true,
         "ready_to_send_allowed": false
       }
+    },
+    {
+      "id": "resp060_001",
+      "availability_ref": "av_001",
+      "category": "resp060_confirm_available_room_suitability",
+      "description": "RESP-060: email_06-style 'excellent fit' embellishment in CONFIRM_AVAILABLE fails",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear James, I'm pleased to confirm availability for dinner on 12th June. The Private Dining Room is an excellent fit for your corporate dinner. Please reply to confirm you would like to proceed. Warm regards, Sophie.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": false,
+        "integrity_passed": true,
+        "ready_to_send_allowed": false
+      }
+    },
+    {
+      "id": "resp060_002",
+      "availability_ref": "av_001",
+      "category": "resp060_confirm_available_room_suitability",
+      "description": "RESP-060: neutral room wording in CONFIRM_AVAILABLE passes",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_contract": "CONFIRMED_AVAILABLE",
+      "date_status": "resolved",
+      "customer_type": "corporate",
+      "context_restaurant_name": "The Ivy Tower Bridge",
+      "context_room_name": "Private Dining Room",
+      "availability_restaurant_name": "The Ivy Tower Bridge",
+      "availability_room_name": "Private Dining Room",
+      "draft_text": "Dear James, I'm delighted to confirm that we have availability for dinner on Friday, 12 June 2026 in the Private Dining Room. The selected space is available for your enquiry. Please reply to confirm you would like to proceed. Warm regards, Sophie.",
+      "context": {
+        "clarification_questions": [],
+        "confirmed_minimum_spend": null,
+        "party_size": null,
+        "prohibited_times": [],
+        "allow_menu_discussion": false,
+        "allow_special_touches": false,
+        "allow_call_scheduling": false
+      },
+      "expected": {
+        "compliance_passed": true,
+        "integrity_passed": true,
+        "ready_to_send_allowed": true
+      }
     }
   ]
 }
