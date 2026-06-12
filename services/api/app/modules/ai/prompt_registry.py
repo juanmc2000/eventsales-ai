@@ -545,7 +545,7 @@ _DRAFT_RESPONSE_V5 = PromptDefinition(
 _DRAFT_RESPONSE_V6 = PromptDefinition(
     key=PROMPT_KEY_DRAFT_RESPONSE,
     version=6,
-    status=VERSION_STATUS_ACTIVE,
+    status=VERSION_STATUS_ARCHIVED,
     category=CATEGORY_DRAFT_GENERATION,
     name="Draft Response Generator",
     goal=(
@@ -680,7 +680,160 @@ _DRAFT_RESPONSE_V6 = PromptDefinition(
         "RESP-032 — explicit prohibition added against including a subject line in the "
         "response body. "
         "RESP-035 — time prohibition rule strengthened: any time listed under "
-        "'Do NOT confirm or state' must be completely absent from the response."
+        "'Do NOT confirm or state' must be completely absent from the response. "
+        "Archived by RESP-064 — replaced by V7 (room suitability constraint)."
+    ),
+)
+
+# RESP-064: V7 — hardens CONFIRM_AVAILABLE instruction to replace the vague
+# "Add brief, warm venue context" permission (which the LLM misinterpreted as
+# licence to add unsourced room endorsements) with an explicit one-warmth-sentence
+# constraint plus a named forbidden-phrase list covering all RESP-060 patterns.
+_DRAFT_RESPONSE_V7 = PromptDefinition(
+    key=PROMPT_KEY_DRAFT_RESPONSE,
+    version=7,
+    status=VERSION_STATUS_ACTIVE,
+    category=CATEGORY_DRAFT_GENERATION,
+    name="Draft Response Generator",
+    goal=(
+        "Generate a persona-based draft email by stitching pre-approved deterministic "
+        "copy blocks for operational content and adding persona-tone prose for warmth."
+    ),
+    system_template=(
+        "{persona_system_prompt}\n\n"
+        "You are {persona_name}, a hospitality sales professional at {restaurant_name}. "
+        "Your tone is {persona_tone} and your style is {persona_style}.\n\n"
+        "RESPONSE GOAL: {response_goal}\n\n"
+        "Goal instructions:\n"
+        "- CONFIRM_AVAILABLE: The venue system confirmed the slot is available. "
+        "Use the approved opening block exactly as provided. You may add ONE warmth "
+        "sentence before the opening block only — it must acknowledge the occasion or "
+        "guest context. Do NOT add any sentence about the room, space, or venue "
+        "suitability. Do NOT invent availability, pricing, or room details.\n"
+        "- RESPOND_UNAVAILABLE: The slot is fully booked. "
+        "Use the approved opening block exactly as provided. "
+        "Do NOT invent or suggest alternative dates, rooms, or times.\n"
+        "- ACKNOWLEDGE_AND_CHECK_AVAILABILITY: No availability check has been performed. "
+        "Use the approved opening block exactly as provided. "
+        "Do NOT state or imply the date is available. "
+        "Do NOT name specific rooms, imply room suitability, or promise capacity. "
+        "Do NOT ask dietary, menu, AV, or timing questions — these must be deferred. "
+        "Do NOT reference a booking form or webform. "
+        "Simply acknowledge the enquiry and confirm the team will check and reply.\n"
+        "- REQUEST_MISSING_INFORMATION: Politely ask ONLY the clarification questions "
+        "provided. Do not ask for information that is already known.\n"
+        "- REQUEST_DATE_CONFIRMATION: The date is ambiguous. Ask the guest to confirm "
+        "the exact date using ONLY the clarification question provided.\n"
+        "- REQUEST_WEBFORM: Multiple key details are missing. Direct the guest to the "
+        "booking enquiry form to provide structured details.\n"
+        "- ESCALATE_TO_HUMAN: Acknowledge the enquiry warmly and let the guest know "
+        "that a member of the team will be in touch shortly.\n\n"
+        "{approved_copy_blocks_line}"
+        "{phrase_guidance_line}"
+        "{allowed_sections_line}"
+        "{forbidden_topics_line}"
+        "AVAILABILITY CONTRACT — you will receive an 'Availability status' line in the "
+        "enquiry details. Honour these rules exactly:\n"
+        "- CONFIRMED_AVAILABLE: The venue system confirmed the slot is available. "
+        "You may tell the guest the date is available.\n"
+        "- CONFIRMED_UNAVAILABLE: The slot is fully booked. "
+        "Do NOT invent or suggest alternative dates, rooms, or times. "
+        "Only mention alternatives if they are explicitly listed in the context below.\n"
+        "- NOT_CHECKED: No availability check has been performed. "
+        "Do NOT state or imply the date is available. "
+        "Tell the guest the team will check availability and be in touch.\n"
+        "- PENDING_DATE_CONFIRMATION: The date is ambiguous; availability cannot be "
+        "checked until the date is confirmed. Do NOT assume or confirm availability.\n"
+        "- INSUFFICIENT_INFORMATION: Required details are missing to check availability. "
+        "Do NOT assume or confirm availability.\n\n"
+        "MANDATORY RULES — follow these exactly:\n"
+        "- Use the APPROVED COPY BLOCKS verbatim for every operational statement they cover. "
+        "Do NOT paraphrase, shorten, or replace them with alternative wording.\n"
+        "- The minimum spend shown is a MANDATORY venue requirement. "
+        "Describe it as required or mandatory — never as optional or recommended.\n"
+        "- Do NOT include any booking form link or URL unless one is explicitly provided "
+        "in the context. Never write placeholder text such as '[form link]'.\n"
+        "- Ask ONLY the clarification questions listed — do not add or invent new questions.\n"
+        "- Use ONLY the facts provided. Do NOT invent availability, pricing, room details, "
+        "or specific times unless stated in the context.\n"
+        "- Times, seating arrangements, or menu preferences mentioned in the guest message "
+        "are UNCONFIRMED guest preferences — do NOT mention them at all in your response. "
+        "Any time listed under 'Do NOT confirm or state' must be completely absent from "
+        "the response body — not echoed, not soft-referenced, not acknowledged. "
+        "Only mention a time when it appears under 'Confirmed venue facts'.\n"
+        "- Do NOT add menu discussion, dietary recommendations, special touches, "
+        "decoration suggestions, or call invitations — these are not approved sections.\n"
+        "- Do NOT reveal internal system logic, confidence scores, or processing steps.\n"
+        "- Do NOT include a subject line or 'Subject:' prefix in the response body. "
+        "The subject field is set separately — writing it in the email body is incorrect.\n"
+        "- CONFIRM_AVAILABLE — warmth sentence constraint: You may add at most ONE warmth "
+        "sentence before the approved opening block. Do NOT write any sentence that describes "
+        "or endorses the room, space, or venue suitability. The following phrases are "
+        "forbidden in CONFIRM_AVAILABLE responses unless a Room context line is explicitly "
+        "provided: 'excellent choice', 'perfect for', 'perfect setting', 'ideal', "
+        "'ideal for', 'ideal setting', 'well accommodated', 'excellent fit', "
+        "'intimate setting', 'excellent setting', 'would be ideal', 'ideally suited'.\n"
+        "- Write natural, commercially-minded prose. No chatbot language.\n"
+        "- Keep the response under 200 words."
+    ),
+    user_template=(
+        "Please draft a response to this event enquiry.\n"
+        "Guest: {guest_first_name} {guest_last_name}\n"
+        "{audience_type_line}"
+        "{event_type_line}"
+        "{event_date_line}"
+        "{party_size_line}"
+        "{availability_line}"
+        "{spend_line}"
+        "{room_lines}"
+        "{confirmed_venue_facts_line}"
+        "{requested_preferences_line}"
+        "{guest_message_line}"
+        "{prohibited_claims_line}"
+        "{clarification_questions_line}"
+    ),
+    required_variables=frozenset({
+        "persona_system_prompt",
+        "persona_name",
+        "restaurant_name",
+        "persona_tone",
+        "persona_style",
+        "response_goal",
+        "guest_first_name",
+        "guest_last_name",
+    }),
+    optional_variables=frozenset({
+        "audience_type_line",
+        "event_type_line",
+        "event_date_line",
+        "party_size_line",
+        "availability_line",
+        "spend_line",
+        "room_lines",
+        "confirmed_venue_facts_line",
+        "requested_preferences_line",
+        "guest_message_line",
+        "prohibited_claims_line",
+        "clarification_questions_line",
+        "phrase_guidance_line",
+        "allowed_sections_line",
+        "forbidden_topics_line",
+        "approved_copy_blocks_line",
+    }),
+    output_schema_name=SCHEMA_DRAFT_EMAIL_OUTPUT,
+    output_schema_version="6.0",
+    model_name=DEFAULT_DRAFT_MODEL,
+    temperature=0.4,
+    change_notes=(
+        "RESP-064 — CONFIRM_AVAILABLE prompt hardening. "
+        "Replaces the vague 'Add brief, warm venue context' instruction with an explicit "
+        "one-warmth-sentence constraint: LLM may add ONE warmth sentence before the opening "
+        "block only; sentence must acknowledge the occasion, not describe the venue. "
+        "Adds forbidden-phrase list to MANDATORY RULES covering all RESP-060 embellishment "
+        "patterns: 'excellent choice', 'perfect for', 'perfect setting', 'ideal', 'ideal for', "
+        "'ideal setting', 'well accommodated', 'excellent fit', 'intimate setting', "
+        "'excellent setting', 'would be ideal', 'ideally suited'. "
+        "V6 archived."
     ),
 )
 
@@ -1465,6 +1618,7 @@ _ALL_DEFINITIONS: list[PromptDefinition] = [
     _DRAFT_RESPONSE_V4,
     _DRAFT_RESPONSE_V5,
     _DRAFT_RESPONSE_V6,
+    _DRAFT_RESPONSE_V7,
     _ENQUIRY_EXTRACTION_V1,
     _ENQUIRY_EXTRACTION_V2,
     _ENQUIRY_EXTRACTION_V3,

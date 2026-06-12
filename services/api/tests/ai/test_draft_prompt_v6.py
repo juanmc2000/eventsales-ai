@@ -1,9 +1,10 @@
-"""Tests for RESP-018 — Draft Prompt V6 with copy blocks and section constraints.
+"""Tests for Draft Prompt V6/V7 with copy blocks and section constraints.
 
 Validates:
-- V5 is archived; V6 is the active draft_response version
-- V6 has approved_copy_blocks_line as an optional variable
-- V6 temperature is 0.4 or lower
+- V5 is archived; V6 is archived (RESP-064); V7 is the active draft_response version
+- V7 has approved_copy_blocks_line as an optional variable
+- V7 temperature is 0.4 or lower
+- V7 CONFIRM_AVAILABLE instruction forbids room suitability embellishments (RESP-064)
 - _build_approved_copy_blocks_line produces correct blocks per goal
 - approved_copy_blocks_line present in _build_draft_input_payload
 - Copy blocks are verbatim from FirstResponseCopyLibrary (no paraphrasing)
@@ -55,22 +56,38 @@ def _base_context(**overrides) -> DraftContext:
     return ctx
 
 
-# ── V5 archived, V6 active ─────────────────────────────────────────────────────
+# ── V5/V6 archived, V7 active ─────────────────────────────────────────────────
 
 
-class TestV5ArchivedV6Active:
-    def test_registry_returns_v6_as_active(self) -> None:
+class TestV5ArchivedV6ArchivedV7Active:
+    def test_registry_returns_v7_as_active(self) -> None:
         registry = PromptRegistry()
         defn = registry.get(PROMPT_KEY_DRAFT_RESPONSE)
-        assert defn.version == 6
+        assert defn.version == 7
 
-    def test_v5_is_archived_in_all_definitions(self) -> None:
+    def test_v5_is_archived(self) -> None:
         v5 = next(
             (d for d in _ALL_DEFINITIONS if d.key == PROMPT_KEY_DRAFT_RESPONSE and d.version == 5),
             None,
         )
         assert v5 is not None
         assert v5.status == VERSION_STATUS_ARCHIVED
+
+    def test_v6_is_archived(self) -> None:
+        v6 = next(
+            (d for d in _ALL_DEFINITIONS if d.key == PROMPT_KEY_DRAFT_RESPONSE and d.version == 6),
+            None,
+        )
+        assert v6 is not None
+        assert v6.status == VERSION_STATUS_ARCHIVED
+
+    def test_v6_change_notes_mention_resp064_archive(self) -> None:
+        v6 = next(
+            (d for d in _ALL_DEFINITIONS if d.key == PROMPT_KEY_DRAFT_RESPONSE and d.version == 6),
+            None,
+        )
+        assert v6 is not None
+        assert "RESP-064" in v6.change_notes
 
     def test_v5_change_notes_mention_resp018(self) -> None:
         v5 = next(
@@ -81,29 +98,55 @@ class TestV5ArchivedV6Active:
         assert "RESP-018" in v5.change_notes
 
 
-# ── V6 definition ─────────────────────────────────────────────────────────────
+# ── V7 definition ─────────────────────────────────────────────────────────────
 
 
-class TestV6Definition:
-    def _v6(self):
+class TestV7Definition:
+    def _v7(self):
         return PromptRegistry().get(PROMPT_KEY_DRAFT_RESPONSE)
 
-    def test_v6_temperature_at_most_0_4(self) -> None:
-        assert self._v6().temperature <= 0.4
+    def test_v7_temperature_at_most_0_4(self) -> None:
+        assert self._v7().temperature <= 0.4
 
-    def test_v6_has_approved_copy_blocks_optional_variable(self) -> None:
-        assert "approved_copy_blocks_line" in self._v6().optional_variables
+    def test_v7_has_approved_copy_blocks_optional_variable(self) -> None:
+        assert "approved_copy_blocks_line" in self._v7().optional_variables
 
-    def test_v6_system_template_references_approved_copy_blocks(self) -> None:
-        assert "{approved_copy_blocks_line}" in self._v6().system_template
+    def test_v7_system_template_references_approved_copy_blocks(self) -> None:
+        assert "{approved_copy_blocks_line}" in self._v7().system_template
 
-    def test_v6_schema_version_is_6(self) -> None:
-        assert self._v6().output_schema_version == "6.0"
+    def test_v7_schema_version_is_6(self) -> None:
+        assert self._v7().output_schema_version == "6.0"
 
-    def test_v6_mandatory_rules_forbid_menu_and_special_touches(self) -> None:
-        tmpl = self._v6().system_template
+    def test_v7_mandatory_rules_forbid_menu_and_special_touches(self) -> None:
+        tmpl = self._v7().system_template
         assert "menu" in tmpl.lower()
         assert "special touches" in tmpl.lower() or "special_touches" in tmpl.lower()
+
+    def test_v7_confirm_available_instruction_restricts_to_one_warmth_sentence(self) -> None:
+        """RESP-064: CONFIRM_AVAILABLE instruction must specify ONE warmth sentence only."""
+        tmpl = self._v7().system_template
+        assert "ONE warmth" in tmpl, (
+            "V7 CONFIRM_AVAILABLE instruction must specify ONE warmth sentence constraint"
+        )
+
+    def test_v7_confirm_available_instruction_forbids_room_descriptions(self) -> None:
+        """RESP-064: CONFIRM_AVAILABLE instruction must forbid room/space/venue descriptions."""
+        tmpl = self._v7().system_template
+        assert "room, space, or venue" in tmpl.lower(), (
+            "V7 must explicitly forbid room/space/venue suitability sentences"
+        )
+
+    def test_v7_mandatory_rules_contain_forbidden_embellishment_phrases(self) -> None:
+        """RESP-064: MANDATORY RULES must list forbidden embellishment phrases."""
+        tmpl = self._v7().system_template
+        for phrase in ("excellent choice", "perfect for", "well accommodated",
+                       "excellent fit", "intimate setting", "ideal setting", "would be ideal"):
+            assert phrase in tmpl.lower(), (
+                f"V7 MANDATORY RULES must forbid phrase: {phrase!r}"
+            )
+
+    def test_v7_change_notes_mention_resp064(self) -> None:
+        assert "RESP-064" in self._v7().change_notes
 
 
 # ── _build_approved_copy_blocks_line ─────────────────────────────────────────

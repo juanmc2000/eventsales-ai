@@ -78,10 +78,10 @@ class TestDraftPromptV3Registry:
     def setup_method(self) -> None:
         self.registry = PromptRegistry()
 
-    def test_active_draft_prompt_is_v6(self) -> None:
-        # V5 archived in RESP-018 — V6 is now active
+    def test_active_draft_prompt_is_v7(self) -> None:
+        # V6 archived in RESP-064 — V7 is now active
         defn = self.registry.get(PROMPT_KEY_DRAFT_RESPONSE)
-        assert defn.version == 6
+        assert defn.version == 7
         assert defn.status == VERSION_STATUS_ACTIVE
 
     def test_response_goal_is_required_variable(self) -> None:

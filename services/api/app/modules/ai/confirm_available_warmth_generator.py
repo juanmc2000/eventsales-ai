@@ -43,7 +43,10 @@ _SYSTEM_PROMPT = (
     "- Do NOT mention: menus, dietary requirements, timing, arrival time, "
     "  booking forms, calls, pricing, minimum spend, room names, special touches, "
     "  availability, or any operational detail.\n"
-    "- Do NOT use the phrase 'perfect for' or 'ideal for'.\n"
+    "- Do NOT describe or endorse the room, space, or venue suitability. "
+    "  Forbidden phrases: 'excellent choice', 'perfect for', 'perfect setting', "
+    "  'ideal', 'ideal for', 'ideal setting', 'well accommodated', 'excellent fit', "
+    "  'intimate setting', 'excellent setting', 'would be ideal', 'ideally suited'.\n"
     "- Output only the warmth sentence — no preamble, no quotes."
 )
 
