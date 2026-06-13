@@ -618,71 +618,100 @@ class DraftGenerationService:
         recommended_minimum_spend: float | None,
         guest_message: str | None,
     ) -> "DraftGenerationResult":
-        """RESP-063: Build a REQUEST_DATE_CONFIRMATION draft from copy blocks only.
+        """RESP-063/RESP-073: Build a REQUEST_DATE_CONFIRMATION draft from copy blocks only.
 
-        Bypasses the LLM entirely.  The LLM was consistently fabricating
-        "I've provisionally checked availability" language (RESP-058 violation)
-        for this goal — all four required elements are available as copy blocks.
+        Bypasses the LLM entirely.
 
-        Structure:
+        RESP-073 structure (when both assumed_date and alternative_date are present):
           Dear {guest_name},
 
-          [availability_not_checked block]
+          [rdtc_available_opener block]
+          "We have availability for {meal_period} on {assumed_date} — I just wanted
+           to confirm that's the date you had in mind and not {alternative_date}?"
 
-          {clarification_question from context}
-
-          [availability_check_next_step block]
+          [rdtc_next_step block]
+          "Once confirmed, we'll come back to you straight away."
 
           [signoff block]
 
-        The clarification question is taken verbatim from
-        context.clarification_questions[0] (set by the response preparation
-        pipeline from the date disambiguation service).  If no clarification
-        question is available a generic date-confirmation fallback is used.
+        Fallback structure (when alternative_date is absent):
+          Dear {guest_name},
+
+          Thank you for your enquiry.
+
+          {clarification_question from context}
+
+          [rdtc_next_step block]
+
+          [signoff block]
+
+        The assumed_date is taken from context.availability_date (set by the
+        processing snapshot enrichment).  The alternative_date is taken from
+        context.alternative_date (populated by _enrich_context_from_response_plan
+        from plan.date_context.alternative_date).
         """
         from app.modules.ai.first_response_copy_library import (  # noqa: PLC0415
             FirstResponseCopyLibrary,
         )
 
         meal_period = context.availability_meal_period or "dinner"
-        event_date = context.availability_date or context.event_date or "the requested date"
+        assumed_date = context.availability_date or context.event_date or ""
+        alternative_date = context.alternative_date or ""
         guest_name = context.guest_first_name or "there"
+        clarification_questions = context.clarification_questions or []
 
-        opening = FirstResponseCopyLibrary.render(
-            "availability_not_checked",
-            {"meal_period": meal_period, "event_date": event_date},
-        )
-        next_step = FirstResponseCopyLibrary.render("availability_check_next_step")
+        next_step = FirstResponseCopyLibrary.render("rdtc_next_step")
         signoff = FirstResponseCopyLibrary.render(
             "signoff",
             {"persona_name": persona_name},
         )
 
-        # Use approved clarification question — strip any LLM-era provisional language
-        clarification_questions = context.clarification_questions or []
-        if clarification_questions:
-            date_question = strip_provisional_sentences(clarification_questions[0])
-            if not date_question:
-                date_question = "Could you please confirm which date you mean?"
-        else:
-            logger.warning(
-                "RESP-063: No clarification question available for REQUEST_DATE_CONFIRMATION "
-                "on enquiry %s — using generic fallback",
-                enquiry_id,
+        if assumed_date and alternative_date:
+            # RESP-073: lead with availability for the assumed date, then ask for
+            # confirmation — single sentence, one "availability" mention, no circular logic
+            opening = FirstResponseCopyLibrary.render(
+                "rdtc_available_opener",
+                {
+                    "meal_period": meal_period,
+                    "assumed_date": assumed_date,
+                    "alternative_date": alternative_date,
+                },
             )
-            date_question = "Could you please confirm which date you mean?"
+            body_parts = [
+                f"Dear {guest_name},",
+                "",
+                opening,
+                "",
+                next_step,
+                "",
+                signoff,
+            ]
+        else:
+            # Fallback: no alternative_date in context — use clarification question
+            if clarification_questions:
+                date_question = strip_provisional_sentences(clarification_questions[0])
+                if not date_question:
+                    date_question = "Could you please confirm which date you mean?"
+            else:
+                logger.warning(
+                    "RESP-073: No clarification question available for REQUEST_DATE_CONFIRMATION "
+                    "on enquiry %s — using generic fallback",
+                    enquiry_id,
+                )
+                date_question = "Could you please confirm which date you mean?"
 
-        body_parts = [
-            f"Dear {guest_name},",
-            "",
-            opening,
-            "",
-            date_question,
-            "",
-            next_step,
-            "",
-            signoff,
-        ]
+            body_parts = [
+                f"Dear {guest_name},",
+                "",
+                "Thank you for your enquiry.",
+                "",
+                date_question,
+                "",
+                next_step,
+                "",
+                signoff,
+            ]
+
         draft_body = "\n".join(body_parts)
 
         ai_context = AIContextOut(
@@ -1737,12 +1766,19 @@ def _enrich_context_from_response_plan(
         if isinstance(raw_section_plan, dict):
             section_plan = raw_section_plan
 
+        # RESP-073: extract alternative_date from date_context for RDTC opener
+        alternative_date: str | None = None
+        date_ctx = getattr(plan, "date_context", None)
+        if isinstance(date_ctx, dict):
+            alternative_date = date_ctx.get("alternative_date") or None
+
         return replace(
             context,
             response_goal=response_goal or context.response_goal,
             clarification_questions=clarification_questions or context.clarification_questions,
             audience_type=audience_type,
             section_plan=section_plan or context.section_plan,
+            alternative_date=alternative_date or context.alternative_date,
         )
     except Exception as exc:  # noqa: BLE001
         logger.warning("Could not enrich context from response plan for %s: %s", enquiry_id, exc)

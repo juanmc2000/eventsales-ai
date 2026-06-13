@@ -29,7 +29,8 @@ _TESTS_DIR = _SCRIPT_DIR.parent
 _REPO_ROOT = _TESTS_DIR.parent
 _API_ROOT = _REPO_ROOT / "services" / "api"
 _FIXTURE_PATH = _TESTS_DIR / "data" / "freeform_group_booking_response_preparation_test_100.json"
-_OUTPUT_PATH = _TESTS_DIR / "data" / "response_prep_100_results.json"
+_TS = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+_OUTPUT_PATH = _TESTS_DIR / "data" / f"response_prep_100_results_sprint15b_{_TS}.json"
 
 if str(_API_ROOT) not in sys.path:
     sys.path.insert(0, str(_API_ROOT))
@@ -48,12 +49,15 @@ from app.modules.ai.constants import (
 from app.modules.ai.first_response_copy_library import (
     FirstResponseCopyLibrary,
     BLOCK_AVAILABILITY_CONFIRMED,
+    BLOCK_AVAILABILITY_CONFIRMED_SHORT,
     BLOCK_AVAILABILITY_NOT_CHECKED,
     BLOCK_AVAILABILITY_UNAVAILABLE,
     BLOCK_UNAVAILABLE_NO_ALTERNATIVES,
     BLOCK_UNAVAILABLE_ONE_ALTERNATIVE,
     BLOCK_UNAVAILABLE_TWO_ALTERNATIVES,
     BLOCK_MINIMUM_SPEND,
+    BLOCK_RDTC_AVAILABLE_OPENER,
+    BLOCK_RDTC_NEXT_STEP,
     BLOCK_SIGNOFF,
     BLOCK_BOOKING_NEXT_STEP,
     BLOCK_AVAILABILITY_CHECK_NEXT_STEP,
@@ -61,7 +65,7 @@ from app.modules.ai.first_response_copy_library import (
 )
 from app.modules.ai.draft_compliance_validator import DraftComplianceValidator, ValidationContext
 from app.modules.ai.auto_send_readiness_gate import AutoSendReadinessGate
-from app.modules.ai.service import _strip_provisional_sentences
+from app.modules.ai.draft_post_processor import strip_provisional_sentences as _strip_provisional_sentences
 from app.modules.enquiries.response_context_integrity_gate import IntegrityCheckResult
 
 # ── Env setup ─────────────────────────────────────────────────────────────────
@@ -169,12 +173,14 @@ def _build_confirm_available(record: dict, idx: int, total: int) -> dict:
     meal_period = _extract_meal_period(record)
     event_date = _extract_event_date(record)
 
+    # RESP-071: warmth-first structure — short opening block (no "Thank you" prefix)
+    # follows the warmth sentence. Full block (with "Thank you") is used only without warmth.
     blocks: list[str] = ["APPROVED COPY BLOCKS — use these verbatim:\n"]
-    opening = FirstResponseCopyLibrary.render_safe(
-        BLOCK_AVAILABILITY_CONFIRMED, {"meal_period": meal_period, "event_date": event_date}
+    opening_short = FirstResponseCopyLibrary.render_safe(
+        BLOCK_AVAILABILITY_CONFIRMED_SHORT, {"meal_period": meal_period, "event_date": event_date}
     )
-    if opening:
-        blocks.append(f"[Opening]\n{opening}\n\n")
+    if opening_short:
+        blocks.append(f"[Opening]\n{opening_short}\n\n")
     if spend_amount:
         spend_text = FirstResponseCopyLibrary.render_safe(
             BLOCK_MINIMUM_SPEND, {"spend_amount": f"£{spend_amount}"}
@@ -191,6 +197,11 @@ def _build_confirm_available(record: dict, idx: int, total: int) -> dict:
         "You MUST use all the approved blocks above verbatim. "
         "You may add ONE warmth sentence before the Opening block only — "
         "it must acknowledge the occasion or guest context, not describe the venue. "
+        "CRITICAL: Do NOT start the warmth sentence with 'Thank you', 'Thanks', or any "
+        "acknowledgement phrase — the email already says thank you elsewhere. "
+        "Use a celebratory opener instead, such as: "
+        "'How wonderful —', 'How lovely —', 'How exciting —', "
+        "'What a lovely occasion —', 'That sounds wonderful —'. "
         "Do NOT add any sentence about the room, space, or venue suitability. "
         "Forbidden phrases: 'excellent choice', 'perfect for', 'perfect setting', "
         "'ideal', 'ideal for', 'ideal setting', 'well accommodated', 'excellent fit', "
@@ -229,7 +240,7 @@ def _build_confirm_available(record: dict, idx: int, total: int) -> dict:
     return {
         "generation_path": "llm",
         "approved_copy_blocks": {
-            "opening": opening,
+            "opening": opening_short,
             "minimum_spend": FirstResponseCopyLibrary.render_safe(
                 BLOCK_MINIMUM_SPEND, {"spend_amount": f"£{spend_amount}"}
             ) if spend_amount else None,
@@ -259,42 +270,64 @@ def _extract_clarification_questions(record: dict) -> list[str]:
 
 
 def _build_rdtc_deterministic(record: dict, idx: int, total: int) -> dict:
-    """RESP-063: Build REQUEST_DATE_CONFIRMATION deterministically — no LLM call."""
+    """RESP-063/RESP-073: Build REQUEST_DATE_CONFIRMATION deterministically — no LLM call.
+
+    RESP-073: leads with 'We have availability for {meal_period} on {assumed_date}
+    — I just wanted to confirm that's the date you had in mind and not {alternative_date}?'
+    when both assumed_date and alternative_date are present in date_context.
+    """
     prep = record["target_extraction"]["response_preparation_target"]
     base_vars = prep.get("draft_prompt_variables", {})
     persona_name = base_vars.get("persona_name", "Eleanor")
     guest_first_name = base_vars.get("guest_first_name", "there")
     meal_period = _extract_meal_period(record)
-    event_date = _extract_event_date(record)
 
-    opening = FirstResponseCopyLibrary.render_safe(
-        BLOCK_AVAILABILITY_NOT_CHECKED, {"meal_period": meal_period, "event_date": event_date}
-    )
-    next_step = FirstResponseCopyLibrary.render_safe(BLOCK_AVAILABILITY_CHECK_NEXT_STEP)
+    date_ctx = prep.get("date_context", {})
+    assumed_date = date_ctx.get("assumed_date") or _extract_event_date(record)
+    alternative_date = date_ctx.get("alternative_date") or ""
+
+    next_step = FirstResponseCopyLibrary.render_safe(BLOCK_RDTC_NEXT_STEP)
     signoff = FirstResponseCopyLibrary.render_safe(BLOCK_SIGNOFF, {"persona_name": persona_name})
-
     clarification_questions = _extract_clarification_questions(record)
-    if clarification_questions:
-        date_question = _strip_provisional_sentences(clarification_questions[0])
-        if not date_question:
-            date_question = "Could you please confirm which date you mean?"
+
+    if assumed_date and alternative_date:
+        # RESP-073: clean single-sentence opener with both dates
+        opening = FirstResponseCopyLibrary.render_safe(
+            BLOCK_RDTC_AVAILABLE_OPENER,
+            {"meal_period": meal_period, "assumed_date": assumed_date, "alternative_date": alternative_date},
+        )
+        body_parts = [
+            f"Dear {guest_first_name},",
+            "",
+            opening or "",
+            "",
+            next_step or "",
+            "",
+            signoff or "",
+        ]
     else:
-        date_question = "Could you please confirm which date you mean?"
+        # Fallback: no alternative_date — use clarification question from fixture
+        if clarification_questions:
+            date_question = _strip_provisional_sentences(clarification_questions[0])
+            if not date_question:
+                date_question = "Could you please confirm which date you mean?"
+        else:
+            date_question = "Could you please confirm which date you mean?"
+        body_parts = [
+            f"Dear {guest_first_name},",
+            "",
+            "Thank you for your enquiry.",
+            "",
+            date_question,
+            "",
+            next_step or "",
+            "",
+            signoff or "",
+        ]
+        opening = None
 
     path_label = "det/RDTC"
     print(f"  [{idx:3d}/{total}] [{path_label}] {record['id']} ... done (deterministic)")
-
-    body_parts = [
-        f"Dear {guest_first_name},",
-        "",
-        opening or "",
-        "",
-        date_question,
-        "",
-        next_step or "",
-        "",
-        signoff or "",
-    ]
     draft = "\n".join(body_parts)
 
     return {

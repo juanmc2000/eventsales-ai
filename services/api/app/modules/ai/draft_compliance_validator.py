@@ -479,10 +479,29 @@ class DraftComplianceValidator:
         context: ValidationContext,
         violations: list[str],
     ) -> None:
-        """Fail if the draft confirms availability when the contract is not CONFIRMED_AVAILABLE."""
+        """Fail if the draft confirms availability when the contract is not CONFIRMED_AVAILABLE.
+
+        RESP-073: REQUEST_DATE_CONFIRMATION + PENDING_DATE_CONFIRMATION is exempt.
+        The RDTC opener deliberately states provisional availability for the assumed
+        date ("We have availability for dinner on 9 August — did you mean 9 Aug or
+        8 Sep?").  This is semantically correct — availability has been provisionally
+        checked for the assumed date; the only ambiguity is which date the guest
+        intended.  Blocking this claim would prevent the cleaner RDTC structure.
+        """
         contract = context.availability_contract
         if contract == "CONFIRMED_AVAILABLE":
             return  # Confirming is correct
+        # RESP-073: RDTC opener uses "We have availability for {meal_period} on {date}"
+        # from BLOCK_RDTC_AVAILABLE_OPENER — this is intentional and approved.
+        # Only this specific phrase is exempted; other availability claims (e.g.
+        # "we are available", "date is free") still fail for PENDING_DATE_CONFIRMATION.
+        _RDTC_OPENER_PATTERN = re.compile(r"\bwe\s+have\s+availability\s+for\b", re.IGNORECASE)
+        if (
+            contract == "PENDING_DATE_CONFIRMATION"
+            and context.response_goal == "REQUEST_DATE_CONFIRMATION"
+            and _RDTC_OPENER_PATTERN.search(text)
+        ):
+            return
         for pattern in _AVAILABILITY_CONFIRM_PATTERNS:
             if pattern.search(text):
                 violations.append(
@@ -650,9 +669,15 @@ class DraftComplianceValidator:
         context: ValidationContext,
         violations: list[str],
     ) -> None:
-        """Fail if the draft contains questions when no clarification questions were authorised."""
+        """Fail if the draft contains questions when no clarification questions were authorised.
+
+        RESP-073: REQUEST_DATE_CONFIRMATION is exempt — the question is embedded in
+        the rdtc_available_opener copy block (fully deterministic; no LLM involvement).
+        """
         if context.clarification_questions:
             return  # Questions are authorised
+        if context.response_goal == "REQUEST_DATE_CONFIRMATION":
+            return  # RESP-073: RDTC question is always from an approved copy block
         matches = _QUESTION_SENTENCE_PATTERN.findall(text)
         if matches:
             violations.append(

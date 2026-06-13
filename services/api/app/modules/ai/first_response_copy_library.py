@@ -1,4 +1,4 @@
-"""First Response Copy Library (RESP-017, updated RESP-037, RESP-043, RESP-051, RESP-057, RESP-058, RESP-071, RESP-072).
+"""First Response Copy Library (RESP-017, updated RESP-037, RESP-043, RESP-051, RESP-057, RESP-058, RESP-071, RESP-072, RESP-073).
 
 Approved deterministic copy blocks for operationally sensitive first-response
 statements.  The LLM must use these blocks verbatim (with variable interpolation)
@@ -69,6 +69,13 @@ BLOCK_DATE_CONFIRMATION_QUESTION = "date_confirmation_question"
 # RESP-071: compact availability confirmation — used when a warmth sentence is present.
 # Omits "Thank you for your enquiry —" because warmth already opens the email.
 BLOCK_AVAILABILITY_CONFIRMED_SHORT = "availability_confirmed_short"
+# RESP-073: RDTC opener — leads with provisional availability for the assumed date, then
+# asks the guest to confirm whether that is the date they intended.  Replaces the old
+# BLOCK_AVAILABILITY_NOT_CHECKED + BLOCK_AVAILABILITY_CHECK_NEXT_STEP pair which
+# mentioned "availability" three times and had circular logic.
+BLOCK_RDTC_AVAILABLE_OPENER = "rdtc_available_opener"
+# RESP-073: single clean next-step for RDTC — no second "availability" mention.
+BLOCK_RDTC_NEXT_STEP = "rdtc_next_step"
 
 # ── Template registry ──────────────────────────────────────────────────────────
 
@@ -150,6 +157,17 @@ _TEMPLATES: dict[str, str] = {
         "Before checking availability, could you confirm whether you mean "
         "{date_option_1} or {date_option_2}?"
     ),
+    # RESP-073: RDTC available opener — states provisional availability for the assumed
+    # date and asks the guest to confirm the date interpretation in a single sentence.
+    # Only used when both assumed_date and alternative_date are present in context.
+    BLOCK_RDTC_AVAILABLE_OPENER: (
+        "We have availability for {meal_period} on {assumed_date} — I just wanted "
+        "to confirm that's the date you had in mind and not {alternative_date}?"
+    ),
+    # RESP-073: clean RDTC next-step — no second "availability" mention.
+    BLOCK_RDTC_NEXT_STEP: (
+        "Once confirmed, we'll come back to you straight away."
+    ),
 }
 
 # Required variables per block key (empty set = no required vars)
@@ -168,6 +186,8 @@ _REQUIRED_VARS: dict[str, frozenset[str]] = {
     BLOCK_UNAVAILABLE_TWO_ALTERNATIVES: frozenset({"meal_period", "requested_date", "alternative_date_1", "alternative_date_2"}),
     BLOCK_DATE_CONFIRMATION_QUESTION: frozenset({"date_option_1", "date_option_2"}),
     BLOCK_AVAILABILITY_CONFIRMED_SHORT: frozenset({"meal_period", "event_date"}),
+    BLOCK_RDTC_AVAILABLE_OPENER: frozenset({"meal_period", "assumed_date", "alternative_date"}),
+    BLOCK_RDTC_NEXT_STEP: frozenset(),
 }
 
 
