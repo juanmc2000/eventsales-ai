@@ -27,6 +27,8 @@ from app.modules.ai.first_response_copy_library import (
     BLOCK_CONFIRM_AVAILABLE_NEXT_STEP,
     BLOCK_DATE_CONFIRMATION_QUESTION,
     BLOCK_MINIMUM_SPEND,
+    BLOCK_RDTC_AVAILABLE_OPENER,
+    BLOCK_RDTC_NEXT_STEP,
     BLOCK_SIGNOFF,
     BLOCK_UNAVAILABLE_NO_ALTERNATIVES,
     BLOCK_UNAVAILABLE_ONE_ALTERNATIVE,
@@ -667,3 +669,87 @@ class TestAvailabilityConfirmedShortBlock:
         )
         assert "2026-06-07" not in text
         assert "7 June 2026" in text
+
+
+# ── RESP-073: RDTC copy blocks ─────────────────────────────────────────────────
+
+
+class TestRdtcAvailableOpenerBlock:
+    """RESP-073: Tests for BLOCK_RDTC_AVAILABLE_OPENER."""
+
+    _VARS = {
+        "meal_period": "dinner",
+        "assumed_date": "2026-08-09",
+        "alternative_date": "2026-09-08",
+    }
+
+    def test_block_is_registered(self) -> None:
+        assert BLOCK_RDTC_AVAILABLE_OPENER in FirstResponseCopyLibrary.all_keys()
+
+    def test_required_vars(self) -> None:
+        assert FirstResponseCopyLibrary.required_vars(BLOCK_RDTC_AVAILABLE_OPENER) == {
+            "meal_period", "assumed_date", "alternative_date"
+        }
+
+    def test_renders_correctly(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_RDTC_AVAILABLE_OPENER, self._VARS)
+        assert "dinner" in text
+        assert "9 August 2026" in text   # assumed_date ISO auto-formatted
+        assert "8 September 2026" in text  # alternative_date ISO auto-formatted
+
+    def test_contains_availability_language(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_RDTC_AVAILABLE_OPENER, self._VARS)
+        assert "we have availability" in text.lower()
+
+    def test_contains_date_confirmation_question(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_RDTC_AVAILABLE_OPENER, self._VARS)
+        assert "?" in text
+
+    def test_single_availability_mention(self) -> None:
+        """RESP-073: only one 'availability' mention in the opener."""
+        text = FirstResponseCopyLibrary.render(BLOCK_RDTC_AVAILABLE_OPENER, self._VARS)
+        assert text.lower().count("availability") == 1
+
+    def test_does_not_say_check_availability(self) -> None:
+        """Must not promise to check availability — availability is already stated."""
+        text = FirstResponseCopyLibrary.render(BLOCK_RDTC_AVAILABLE_OPENER, self._VARS)
+        assert "check availability" not in text.lower()
+        assert "i'll check" not in text.lower()
+
+    def test_missing_var_raises(self) -> None:
+        with pytest.raises(ValueError):
+            FirstResponseCopyLibrary.render(
+                BLOCK_RDTC_AVAILABLE_OPENER,
+                {"meal_period": "dinner", "assumed_date": "2026-08-09"},
+            )
+
+    def test_iso_dates_auto_formatted(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_RDTC_AVAILABLE_OPENER, self._VARS)
+        assert "2026-08-09" not in text
+        assert "2026-09-08" not in text
+
+
+class TestRdtcNextStepBlock:
+    """RESP-073: Tests for BLOCK_RDTC_NEXT_STEP."""
+
+    def test_block_is_registered(self) -> None:
+        assert BLOCK_RDTC_NEXT_STEP in FirstResponseCopyLibrary.all_keys()
+
+    def test_no_required_vars(self) -> None:
+        assert len(FirstResponseCopyLibrary.required_vars(BLOCK_RDTC_NEXT_STEP)) == 0
+
+    def test_renders_without_vars(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_RDTC_NEXT_STEP)
+        assert "confirmed" in text.lower()
+        assert len(text) > 10
+
+    def test_no_availability_mention(self) -> None:
+        """RESP-073: rdtc_next_step must not mention 'availability' — that's already in the opener."""
+        text = FirstResponseCopyLibrary.render(BLOCK_RDTC_NEXT_STEP)
+        assert "availability" not in text.lower()
+
+    def test_no_i_will_check(self) -> None:
+        """Old BLOCK_AVAILABILITY_CHECK_NEXT_STEP pattern must not appear here."""
+        text = FirstResponseCopyLibrary.render(BLOCK_RDTC_NEXT_STEP)
+        assert "i will check" not in text.lower()
+        assert "follow up" not in text.lower()

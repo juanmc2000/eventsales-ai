@@ -76,6 +76,9 @@ class DraftContext:
     # RESP-042: alternative date result from AlternativeDateService
     # dict with keys: alternative_dates, alternatives_found
     alternative_date_result: dict[str, Any] | None = field(default=None)
+    # RESP-073: secondary date interpretation for REQUEST_DATE_CONFIRMATION path —
+    # ISO date string (e.g. "2026-09-08") populated from plan.date_context.alternative_date
+    alternative_date: str | None = field(default=None)
 
 
 @dataclass
