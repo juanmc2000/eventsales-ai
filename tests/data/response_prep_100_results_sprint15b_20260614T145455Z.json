@@ -1,0 +1,3398 @@
+{
+  "run_id": "ffe6b275",
+  "generated_at": "2026-06-14T14:58:09.974227+00:00",
+  "fixture": "freeform_group_booking_response_preparation_test_100.json",
+  "total_records": 100,
+  "prompt_version": 7,
+  "llm_model": "claude-haiku-4-5-20251001",
+  "results": [
+    {
+      "record_id": "email_01",
+      "subject": "Dinner for next Friday",
+      "body_preview": "Hi, do you have availability next Friday for dinner for 8? It\u2019s for my sister\u2019s birthday. Around 7ish would be ideal, bu",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1527,
+      "output_tokens": 87,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Friday, 12 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with us!\n\nI'm delighted to confirm that we have availability for dinner on Friday, 12 June 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_02",
+      "subject": "Table on the 20th",
+      "body_preview": "Hello, I\u2019m trying to book dinner on the 20th for a group of 10. It\u2019s for my dad\u2019s birthday, nothing too formal, just a n",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1526,
+      "output_tokens": 87,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 20 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with us!\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 20 June 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_03",
+      "subject": "Lunch next month",
+      "body_preview": "Hi there, could you do lunch on the 20th of next month for 12 people? We\u2019re planning a baby shower and would prefer some",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1525,
+      "output_tokens": 84,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Monday, 20 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3780.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a baby shower celebration!\n\nI'm delighted to confirm that we have availability for lunch on Monday, 20 July 2026.\n\nPlease note that our minimum spend for this space is \u00a3780.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_04",
+      "subject": "Any weekend this month",
+      "body_preview": "Hello, we\u2019re looking for dinner for 14 people for an engagement party, any weekend this month if you have space. Evening",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1583,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 6 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,400.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 an engagement party is such a special celebration!\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 6 June 2026.\n\nPlease note that our minimum spend for this space is \u00a31,400.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_05",
+      "subject": "Weekend next month",
+      "body_preview": "Hi, do you have availability for lunch for 8 for a babyshower on any weekend next month? Morning or midday could work, d",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1580,
+      "output_tokens": 88,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Saturday, 4 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3520.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 a baby shower is such a special celebration!\n\nI'm delighted to confirm that we have availability for lunch on Saturday, 4 July 2026.\n\nPlease note that our minimum spend for this space is \u00a3520.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_06",
+      "subject": "July 25 dinner",
+      "body_preview": "Good afternoon, I\u2019d like to enquire about dinner on July 25 for a group of 16. It\u2019s for an engagement party. Around 8pm ",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1523,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 25 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,600.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 an engagement party is such a special occasion.\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 25 July 2026.\n\nPlease note that our minimum spend for this space is \u00a31,600.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_07",
+      "subject": "Jul 25 birthday",
+      "body_preview": "Hi, can you fit 9 of us for Jul 25? It\u2019s my friend\u2019s birthday and we\u2019d like dinner, maybe early evening around 6. Thanks",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1526,
+      "output_tokens": 93,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 25 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with us will be such a special occasion.\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 25 July 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_08",
+      "subject": "7/25 reservation",
+      "body_preview": "Hello, looking to book for 11 people on 7/25 for dinner. It\u2019s a surprise birthday, probably 7:30pm if that works.",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1526,
+      "output_tokens": 87,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 25 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,100.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with us!\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 25 July 2026.\n\nPlease note that our minimum spend for this space is \u00a31,100.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_09",
+      "subject": "Last Friday of the month",
+      "body_preview": "Hi there, do you have space for the last Friday of the month for 10 people? It\u2019s for an engagement dinner. Later dinner ",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1527,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Friday, 26 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 an engagement party is such a special celebration.\n\nI'm delighted to confirm that we have availability for dinner on Friday, 26 June 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_10",
+      "subject": "Breakfast next Saturday",
+      "body_preview": "Morning, I\u2019m organising a birthday breakfast next Saturday for 6 people. Something in the morning would be ideal, but I ",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1523,
+      "output_tokens": 85,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for breakfast on Saturday, 13 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3250.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with us!\n\nI'm delighted to confirm that we have availability for breakfast on Saturday, 13 June 2026.\n\nPlease note that our minimum spend for this space is \u00a3250.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_11",
+      "subject": "Lunch tomorrow week",
+      "body_preview": "Hi, can you do lunch for 8 a week tomorrow? It\u2019s for a small baby shower. Midday-ish would be lovely if possible.",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1526,
+      "output_tokens": 84,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Thursday, 11 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3520.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 a baby shower celebration!\n\nI'm delighted to confirm that we have availability for lunch on Thursday, 11 June 2026.\n\nPlease note that our minimum spend for this space is \u00a3520.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_12",
+      "subject": "Dinner on 25/7",
+      "body_preview": "Hello, we\u2019re hoping to book dinner on 25/7 for 18 guests for an engagement party. We can do 7 or 8pm depending on availa",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1529,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 25 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,800.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 an engagement party is such a special celebration!\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 25 July 2026.\n\nPlease note that our minimum spend for this space is \u00a31,800.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_13",
+      "subject": "Any Friday in August",
+      "body_preview": "Hi, I\u2019m looking for dinner for a birthday for 12 people, any Friday in August would work. We\u2019d prefer evening but can be",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1543,
+      "output_tokens": 87,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Friday, 7 August 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,200.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with us.\n\nI'm delighted to confirm that we have availability for dinner on Friday, 7 August 2026.\n\nPlease note that our minimum spend for this space is \u00a31,200.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_14",
+      "subject": "First Saturday in July",
+      "body_preview": "Hi, do you have dinner availability for 15 people on the first Saturday in July? It\u2019s for a babyshower celebration, alth",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1523,
+      "output_tokens": 86,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 4 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,500.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 a baby shower celebration.\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 4 July 2026.\n\nPlease note that our minimum spend for this space is \u00a31,500.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_15",
+      "subject": "Morning booking",
+      "body_preview": "Hello, can I book something in the morning on June 18 for 10 people? It\u2019s for a birthday breakfast, but we haven\u2019t fixed",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1522,
+      "output_tokens": 85,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for breakfast on Thursday, 18 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3350.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with us!\n\nI'm delighted to confirm that we have availability for breakfast on Thursday, 18 June 2026.\n\nPlease note that our minimum spend for this space is \u00a3350.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_16",
+      "subject": "Midday lunch enquiry",
+      "body_preview": "Hi there, looking for a table at midday on 8 July for a group of 7. It\u2019s for a small engagement lunch. Could you let me ",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1517,
+      "output_tokens": 88,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Wednesday, 8 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3500.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 an engagement party is such a special occasion.\n\nI'm delighted to confirm that we have availability for lunch on Wednesday, 8 July 2026.\n\nPlease note that our minimum spend for this space is \u00a3500.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_17",
+      "subject": "Next Friday or Saturday",
+      "body_preview": "Hi, do you have dinner space for 20 people next Friday or Saturday? It\u2019s for a joint birthday. We\u2019ll take whichever nigh",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1535,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Friday, 12 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a32,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with 20 guests!\n\nI'm delighted to confirm that we have availability for dinner on Friday, 12 June 2026.\n\nPlease note that our minimum spend for this space is \u00a32,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_18",
+      "subject": "Monday to Wednesday next three weeks",
+      "body_preview": "Hello, I need lunch for a baby shower for 9 guests, any Monday to Wednesday in the next three weeks. Midday would be pre",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1580,
+      "output_tokens": 84,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Monday, 8 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3585.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 a baby shower celebration.\n\nI'm delighted to confirm that we have availability for lunch on Monday, 8 June 2026.\n\nPlease note that our minimum spend for this space is \u00a3585.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_19",
+      "subject": "On 14/6 dinner",
+      "body_preview": "Hi, we\u2019re looking to book dinner on 14/6 for 8 people. It\u2019s an engagement party, just close friends and family.",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1528,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Sunday, 14 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 an engagement party is such a special celebration.\n\nI'm delighted to confirm that we have availability for dinner on Sunday, 14 June 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_20",
+      "subject": "Ambiguous 7/6",
+      "body_preview": "Hi, could you book dinner for 10 on 7/6? It\u2019s for a birthday. I\u2019m not sure how you read the date format so please check ",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_status": "PENDING_DATE_CONFIRMATION",
+      "generation_path": "deterministic",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "approved_copy_blocks": {
+        "opening": "We have availability for dinner on Sunday, 7 June 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Monday, 6 July 2026?",
+        "next_step": "Once confirmed, we'll come back to you straight away.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 7 June or 6 July? I have provisionally checked availability for 7 June.\n",
+      "response": "Dear Neil,\n\nWe have availability for dinner on Sunday, 7 June 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Monday, 6 July 2026?\n\nOnce confirmed, we'll come back to you straight away.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_21",
+      "subject": "The Sunday after next",
+      "body_preview": "Hi there, do you have lunch for 13 people the Sunday after next? It\u2019s for a baby shower and we\u2019d probably arrive around ",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1527,
+      "output_tokens": 84,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Sunday, 14 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3845.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 a baby shower celebration!\n\nI'm delighted to confirm that we have availability for lunch on Sunday, 14 June 2026.\n\nPlease note that our minimum spend for this space is \u00a3845.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_22",
+      "subject": "This Friday breakfast",
+      "body_preview": "Hello, can we book breakfast this Friday for 5 people? It\u2019s a birthday breakfast, probably morning but we can confirm th",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1523,
+      "output_tokens": 85,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for breakfast on Friday, 5 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3250.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with us!\n\nI'm delighted to confirm that we have availability for breakfast on Friday, 5 June 2026.\n\nPlease note that our minimum spend for this space is \u00a3250.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_23",
+      "subject": "End of July",
+      "body_preview": "Hi, I\u2019m arranging an engagement dinner for around 12 people at the end of July. Ideally a Friday or Saturday night if yo",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1556,
+      "output_tokens": 91,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Friday, 24 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,200.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nSophia"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 an engagement party is such a special occasion.\n\nI'm delighted to confirm that we have availability for dinner on Friday, 24 July 2026.\n\nPlease note that our minimum spend for this space is \u00a31,200.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nSophia",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_24",
+      "subject": "Lunch 06/20",
+      "body_preview": "Hi, do you have lunch available on 06/20 for a group of 6? It\u2019s for my mum\u2019s birthday. Midday or early afternoon is fine",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1518,
+      "output_tokens": 85,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Saturday, 20 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3500.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 a birthday celebration with us.\n\nI'm delighted to confirm that we have availability for lunch on Saturday, 20 June 2026.\n\nPlease note that our minimum spend for this space is \u00a3500.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_25",
+      "subject": "Breakfast on the 15th",
+      "body_preview": "Good morning, I\u2019m looking for breakfast on the 15th for 8 people. It\u2019s for a small office birthday breakfast, sometime i",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1523,
+      "output_tokens": 85,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for breakfast on Monday, 15 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3280.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with us!\n\nI'm delighted to confirm that we have availability for breakfast on Monday, 15 June 2026.\n\nPlease note that our minimum spend for this space is \u00a3280.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_26",
+      "subject": "Next month first weekend",
+      "body_preview": "Hello, could you let me know availability for dinner for 14 on the first weekend next month? It\u2019s for an engagement part",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1530,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 4 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,400.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 an engagement party is such a special celebration.\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 4 July 2026.\n\nPlease note that our minimum spend for this space is \u00a31,400.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_27",
+      "subject": "Tomorrow dinner",
+      "body_preview": "Hi, can you fit 10 people tomorrow for dinner? It\u2019s a last-minute birthday meal. We\u2019d be looking for around 7pm if possi",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1526,
+      "output_tokens": 87,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Thursday, 4 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with us!\n\nI'm delighted to confirm that we have availability for dinner on Thursday, 4 June 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_28",
+      "subject": "Two weeks today",
+      "body_preview": "Hi there, I\u2019d like to book lunch for 11 people two weeks today. It\u2019s for a babyshower and midday would be great.",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1516,
+      "output_tokens": 84,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Wednesday, 17 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3715.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 a baby shower celebration.\n\nI'm delighted to confirm that we have availability for lunch on Wednesday, 17 June 2026.\n\nPlease note that our minimum spend for this space is \u00a3715.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_29",
+      "subject": "July 4 morning",
+      "body_preview": "Hello, do you have anything on July 4 in the morning for 7 people? It\u2019s a birthday breakfast but we can be flexible on e",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1523,
+      "output_tokens": 88,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for breakfast on Saturday, 4 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3250.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with those closest to you.\n\nI'm delighted to confirm that we have availability for breakfast on Saturday, 4 July 2026.\n\nPlease note that our minimum spend for this space is \u00a3250.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_30",
+      "subject": "Mid August dinner",
+      "body_preview": "Hi, we need dinner for an engagement party for 16 people sometime in mid August, ideally a weekend. Please let me know o",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1531,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 15 August 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,600.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 an engagement party is such a special occasion.\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 15 August 2026.\n\nPlease note that our minimum spend for this space is \u00a31,600.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_31",
+      "subject": "On 9/1 ambiguous",
+      "body_preview": "Hi, can you do dinner for 9 on 9/1? It\u2019s for a birthday. I\u2019m writing dates the American way, if that helps.",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1519,
+      "output_tokens": 88,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Tuesday, 1 September 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with your team.\n\nI'm delighted to confirm that we have availability for dinner on Tuesday, 1 September 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_32",
+      "subject": "Lunch on 1/9 ambiguous",
+      "body_preview": "Hello, we want lunch for 10 on 1/9 for a baby shower. I mean UK format, 1 September. Midday if possible.",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1525,
+      "output_tokens": 84,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Tuesday, 1 September 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3650.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a baby shower celebration!\n\nI'm delighted to confirm that we have availability for lunch on Tuesday, 1 September 2026.\n\nPlease note that our minimum spend for this space is \u00a3650.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_33",
+      "subject": "Next Thursday evening",
+      "body_preview": "Hi, do you have dinner availability next Thursday for a group of 8? It\u2019s for an engagement dinner and we\u2019d like evening ",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1521,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Thursday, 11 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 an engagement party is such a special occasion.\n\nI'm delighted to confirm that we have availability for dinner on Thursday, 11 June 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_34",
+      "subject": "Any lunch this week",
+      "body_preview": "Hi, is there any lunch availability this week for 6 people? It\u2019s for a small birthday. Around midday, but we can do anot",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1555,
+      "output_tokens": 85,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Wednesday, 3 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3500.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with us!\n\nI'm delighted to confirm that we have availability for lunch on Wednesday, 3 June 2026.\n\nPlease note that our minimum spend for this space is \u00a3500.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_35",
+      "subject": "Last Saturday in August",
+      "body_preview": "Hello, I\u2019m trying to book dinner for 18 on the last Saturday in August. It\u2019s for an engagement party. Later evening pref",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1523,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 29 August 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,800.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 an engagement party is such a special occasion.\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 29 August 2026.\n\nPlease note that our minimum spend for this space is \u00a31,800.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_36",
+      "subject": "Breakfast next Monday",
+      "body_preview": "Hi, could we book breakfast next Monday for 4 people? It\u2019s a small birthday breakfast. Morning is fine, exact time flexi",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1523,
+      "output_tokens": 85,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for breakfast on Monday, 8 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3250.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 a birthday celebration with us!\n\nI'm delighted to confirm that we have availability for breakfast on Monday, 8 June 2026.\n\nPlease note that our minimum spend for this space is \u00a3250.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_37",
+      "subject": "Weekend around July 18",
+      "body_preview": "Hi, do you have dinner for 12 people the weekend around July 18? It\u2019s a baby shower dinner, probably Saturday if availab",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1535,
+      "output_tokens": 86,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 18 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,200.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a baby shower celebration!\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 18 July 2026.\n\nPlease note that our minimum spend for this space is \u00a31,200.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_38",
+      "subject": "On the 3rd of next month",
+      "body_preview": "Hi, can we reserve lunch on the 3rd of next month for 8? It\u2019s for an engagement celebration, nothing huge. Midday would ",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1517,
+      "output_tokens": 88,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Friday, 3 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3520.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 an engagement party is such a special occasion.\n\nI'm delighted to confirm that we have availability for lunch on Friday, 3 July 2026.\n\nPlease note that our minimum spend for this space is \u00a3520.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_39",
+      "subject": "Any morning next week",
+      "body_preview": "Hello, I\u2019m looking for a birthday breakfast for 10 people any morning next week. We don\u2019t mind which weekday if there is",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1565,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for breakfast on Monday, 8 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3350.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "Dear Tina,\n\nHow lovely \u2014 a corporate birthday celebration.\n\nI'm delighted to confirm that we have availability for breakfast on Monday, 8 June 2026.\n\nPlease note that our minimum spend for this space is \u00a3350.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_40",
+      "subject": "Early September lunch",
+      "body_preview": "Hi, could you send availability for lunch for 15 people in early September? It\u2019s for a baby shower. Midday or early afte",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1593,
+      "output_tokens": 86,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Tuesday, 1 September 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3975.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a celebration to look forward to.\n\nI'm delighted to confirm that we have availability for lunch on Tuesday, 1 September 2026.\n\nPlease note that our minimum spend for this space is \u00a3975.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_41",
+      "subject": "Engagment diner enquiry",
+      "body_preview": "Hello, do you have space for an engagment diner for 14 on the last Friday of August? Thinking 7pm but can shift a bit. T",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1527,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Friday, 28 August 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,400.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 an engagement party is such a special celebration.\n\nI'm delighted to confirm that we have availability for dinner on Friday, 28 August 2026.\n\nPlease note that our minimum spend for this space is \u00a31,400.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_42",
+      "subject": "Baby shower lunch",
+      "body_preview": "Hi, I am looking for lunch for a babyshower on the 20th of next month for 12 people. Midday would be perfect if you have",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1523,
+      "output_tokens": 84,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Monday, 20 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3780.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a baby shower celebration!\n\nI'm delighted to confirm that we have availability for lunch on Monday, 20 July 2026.\n\nPlease note that our minimum spend for this space is \u00a3780.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_43",
+      "subject": "Breakfast after graduation",
+      "body_preview": "Morning, could you do brekfast for 10 of us on July 3rd? It is for my daughter\u2019s graduation day and we would like someth",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1524,
+      "output_tokens": 88,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for breakfast on Friday, 3 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3350.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a graduation celebration is such a special milestone!\n\nI'm delighted to confirm that we have availability for breakfast on Friday, 3 July 2026.\n\nPlease note that our minimum spend for this space is \u00a3350.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_44",
+      "subject": "Any Friday in July",
+      "body_preview": "Hi there, we need a table for 8 for a leaving do. Any Friday in July would work, preferably dinner time. Could you let m",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1560,
+      "output_tokens": 87,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Friday, 3 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a leaving celebration with friends.\n\nI'm delighted to confirm that we have availability for dinner on Friday, 3 July 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_45",
+      "subject": "Lunch for christning",
+      "body_preview": "Hello, do you have availability for a christning lunch for 18 people between 11th and 13th July? We can do any of those ",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1544,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Saturday, 11 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,170.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a christening celebration with family and friends.\n\nI'm delighted to confirm that we have availability for lunch on Saturday, 11 July 2026.\n\nPlease note that our minimum spend for this space is \u00a31,170.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_46",
+      "subject": "Hens diner",
+      "body_preview": "Hi, I\u2019m trying to sort a hen do diner for 16 girls on 7/25 if you have availability. Later evening would be great, aroun",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1523,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 25 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,600.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 a hen do is such a special occasion.\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 25 July 2026.\n\nPlease note that our minimum spend for this space is \u00a31,600.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_47",
+      "subject": "Bday brunch",
+      "body_preview": "Hey, have you got brunch for 6 next Sunday? It\u2019s for my brother\u2019s bday. Morning-ish is fine, maybe 10 or 11. Thanks, Jos",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1523,
+      "output_tokens": 85,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for breakfast on Sunday, 14 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3250.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with us!\n\nI'm delighted to confirm that we have availability for breakfast on Sunday, 14 June 2026.\n\nPlease note that our minimum spend for this space is \u00a3250.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_48",
+      "subject": "Team meal next Weds",
+      "body_preview": "Hi, can I book for a work team meal next Weds for 11 people? Not sure if lunch or early dinner is better, probably aroun",
+      "response_goal": "REQUEST_MISSING_INFORMATION",
+      "availability_status": "INSUFFICIENT_INFORMATION",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1315,
+      "output_tokens": 98,
+      "approved_copy_blocks": {
+        "opening": "Thank you for your enquiry \u2014 I'll check availability for unknown on Wednesday, 10 June 2026 and come back to you shortly.",
+        "next_step": "Once we have the above details, we will be able to check availability and come back to you promptly.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you are looking for breakfast, lunch or dinner?\n",
+      "response": "Dear Sarah,\n\nThank you for your enquiry \u2014 I'll check availability for 11 guests on Wednesday, 10 June 2026 and come back to you shortly.\n\nTo help us find the perfect space for your team meal, could you confirm whether you are looking for breakfast, lunch or dinner?\n\nOnce we have the above details, we will be able to check availability and come back to you promptly.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": false,
+        "auto_send_blockers": [
+          "Response goal 'REQUEST_MISSING_INFORMATION' is not in the auto-send allowed set (ACKNOWLEDGE_AND_CHECK_AVAILABILITY, CONFIRM_AVAILABLE, REQUEST_DATE_CONFIRMATION). Automatically requesting information may ask for details the guest has already provided elsewhere."
+        ],
+        "review_required_reason": "Response goal 'REQUEST_MISSING_INFORMATION' is not in the auto-send allowed set (ACKNOWLEDGE_AND_CHECK_AVAILABILITY, CONFIRM_AVAILABLE, REQUEST_DATE_CONFIRMATION). Automatically requesting information may ask for details the guest has already provided elsewhere."
+      }
+    },
+    {
+      "record_id": "email_49",
+      "subject": "Mums birthday",
+      "body_preview": "Hello, I need dinner for 9 on the 15th for my mum\u2019s 70th birthday. I mean this month if possible. Around 6:30 please. Th",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1526,
+      "output_tokens": 87,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Monday, 15 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with us!\n\nI'm delighted to confirm that we have availability for dinner on Monday, 15 June 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_50",
+      "subject": "Anniversary meal",
+      "body_preview": "Hi, would you have a table for 4 for an anniversery dinner on 07/08? I\u2019m not sure if you read that as July or August \u2014 I",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1527,
+      "output_tokens": 89,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Friday, 7 August 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 an anniversary celebration calls for somewhere special.\n\nI'm delighted to confirm that we have availability for dinner on Friday, 7 August 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_51",
+      "subject": "Private party maybe September",
+      "body_preview": "Hi, looking for a small private party for 20 people the first weekend of September. It\u2019s an engagement / family celebrat",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1538,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 5 September 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a32,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 an engagement party is such a special celebration!\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 5 September 2026.\n\nPlease note that our minimum spend for this space is \u00a32,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_52",
+      "subject": "Lunch next month",
+      "body_preview": "Good afternoon, do you have a room for 10 pp for lunch any Monday to Wednesday in July? This is for a small client thank",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1623,
+      "output_tokens": 95,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Wednesday, 1 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3650.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "Dear Emily,\n\nHow wonderful \u2014 a client thank-you meal is such a special occasion.\n\nI'm delighted to confirm that we have availability for lunch on Wednesday, 1 July 2026.\n\nPlease note that our minimum spend for this space is \u00a3650.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_53",
+      "subject": "School reunion",
+      "body_preview": "Hi there, we are organising a school reunion diner for approx 22 on Saturday 18 July. Do you have anything after 7? Than",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1521,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 18 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a32,200.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a school reunion is such a special occasion.\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 18 July 2026.\n\nPlease note that our minimum spend for this space is \u00a32,200.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_54",
+      "subject": "Baby shower any weekend next month",
+      "body_preview": "Hello, I\u2019m arranging a baby shower for 15 ladies. Any weekend next month could work, ideally lunch. Could you send optio",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1575,
+      "output_tokens": 88,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Saturday, 4 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3975.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 a baby shower is such a special occasion.\n\nI'm delighted to confirm that we have availability for lunch on Saturday, 4 July 2026.\n\nPlease note that our minimum spend for this space is \u00a3975.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_55",
+      "subject": "Date maybe ambiguous",
+      "body_preview": "Hi, do you have diner for 8 on 9/8? It\u2019s for a promotion celebration. I\u2019m not sure if that is clear in your system. Arou",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_status": "PENDING_DATE_CONFIRMATION",
+      "generation_path": "deterministic",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "approved_copy_blocks": {
+        "opening": "We have availability for dinner on Sunday, 9 August 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Tuesday, 8 September 2026?",
+        "next_step": "Once confirmed, we'll come back to you straight away.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 9 August or 8 September? I have provisionally checked availability for 9 August.\n",
+      "response": "Dear Laura,\n\nWe have availability for dinner on Sunday, 9 August 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Tuesday, 8 September 2026?\n\nOnce confirmed, we'll come back to you straight away.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_56",
+      "subject": "Miday birthday lunch",
+      "body_preview": "Hi, can you fit 13 of us on 30 June for a birthday lunch? Miday would be best, sorry I mean around 12. Thanks, Fran",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1515,
+      "output_tokens": 85,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Tuesday, 30 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3845.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with colleagues.\n\nI'm delighted to confirm that we have availability for lunch on Tuesday, 30 June 2026.\n\nPlease note that our minimum spend for this space is \u00a3845.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_57",
+      "subject": "Breakfast meeting",
+      "body_preview": "Good morning, I need to book a breakfast meeting for 7 on the 24th of this month. Morning, maybe 8am or 8.30. It\u2019s a boa",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1524,
+      "output_tokens": 86,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for breakfast on Wednesday, 24 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3250.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a board meeting with your team.\n\nI'm delighted to confirm that we have availability for breakfast on Wednesday, 24 June 2026.\n\nPlease note that our minimum spend for this space is \u00a3250.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_58",
+      "subject": "Birthday end of month",
+      "body_preview": "Hey, do you have a table for 10 at the end of this month for my flatmate\u2019s birthday? Dinner ideally but dates are flexib",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1527,
+      "output_tokens": 87,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 27 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with us.\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 27 June 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_59",
+      "subject": "Corporate lunch Friday",
+      "body_preview": "Hi, I\u2019m booking on behalf of my director. Can you do lunch for 12 next Friday for a client workshop? Around midday, noth",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1516,
+      "output_tokens": 91,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Friday, 12 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3780.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a client workshop is a great opportunity to strengthen those relationships.\n\nI'm delighted to confirm that we have availability for lunch on Friday, 12 June 2026.\n\nPlease note that our minimum spend for this space is \u00a3780.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_60",
+      "subject": "Family get together",
+      "body_preview": "Hello, looking for dinner for 18 for a family get together on Aug 14th. Early evening preferred, around 6. Can you advis",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1512,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Friday, 14 August 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,800.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a family gathering is such a special occasion.\n\nI'm delighted to confirm that we have availability for dinner on Friday, 14 August 2026.\n\nPlease note that our minimum spend for this space is \u00a31,800.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_61",
+      "subject": "Ambiguous 6/8 dinner",
+      "body_preview": "Hi, can you do dinner for 10 on 6/8? It\u2019s for a birthday meal. I\u2019m using slash dates and not sure if that\u2019s clear. Aroun",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_status": "PENDING_DATE_CONFIRMATION",
+      "generation_path": "deterministic",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "approved_copy_blocks": {
+        "opening": "We have availability for dinner on Thursday, 6 August 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Monday, 8 June 2026?",
+        "next_step": "Once confirmed, we'll come back to you straight away.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 6 August or 8 June? I have provisionally checked availability for 6 August.\n",
+      "response": "Dear Yasmin,\n\nWe have availability for dinner on Thursday, 6 August 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Monday, 8 June 2026?\n\nOnce confirmed, we'll come back to you straight away.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_62",
+      "subject": "US date format lunch",
+      "body_preview": "Hello, could I book lunch for 12 on 8/6? I mean American format, August 6. It\u2019s for a client thank-you lunch, ideally mi",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1526,
+      "output_tokens": 91,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Thursday, 6 August 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3780.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a client thank-you lunch is such a special occasion.\n\nI'm delighted to confirm that we have availability for lunch on Thursday, 6 August 2026.\n\nPlease note that our minimum spend for this space is \u00a3780.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_63",
+      "subject": "UK date format baby shower",
+      "body_preview": "Hi, I\u2019m looking for a baby shower lunch for 14 on 8/6, UK format, so 8 June. Midday or early afternoon please. Thanks, L",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1536,
+      "output_tokens": 85,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Monday, 8 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3910.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nSophia"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 a baby shower celebration.\n\nI'm delighted to confirm that we have availability for lunch on Monday, 8 June 2026.\n\nPlease note that our minimum spend for this space is \u00a3910.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nSophia",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_64",
+      "subject": "Birthday on 4/7",
+      "body_preview": "Hey, do you have dinner for 8 on 4/7? It\u2019s my partner\u2019s birthday and I realise the date might be read two ways. Around 8",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_status": "PENDING_DATE_CONFIRMATION",
+      "generation_path": "deterministic",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "approved_copy_blocks": {
+        "opening": "We have availability for dinner on Saturday, 4 July 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Wednesday, 7 April 2027?",
+        "next_step": "Once confirmed, we'll come back to you straight away.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 4 July or April 7? I have provisionally checked availability for 4 July.\n",
+      "response": "Dear Fiona,\n\nWe have availability for dinner on Saturday, 4 July 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Wednesday, 7 April 2027?\n\nOnce confirmed, we'll come back to you straight away.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_65",
+      "subject": "US July 4 celebration",
+      "body_preview": "Hi there, can I book dinner for 9 on 7/4? I mean July 4 in US date format. It\u2019s for a small Independence Day get togethe",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1529,
+      "output_tokens": 95,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 4 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 an Independence Day celebration sounds like a perfect occasion to mark with us.\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 4 July 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_66",
+      "subject": "Promotion dinner unclear date",
+      "body_preview": "Hello, do you have availability for a promotion diner for 11 on 5/8? I\u2019m not sure if your system reads that as May or Au",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_status": "PENDING_DATE_CONFIRMATION",
+      "generation_path": "deterministic",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "approved_copy_blocks": {
+        "opening": "We have availability for dinner on Wednesday, 5 August 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Saturday, 8 May 2027?",
+        "next_step": "Once confirmed, we'll come back to you straight away.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 5 August or May 8? I have provisionally checked availability for 5 August.\n",
+      "response": "Dear Natalie,\n\nWe have availability for dinner on Wednesday, 5 August 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Saturday, 8 May 2027?\n\nOnce confirmed, we'll come back to you straight away.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_67",
+      "subject": "Anniversary lunch 05/08",
+      "body_preview": "Hi, could you fit 6 for lunch on 05/08? I mean 5 August. It\u2019s for an anniversery lunch and midday would be ideal.",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1523,
+      "output_tokens": 88,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Wednesday, 5 August 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3500.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 an anniversary celebration with those closest to you.\n\nI'm delighted to confirm that we have availability for lunch on Wednesday, 5 August 2026.\n\nPlease note that our minimum spend for this space is \u00a3500.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_68",
+      "subject": "Christening lunch ambiguous",
+      "body_preview": "Hello, do you have a room for 18 pp for christening lunch on 11/7? I mean the date as I\u2019ve written it, but please confir",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_status": "PENDING_DATE_CONFIRMATION",
+      "generation_path": "deterministic",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "approved_copy_blocks": {
+        "opening": "We have availability for lunch on Saturday, 11 July 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Saturday, 7 November 2026?",
+        "next_step": "Once confirmed, we'll come back to you straight away.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 11 July or 7 November? I have provisionally checked availability for 11 July.\n",
+      "response": "Dear Maya,\n\nWe have availability for lunch on Saturday, 11 July 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Saturday, 7 November 2026?\n\nOnce confirmed, we'll come back to you straight away.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_69",
+      "subject": "Baby shower US typed",
+      "body_preview": "Hi, I\u2019m organising a baby shower for 15 on 7/11. Sorry, that\u2019s US format for July 11. Lunch would be best. Thanks, Noor",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1524,
+      "output_tokens": 88,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Saturday, 11 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3975.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 a baby shower is such a special celebration!\n\nI'm delighted to confirm that we have availability for lunch on Saturday, 11 July 2026.\n\nPlease note that our minimum spend for this space is \u00a3975.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_70",
+      "subject": "Leaving do UK date",
+      "body_preview": "Hi there, we need dinner for 20 on 10/7, UK format so 10 July. It\u2019s for a leaving do. Ideally after 7pm. Cheers, Matt",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1523,
+      "output_tokens": 89,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Friday, 10 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a32,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 a leaving celebration for a valued colleague.\n\nI'm delighted to confirm that we have availability for dinner on Friday, 10 July 2026.\n\nPlease note that our minimum spend for this space is \u00a32,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_71",
+      "subject": "Ambiguous 7/10 dinner",
+      "body_preview": "Hello, could you check dinner availability for 12 on 7/10? It\u2019s for an engagement party and I\u2019m not sure if that date is",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_status": "PENDING_DATE_CONFIRMATION",
+      "generation_path": "deterministic",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "approved_copy_blocks": {
+        "opening": "We have availability for dinner on Wednesday, 7 October 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Friday, 10 July 2026?",
+        "next_step": "Once confirmed, we'll come back to you straight away.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 7 October or 10 July? I have provisionally checked availability for 7 October.\n",
+      "response": "Dear Sam,\n\nWe have availability for dinner on Wednesday, 7 October 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Friday, 10 July 2026?\n\nOnce confirmed, we'll come back to you straight away.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_72",
+      "subject": "Morning meeting 6/9",
+      "body_preview": "Good morning, could we book breakfast for 7 on 6/9? It\u2019s a board meeting. Date format might be ambiguous, so please conf",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_status": "PENDING_DATE_CONFIRMATION",
+      "generation_path": "deterministic",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "approved_copy_blocks": {
+        "opening": "We have availability for breakfast on Sunday, 6 September 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Tuesday, 9 June 2026?",
+        "next_step": "Once confirmed, we'll come back to you straight away.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 6 September or 9 June? I have provisionally checked availability for 6 September.\n",
+      "response": "Dear Megan,\n\nWe have availability for breakfast on Sunday, 6 September 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Tuesday, 9 June 2026?\n\nOnce confirmed, we'll come back to you straight away.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_73",
+      "subject": "US morning meeting",
+      "body_preview": "Hi, can you do breakfast for 7 on 9/6? I mean US format, September 6. It\u2019s for a board meeting, morning slot please.",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1517,
+      "output_tokens": 92,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for breakfast on Sunday, 6 September 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3250.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "Dear Helen,\n\nHow wonderful \u2014 a board meeting calls for the right setting.\n\nI'm delighted to confirm that we have availability for breakfast on Sunday, 6 September 2026.\n\nPlease note that our minimum spend for this space is \u00a3250.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_74",
+      "subject": "Graduation dinner ambiguous",
+      "body_preview": "Hi, looking for dinner for 13 on 3/7 for a graduation meal. I\u2019m UK based so I mean day/month if that helps. Around 6:30.",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1526,
+      "output_tokens": 91,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Friday, 3 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,300.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a graduation celebration with your closest friends and family.\n\nI'm delighted to confirm that we have availability for dinner on Friday, 3 July 2026.\n\nPlease note that our minimum spend for this space is \u00a31,300.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_75",
+      "subject": "Ambiguous family meal",
+      "body_preview": "Hello, I\u2019d like dinner for 16 on 8/9 for a family get together. I\u2019m not sure whether you use UK or US dates. Around 7pm ",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_status": "PENDING_DATE_CONFIRMATION",
+      "generation_path": "deterministic",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "approved_copy_blocks": {
+        "opening": "We have availability for dinner on Tuesday, 8 September 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Sunday, 9 August 2026?",
+        "next_step": "Once confirmed, we'll come back to you straight away.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 8 September or 9 August? I have provisionally checked availability for 8 September.\n",
+      "response": "Dear Amelia,\n\nWe have availability for dinner on Tuesday, 8 September 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Sunday, 9 August 2026?\n\nOnce confirmed, we'll come back to you straight away.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_76",
+      "subject": "Birthday brunch 09/08",
+      "body_preview": "Hey, have you got brunch for 8 on 09/08? I mean 9 August, UK style. It\u2019s for my sister\u2019s bday, morning-ish. Thanks, Elli",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1523,
+      "output_tokens": 85,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for breakfast on Sunday, 9 August 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3280.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with us!\n\nI'm delighted to confirm that we have availability for breakfast on Sunday, 9 August 2026.\n\nPlease note that our minimum spend for this space is \u00a3280.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_77",
+      "subject": "Client dinner 08/09 US",
+      "body_preview": "Good afternoon, I need dinner for 10 on 08/09, using US format for August 9. This is a client dinner. Around 7.30 if pos",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1527,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Sunday, 9 August 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a client dinner is such a special occasion.\n\nI'm delighted to confirm that we have availability for dinner on Sunday, 9 August 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_78",
+      "subject": "Retirement lunch ambiguous",
+      "body_preview": "Hi, could you fit 12 for a retirement lunch on 2/9? It may be ambiguous but we are in the UK. Midday if available. Thank",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1516,
+      "output_tokens": 88,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Wednesday, 2 September 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3780.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a retirement celebration is such a special occasion.\n\nI'm delighted to confirm that we have availability for lunch on Wednesday, 2 September 2026.\n\nPlease note that our minimum spend for this space is \u00a3780.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_79",
+      "subject": "Work celebration unclear",
+      "body_preview": "Hi, can you do dinner for 14 on 10/8? It\u2019s a work celebration. I\u2019m not sure if that will be read as October or August, s",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_status": "PENDING_DATE_CONFIRMATION",
+      "generation_path": "deterministic",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "approved_copy_blocks": {
+        "opening": "We have availability for dinner on Monday, 10 August 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Thursday, 8 October 2026?",
+        "next_step": "Once confirmed, we'll come back to you straight away.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 10 August or 8 October? I have provisionally checked availability for 10 August.\n",
+      "response": "Dear Tina,\n\nWe have availability for dinner on Monday, 10 August 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Thursday, 8 October 2026?\n\nOnce confirmed, we'll come back to you straight away.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_80",
+      "subject": "Baby naming lunch",
+      "body_preview": "Hello, I\u2019m arranging a baby naming lunch for 17 on 12/7. We are UK based, so I mean 12 July. Around 12:30 would be perfe",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1525,
+      "output_tokens": 92,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Sunday, 12 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,105.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 a baby naming is such a special milestone to celebrate.\n\nI'm delighted to confirm that we have availability for lunch on Sunday, 12 July 2026.\n\nPlease note that our minimum spend for this space is \u00a31,105.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_81",
+      "subject": "Private dining enquiry - 29 June",
+      "body_preview": "Hi there, please can you help with a new private dining enquiry? My client is looking for a private dinner on Monday 29t",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1540,
+      "output_tokens": 89,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Monday, 29 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,200.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nSophia"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a private dinner for 12.\n\nI'm delighted to confirm that we have availability for dinner on Monday, 29 June 2026.\n\nPlease note that our minimum spend for this space is \u00a31,200.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nSophia",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_82",
+      "subject": "Agency enquiry for client dinner",
+      "body_preview": "Good afternoon, I am working on behalf of a corporate client who needs dinner for 18 guests on 4/7. UK format, so 4 July",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1540,
+      "output_tokens": 91,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 4 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,800.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nSophia"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a corporate dinner with 18 guests.\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 4 July 2026.\n\nPlease note that our minimum spend for this space is \u00a31,800.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nSophia",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_83",
+      "subject": "PA request for board dinner",
+      "body_preview": "Hello, I am the PA to our Managing Director and I am looking to arrange a board dinner for 10 guests next Thursday. Plea",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1520,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Thursday, 11 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a board dinner is such an important occasion.\n\nI'm delighted to confirm that we have availability for dinner on Thursday, 11 June 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_84",
+      "subject": "Private office lunch",
+      "body_preview": "Dear team, I am booking on behalf of a private family office. They would like lunch for 14 guests on 8/7. Please treat t",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1520,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Wednesday, 8 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3910.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 a private family office lunch sounds like a wonderful occasion.\n\nI'm delighted to confirm that we have availability for lunch on Wednesday, 8 July 2026.\n\nPlease note that our minimum spend for this space is \u00a3910.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_85",
+      "subject": "Agency commission question",
+      "body_preview": "Hi, my client is considering a dinner for 22 on 8/7 but I am not sure which date format your system uses. We are UK base",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1541,
+      "output_tokens": 91,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Wednesday, 8 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a32,200.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nSophia"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a client dinner with 22 guests.\n\nI'm delighted to confirm that we have availability for dinner on Wednesday, 8 July 2026.\n\nPlease note that our minimum spend for this space is \u00a32,200.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nSophia",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_86",
+      "subject": "EA dinner enquiry",
+      "body_preview": "Hello, I am the EA to our CEO. Could you check dinner availability for 8 people on Friday 31 July? We would like a priva",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1521,
+      "output_tokens": 89,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Friday, 31 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a CEO dinner is a significant occasion.\n\nI'm delighted to confirm that we have availability for dinner on Friday, 31 July 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_87",
+      "subject": "Concierge client birthday",
+      "body_preview": "Hi, I am arranging this for a concierge client. They need a birthday dinner for 16 guests on 11/8. Please provisionally ",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_status": "PENDING_DATE_CONFIRMATION",
+      "generation_path": "deterministic",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "approved_copy_blocks": {
+        "opening": "We have availability for dinner on Tuesday, 11 August 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Sunday, 8 November 2026?",
+        "next_step": "Once confirmed, we'll come back to you straight away.",
+        "signoff": "Warm regards,\nSophia"
+      },
+      "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 11 August or 8 November? I have provisionally checked availability for 11 August.\n",
+      "response": "Dear Marcus,\n\nWe have availability for dinner on Tuesday, 11 August 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Sunday, 8 November 2026?\n\nOnce confirmed, we'll come back to you straight away.\n\nWarm regards,\nSophia",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_88",
+      "subject": "Product launch lunch",
+      "body_preview": "Good morning, I am an events manager organising a product launch lunch for 24 guests on any Monday to Wednesday in the l",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1578,
+      "output_tokens": 91,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Monday, 20 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,560.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nSophia"
+      },
+      "clarification_questions_line": "",
+      "response": "How exciting \u2014 a product launch is such a brilliant occasion.\n\nI'm delighted to confirm that we have availability for lunch on Monday, 20 July 2026.\n\nPlease note that our minimum spend for this space is \u00a31,560.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nSophia",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_89",
+      "subject": "Agency dinner VEI",
+      "body_preview": "Hi, please can you help with a new private dining enquiry for my client? They are looking for dinner on 15/8 for 12 gues",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1541,
+      "output_tokens": 89,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 15 August 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,200.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nSophia"
+      },
+      "clarification_questions_line": "",
+      "response": "How lovely \u2014 a private dinner for 12.\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 15 August 2026.\n\nPlease note that our minimum spend for this space is \u00a31,200.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nSophia",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_90",
+      "subject": "Assistant booking anniversary",
+      "body_preview": "Hello, I am booking on behalf of Mr and Mrs Carter for an anniversary dinner for 6 on 3/9. We are using UK date format, ",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1521,
+      "output_tokens": 86,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Thursday, 3 September 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a corporate anniversary celebration.\n\nI'm delighted to confirm that we have availability for dinner on Thursday, 3 September 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_91",
+      "subject": "Ambiguous 4/7 dinner",
+      "body_preview": "Hi, do you have dinner for 10 on 4/7? It is for my birthday. I am in London so I mean 4 July, but please check if needed",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1528,
+      "output_tokens": 87,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Saturday, 4 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with us!\n\nI'm delighted to confirm that we have availability for dinner on Saturday, 4 July 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_92",
+      "subject": "US style date",
+      "body_preview": "Hello, I\u2019m visiting from New York and would like dinner for 8 on 8/7. I mean August 7, American style. It\u2019s for an engag",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1528,
+      "output_tokens": 92,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Friday, 7 August 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,000.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 an engagement party is such a special occasion to celebrate.\n\nI'm delighted to confirm that we have availability for dinner on Friday, 7 August 2026.\n\nPlease note that our minimum spend for this space is \u00a31,000.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_93",
+      "subject": "Unclear numeric date",
+      "body_preview": "Hi there, could you do lunch for 9 on 5/7? It is for a baby shower. I am not sure how your system reads dates. Midday wo",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_status": "PENDING_DATE_CONFIRMATION",
+      "generation_path": "deterministic",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "approved_copy_blocks": {
+        "opening": "We have availability for lunch on Sunday, 5 July 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Thursday, 7 May 2026?",
+        "next_step": "Once confirmed, we'll come back to you straight away.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 5 July or 7 May? I have provisionally checked availability for 5 July.\n",
+      "response": "Dear Laura,\n\nWe have availability for lunch on Sunday, 5 July 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Thursday, 7 May 2026?\n\nOnce confirmed, we'll come back to you straight away.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_94",
+      "subject": "Corporate team meal",
+      "body_preview": "Hi, can you arrange dinner for 15 on 21 August for a project completion meal? I\u2019m from Deloitte but this is just a team ",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1522,
+      "output_tokens": 89,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Friday, 21 August 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,500.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 celebrating a project milestone with your team.\n\nI'm delighted to confirm that we have availability for dinner on Friday, 21 August 2026.\n\nPlease note that our minimum spend for this space is \u00a31,500.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_95",
+      "subject": "Possible agency domain",
+      "body_preview": "Hi, I\u2019m Emma from Events by Emma. I\u2019m helping my friend plan her birthday dinner for 12 on the first Friday of August. C",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1526,
+      "output_tokens": 87,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for dinner on Friday, 7 August 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,200.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a birthday celebration with us!\n\nI'm delighted to confirm that we have availability for dinner on Friday, 7 August 2026.\n\nPlease note that our minimum spend for this space is \u00a31,200.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_96",
+      "subject": "Unknown consulting domain",
+      "body_preview": "Hello, do you have availability for lunch for 10 on 10/7? UK format, 10 July. It is a client thank-you meal. Please send",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1519,
+      "output_tokens": 95,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Friday, 10 July 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3650.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a client thank-you meal is such a meaningful way to strengthen those relationships.\n\nI'm delighted to confirm that we have availability for lunch on Friday, 10 July 2026.\n\nPlease note that our minimum spend for this space is \u00a3650.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_97",
+      "subject": "Ambiguous no clue",
+      "body_preview": "Hi, looking for dinner for 11 on 8/9 for a promotion celebration. Not sure if that date is clear. Around 7.30 if you hav",
+      "response_goal": "REQUEST_DATE_CONFIRMATION",
+      "availability_status": "PENDING_DATE_CONFIRMATION",
+      "generation_path": "deterministic",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "approved_copy_blocks": {
+        "opening": "We have availability for dinner on Tuesday, 8 September 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Sunday, 9 August 2026?",
+        "next_step": "Once confirmed, we'll come back to you straight away.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 8 September or 9 August? I have provisionally checked availability for 8 September.\n",
+      "response": "Dear Gareth,\n\nWe have availability for dinner on Tuesday, 8 September 2026 \u2014 I just wanted to confirm that's the date you had in mind and not Sunday, 9 August 2026?\n\nOnce confirmed, we'll come back to you straight away.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_98",
+      "subject": "Ivygroup confusion",
+      "body_preview": "Hi, I work with Ivy Group Consulting and would like breakfast for 6 on 24/6 for an investor meeting. Could you confirm a",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1517,
+      "output_tokens": 92,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for breakfast on Wednesday, 24 June 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3250.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nJames"
+      },
+      "clarification_questions_line": "",
+      "response": "Dear Sofia,\n\nHow wonderful \u2014 an investor meeting is such an important occasion.\n\nI'm delighted to confirm that we have availability for breakfast on Wednesday, 24 June 2026.\n\nPlease note that our minimum spend for this space is \u00a3250.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nJames",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_99",
+      "subject": "Family celebration public domain",
+      "body_preview": "Hello, can you do lunch for 20 on the weekend of 22 August? It\u2019s a family reunion. Saturday would be best but Sunday als",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1538,
+      "output_tokens": 90,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for lunch on Saturday, 22 August 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a31,300.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nEleanor"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a family reunion is such a special occasion.\n\nI'm delighted to confirm that we have availability for lunch on Saturday, 22 August 2026.\n\nPlease note that our minimum spend for this space is \u00a31,300.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nEleanor",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    },
+    {
+      "record_id": "email_100",
+      "subject": "Agency breakfast briefing",
+      "body_preview": "Good morning, we are sourcing venues for a client breakfast briefing for 25 guests on 2/9. Please assume UK date format,",
+      "response_goal": "CONFIRM_AVAILABLE",
+      "availability_status": "AVAILABLE",
+      "generation_path": "llm",
+      "prompt_version": 7,
+      "llm_model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1535,
+      "output_tokens": 91,
+      "approved_copy_blocks": {
+        "opening": "I'm delighted to confirm that we have availability for breakfast on Wednesday, 2 September 2026.",
+        "minimum_spend": "Please note that our minimum spend for this space is \u00a3875.",
+        "next_step": "Please reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.",
+        "signoff": "Warm regards,\nSophia"
+      },
+      "clarification_questions_line": "",
+      "response": "How wonderful \u2014 a client breakfast briefing for 25 guests.\n\nI'm delighted to confirm that we have availability for breakfast on Wednesday, 2 September 2026.\n\nPlease note that our minimum spend for this space is \u00a3875.\n\nPlease reply to this email to confirm you would like to proceed, and our events team will be in touch to finalise the booking.\n\nWarm regards,\nSophia",
+      "safety_checks": {
+        "issues": [],
+        "issue_count": 0,
+        "has_issues": false
+      },
+      "compliance": {
+        "passed": true,
+        "violations": []
+      },
+      "auto_send": {
+        "auto_send_allowed": true,
+        "auto_send_blockers": [],
+        "review_required_reason": ""
+      }
+    }
+  ]
+}
