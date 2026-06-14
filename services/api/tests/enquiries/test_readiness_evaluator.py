@@ -32,6 +32,7 @@ def _make_extraction(
     guest_count: int | None = 20,
     occasion: str | None = "birthday",
     meal_period: str | None = "dinner",
+    event_time: str | None = None,
     audience_type: str | None = "social",
 ) -> dict:
     """Build a minimal extraction dict for testing."""
@@ -39,6 +40,7 @@ def _make_extraction(
         "guest_count": guest_count,
         "occasion": occasion,
         "meal_period": meal_period,
+        "event_time": event_time,
         "audience_type": audience_type,
         "date_request": {
             "date_request_type": date_request_type,
@@ -246,3 +248,90 @@ class TestToDictSerialisation:
         import json
         # Should not raise
         json.dumps(d)
+
+
+# ── RESP-066: meal period inference from event_time ───────────────────────────
+
+
+class TestMealPeriodTimeInference:
+    """RESP-066: meal_period_present should be True when event_time is available.
+
+    When the LLM extracts event_time (HH:MM) but returns meal_period = "unknown",
+    the meal period can be deterministically inferred (before 15:00 → lunch;
+    15:00+ → dinner).  Marking meal_period_present = True prevents unnecessary
+    guest-facing clarification questions like "breakfast, lunch or dinner?".
+    """
+
+    def test_event_time_afternoon_infers_meal_period_present(self, evaluator):
+        # "around 4ish" → event_time="16:00", meal_period="unknown"
+        ext = _make_extraction(meal_period="unknown", event_time="16:00")
+        result = evaluator.evaluate(ext)
+        assert result.meal_period_present is True
+
+    def test_event_time_morning_infers_meal_period_present(self, evaluator):
+        # "at 10am" → event_time="10:00", meal_period="unknown"
+        ext = _make_extraction(meal_period="unknown", event_time="10:00")
+        result = evaluator.evaluate(ext)
+        assert result.meal_period_present is True
+
+    def test_event_time_noon_infers_meal_period_present(self, evaluator):
+        ext = _make_extraction(meal_period="unknown", event_time="12:00")
+        result = evaluator.evaluate(ext)
+        assert result.meal_period_present is True
+
+    def test_event_time_overrides_null_meal_period(self, evaluator):
+        ext = _make_extraction(meal_period=None, event_time="19:30")
+        result = evaluator.evaluate(ext)
+        assert result.meal_period_present is True
+
+    def test_event_time_overrides_missing_meal_period(self, evaluator):
+        ext = {
+            "guest_count": 10,
+            "occasion": "birthday",
+            "event_time": "20:00",
+            "audience_type": "social",
+            "date_request": {"date_request_type": "exact"},
+        }
+        result = evaluator.evaluate(ext)
+        assert result.meal_period_present is True
+
+    def test_no_event_time_unknown_meal_period_is_absent(self, evaluator):
+        # Neither meal_period nor event_time → meal_period_present False
+        ext = _make_extraction(meal_period="unknown", event_time=None)
+        result = evaluator.evaluate(ext)
+        assert result.meal_period_present is False
+
+    def test_no_event_time_null_meal_period_is_absent(self, evaluator):
+        ext = _make_extraction(meal_period=None, event_time=None)
+        result = evaluator.evaluate(ext)
+        assert result.meal_period_present is False
+
+    def test_explicit_meal_period_still_works(self, evaluator):
+        # Explicit meal_period takes precedence — event_time not needed
+        ext = _make_extraction(meal_period="dinner", event_time=None)
+        result = evaluator.evaluate(ext)
+        assert result.meal_period_present is True
+
+    def test_unparseable_event_time_does_not_infer(self, evaluator):
+        # event_time that cannot be split into an integer hour → no inference
+        ext = _make_extraction(meal_period="unknown", event_time="afternoon")
+        result = evaluator.evaluate(ext)
+        assert result.meal_period_present is False
+
+    def test_email_48_scenario_no_meal_period_question(self, evaluator):
+        # Exact scenario: work team meal, 4ish → no clarification needed for meal period
+        ext = {
+            "guest_count": 11,
+            "occasion": "work team meal",
+            "meal_period": "unknown",
+            "event_time": "16:00",
+            "audience_type": "social",
+            "date_request": {
+                "date_request_type": "exact",
+                "requires_date_clarification": False,
+                "explicit_dates": ["2026-06-10"],
+            },
+        }
+        result = evaluator.evaluate(ext)
+        assert result.meal_period_present is True
+        assert result.status == STATUS_READY_FOR_AVAILABILITY
