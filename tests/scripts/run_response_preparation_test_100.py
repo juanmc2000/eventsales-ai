@@ -433,9 +433,14 @@ def _safety_checks(draft: str, goal: str, record: dict) -> dict:
                 issues.append(f"invented_room:{m.group(0)}")
 
     # Availability overclaim in non-CONFIRM goals
+    # RESP-073: REQUEST_DATE_CONFIRMATION is exempt for "have availability" —
+    # the rdtc_available_opener copy block intentionally states provisional
+    # availability for the assumed date before asking for date confirmation.
     if goal != "CONFIRM_AVAILABLE":
         for phrase in ("is available", "are available", "have availability", "confirmed available"):
             if phrase in lower:
+                if phrase == "have availability" and goal == "REQUEST_DATE_CONFIRMATION":
+                    continue  # RESP-073: approved RDTC opener phrase
                 issues.append(f"availability_overclaim:{phrase}")
 
     # ACKNOWLEDGE room pre-commitment
@@ -478,10 +483,12 @@ def _run_auto_send_gate(goal: str, compliance_passed: bool, violations: list[str
         unsafe_to_send=not compliance_passed,
     )
     integrity = IntegrityCheckResult(passed=True)
+    # HOTFIX-007: RDTC carries pending_date_confirmation — matches service.py pipeline
+    date_status = "pending_date_confirmation" if goal == "REQUEST_DATE_CONFIRMATION" else "resolved"
     result = AutoSendReadinessGate.evaluate(
         response_goal=goal,
         draft_compliance_result=compliance,
-        date_status="resolved",
+        date_status=date_status,
         integrity_result=integrity,
         review_required_policy_questions=None,
     )

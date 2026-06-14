@@ -155,7 +155,7 @@ class TestResponseGoalRule:
         "RESPOND_UNAVAILABLE",
         "REQUEST_WEBFORM",
         "ESCALATE_TO_HUMAN",
-        "REQUEST_DATE_CONFIRMATION",
+        # REQUEST_DATE_CONFIRMATION removed — HOTFIX-007: now in ALLOWED_GOALS
         "REQUEST_MISSING_INFORMATION",
         "UNKNOWN_GOAL",
     ])
@@ -201,6 +201,14 @@ class TestDateStatusRule:
     def test_blocker_includes_date_status_value(self) -> None:
         result = _evaluate(response_goal="CONFIRM_AVAILABLE", date_status="ambiguous")
         assert any("ambiguous" in b for b in result.auto_send_blockers)
+
+    def test_allowed_when_date_pending_date_confirmation(self) -> None:
+        # HOTFIX-007: pending_date_confirmation is an approved date status for RDTC
+        result = _evaluate(
+            response_goal="REQUEST_DATE_CONFIRMATION",
+            date_status="pending_date_confirmation",
+        )
+        assert result.auto_send_allowed is True
 
     def test_blocked_when_date_status_not_in_allowlist(self) -> None:
         result = _evaluate(response_goal="CONFIRM_AVAILABLE", date_status="some_other_status")
@@ -258,8 +266,20 @@ class TestGoalCoverage:
         result = _evaluate(response_goal="REQUEST_WEBFORM")
         assert result.auto_send_allowed is False
 
-    def test_request_date_confirmation_blocked(self) -> None:
-        result = _evaluate(response_goal="REQUEST_DATE_CONFIRMATION")
+    def test_request_date_confirmation_allowed(self) -> None:
+        # HOTFIX-007: RDTC is fully deterministic after RESP-073 — auto-send eligible
+        result = _evaluate(
+            response_goal="REQUEST_DATE_CONFIRMATION",
+            date_status="pending_date_confirmation",
+        )
+        assert result.auto_send_allowed is True
+
+    def test_request_date_confirmation_blocked_without_correct_date_status(self) -> None:
+        # "ambiguous" is NOT in ALLOWED_DATE_STATUSES — only "pending_date_confirmation" is
+        result = _evaluate(
+            response_goal="REQUEST_DATE_CONFIRMATION",
+            date_status="ambiguous",
+        )
         assert result.auto_send_allowed is False
 
     def test_confirm_available_allowed(self) -> None:

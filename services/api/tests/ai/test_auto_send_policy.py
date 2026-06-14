@@ -31,8 +31,9 @@ class TestGoalEligibility:
     def test_respond_unavailable_is_blocked(self) -> None:
         assert AutoSendEligibilityPolicy.is_goal_eligible("RESPOND_UNAVAILABLE") is False
 
-    def test_request_date_confirmation_is_blocked(self) -> None:
-        assert AutoSendEligibilityPolicy.is_goal_eligible("REQUEST_DATE_CONFIRMATION") is False
+    def test_request_date_confirmation_is_eligible(self) -> None:
+        # HOTFIX-007: RDTC is now fully deterministic (RESP-073) — safe for auto-send
+        assert AutoSendEligibilityPolicy.is_goal_eligible("REQUEST_DATE_CONFIRMATION") is True
 
     def test_request_webform_is_blocked(self) -> None:
         assert AutoSendEligibilityPolicy.is_goal_eligible("REQUEST_WEBFORM") is False
@@ -71,6 +72,11 @@ class TestDateStatusEligibility:
 
     def test_none_as_string_is_blocked(self) -> None:
         assert AutoSendEligibilityPolicy.is_date_status_eligible("None") is False
+
+    def test_pending_date_confirmation_is_eligible(self) -> None:
+        # HOTFIX-007: RDTC emails carry this status — allowed because response
+        # communicates the ambiguity to the guest via deterministic copy block.
+        assert AutoSendEligibilityPolicy.is_date_status_eligible("pending_date_confirmation") is True
 
 
 # ── Block reasons ───────────────────────────────────────────────────────────────

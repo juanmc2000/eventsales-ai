@@ -770,7 +770,7 @@ class DraftGenerationService:
         _rdtc_readiness = AutoSendReadinessGate.evaluate(
             response_goal="REQUEST_DATE_CONFIRMATION",
             draft_compliance_result=_rdtc_compliance,
-            date_status="ambiguous",
+            date_status="pending_date_confirmation",  # HOTFIX-007
             integrity_result=_rdtc_integrity,
         )
         _rdtc_review_state = DraftReviewStateService.evaluate(
