@@ -65,7 +65,10 @@ from app.modules.ai.first_response_copy_library import (
 )
 from app.modules.ai.draft_compliance_validator import DraftComplianceValidator, ValidationContext
 from app.modules.ai.auto_send_readiness_gate import AutoSendReadinessGate
-from app.modules.ai.draft_post_processor import strip_provisional_sentences as _strip_provisional_sentences
+from app.modules.ai.draft_post_processor import (
+    DraftPostProcessor,
+    strip_provisional_sentences as _strip_provisional_sentences,
+)
 from app.modules.enquiries.response_context_integrity_gate import IntegrityCheckResult
 
 # ── Env setup ─────────────────────────────────────────────────────────────────
@@ -520,6 +523,10 @@ def _process_record(record: dict, idx: int, total: int) -> dict:
         gen_info = _build_rmi_llm(record, idx, total)
 
     draft = gen_info.get("response", "")
+    # Mirror live pipeline: apply DraftPostProcessor before validation
+    # (strips subject lines, section labels — same as service.py)
+    if gen_info.get("generation_path") == "llm":
+        draft = DraftPostProcessor.process(draft).cleaned_body
     clarification_questions: list[str] = gen_info.get("clarification_questions") or []
 
     # Checks
