@@ -143,10 +143,20 @@ class EnquiryReadinessEvaluator:
         )
 
         meal_period = ext.get("meal_period")
+        event_time = ext.get("event_time")
         meal_period_present: bool = bool(
             meal_period
             and str(meal_period).upper() not in ("NULL", "UNKNOWN", "")
         )
+        # RESP-066: if event_time is present and parseable (HH:MM), meal period
+        # can be deterministically inferred (before 15:00 → lunch; 15:00+ → dinner).
+        # Treat as present so we never ask the guest an unnecessary question.
+        if not meal_period_present and event_time:
+            try:
+                int(str(event_time).split(":")[0])
+                meal_period_present = True
+            except (ValueError, IndexError):
+                pass
 
         audience_type = ext.get("audience_type")
         audience_identified: bool = bool(
