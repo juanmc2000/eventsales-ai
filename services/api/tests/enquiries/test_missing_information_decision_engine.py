@@ -124,13 +124,13 @@ class TestRule1AmbiguousDate:
         assert len(decision.blocking_reasons) > 0
 
     def test_hotfix001_ambiguous_9_1_blocks_availability(self):
-        # 9/1 is RESOLVED_WITH_CONFIRMATION (not AMBIGUOUS) — Rule 2 applies
+        # 9/1 — HOTFIX-008: british (Jan 9 2027) >120d, american (Sep 1) ≤120d
+        # Rule 4 resolves directly to RESOLVED — no confirmation step needed
         result = NumericDateDisambiguationService.disambiguate(9, 1, ANCHOR)
         status = DateResolutionStatus.from_disambiguation_result("9/1", result)
         decision = MissingInformationDecisionEngine.decide(status, READY_READINESS)
-        # Sep 1 is near, so american chosen — availability may proceed
-        assert decision.decision == DECISION_REQUEST_DATE_CONFIRMATION
-        assert decision.availability_allowed is True  # confirmation, not blocked
+        assert decision.decision == DECISION_PROCEED
+        assert decision.availability_allowed is True
 
     def test_hotfix001_close_call_7_6_blocks_availability(self):
         # 7/6 is UNRESOLVED_AMBIGUITY → ambiguous
@@ -311,11 +311,13 @@ class TestHotfix001Integration:
         assert "7 June" in decision.questions[0] or "6 July" in decision.questions[0]
 
     def test_1_9_confirmation_allows_availability(self):
+        # 1/9 — HOTFIX-008: british (Sep 1) ≤120d, american (Jan 9 2027) >120d
+        # Rule 4 resolves directly to RESOLVED — proceeds immediately, no clarification
         result = NumericDateDisambiguationService.disambiguate(1, 9, ANCHOR)
         status = DateResolutionStatus.from_disambiguation_result("1/9", result)
         decision = MissingInformationDecisionEngine.decide(status, READY_READINESS)
         assert decision.availability_allowed is True
-        assert decision.requires_clarification is True
+        assert decision.requires_clarification is False
 
 
 # ── No LLM usage ──────────────────────────────────────────────────────────────

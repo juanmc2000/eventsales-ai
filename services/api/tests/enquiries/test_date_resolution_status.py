@@ -12,6 +12,7 @@ from app.modules.enquiries.date_resolution_status import (
     METHOD_BRITISH_DEFAULT,
     METHOD_DD_MM_UNAMBIGUOUS,
     METHOD_MM_DD_UNAMBIGUOUS,
+    METHOD_NEAR_HORIZON_AMERICAN,
     METHOD_NEXT_YEAR_ASSUMPTION,
     METHOD_NO_DATE_EXTRACTED,
     METHOD_RELATIVE_PERIOD_EXPANSION,
@@ -67,9 +68,10 @@ class TestFromDisambiguationResult:
         assert status.clarification_required is False
 
     def test_british_default_maps_to_resolved_with_confirmation(self):
-        # 1/9 — both ≤ 12; british is near, american is far → british_default
-        result = NumericDateDisambiguationService.disambiguate(1, 9, ANCHOR)
-        status = DateResolutionStatus.from_disambiguation_result("1/9", result)
+        # 10/12 — both ≤ 12; both beyond 120-day horizon (Oct 12 = 131d, Dec 10 = 190d);
+        # |190-131|=59 > CLOSE_CALL_DAYS=30 → british_default (RESOLVED_WITH_CONFIRMATION)
+        result = NumericDateDisambiguationService.disambiguate(10, 12, ANCHOR)
+        status = DateResolutionStatus.from_disambiguation_result("10/12", result)
         assert status.status == STATUS_RESOLVED_WITH_CONFIRMATION
         assert status.clarification_required is True
         assert status.clarification_question is not None
@@ -83,13 +85,13 @@ class TestFromDisambiguationResult:
         assert status.clarification_required is True
 
     def test_american_preferred_by_heuristic(self):
-        # 9/1 — british far away, american near → american preferred
+        # 9/1 — british (Jan 9) rolls to 2027 (>120d), american (Sep 1) is 90d away (<120d)
+        # Rule 4 (HOTFIX-008): american_near, british not → RESOLVED directly
         result = NumericDateDisambiguationService.disambiguate(9, 1, ANCHOR)
         status = DateResolutionStatus.from_disambiguation_result("9/1", result)
-        # Should resolve to Sep 1 (american interpretation)
-        assert status.status == STATUS_RESOLVED_WITH_CONFIRMATION
+        assert status.status == STATUS_RESOLVED
         assert status.resolved_date == "2026-09-01"
-        assert status.resolution_method == METHOD_AMERICAN_NEARER
+        assert status.resolution_method == METHOD_NEAR_HORIZON_AMERICAN
 
     def test_candidate_dates_populated(self):
         result = NumericDateDisambiguationService.disambiguate(1, 9, ANCHOR)
@@ -126,9 +128,10 @@ class TestResolutionMethodMapping:
         assert status.resolution_method == METHOD_BOTH_EQUALLY_PLAUSIBLE
 
     def test_american_nearer_maps_correctly(self):
+        # 9/1 now resolved via Rule 4 (near_horizon_american) rather than Rule 5
         result = NumericDateDisambiguationService.disambiguate(9, 1, ANCHOR)
         status = DateResolutionStatus.from_disambiguation_result("9/1", result)
-        assert status.resolution_method == METHOD_AMERICAN_NEARER
+        assert status.resolution_method == METHOD_NEAR_HORIZON_AMERICAN
 
 
 # ── resolved() factory ────────────────────────────────────────────────────────
@@ -196,8 +199,9 @@ class TestComputedProperties:
         assert status.can_proceed_to_availability is True
 
     def test_resolved_with_confirmation_cannot_proceed(self):
-        result = NumericDateDisambiguationService.disambiguate(1, 9, ANCHOR)
-        status = DateResolutionStatus.from_disambiguation_result("1/9", result)
+        # 10/12 → RESOLVED_WITH_CONFIRMATION (british_default) — cannot auto-proceed
+        result = NumericDateDisambiguationService.disambiguate(10, 12, ANCHOR)
+        status = DateResolutionStatus.from_disambiguation_result("10/12", result)
         assert status.can_proceed_to_availability is False
 
     def test_ambiguous_cannot_proceed(self):
@@ -210,8 +214,9 @@ class TestComputedProperties:
         assert status.can_proceed_to_availability is False
 
     def test_requires_guest_action_when_clarification_required(self):
-        result = NumericDateDisambiguationService.disambiguate(1, 9, ANCHOR)
-        status = DateResolutionStatus.from_disambiguation_result("1/9", result)
+        # 10/12 → RESOLVED_WITH_CONFIRMATION (british_default) — clarification required
+        result = NumericDateDisambiguationService.disambiguate(10, 12, ANCHOR)
+        status = DateResolutionStatus.from_disambiguation_result("10/12", result)
         assert status.requires_guest_action is True
 
     def test_no_guest_action_when_resolved(self):
