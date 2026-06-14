@@ -96,6 +96,9 @@ METHOD_WEEKDAY_RELATIVE = "weekday_relative"
 METHOD_DATE_RANGE_EXPANSION = "date_range_expansion"
 METHOD_NO_DATE_EXTRACTED = "no_date_extracted"
 METHOD_UNKNOWN = "unknown"
+# HOTFIX-008: near-horizon resolution (Rule 4)
+METHOD_NEAR_HORIZON_BRITISH = "near_horizon_british"
+METHOD_NEAR_HORIZON_AMERICAN = "near_horizon_american"
 
 ALL_RESOLUTION_METHODS = {
     METHOD_DD_MM_UNAMBIGUOUS,
@@ -111,6 +114,8 @@ ALL_RESOLUTION_METHODS = {
     METHOD_DATE_RANGE_EXPANSION,
     METHOD_NO_DATE_EXTRACTED,
     METHOD_UNKNOWN,
+    METHOD_NEAR_HORIZON_BRITISH,
+    METHOD_NEAR_HORIZON_AMERICAN,
 }
 
 
@@ -266,11 +271,11 @@ class DateResolutionStatus:
         ambiguity_type: str,
     ) -> str:
         """Map a disambiguation clarification_reason to a resolution_method string."""
-        if ambiguity_type == RESOLVED:
-            # Rule 1a or 1b was triggered (one value > 12)
-            return METHOD_DD_MM_UNAMBIGUOUS
-
         mapping = {
+            # RESOLVED reasons
+            "near_horizon_british": METHOD_NEAR_HORIZON_BRITISH,     # HOTFIX-008 Rule 4
+            "near_horizon_american": METHOD_NEAR_HORIZON_AMERICAN,   # HOTFIX-008 Rule 4
+            # RESOLVED_WITH_CONFIRMATION / UNRESOLVED_AMBIGUITY reasons
             "american_nearer_by_horizon_heuristic": METHOD_AMERICAN_NEARER,
             "next_year_assumption": METHOD_NEXT_YEAR_ASSUMPTION,
             "both_interpretations_equally_plausible": METHOD_BOTH_EQUALLY_PLAUSIBLE,
@@ -281,5 +286,9 @@ class DateResolutionStatus:
         }
         if reason in mapping:
             return mapping[reason]
+
+        if ambiguity_type == RESOLVED:
+            # Rule 1a or 1b: one value > 12, no reason code set
+            return METHOD_DD_MM_UNAMBIGUOUS
 
         return METHOD_UNKNOWN

@@ -9,6 +9,10 @@ Decision rules (in order):
   Rule 1 — If one value > 12: unambiguous, resolve immediately.
   Rule 2 — If both values ≤ 12: generate both interpretations.
   Rule 3 — British (DD/MM) is the default assumption.
+  Rule 4 — HOTFIX-008: If one interpretation is within NEAR_HORIZON_DAYS (120)
+            and the other is beyond it, resolve to the nearer date without
+            clarification.  A date > 120 days away is not a plausible
+            alternative for a hospitality enquiry.
   Rule 5 — If British interpretation is > 180 days away AND American ≤ 90:
             use American, resolved_with_confirmation.
   Rule 6 — Next-year protection: if assumed date falls into the next calendar
@@ -24,6 +28,7 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 
 # Horizon thresholds (days from anchor_date)
+NEAR_HORIZON_DAYS = 120  # HOTFIX-008: date within this many days is "clearly near"
 BRITISH_FAR_DAYS = 180   # British date is "too far" to be the obvious choice
 AMERICAN_NEAR_DAYS = 90  # American date is "close enough" to be preferred
 
@@ -182,6 +187,28 @@ class NumericDateDisambiguationService:
     ) -> DisambiguationResult:
         british_days = (british - anchor).days
         american_days = (american - anchor).days
+
+        # Rule 4 (HOTFIX-008): one date is within NEAR_HORIZON_DAYS, the other
+        # is beyond it — the far date is not a plausible alternative for a
+        # near-term hospitality booking; resolve directly to the nearer date.
+        british_near = british_days <= NEAR_HORIZON_DAYS
+        american_near = american_days <= NEAR_HORIZON_DAYS
+        if british_near and not american_near:
+            return DisambiguationResult(
+                ambiguity_type=RESOLVED,
+                assumed_date=british,
+                alternative_date=None,
+                clarification_required=False,
+                clarification_reason="near_horizon_british",
+            )
+        if american_near and not british_near:
+            return DisambiguationResult(
+                ambiguity_type=RESOLVED,
+                assumed_date=american,
+                alternative_date=None,
+                clarification_required=False,
+                clarification_reason="near_horizon_american",
+            )
 
         # Rule 5: British is far away, American is near — prefer American
         if british_days > BRITISH_FAR_DAYS and american_days <= AMERICAN_NEAR_DAYS:

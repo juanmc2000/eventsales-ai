@@ -14,6 +14,7 @@ from app.modules.enquiries.numeric_date_disambiguation_service import (
     AMERICAN_NEAR_DAYS,
     BRITISH_FAR_DAYS,
     CLOSE_CALL_DAYS,
+    NEAR_HORIZON_DAYS,
     RESOLVED,
     RESOLVED_WITH_CONFIRMATION,
     UNRESOLVED_AMBIGUITY,
@@ -78,11 +79,61 @@ class TestRule3BritishDefault:
         assert r.assumed_date == date(2026, 9, 1)
 
     def test_british_date_is_near_american_is_far(self) -> None:
-        # "3/8" → british Aug 3 (61 days), american Mar 8 2026 past → Mar 8 2027 (278 days)
+        # "3/8" → british Aug 3 (61 days ≤ 120), american Mar 8 2026 past → Mar 8 2027 (278 days > 120)
+        # HOTFIX-008 Rule 4: British is near, American is far → resolved directly, no clarification
         r = NumericDateDisambiguationService.disambiguate(3, 8, ANCHOR)
         assert r.assumed_date == date(2026, 8, 3)
-        assert r.ambiguity_type == RESOLVED_WITH_CONFIRMATION
+        assert r.ambiguity_type == RESOLVED
+        assert r.clarification_required is False
+        assert r.alternative_date is None
+
+
+# ── Rule 4 — Near-horizon resolution (HOTFIX-008) ─────────────────────────────
+
+
+class TestRule4NearHorizon:
+    """If one interpretation is within NEAR_HORIZON_DAYS and the other is beyond
+    it, resolve directly to the nearer date without clarification."""
+
+    def test_6_7_british_near_resolves_directly(self) -> None:
+        # "6/7" on Jun 14: british Jul 6 2026 (22d ≤ 120), american Jun 7 2026 past → Jun 7 2027 (358d)
+        anchor = date(2026, 6, 14)
+        r = NumericDateDisambiguationService.disambiguate(6, 7, anchor)
+        assert r.ambiguity_type == RESOLVED
+        assert r.assumed_date == date(2026, 7, 6)
+        assert r.alternative_date is None
+        assert r.clarification_required is False
+
+    def test_7_6_american_near_resolves_directly(self) -> None:
+        # "7/6" on Jun 14: british Jun 7 2026 past → Jun 7 2027 (358d), american Jul 6 2026 (22d ≤ 120)
+        anchor = date(2026, 6, 14)
+        r = NumericDateDisambiguationService.disambiguate(7, 6, anchor)
+        assert r.ambiguity_type == RESOLVED
+        assert r.assumed_date == date(2026, 7, 6)
+        assert r.alternative_date is None
+        assert r.clarification_required is False
+
+    def test_both_within_horizon_does_not_trigger_rule_4(self) -> None:
+        # "9/8" on Jun 14: british Aug 9 2026 (56d), american Sep 8 2026 (86d) — both ≤ 120
+        anchor = date(2026, 6, 14)
+        r = NumericDateDisambiguationService.disambiguate(9, 8, anchor)
+        assert r.ambiguity_type != RESOLVED  # Rule 4 does not apply
+
+    def test_both_beyond_horizon_does_not_trigger_rule_4(self) -> None:
+        # "1/3" on Jun 3: british Mar 1 2027 (271d), american Jan 3 2027 (214d) — both > 120
+        r = NumericDateDisambiguationService.disambiguate(1, 3, ANCHOR)
+        # Rule 4 does not apply; falls through to Rule 6 (next year)
         assert r.clarification_required is True
+
+    def test_near_horizon_boundary_at_exactly_120_days(self) -> None:
+        # A date exactly 120 days from anchor should be treated as "near"
+        anchor = date(2026, 6, 3)
+        # anchor + 120 = 2026-10-01 → Oct 1 is day=1, month=10
+        # "1/10" → british Oct 1 2026 (120d ≤ 120 = near), american Jan 10 2027 (221d > 120 = far)
+        r = NumericDateDisambiguationService.disambiguate(1, 10, anchor)
+        assert r.ambiguity_type == RESOLVED
+        assert r.assumed_date == date(2026, 10, 1)
+        assert r.clarification_required is False
 
 
 # ── Rule 5 — Horizon heuristic ────────────────────────────────────────────────
@@ -91,14 +142,14 @@ class TestRule3BritishDefault:
 class TestRule5HorizonHeuristic:
     """If British > 180 days and American ≤ 90 days, prefer American."""
 
-    def test_9_1_american_preferred_by_rule_5(self) -> None:
-        # "9/1" → british Jan 9 2027 (~220 days), american Sep 1 2026 (90 days)
+    def test_9_1_american_preferred_by_rule_4(self) -> None:
+        # "9/1" → british Jan 9 2027 (~220 days > 120), american Sep 1 2026 (90 days ≤ 120)
+        # HOTFIX-008 Rule 4: American is near, British is far → resolved directly, no clarification
         r = NumericDateDisambiguationService.disambiguate(9, 1, ANCHOR)
         assert r.assumed_date == date(2026, 9, 1)
-        assert r.alternative_date == date(2027, 1, 9)
-        assert r.ambiguity_type == RESOLVED_WITH_CONFIRMATION
-        assert r.clarification_required is True
-        assert r.clarification_reason == "american_nearer_by_horizon_heuristic"
+        assert r.alternative_date is None
+        assert r.ambiguity_type == RESOLVED
+        assert r.clarification_required is False
 
     def test_rule5_not_triggered_when_british_within_180(self) -> None:
         # british date within 180 days → Rule 5 does not apply
@@ -170,7 +221,7 @@ class TestRule7UnresolvedAmbiguity:
         assert r.assumed_date == date(2026, 6, 7)
 
     def test_clearly_separated_dates_not_unresolved(self) -> None:
-        # "9/1" → british 220 days, american 90 days → Rule 5 applies, not Rule 7
+        # "9/1" → british 220 days, american 90 days → Rule 4 applies (American near), not Rule 7
         r = NumericDateDisambiguationService.disambiguate(9, 1, ANCHOR)
         assert r.ambiguity_type != UNRESOLVED_AMBIGUITY
 
@@ -225,7 +276,11 @@ class TestClarificationQuestion:
         assert r.clarification_question is None
 
     def test_resolved_with_confirmation_includes_provisional_text(self) -> None:
-        r = NumericDateDisambiguationService.disambiguate(9, 1, ANCHOR)
+        # Use a next-year ambiguity case (Rule 6) which still generates resolved_with_confirmation:
+        # "3/1" with anchor 2026-06-03 → british Jan 3 2027 (214d), american Mar 1 2027 (271d)
+        # Both > 120d so Rule 4 doesn't apply; Rule 6 fires (next year, not Q4)
+        r = NumericDateDisambiguationService.disambiguate(3, 1, ANCHOR)
+        assert r.ambiguity_type == RESOLVED_WITH_CONFIRMATION
         assert "provisionally" in (r.clarification_question or "").lower()
 
     def test_unresolved_ambiguity_question_mentions_both_dates(self) -> None:
@@ -267,11 +322,12 @@ class TestDisambiguationInResolver:
         ):
             result = service.resolve(request)
 
-        # Rule 5 should have picked Sep 1 over Jan 9
+        # HOTFIX-008 Rule 4: Sep 1 (90d ≤ 120) is near, Jan 9 2027 (220d > 120) is far
+        # → resolved directly with no clarification required
         assert result.assumed_date == date(2026, 9, 1)
         assert result.candidate_dates == [date(2026, 9, 1)]
-        assert result.ambiguity_type == RESOLVED_WITH_CONFIRMATION
-        assert result.ambiguity_clarification_required is True
+        assert result.ambiguity_type == RESOLVED
+        assert result.ambiguity_clarification_required is False
 
     def test_non_ambiguous_type_has_no_disambiguation_fields(self) -> None:
         import uuid
