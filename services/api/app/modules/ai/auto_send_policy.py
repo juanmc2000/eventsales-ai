@@ -12,9 +12,10 @@ Design rules:
 Auto-send ALLOWED only when ALL of the following are true:
 
   1. Response goal is in ALLOWED_GOALS
-     (CONFIRM_AVAILABLE or ACKNOWLEDGE_AND_CHECK_AVAILABILITY).
+     (CONFIRM_AVAILABLE, ACKNOWLEDGE_AND_CHECK_AVAILABILITY, or
+     REQUEST_DATE_CONFIRMATION).
   2. Date status is in ALLOWED_DATE_STATUSES
-     (resolved or resolved_with_confirmation).
+     (resolved, resolved_with_confirmation, or pending_date_confirmation).
   3. Draft compliance passed (DraftComplianceValidator returned passed=True).
   4. Context integrity gate passed.
 
@@ -22,8 +23,6 @@ Auto-send BLOCKED for:
 
   - RESPOND_UNAVAILABLE — unavailable responses require human review before
     sending to avoid communicating incorrect refusals.
-  - REQUEST_DATE_CONFIRMATION — the date is ambiguous; human must confirm
-    before engaging the guest further.
   - REQUEST_WEBFORM — sending a webform redirect without review may be
     confusing for guests who provided detailed information.
   - ESCALATE_TO_HUMAN — the system has flagged this for human handling.
@@ -34,6 +33,14 @@ Auto-send BLOCKED for:
   - context mismatch — availability context does not match the prompt context.
   - draft compliance failure — validator detected a hallucination or policy
     violation in the draft.
+
+Note on REQUEST_DATE_CONFIRMATION (HOTFIX-007):
+
+  After RESP-073, RDTC responses are fully deterministic copy-block assembly
+  (BLOCK_RDTC_AVAILABLE_OPENER + BLOCK_RDTC_NEXT_STEP).  There is no LLM call,
+  no invented questions, and no hallucination risk.  The date ambiguity is
+  communicated to the guest in the response — that is the entire purpose of
+  the message — so human review before sending provides no additional safety.
 
 Usage::
 
@@ -61,12 +68,14 @@ from typing import Any
 ALLOWED_GOALS: frozenset[str] = frozenset({
     "CONFIRM_AVAILABLE",
     "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+    # HOTFIX-007: RDTC is fully deterministic copy-block assembly after RESP-073;
+    # no LLM, no invented questions — safe to auto-send.
+    "REQUEST_DATE_CONFIRMATION",
 })
 
 # Goals that explicitly require human review (documented for auditability)
 BLOCKED_GOALS: frozenset[str] = frozenset({
     "RESPOND_UNAVAILABLE",
-    "REQUEST_DATE_CONFIRMATION",
     "REQUEST_MISSING_INFORMATION",
     "REQUEST_WEBFORM",
     "ESCALATE_TO_HUMAN",
@@ -76,6 +85,10 @@ BLOCKED_GOALS: frozenset[str] = frozenset({
 ALLOWED_DATE_STATUSES: frozenset[str] = frozenset({
     "resolved",
     "resolved_with_confirmation",
+    # HOTFIX-007: RDTC emails carry pending_date_confirmation — the ambiguity
+    # is surfaced to the guest in the deterministic copy block, so this status
+    # is safe for auto-send.
+    "pending_date_confirmation",
 })
 
 # Date statuses that require human review
@@ -143,10 +156,6 @@ class AutoSendEligibilityPolicy:
             "RESPOND_UNAVAILABLE": (
                 "Unavailable responses require human review before sending "
                 "to avoid communicating incorrect refusals."
-            ),
-            "REQUEST_DATE_CONFIRMATION": (
-                "The date is ambiguous — human must confirm the date before "
-                "sending a response to the guest."
             ),
             "REQUEST_MISSING_INFORMATION": (
                 "Automatically requesting information may ask for details the "
