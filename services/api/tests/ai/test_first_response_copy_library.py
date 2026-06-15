@@ -27,6 +27,11 @@ from app.modules.ai.first_response_copy_library import (
     BLOCK_CONFIRM_AVAILABLE_NEXT_STEP,
     BLOCK_DATE_CONFIRMATION_QUESTION,
     BLOCK_MINIMUM_SPEND,
+    BLOCK_OPENER_AGENCY,
+    BLOCK_OPENER_CORPORATE,
+    BLOCK_OPENER_LUXURY,
+    BLOCK_OPENER_SOCIAL,
+    BLOCK_OPENER_UNKNOWN,
     BLOCK_RDTC_AVAILABLE_OPENER,
     BLOCK_RDTC_NEXT_STEP,
     BLOCK_SIGNOFF,
@@ -753,3 +758,126 @@ class TestRdtcNextStepBlock:
         text = FirstResponseCopyLibrary.render(BLOCK_RDTC_NEXT_STEP)
         assert "i will check" not in text.lower()
         assert "follow up" not in text.lower()
+
+
+# ── RESP-074: audience-aware opener blocks ────────────────────────────────────
+
+
+_OPENER_VARS = {"meal_period": "dinner", "event_date": "2026-07-12"}
+
+
+class TestAudienceOpenerBlocks:
+    """RESP-074: deterministic audience-specific CONFIRM_AVAILABLE openers."""
+
+    def test_all_opener_blocks_registered(self) -> None:
+        keys = FirstResponseCopyLibrary.all_keys()
+        assert BLOCK_OPENER_CORPORATE in keys
+        assert BLOCK_OPENER_AGENCY in keys
+        assert BLOCK_OPENER_LUXURY in keys
+        assert BLOCK_OPENER_SOCIAL in keys
+        assert BLOCK_OPENER_UNKNOWN in keys
+
+    def test_corporate_opener_renders(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_OPENER_CORPORATE, _OPENER_VARS)
+        assert "dinner" in text
+        assert "12 July 2026" in text  # RESP-057 auto-formats ISO date
+
+    def test_corporate_opener_has_no_social_warmth(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_OPENER_CORPORATE, _OPENER_VARS)
+        assert "how wonderful" not in text.lower()
+        assert "how lovely" not in text.lower()
+        assert "celebration" not in text.lower()
+        assert "delighted to celebrate" not in text.lower()
+
+    def test_agency_opener_renders(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_OPENER_AGENCY, _OPENER_VARS)
+        assert "dinner" in text
+        assert "12 July 2026" in text
+
+    def test_agency_opener_has_no_social_warmth(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_OPENER_AGENCY, _OPENER_VARS)
+        assert "how wonderful" not in text.lower()
+        assert "delighted to celebrate" not in text.lower()
+        assert "celebration" not in text.lower()
+
+    def test_luxury_opener_renders(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_OPENER_LUXURY, _OPENER_VARS)
+        assert "dinner" in text
+        assert "12 July 2026" in text
+
+    def test_luxury_opener_is_refined_not_casual(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_OPENER_LUXURY, _OPENER_VARS)
+        assert "amazing" not in text.lower()
+        assert "fantastic" not in text.lower()
+        assert "brilliant" not in text.lower()
+
+    def test_social_opener_renders(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_OPENER_SOCIAL, _OPENER_VARS)
+        assert "dinner" in text
+        assert "12 July 2026" in text
+
+    def test_social_opener_allows_celebratory_language(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_OPENER_SOCIAL, _OPENER_VARS)
+        # Social opener is warm — "delighted" is acceptable
+        assert "delighted" in text.lower() or "pleased" in text.lower()
+
+    def test_unknown_opener_renders(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_OPENER_UNKNOWN, _OPENER_VARS)
+        assert "dinner" in text
+        assert "12 July 2026" in text
+
+    def test_unknown_opener_is_neutral(self) -> None:
+        text = FirstResponseCopyLibrary.render(BLOCK_OPENER_UNKNOWN, _OPENER_VARS)
+        assert "how wonderful" not in text.lower()
+        assert "celebration" not in text.lower()
+
+    def test_opener_missing_meal_period_raises(self) -> None:
+        with pytest.raises(ValueError, match="meal_period"):
+            FirstResponseCopyLibrary.render(BLOCK_OPENER_CORPORATE, {"event_date": "2026-07-12"})
+
+    def test_opener_missing_event_date_raises(self) -> None:
+        with pytest.raises(ValueError, match="event_date"):
+            FirstResponseCopyLibrary.render(BLOCK_OPENER_AGENCY, {"meal_period": "dinner"})
+
+
+class TestAudienceOpenerMethod:
+    """RESP-074: FirstResponseCopyLibrary.audience_opener() selector method."""
+
+    def test_corporate_audience_type_returns_professional_copy(self) -> None:
+        text = FirstResponseCopyLibrary.audience_opener("corporate", _OPENER_VARS)
+        assert "dinner" in text
+        assert "how wonderful" not in text.lower()
+
+    def test_agency_audience_type_returns_operational_copy(self) -> None:
+        text = FirstResponseCopyLibrary.audience_opener("agency", _OPENER_VARS)
+        assert "dinner" in text
+        assert "how wonderful" not in text.lower()
+
+    def test_luxury_audience_type_returns_refined_copy(self) -> None:
+        text = FirstResponseCopyLibrary.audience_opener("luxury", _OPENER_VARS)
+        assert "dinner" in text
+        assert "amazing" not in text.lower()
+
+    def test_social_audience_type_returns_warm_copy(self) -> None:
+        text = FirstResponseCopyLibrary.audience_opener("social", _OPENER_VARS)
+        assert "dinner" in text
+
+    def test_unknown_audience_type_returns_neutral_copy(self) -> None:
+        text = FirstResponseCopyLibrary.audience_opener("unknown", _OPENER_VARS)
+        assert "dinner" in text
+        assert "celebration" not in text.lower()
+
+    def test_unrecognised_audience_falls_back_to_unknown(self) -> None:
+        text = FirstResponseCopyLibrary.audience_opener("not_a_type", _OPENER_VARS)
+        # Falls back to unknown opener — still renders correctly
+        assert "dinner" in text
+
+    def test_none_audience_falls_back_to_unknown(self) -> None:
+        text = FirstResponseCopyLibrary.audience_opener(None, _OPENER_VARS)
+        assert "dinner" in text
+
+    def test_uppercase_audience_type_normalised(self) -> None:
+        # audience_type from fixture may arrive upper/mixed case
+        text = FirstResponseCopyLibrary.audience_opener("CORPORATE", _OPENER_VARS)
+        assert "dinner" in text
+        assert "how wonderful" not in text.lower()
