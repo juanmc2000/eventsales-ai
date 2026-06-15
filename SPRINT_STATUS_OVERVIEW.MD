@@ -2,7 +2,7 @@
 
 **Project:** EventSales AI
 **Phase:** POC (Proof of Concept)
-**Last Updated:** 2026-06-12 (post-Sprint-15)
+**Last Updated:** 2026-06-15 (post-Sprint-16)
 
 ---
 
@@ -32,6 +32,7 @@
 | Sprint 13 | Alt-date Hardening + ACKNOWLEDGE Hardening + Room/Warmth Checks | ✓ Complete | #427–#437 |
 | Sprint 14 | Date Formatting + Subject Stripping + Name Guard + RESP-063–065 | ✓ Complete | #447–#460 |
 | Sprint 15 | TEST-019 + RESP-057–062 + TEST-020/021 | ✓ Complete | #470–#474 (issues #461–#469) |
+| Sprint 16 | Audience-Aware Persona Restoration (TEST-022/023, RESP-074–077, DOC-020) | ✓ Complete | #498–#504 |
 
 ---
 
@@ -478,6 +479,37 @@ UI display for the diagnostics endpoint is deferred — the ENQ-005 issue lacks 
 | Frontend (vitest) | 126 |
 | **Total** | **2,865** |
 
+### Test count (post-Sprint 16, 2026-06-15)
+
+| Scope | Count |
+|---|---|
+| Backend (pytest) | 2,832 (+ 57 new: 37 AudienceToneValidator + 12 Rule 7 gate + 45 warmth generator + tone regression fixture) |
+| Frontend (vitest) | 126 |
+| **Total** | **2,958** |
+
+---
+
+## Sprint 16 Issues
+
+| Issue | PR | Title | Status |
+|-------|----|-------|--------|
+| TEST-022 (#492) | PR #499 | 30-scenario audience tone regression fixture + runner | ✓ Merged |
+| RESP-074 (#491) | PR #500 | Audience-specific deterministic opener copy blocks in FirstResponseCopyLibrary | ✓ Merged |
+| RESP-075 (#494) | PR #498 | AudienceToneValidator — deterministic forbidden-phrase guard, 37 tests | ✓ Merged |
+| RESP-076 (#493) | PR #501 | Audience-specific system prompts + inline tone guard in warmth generator | ✓ Merged |
+| TEST-023 (#495) | PR #502 | Extend 100-record runner with persona-fit scoring layer | ✓ Merged |
+| RESP-077 (#496) | PR #503 | Auto-send Rule 7 — audience tone validation blocker | ✓ Merged |
+| DOC-020 (#497) | PR #504 | Document Sprint 16 persona restoration rules | ✓ Merged |
+
+### Sprint 16 Baseline (post-run, 2026-06-15)
+
+| Metric | Value |
+|---|---|
+| Compliance pass rate | 100/100 (100%) — matches Sprint 15E ceiling |
+| Auto-send allowed | 99/100 (99%) — matches Sprint 15E ceiling |
+| Safety issues | 0/100 (0%) |
+| Persona-fit scoring | Added as additional layer in TEST-023 (does not affect compliance) |
+
 ---
 
 ## Remaining Gaps
@@ -519,3 +551,4 @@ UI display for the diagnostics endpoint is deferred — the ENQ-005 issue lacks 
 | `docs/sprints/sprint-008-prompt-experimentation-quality-scoring.md` | Sprint 8 plan and architecture |
 | `docs/sprints/sprint-008b-extraction-schema-date-resolution.md` | Sprint 8B plan: extraction schema hardening, date resolution, candidate dates |
 | `CLAUDE.md` | Developer and AI assistant instructions |
+| `docs/sprints/sprint-016-audience-aware-persona-restoration.md` | Sprint 16 plan: audience-aware tone, persona-fit scoring, auto-send Rule 7 |
