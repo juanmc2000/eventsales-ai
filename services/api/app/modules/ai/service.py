@@ -950,11 +950,15 @@ class DraftGenerationService:
             ),
         )
         _ca_integrity = IntegrityCheckResult(passed=True, violations=[])
+        # RESP-079: validate audience tone and pass result to Rule 7 of the auto-send gate
+        from app.modules.ai.audience_tone_validator import AudienceToneValidator  # noqa: PLC0415
+        _ca_tone = AudienceToneValidator.validate(draft_body, context.audience_type or "")
         _ca_readiness = AutoSendReadinessGate.evaluate(
             response_goal="CONFIRM_AVAILABLE",
             draft_compliance_result=_ca_compliance,
             date_status="resolved",
             integrity_result=_ca_integrity,
+            tone_validation_result=_ca_tone,
         )
         _ca_review_state = DraftReviewStateService.evaluate(
             compliance_result=_ca_compliance,
