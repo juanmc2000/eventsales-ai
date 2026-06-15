@@ -7,6 +7,10 @@ Routes each record by availability_decision.availability_status:
   - INSUFFICIENT_INFORMATION  → REQUEST_MISSING_INFORMATION (LLM + clarification questions)
   - UNAVAILABLE               → RESPOND_UNAVAILABLE      (deterministic copy blocks)
 
+TEST-023: Also reports persona-fit scoring as an additional evaluation layer.
+Persona-fit measures whether the tone of the draft matches the audience type.
+This layer is reported separately and does not affect compliance or auto-send scores.
+
 Usage (from project root, with venv active):
     ANTHROPIC_API_KEY=... python tests/scripts/run_response_preparation_test_100.py
 """
@@ -98,6 +102,63 @@ _FORBIDDEN_TOPICS = [
     "menu", "dietary", "special touch", "decoration",
     "arrival time", "start time", "preferred timing",
 ]
+
+# ── Persona-fit patterns (TEST-023) ───────────────────────────────────────────
+# Mirror the forbidden phrase sets from AudienceToneValidator (RESP-075) so
+# that the test runner can detect corporate tone degradation without importing
+# the production validator (which lives in the API service tree).
+
+_PERSONA_CORPORATE_AGENCY_FORBIDDEN: list[tuple[str, re.Pattern[str]]] = [
+    ("how wonderful",              re.compile(r"\bhow\s+wonderful\b",               re.IGNORECASE)),
+    ("how lovely",                 re.compile(r"\bhow\s+lovely\b",                  re.IGNORECASE)),
+    ("how exciting",               re.compile(r"\bhow\s+exciting\b",                re.IGNORECASE)),
+    ("how delightful",             re.compile(r"\bhow\s+delightful\b",              re.IGNORECASE)),
+    ("what a lovely occasion",     re.compile(r"\bwhat\s+a\s+lovely\s+occasion\b",  re.IGNORECASE)),
+    ("what a wonderful",           re.compile(r"\bwhat\s+a\s+wonderful\b",          re.IGNORECASE)),
+    ("such a special occasion",    re.compile(r"\bsuch\s+a\s+special\s+occasion\b", re.IGNORECASE)),
+    ("such a meaningful occasion", re.compile(r"\bsuch\s+a\s+meaningful\s+occasion\b", re.IGNORECASE)),
+    ("celebration with us",        re.compile(r"\bcelebration\s+with\s+us\b",       re.IGNORECASE)),
+    ("will be special",            re.compile(r"\bwill\s+be\s+special\b",           re.IGNORECASE)),
+    ("delighted to celebrate",     re.compile(r"\bdelighted\s+to\s+celebrate\b",    re.IGNORECASE)),
+    ("thrilled",                   re.compile(r"\bthrilled\b",                      re.IGNORECASE)),
+]
+
+_PERSONA_LUXURY_FORBIDDEN: list[tuple[str, re.Pattern[str]]] = [
+    ("amazing",      re.compile(r"\bamazing\b",   re.IGNORECASE)),
+    ("fantastic",    re.compile(r"\bfantastic\b", re.IGNORECASE)),
+    ("brilliant",    re.compile(r"\bbrilliant\b", re.IGNORECASE)),
+    ("super",        re.compile(r"\bsuper\b",     re.IGNORECASE)),
+    ("totally",      re.compile(r"\btotally\b",   re.IGNORECASE)),
+    ("can't wait",   re.compile(r"can'?t\s+wait", re.IGNORECASE)),
+    ("how exciting", re.compile(r"\bhow\s+exciting\b", re.IGNORECASE)),
+]
+
+_PERSONA_TONE_RULES: dict[str, list[tuple[str, re.Pattern[str]]]] = {
+    "corporate": _PERSONA_CORPORATE_AGENCY_FORBIDDEN,
+    "agency":    _PERSONA_CORPORATE_AGENCY_FORBIDDEN,
+    "luxury":    _PERSONA_LUXURY_FORBIDDEN,
+    "social":    [],
+    "unknown":   [],
+}
+
+# Opener-tone classification patterns (first non-blank, non-greeting line)
+_OPENER_WARM_CELEBRATORY = re.compile(
+    r"^(how wonderful|how lovely|how exciting|how delightful|"
+    r"what a lovely|what a wonderful|that sounds wonderful|"
+    r"that sounds like a lovely|that sounds like a wonderful)",
+    re.IGNORECASE,
+)
+_OPENER_REFINED = re.compile(
+    r"^(it would be a pleasure|we look forward to hosting|"
+    r"we are honoured|we would be honoured)",
+    re.IGNORECASE,
+)
+_OPENER_PROFESSIONAL = re.compile(
+    r"^(we would be (delighted|pleased)|we are pleased|we look forward|"
+    r"we can confirm|i'm pleased to confirm|i am pleased to confirm|"
+    r"thank you for your enquiry)",
+    re.IGNORECASE,
+)
 
 # ── Goal routing ──────────────────────────────────────────────────────────────
 
@@ -498,6 +559,70 @@ def _run_auto_send_gate(goal: str, compliance_passed: bool, violations: list[str
     return result.to_dict()
 
 
+# ── Persona-fit scoring (TEST-023) ────────────────────────────────────────────
+
+
+def _extract_audience_type(record: dict) -> str:
+    """Extract normalised audience_type from the fixture record."""
+    dpv = (
+        record.get("target_extraction", {})
+        .get("response_preparation_target", {})
+        .get("draft_prompt_variables", {})
+    )
+    aud_line = dpv.get("audience_type_line", "")
+    m = re.search(r"Audience\s+type:\s*(\w+)", aud_line, re.IGNORECASE)
+    return m.group(1).lower() if m else "unknown"
+
+
+def _classify_opener_tone(draft: str) -> str:
+    """Return the tone category of the first meaningful sentence in the draft.
+
+    Categories: warm_celebratory | refined | professional | neutral
+    """
+    for line in draft.splitlines():
+        line = line.strip()
+        if not line or line.lower().startswith("dear ") or line.lower().startswith("subject:"):
+            continue
+        if _OPENER_WARM_CELEBRATORY.match(line):
+            return "warm_celebratory"
+        if _OPENER_REFINED.match(line):
+            return "refined"
+        if _OPENER_PROFESSIONAL.match(line):
+            return "professional"
+        return "neutral"
+    return "neutral"
+
+
+def _run_persona_fit(draft: str, audience_type: str) -> dict:
+    """Deterministic persona-fit check — no LLM calls.
+
+    Checks the draft against audience-appropriate forbidden phrase patterns.
+    Returns a dict with persona_fit_passed, persona_fit_score,
+    persona_fit_violations, opener_tone_category, and forbidden_phrase_hits.
+    """
+    patterns = _PERSONA_TONE_RULES.get(audience_type, [])
+    violations: list[str] = []
+    hits: list[str] = []
+
+    for label, pattern in patterns:
+        if pattern.search(draft):
+            violations.append(f"persona_tone_violation: {audience_type} — '{label}' detected")
+            hits.append(label)
+
+    passed = len(violations) == 0
+    score = 1.0 if passed else round(max(0.0, 1.0 - 0.25 * len(violations)), 2)
+    opener_tone = _classify_opener_tone(draft)
+
+    return {
+        "audience_type": audience_type,
+        "persona_fit_passed": passed,
+        "persona_fit_score": score,
+        "persona_fit_violations": violations,
+        "opener_tone_category": opener_tone,
+        "forbidden_phrase_hits": hits,
+    }
+
+
 # ── Process one record ────────────────────────────────────────────────────────
 
 
@@ -534,6 +659,10 @@ def _process_record(record: dict, idx: int, total: int) -> dict:
     compliance = _run_compliance(draft, goal, availability_contract, clarification_questions)
     auto_send = _run_auto_send_gate(goal, compliance["passed"], compliance["violations"])
 
+    # TEST-023: persona-fit scoring (additional layer — does not affect compliance/auto-send)
+    audience_type = _extract_audience_type(record)
+    persona_fit = _run_persona_fit(draft, audience_type)
+
     return {
         "record_id": record_id,
         "subject": record.get("subject", ""),
@@ -551,6 +680,7 @@ def _process_record(record: dict, idx: int, total: int) -> dict:
         "safety_checks": safety,
         "compliance": compliance,
         "auto_send": auto_send,
+        "persona_fit": persona_fit,
     }
 
 
@@ -563,6 +693,9 @@ def _print_summary(results: list[dict]) -> None:
     compliance_pass = 0
     auto_send_allowed = 0
     safety_issues = 0
+    persona_fit_pass = 0
+    persona_fit_failures: list[dict] = []
+    tone_category_counts: dict[str, int] = {}
 
     for r in results:
         g = r["response_goal"]
@@ -574,6 +707,21 @@ def _print_summary(results: list[dict]) -> None:
         if r["safety_checks"]["has_issues"]:
             safety_issues += 1
 
+        # TEST-023: persona-fit tallying
+        pf = r.get("persona_fit", {})
+        if pf.get("persona_fit_passed", True):
+            persona_fit_pass += 1
+        else:
+            persona_fit_failures.append({
+                "record_id": r["record_id"],
+                "audience_type": pf.get("audience_type"),
+                "violations": pf.get("persona_fit_violations", []),
+                "forbidden_phrase_hits": pf.get("forbidden_phrase_hits", []),
+                "opener_tone_category": pf.get("opener_tone_category"),
+            })
+        cat = pf.get("opener_tone_category", "neutral")
+        tone_category_counts[cat] = tone_category_counts.get(cat, 0) + 1
+
     sep = "=" * 70
     print(f"\n{sep}")
     print("RESPONSE PREPARATION TEST — 100 records")
@@ -584,6 +732,20 @@ def _print_summary(results: list[dict]) -> None:
     print(f"\nCompliance pass rate  : {compliance_pass}/{total} ({compliance_pass/total*100:.1f}%)")
     print(f"Auto-send allowed     : {auto_send_allowed}/{total} ({auto_send_allowed/total*100:.1f}%)")
     print(f"Safety issues found   : {safety_issues}/{total}")
+
+    # TEST-023: persona-fit summary
+    print(f"\n--- Persona-Fit Scoring (TEST-023) ---")
+    print(f"Persona-fit pass rate : {persona_fit_pass}/{total} ({persona_fit_pass/total*100:.1f}%)")
+    print(f"Persona-fit failures  : {len(persona_fit_failures)}/{total}")
+    print(f"\nOpener tone distribution:")
+    for cat, n in sorted(tone_category_counts.items(), key=lambda x: -x[1]):
+        print(f"  {cat:<25}: {n:>3}")
+    if persona_fit_failures:
+        print(f"\nTop persona-fit failures (by record_id):")
+        for failure in persona_fit_failures[:10]:
+            hits_str = ", ".join(f"'{h}'" for h in failure["forbidden_phrase_hits"])
+            print(f"  {failure['record_id']:<12} [{failure['audience_type']}]"
+                  f" opener={failure['opener_tone_category']}  hits={hits_str}")
     print(sep)
 
 
