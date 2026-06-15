@@ -1,4 +1,4 @@
-"""Auto-Send Readiness Gate (RESP-014, updated RESP-022, AUTO-001).
+"""Auto-Send Readiness Gate (RESP-014, updated RESP-022, AUTO-001, RESP-077).
 
 Determines whether a generated draft is safe for automatic sending without
 human review.  All checks are deterministic — no LLM calls are made.
@@ -15,6 +15,8 @@ Auto-send is allowed only when ALL of the following conditions are met:
   4. No human escalation is flagged (ESCALATE_TO_HUMAN goal).
   5. Context integrity gate passed (ResponseContextIntegrityGate returned passed=True).
   6. No unknown or approval-required policy questions present (RESP-048).
+  7. Audience tone validation passed when a result is provided (RESP-077).
+     Off-brand corporate/agency/luxury warmth violations block auto-send.
 
 Usage::
 
@@ -106,6 +108,7 @@ class AutoSendReadinessGate:
         customer_type_confidence: float = 0.0,
         response_plan: dict[str, Any] | None = None,
         review_required_policy_questions: list[Any] | None = None,
+        tone_validation_result: Any | None = None,
     ) -> AutoSendReadinessResult:
         """Evaluate auto-send readiness.
 
@@ -121,6 +124,9 @@ class AutoSendReadinessGate:
             response_plan:             The full ResponsePlan dict (reserved for future checks).
             review_required_policy_questions: List of policy questions that could not be
                                        answered and require human review (RESP-048).
+            tone_validation_result:    Optional result from AudienceToneValidator.validate()
+                                       (RESP-077). Must have .passed (bool) and .violations
+                                       (list[str]) attributes. When None, tone check is skipped.
 
         Returns:
             AutoSendReadinessResult.
@@ -144,6 +150,9 @@ class AutoSendReadinessGate:
 
         # Rule 6: no high-risk unknown policy questions
         cls._check_policy_questions(review_required_policy_questions, blockers)
+
+        # Rule 7: audience tone must pass when a result is provided (RESP-077)
+        cls._check_audience_tone(tone_validation_result, blockers)
 
         auto_send_allowed = len(blockers) == 0
         review_required_reason = (
@@ -232,4 +241,32 @@ class AutoSendReadinessGate:
             blockers.append(
                 f"{count} policy question(s) require human review before auto-send — "
                 "unknown or approval-required policy questions must be resolved by a human."
+            )
+
+    @staticmethod
+    def _check_audience_tone(
+        tone_validation_result: Any | None,
+        blockers: list[str],
+    ) -> None:
+        """Block auto-send when the audience tone validation failed (RESP-077).
+
+        When a tone_validation_result is provided (from AudienceToneValidator.validate()),
+        block auto-send if the draft contains forbidden phrases for the audience type.
+        Corporate and agency drafts with social warmth language, or luxury drafts with
+        casual/enthusiastic language, must be reviewed by a human before sending.
+
+        When tone_validation_result is None, the check is skipped — this preserves
+        backwards-compatibility when the caller does not run tone validation.
+        """
+        if tone_validation_result is None:
+            return
+        if not tone_validation_result.passed:
+            violation_summary = (
+                "; ".join(tone_validation_result.violations)
+                if tone_validation_result.violations
+                else "audience tone violation detected"
+            )
+            blockers.append(
+                f"Audience tone validation failed — draft requires human review "
+                f"before auto-send: {violation_summary}"
             )

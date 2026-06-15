@@ -424,3 +424,136 @@ class TestRule6PolicyQuestions:
         )
         assert result.auto_send_allowed is False
         assert len(result.auto_send_blockers) >= 2
+
+
+# ── RESP-077: Rule 7 — audience tone validation blocks auto-send ──────────────
+
+
+class _PassingToneResult:
+    """Minimal duck-typed tone validation result — passed."""
+    passed = True
+    violations: list[str] = []
+    audience_type = "corporate"
+
+
+class _FailingToneResult:
+    """Minimal duck-typed tone validation result — failed."""
+    passed = False
+    violations: list[str]
+    audience_type: str
+
+    def __init__(self, audience_type: str = "corporate", violations: list[str] | None = None):
+        self.audience_type = audience_type
+        self.violations = violations or [
+            f"audience_tone_violation: {audience_type} — 'how wonderful' detected"
+        ]
+
+
+class TestRule7AudienceTone:
+    """RESP-077: auto-send blocked when audience tone validation fails."""
+
+    def test_no_tone_result_does_not_block(self) -> None:
+        """When tone_validation_result is None, the check is skipped — backwards-compatible."""
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            tone_validation_result=None,
+        )
+        assert result.auto_send_allowed is True
+
+    def test_passing_tone_result_does_not_block(self) -> None:
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            tone_validation_result=_PassingToneResult(),
+        )
+        assert result.auto_send_allowed is True
+
+    def test_failing_tone_result_blocks_auto_send(self) -> None:
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            tone_validation_result=_FailingToneResult(audience_type="corporate"),
+        )
+        assert result.auto_send_allowed is False
+
+    def test_blocker_mentions_audience_tone(self) -> None:
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            tone_validation_result=_FailingToneResult(audience_type="corporate"),
+        )
+        blocker_text = " ".join(result.auto_send_blockers)
+        assert "audience tone" in blocker_text.lower() or "tone validation" in blocker_text.lower()
+
+    def test_blocker_includes_violation_text(self) -> None:
+        violation = "audience_tone_violation: corporate — 'how wonderful' detected"
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            tone_validation_result=_FailingToneResult(
+                audience_type="corporate", violations=[violation]
+            ),
+        )
+        assert any(violation in b for b in result.auto_send_blockers)
+
+    def test_corporate_tone_failure_blocks(self) -> None:
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            tone_validation_result=_FailingToneResult(audience_type="corporate"),
+        )
+        assert result.auto_send_allowed is False
+
+    def test_agency_tone_failure_blocks(self) -> None:
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            tone_validation_result=_FailingToneResult(
+                audience_type="agency",
+                violations=["audience_tone_violation: agency — 'how wonderful' detected"],
+            ),
+        )
+        assert result.auto_send_allowed is False
+
+    def test_luxury_tone_failure_blocks(self) -> None:
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            tone_validation_result=_FailingToneResult(
+                audience_type="luxury",
+                violations=["audience_tone_violation: luxury — 'amazing' detected"],
+            ),
+        )
+        assert result.auto_send_allowed is False
+
+    def test_social_tone_passing_does_not_block(self) -> None:
+        # Social type has no forbidden phrases — always passes
+        passing = _PassingToneResult()
+        passing.audience_type = "social"  # type: ignore[assignment]
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            tone_validation_result=passing,
+        )
+        assert result.auto_send_allowed is True
+
+    def test_unknown_tone_passing_does_not_block(self) -> None:
+        passing = _PassingToneResult()
+        passing.audience_type = "unknown"  # type: ignore[assignment]
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            tone_validation_result=passing,
+        )
+        assert result.auto_send_allowed is True
+
+    def test_tone_failure_stacks_with_compliance_failure(self) -> None:
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            compliance=_failing_compliance(),
+            tone_validation_result=_FailingToneResult(audience_type="corporate"),
+        )
+        assert result.auto_send_allowed is False
+        assert len(result.auto_send_blockers) >= 2
+
+    def test_tone_failure_with_empty_violations_list(self) -> None:
+        """Even with no violation details, a failed result blocks auto-send."""
+        result = _evaluate(
+            response_goal="CONFIRM_AVAILABLE",
+            tone_validation_result=_FailingToneResult(
+                audience_type="corporate", violations=[]
+            ),
+        )
+        assert result.auto_send_allowed is False
+        assert any("tone" in b.lower() for b in result.auto_send_blockers)
