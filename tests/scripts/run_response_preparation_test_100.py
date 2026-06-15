@@ -11,6 +11,12 @@ TEST-023: Also reports persona-fit scoring as an additional evaluation layer.
 Persona-fit measures whether the tone of the draft matches the audience type.
 This layer is reported separately and does not affect compliance or auto-send scores.
 
+RESP-078: CONFIRM_AVAILABLE warmth instruction is now audience-conditional.
+Corporate/agency: no warmth sentence permitted.
+Luxury: refined, understated warmth only.
+Social: celebratory warmth (unchanged).
+Unknown: neutral professional warmth.
+
 Usage (from project root, with venv active):
     ANTHROPIC_API_KEY=... python tests/scripts/run_response_preparation_test_100.py
 """
@@ -228,6 +234,79 @@ def _call_llm(goal: str, prompt_vars: dict, record_id: str, idx: int, total: int
 
 # ── CONFIRM_AVAILABLE ─────────────────────────────────────────────────────────
 
+# RESP-078: shared room-suitability forbidden phrase suffix used by all warmth instructions.
+_WARMTH_FORBIDDEN_ROOM = (
+    "Forbidden phrases: 'excellent choice', 'perfect for', 'perfect setting', "
+    "'ideal', 'ideal for', 'ideal setting', 'well accommodated', 'excellent fit', "
+    "'intimate setting', 'excellent setting', 'would be ideal', 'ideally suited'. "
+    "Do not paraphrase, shorten, or replace approved blocks.\n"
+)
+
+
+def _warmth_instruction_for_audience(audience_type: str) -> str:
+    """Return the warmth-sentence instruction appropriate for the given audience type.
+
+    RESP-078: Audience-conditional instruction replaces the previous hardcoded
+    social-warmth-first instruction. Matches the audience-specific system prompts
+    in generate_warmth_sentence() (RESP-076) and the forbidden-phrase sets in
+    AudienceToneValidator (RESP-075).
+    """
+    aud = (audience_type or "unknown").lower()
+    if aud == "social":
+        return (
+            "You MUST use all the approved blocks above verbatim. "
+            "You may add ONE warmth sentence before the Opening block only — "
+            "it must acknowledge the occasion or guest context, not describe the venue. "
+            "CRITICAL: Do NOT start the warmth sentence with 'Thank you', 'Thanks', or any "
+            "acknowledgement phrase — the email already says thank you elsewhere. "
+            "Use a celebratory opener instead, such as: "
+            "'How wonderful —', 'How lovely —', 'How exciting —', "
+            "'What a lovely occasion —', 'That sounds wonderful —'. "
+            "Do NOT add any sentence about the room, space, or venue suitability. "
+            + _WARMTH_FORBIDDEN_ROOM
+        )
+    if aud in ("corporate", "agency"):
+        return (
+            "You MUST use all the approved blocks above verbatim. "
+            "Do NOT add a warmth sentence before the Opening block. "
+            "This is a professional booking — start the email body directly with the Opening block. "
+            "FORBIDDEN openers: Do not write 'How wonderful', 'How lovely', 'How exciting', "
+            "'How delightful', 'What a lovely occasion', 'What a wonderful', "
+            "'such a special occasion', 'celebration with us', 'thrilled', "
+            "'delighted to celebrate', or any celebratory opener. "
+            "Do NOT add any sentence about the room, space, or venue suitability. "
+            + _WARMTH_FORBIDDEN_ROOM
+        )
+    if aud == "luxury":
+        return (
+            "You MUST use all the approved blocks above verbatim. "
+            "You may add ONE warmth sentence before the Opening block only — "
+            "it must be refined, understated, and gracious. "
+            "CRITICAL: Do NOT start the warmth sentence with 'Thank you', 'Thanks', or any "
+            "acknowledgement phrase — the email already says thank you elsewhere. "
+            "Use refined openers such as: "
+            "'It would be a pleasure to welcome your guests —', "
+            "'We look forward to hosting your private dinner —', "
+            "'We would be honoured to accommodate your guests on this occasion —'. "
+            "FORBIDDEN casual words: 'amazing', 'fantastic', 'brilliant', 'super', 'totally', "
+            "\"can't wait\", 'how exciting'. "
+            "Do NOT add any sentence about the room, space, or venue suitability. "
+            + _WARMTH_FORBIDDEN_ROOM
+        )
+    # unknown / fallback: neutral professional tone
+    return (
+        "You MUST use all the approved blocks above verbatim. "
+        "You may add ONE warmth sentence before the Opening block only — "
+        "it must be courteous and professional. "
+        "CRITICAL: Do NOT start the warmth sentence with 'Thank you', 'Thanks', or any "
+        "acknowledgement phrase — the email already says thank you elsewhere. "
+        "Use neutral professional openers such as: "
+        "'We would be pleased to assist with your event —', "
+        "'We look forward to welcoming your guests —'. "
+        "Do NOT add any sentence about the room, space, or venue suitability. "
+        + _WARMTH_FORBIDDEN_ROOM
+    )
+
 
 def _build_confirm_available(record: dict, idx: int, total: int) -> dict:
     prep = record["target_extraction"]["response_preparation_target"]
@@ -236,6 +315,8 @@ def _build_confirm_available(record: dict, idx: int, total: int) -> dict:
     spend_amount = _extract_spend_amount(record)
     meal_period = _extract_meal_period(record)
     event_date = _extract_event_date(record)
+    # RESP-078: extract audience type to select the correct warmth instruction
+    audience_type = _extract_audience_type(record)
 
     # RESP-071: warmth-first structure — short opening block (no "Thank you" prefix)
     # follows the warmth sentence. Full block (with "Thank you") is used only without warmth.
@@ -257,21 +338,8 @@ def _build_confirm_available(record: dict, idx: int, total: int) -> dict:
     signoff = FirstResponseCopyLibrary.render_safe(BLOCK_SIGNOFF, {"persona_name": persona_name})
     if signoff:
         blocks.append(f"[Sign-off]\n{signoff}\n\n")
-    blocks.append(
-        "You MUST use all the approved blocks above verbatim. "
-        "You may add ONE warmth sentence before the Opening block only — "
-        "it must acknowledge the occasion or guest context, not describe the venue. "
-        "CRITICAL: Do NOT start the warmth sentence with 'Thank you', 'Thanks', or any "
-        "acknowledgement phrase — the email already says thank you elsewhere. "
-        "Use a celebratory opener instead, such as: "
-        "'How wonderful —', 'How lovely —', 'How exciting —', "
-        "'What a lovely occasion —', 'That sounds wonderful —'. "
-        "Do NOT add any sentence about the room, space, or venue suitability. "
-        "Forbidden phrases: 'excellent choice', 'perfect for', 'perfect setting', "
-        "'ideal', 'ideal for', 'ideal setting', 'well accommodated', 'excellent fit', "
-        "'intimate setting', 'excellent setting', 'would be ideal', 'ideally suited'. "
-        "Do not paraphrase, shorten, or replace approved blocks.\n"
-    )
+    # RESP-078: audience-conditional warmth instruction replaces hardcoded social-warmth-first
+    blocks.append(_warmth_instruction_for_audience(audience_type))
 
     prompt_vars = {
         "persona_system_prompt": base_vars.get("persona_system_prompt", ""),
