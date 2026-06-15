@@ -1,0 +1,2066 @@
+{
+  "version": "1.0",
+  "description": "Audience-specific tone regression fixture — 30 scenarios across corporate, social, agency, luxury, unknown. Used by run_audience_tone_regression.py.",
+  "created": "2026-06-15",
+  "issue": "TEST-022",
+  "record_count": 30,
+  "audience_distribution": {
+    "corporate": 8,
+    "social": 8,
+    "agency": 6,
+    "luxury": 6,
+    "unknown": 2
+  },
+  "tone_families": {
+    "professional": "Polished, efficient, commercially direct. No emotional celebration language.",
+    "warm_celebratory": "Warm, enthusiastic, occasion-aware. Celebration language permitted.",
+    "operational": "Clear, logistics-focused, planner-friendly. Minimal emotional language.",
+    "refined": "Calm, understated, high-touch. No casual or over-enthusiastic phrasing.",
+    "neutral": "Neutral and professional. Safe fallback when audience is unknown."
+  },
+  "records": [
+    {
+      "id": "tone_corp_01",
+      "audience_type": "corporate",
+      "expected_tone_family": "professional",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Board dinner — 12 July",
+      "body": "Hi, I'm coordinating a board dinner for 14 on 12 July. We need a private dining room for a post-AGM dinner. Please confirm availability and minimum spend. Regards, James",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How wonderful",
+          "How lovely",
+          "such a special occasion",
+          "such a meaningful",
+          "celebration with us",
+          "will be special",
+          "what a lovely occasion",
+          "how exciting",
+          "thrilled"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "minimum spend",
+          "private dining",
+          "confirm",
+          "dinner"
+        ],
+        "notes": "Board dinner is a business event. No celebratory warmth."
+      },
+      "target_extraction": {
+        "occasion": "board dinner",
+        "guest_count": 14,
+        "meal_period": "dinner",
+        "event_time": "19:00",
+        "audience_type": "corporate",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "corporate"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "professional, polished, efficient",
+            "persona_style": "business hospitality"
+          },
+          "known_facts": {
+            "guest_name": "James",
+            "audience_type": "corporate",
+            "occasion": "board dinner",
+            "guest_count": 14,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-07-12"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-07-12",
+            "candidate_dates": ["2026-07-12"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: corporate\n",
+            "event_type_line": "Event type: board dinner\n",
+            "event_date_line": "Event date: 2026-07-12\n",
+            "party_size_line": "Party size: 14 guests\n",
+            "availability_line": "Availability: Available for 2026-07-12.\n",
+            "spend_line": "Recommended minimum spend: \u00a32,000.\n",
+            "room_lines": "Suggested room: Private dining room (up to 16 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_corp_02",
+      "audience_type": "corporate",
+      "expected_tone_family": "professional",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Client workshop lunch — 20 guests",
+      "body": "We're planning a working lunch for a client strategy day on 18 July. 20 people, private room required. Could you confirm availability and pricing? Thanks, Sarah",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How wonderful",
+          "How lovely",
+          "such a special occasion",
+          "celebration",
+          "thrilled",
+          "delighted to celebrate",
+          "such a meaningful"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "lunch",
+          "private",
+          "confirm",
+          "pricing"
+        ],
+        "notes": "Client working lunch — business context, no celebration language."
+      },
+      "target_extraction": {
+        "occasion": "client workshop",
+        "guest_count": 20,
+        "meal_period": "lunch",
+        "event_time": "12:00",
+        "audience_type": "corporate",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "corporate"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "professional, polished, efficient",
+            "persona_style": "business hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Sarah",
+            "audience_type": "corporate",
+            "occasion": "client workshop",
+            "guest_count": 20,
+            "meal_period": "lunch",
+            "candidate_dates": ["2026-07-18"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-07-18",
+            "candidate_dates": ["2026-07-18"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: corporate\n",
+            "event_type_line": "Event type: client workshop lunch\n",
+            "event_date_line": "Event date: 2026-07-18\n",
+            "party_size_line": "Party size: 20 guests\n",
+            "availability_line": "Availability: Available for 2026-07-18.\n",
+            "spend_line": "Recommended minimum spend: \u00a33,000.\n",
+            "room_lines": "Suggested room: Private dining room (up to 22 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_corp_03",
+      "audience_type": "corporate",
+      "expected_tone_family": "professional",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Team dinner — 25 people — 5 August",
+      "body": "Hi there, looking to book a team dinner for 25 people on 5 August. This is an end-of-quarter team event. Let me know what you have available. Best, Mark",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How wonderful",
+          "How lovely",
+          "such a special occasion",
+          "celebration",
+          "what a great occasion"
+        ],
+        "acceptable_signals": [
+          "team dinner",
+          "availability",
+          "dinner",
+          "August"
+        ],
+        "notes": "Corporate team dinner — professional tone expected."
+      },
+      "target_extraction": {
+        "occasion": "team dinner",
+        "guest_count": 25,
+        "meal_period": "dinner",
+        "event_time": "19:00",
+        "audience_type": "corporate",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "corporate"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "professional, polished, efficient",
+            "persona_style": "business hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Mark",
+            "audience_type": "corporate",
+            "occasion": "team dinner",
+            "guest_count": 25,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-08-05"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-08-05",
+            "candidate_dates": ["2026-08-05"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: corporate\n",
+            "event_type_line": "Event type: team dinner\n",
+            "event_date_line": "Event date: 2026-08-05\n",
+            "party_size_line": "Party size: 25 guests\n",
+            "availability_line": "Availability: Available for 2026-08-05.\n",
+            "spend_line": "Recommended minimum spend: \u00a33,500.\n",
+            "room_lines": "Suggested room: Private dining room (up to 30 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_corp_04",
+      "audience_type": "corporate",
+      "expected_tone_family": "professional",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Executive dinner — 10 people",
+      "body": "I need to book an executive dinner for 10 guests on 22 July. Confidential setting required. Please advise on availability and minimum spend. Kind regards, Catherine",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How wonderful",
+          "How lovely",
+          "celebration with us",
+          "such a special",
+          "so excited"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "dinner",
+          "minimum spend",
+          "private"
+        ],
+        "notes": "Executive dinner — discreet professional tone required."
+      },
+      "target_extraction": {
+        "occasion": "executive dinner",
+        "guest_count": 10,
+        "meal_period": "dinner",
+        "event_time": "19:30",
+        "audience_type": "corporate",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "corporate"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "professional, polished, discreet",
+            "persona_style": "business hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Catherine",
+            "audience_type": "corporate",
+            "occasion": "executive dinner",
+            "guest_count": 10,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-07-22"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-07-22",
+            "candidate_dates": ["2026-07-22"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: corporate\n",
+            "event_type_line": "Event type: executive dinner\n",
+            "event_date_line": "Event date: 2026-07-22\n",
+            "party_size_line": "Party size: 10 guests\n",
+            "availability_line": "Availability: Available for 2026-07-22.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,500.\n",
+            "room_lines": "Suggested room: Private dining room (up to 12 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_corp_05",
+      "audience_type": "corporate",
+      "expected_tone_family": "professional",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Product launch dinner — 30 guests",
+      "body": "We're holding a product launch dinner on 8 August, 30 guests. Need private hire. Can you confirm capacity and pricing? Regards, Tom",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How wonderful",
+          "How lovely",
+          "such a special occasion",
+          "celebration",
+          "thrilled to host"
+        ],
+        "acceptable_signals": [
+          "private hire",
+          "dinner",
+          "availability",
+          "minimum spend"
+        ],
+        "notes": "Product launch dinner — commercial event, professional response required."
+      },
+      "target_extraction": {
+        "occasion": "product launch dinner",
+        "guest_count": 30,
+        "meal_period": "dinner",
+        "event_time": "19:00",
+        "audience_type": "corporate",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "corporate"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "professional, polished, efficient",
+            "persona_style": "business hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Tom",
+            "audience_type": "corporate",
+            "occasion": "product launch dinner",
+            "guest_count": 30,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-08-08"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-08-08",
+            "candidate_dates": ["2026-08-08"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: corporate\n",
+            "event_type_line": "Event type: product launch dinner\n",
+            "event_date_line": "Event date: 2026-08-08\n",
+            "party_size_line": "Party size: 30 guests\n",
+            "availability_line": "Availability: Available for 2026-08-08.\n",
+            "spend_line": "Recommended minimum spend: \u00a35,000.\n",
+            "room_lines": "Suggested room: Private dining room (up to 35 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_corp_06",
+      "audience_type": "corporate",
+      "expected_tone_family": "professional",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Investor dinner — 8 people",
+      "body": "Good morning, I'd like to arrange a dinner for 8 investors on 15 July. Private room essential. Please confirm availability. Best, Lisa",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How wonderful",
+          "How lovely",
+          "such a special occasion",
+          "celebration",
+          "exciting"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "dinner",
+          "private",
+          "confirm"
+        ],
+        "notes": "Investor dinner — high-stakes professional setting, no warmth openers."
+      },
+      "target_extraction": {
+        "occasion": "investor dinner",
+        "guest_count": 8,
+        "meal_period": "dinner",
+        "event_time": "19:00",
+        "audience_type": "corporate",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "corporate"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "professional, polished, discreet",
+            "persona_style": "business hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Lisa",
+            "audience_type": "corporate",
+            "occasion": "investor dinner",
+            "guest_count": 8,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-07-15"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-07-15",
+            "candidate_dates": ["2026-07-15"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: corporate\n",
+            "event_type_line": "Event type: investor dinner\n",
+            "event_date_line": "Event date: 2026-07-15\n",
+            "party_size_line": "Party size: 8 guests\n",
+            "availability_line": "Availability: Available for 2026-07-15.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,200.\n",
+            "room_lines": "Suggested room: Private dining room (up to 10 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_corp_07",
+      "audience_type": "corporate",
+      "expected_tone_family": "professional",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Leadership away-day dinner",
+      "body": "Hi, booking a leadership away-day dinner for 18 people on 29 July. We'll need exclusive use of a room. Please advise. Thanks, David",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How wonderful",
+          "How lovely",
+          "such a special occasion",
+          "celebration",
+          "how exciting"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "dinner",
+          "exclusive",
+          "confirm"
+        ],
+        "notes": "Leadership event — professional, no social warmth."
+      },
+      "target_extraction": {
+        "occasion": "leadership away-day dinner",
+        "guest_count": 18,
+        "meal_period": "dinner",
+        "event_time": "19:30",
+        "audience_type": "corporate",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "corporate"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "professional, polished, efficient",
+            "persona_style": "business hospitality"
+          },
+          "known_facts": {
+            "guest_name": "David",
+            "audience_type": "corporate",
+            "occasion": "leadership away-day dinner",
+            "guest_count": 18,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-07-29"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-07-29",
+            "candidate_dates": ["2026-07-29"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: corporate\n",
+            "event_type_line": "Event type: leadership away-day dinner\n",
+            "event_date_line": "Event date: 2026-07-29\n",
+            "party_size_line": "Party size: 18 guests\n",
+            "availability_line": "Availability: Available for 2026-07-29.\n",
+            "spend_line": "Recommended minimum spend: \u00a32,500.\n",
+            "room_lines": "Suggested room: Private dining room (up to 20 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_corp_08",
+      "audience_type": "corporate",
+      "expected_tone_family": "professional",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Office birthday lunch — 12 people",
+      "body": "Hi, we're celebrating a colleague's 50th birthday at work and would like to book a lunch for 12 on 10 July. Please confirm if you have space. Rachel",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How wonderful",
+          "How lovely",
+          "such a special occasion",
+          "such a meaningful",
+          "what a lovely occasion"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "lunch",
+          "birthday",
+          "confirm"
+        ],
+        "notes": "Office birthday lunch — even with social occasion, corporate booker means business-appropriate tone."
+      },
+      "target_extraction": {
+        "occasion": "office birthday",
+        "guest_count": 12,
+        "meal_period": "lunch",
+        "event_time": "12:30",
+        "audience_type": "corporate",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "corporate"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "professional, warm but restrained",
+            "persona_style": "business hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Rachel",
+            "audience_type": "corporate",
+            "occasion": "office birthday",
+            "guest_count": 12,
+            "meal_period": "lunch",
+            "candidate_dates": ["2026-07-10"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-07-10",
+            "candidate_dates": ["2026-07-10"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: corporate\n",
+            "event_type_line": "Event type: office birthday lunch\n",
+            "event_date_line": "Event date: 2026-07-10\n",
+            "party_size_line": "Party size: 12 guests\n",
+            "availability_line": "Availability: Available for 2026-07-10.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,800.\n",
+            "room_lines": "Suggested room: Private dining room (up to 14 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_social_01",
+      "audience_type": "social",
+      "expected_tone_family": "warm_celebratory",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Birthday dinner for 10 — 19 July",
+      "body": "Hi, I'd love to book a birthday dinner for 10 people on 19 July. It's my 30th and I want it to be really special! Thanks, Emma",
+      "tone_expectations": {
+        "forbidden_patterns": [],
+        "acceptable_signals": [
+          "birthday",
+          "dinner",
+          "availability",
+          "wonderful",
+          "delighted"
+        ],
+        "notes": "Social birthday — warm celebratory language is appropriate and expected."
+      },
+      "target_extraction": {
+        "occasion": "birthday",
+        "guest_count": 10,
+        "meal_period": "dinner",
+        "event_time": "19:30",
+        "audience_type": "social",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "social"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Emma",
+            "audience_type": "social",
+            "occasion": "birthday",
+            "guest_count": 10,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-07-19"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-07-19",
+            "candidate_dates": ["2026-07-19"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: social\n",
+            "event_type_line": "Event type: birthday\n",
+            "event_date_line": "Event date: 2026-07-19\n",
+            "party_size_line": "Party size: 10 guests\n",
+            "availability_line": "Availability: Available for 2026-07-19.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,500.\n",
+            "room_lines": "Suggested room: Semi-private dining area (up to 12 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_social_02",
+      "audience_type": "social",
+      "expected_tone_family": "warm_celebratory",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Engagement dinner",
+      "body": "Hello! My partner just proposed and we want to celebrate with our closest friends — about 12 people, dinner on 25 July. Do you have availability? Sophie",
+      "tone_expectations": {
+        "forbidden_patterns": [],
+        "acceptable_signals": [
+          "engagement",
+          "availability",
+          "dinner",
+          "celebrate",
+          "wonderful"
+        ],
+        "notes": "Engagement dinner — celebratory warmth is correct and expected."
+      },
+      "target_extraction": {
+        "occasion": "engagement",
+        "guest_count": 12,
+        "meal_period": "dinner",
+        "event_time": "19:00",
+        "audience_type": "social",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "social"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Sophie",
+            "audience_type": "social",
+            "occasion": "engagement",
+            "guest_count": 12,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-07-25"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-07-25",
+            "candidate_dates": ["2026-07-25"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: social\n",
+            "event_type_line": "Event type: engagement\n",
+            "event_date_line": "Event date: 2026-07-25\n",
+            "party_size_line": "Party size: 12 guests\n",
+            "availability_line": "Availability: Available for 2026-07-25.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,800.\n",
+            "room_lines": "Suggested room: Private dining room (up to 14 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_social_03",
+      "audience_type": "social",
+      "expected_tone_family": "warm_celebratory",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Baby shower lunch — 16 July",
+      "body": "Hi, I'm planning a baby shower lunch for a close friend on 16 July — around 15 people. Can you accommodate us? Thanks, Jess",
+      "tone_expectations": {
+        "forbidden_patterns": [],
+        "acceptable_signals": [
+          "baby shower",
+          "availability",
+          "lunch",
+          "lovely",
+          "delighted"
+        ],
+        "notes": "Baby shower — celebratory social occasion, warm tone appropriate."
+      },
+      "target_extraction": {
+        "occasion": "baby shower",
+        "guest_count": 15,
+        "meal_period": "lunch",
+        "event_time": "12:30",
+        "audience_type": "social",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "social"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Jess",
+            "audience_type": "social",
+            "occasion": "baby shower",
+            "guest_count": 15,
+            "meal_period": "lunch",
+            "candidate_dates": ["2026-07-16"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-07-16",
+            "candidate_dates": ["2026-07-16"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: social\n",
+            "event_type_line": "Event type: baby shower\n",
+            "event_date_line": "Event date: 2026-07-16\n",
+            "party_size_line": "Party size: 15 guests\n",
+            "availability_line": "Availability: Available for 2026-07-16.\n",
+            "spend_line": "Recommended minimum spend: \u00a32,000.\n",
+            "room_lines": "Suggested room: Private dining room (up to 18 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_social_04",
+      "audience_type": "social",
+      "expected_tone_family": "warm_celebratory",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Anniversary dinner — 6 people",
+      "body": "Hi, my husband and I are celebrating our 25th wedding anniversary with close friends — 6 of us on 30 July. Looking for a private dinner. Best, Helen",
+      "tone_expectations": {
+        "forbidden_patterns": [],
+        "acceptable_signals": [
+          "anniversary",
+          "availability",
+          "dinner",
+          "celebrate",
+          "wonderful"
+        ],
+        "notes": "Wedding anniversary — social celebratory, warm tone is correct."
+      },
+      "target_extraction": {
+        "occasion": "anniversary",
+        "guest_count": 6,
+        "meal_period": "dinner",
+        "event_time": "19:30",
+        "audience_type": "social",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "social"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Helen",
+            "audience_type": "social",
+            "occasion": "anniversary",
+            "guest_count": 6,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-07-30"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-07-30",
+            "candidate_dates": ["2026-07-30"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: social\n",
+            "event_type_line": "Event type: anniversary\n",
+            "event_date_line": "Event date: 2026-07-30\n",
+            "party_size_line": "Party size: 6 guests\n",
+            "availability_line": "Availability: Available for 2026-07-30.\n",
+            "spend_line": "Recommended minimum spend: \u00a3900.\n",
+            "room_lines": "Suggested room: Semi-private dining area (up to 8 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_social_05",
+      "audience_type": "social",
+      "expected_tone_family": "warm_celebratory",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Retirement dinner — 20 people",
+      "body": "Hello, we'd like to throw a retirement dinner for a dear colleague — 20 guests on 3 August. Can you help? Many thanks, Patricia",
+      "tone_expectations": {
+        "forbidden_patterns": [],
+        "acceptable_signals": [
+          "retirement",
+          "dinner",
+          "availability",
+          "celebrate",
+          "delighted"
+        ],
+        "notes": "Retirement dinner — social occasion, warm and celebratory tone appropriate."
+      },
+      "target_extraction": {
+        "occasion": "retirement",
+        "guest_count": 20,
+        "meal_period": "dinner",
+        "event_time": "19:00",
+        "audience_type": "social",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "social"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Patricia",
+            "audience_type": "social",
+            "occasion": "retirement",
+            "guest_count": 20,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-08-03"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-08-03",
+            "candidate_dates": ["2026-08-03"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: social\n",
+            "event_type_line": "Event type: retirement dinner\n",
+            "event_date_line": "Event date: 2026-08-03\n",
+            "party_size_line": "Party size: 20 guests\n",
+            "availability_line": "Availability: Available for 2026-08-03.\n",
+            "spend_line": "Recommended minimum spend: \u00a33,000.\n",
+            "room_lines": "Suggested room: Private dining room (up to 22 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_social_06",
+      "audience_type": "social",
+      "expected_tone_family": "warm_celebratory",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Family gathering dinner — 18 July",
+      "body": "Hi, I'm organising a family reunion dinner for 22 people on 18 July. We'd love a private room. Please let me know if this is possible. Thanks, Andrew",
+      "tone_expectations": {
+        "forbidden_patterns": [],
+        "acceptable_signals": [
+          "family",
+          "dinner",
+          "availability",
+          "wonderful",
+          "delighted"
+        ],
+        "notes": "Family reunion — social, warm tone appropriate."
+      },
+      "target_extraction": {
+        "occasion": "family reunion",
+        "guest_count": 22,
+        "meal_period": "dinner",
+        "event_time": "18:30",
+        "audience_type": "social",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "social"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Andrew",
+            "audience_type": "social",
+            "occasion": "family reunion",
+            "guest_count": 22,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-07-18"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-07-18",
+            "candidate_dates": ["2026-07-18"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: social\n",
+            "event_type_line": "Event type: family reunion\n",
+            "event_date_line": "Event date: 2026-07-18\n",
+            "party_size_line": "Party size: 22 guests\n",
+            "availability_line": "Availability: Available for 2026-07-18.\n",
+            "spend_line": "Recommended minimum spend: \u00a33,200.\n",
+            "room_lines": "Suggested room: Private dining room (up to 25 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_social_07",
+      "audience_type": "social",
+      "expected_tone_family": "warm_celebratory",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Hen party dinner — 8 friends",
+      "body": "Hi there! Planning a hen do dinner for 8 girls on 11 July. Would love something a bit special! Thanks, Claire",
+      "tone_expectations": {
+        "forbidden_patterns": [],
+        "acceptable_signals": [
+          "hen party",
+          "dinner",
+          "availability",
+          "wonderful",
+          "celebrate"
+        ],
+        "notes": "Hen party — social celebration, warm enthusiastic tone is correct."
+      },
+      "target_extraction": {
+        "occasion": "hen party",
+        "guest_count": 8,
+        "meal_period": "dinner",
+        "event_time": "19:00",
+        "audience_type": "social",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "social"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Claire",
+            "audience_type": "social",
+            "occasion": "hen party",
+            "guest_count": 8,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-07-11"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-07-11",
+            "candidate_dates": ["2026-07-11"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: social\n",
+            "event_type_line": "Event type: hen party\n",
+            "event_date_line": "Event date: 2026-07-11\n",
+            "party_size_line": "Party size: 8 guests\n",
+            "availability_line": "Availability: Available for 2026-07-11.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,200.\n",
+            "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_social_08",
+      "audience_type": "social",
+      "expected_tone_family": "warm_celebratory",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Graduation dinner — 16 people",
+      "body": "Hi, I'd like to celebrate my daughter's graduation with family and close friends — 16 people, dinner on 27 July. Warmly, Margaret",
+      "tone_expectations": {
+        "forbidden_patterns": [],
+        "acceptable_signals": [
+          "graduation",
+          "dinner",
+          "availability",
+          "wonderful",
+          "celebrate"
+        ],
+        "notes": "Graduation dinner — joyful social occasion, warm celebratory language is entirely correct."
+      },
+      "target_extraction": {
+        "occasion": "graduation",
+        "guest_count": 16,
+        "meal_period": "dinner",
+        "event_time": "19:00",
+        "audience_type": "social",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "social"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Margaret",
+            "audience_type": "social",
+            "occasion": "graduation",
+            "guest_count": 16,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-07-27"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-07-27",
+            "candidate_dates": ["2026-07-27"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: social\n",
+            "event_type_line": "Event type: graduation\n",
+            "event_date_line": "Event date: 2026-07-27\n",
+            "party_size_line": "Party size: 16 guests\n",
+            "availability_line": "Availability: Available for 2026-07-27.\n",
+            "spend_line": "Recommended minimum spend: \u00a32,400.\n",
+            "room_lines": "Suggested room: Private dining room (up to 18 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_agency_01",
+      "audience_type": "agency",
+      "expected_tone_family": "operational",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Agency booking — corporate client dinner",
+      "body": "Hi, I'm an event planner organising a dinner for one of our corporate clients — 20 pax on 14 July. Please confirm availability, minimum spend, and commission terms. Thanks, Victoria",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How wonderful",
+          "How lovely",
+          "such a special occasion",
+          "such a meaningful",
+          "celebration with us",
+          "will be special"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "minimum spend",
+          "dinner",
+          "confirm",
+          "commission"
+        ],
+        "notes": "Agency booking — operational, logistics-first. No emotional celebration language."
+      },
+      "target_extraction": {
+        "occasion": "corporate client dinner",
+        "guest_count": 20,
+        "meal_period": "dinner",
+        "event_time": "19:00",
+        "audience_type": "agency",
+        "customer_type": "agency",
+        "acting_on_behalf": true,
+        "commission_requested": true,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "agency", "commission_requested": true},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "professional, clear, planner-friendly",
+            "persona_style": "operational hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Victoria",
+            "audience_type": "agency",
+            "occasion": "corporate client dinner",
+            "guest_count": 20,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-07-14"],
+            "commission_requested": true,
+            "acting_on_behalf": true
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-07-14",
+            "candidate_dates": ["2026-07-14"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: agency\n",
+            "event_type_line": "Event type: corporate client dinner\n",
+            "event_date_line": "Event date: 2026-07-14\n",
+            "party_size_line": "Party size: 20 guests\n",
+            "availability_line": "Availability: Available for 2026-07-14.\n",
+            "spend_line": "Recommended minimum spend: \u00a33,000.\n",
+            "room_lines": "Suggested room: Private dining room (up to 22 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_agency_02",
+      "audience_type": "agency",
+      "expected_tone_family": "operational",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "PA booking on behalf of CEO — dinner for 8",
+      "body": "Hello, I'm the PA for our CEO and I'm arranging a dinner for 8 on 21 July. Please send availability and pricing. Best regards, Natasha",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How wonderful",
+          "How lovely",
+          "such a special occasion",
+          "such a meaningful",
+          "celebration"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "dinner",
+          "minimum spend",
+          "confirm",
+          "pricing"
+        ],
+        "notes": "PA booking — operational, professional. No celebration language."
+      },
+      "target_extraction": {
+        "occasion": "dinner",
+        "guest_count": 8,
+        "meal_period": "dinner",
+        "event_time": "19:30",
+        "audience_type": "agency",
+        "customer_type": "agency",
+        "acting_on_behalf": true,
+        "commission_requested": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "agency", "acting_on_behalf": true},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "professional, clear, efficient",
+            "persona_style": "operational hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Natasha",
+            "audience_type": "agency",
+            "occasion": "dinner",
+            "guest_count": 8,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-07-21"],
+            "acting_on_behalf": true
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-07-21",
+            "candidate_dates": ["2026-07-21"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: agency\n",
+            "event_type_line": "Event type: dinner\n",
+            "event_date_line": "Event date: 2026-07-21\n",
+            "party_size_line": "Party size: 8 guests\n",
+            "availability_line": "Availability: Available for 2026-07-21.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,200.\n",
+            "room_lines": "Suggested room: Private dining room (up to 10 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_agency_03",
+      "audience_type": "agency",
+      "expected_tone_family": "operational",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Agency — third-party client birthday — 15 guests",
+      "body": "Hi, I'm planning a birthday dinner on behalf of a client — 15 guests on 6 August. My usual contact suggested your venue. Can you send me availability and min spend? Thanks, Karen",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How wonderful",
+          "How lovely",
+          "such a special occasion",
+          "how exciting",
+          "celebration with us"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "minimum spend",
+          "dinner",
+          "confirm"
+        ],
+        "notes": "Agency planning for third-party client — even a birthday context does not justify social warmth openers."
+      },
+      "target_extraction": {
+        "occasion": "birthday",
+        "guest_count": 15,
+        "meal_period": "dinner",
+        "event_time": "19:00",
+        "audience_type": "agency",
+        "customer_type": "agency",
+        "acting_on_behalf": true,
+        "commission_requested": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "agency", "acting_on_behalf": true},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "professional, clear, planner-friendly",
+            "persona_style": "operational hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Karen",
+            "audience_type": "agency",
+            "occasion": "birthday",
+            "guest_count": 15,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-08-06"],
+            "acting_on_behalf": true
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-08-06",
+            "candidate_dates": ["2026-08-06"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: agency\n",
+            "event_type_line": "Event type: birthday (third-party client)\n",
+            "event_date_line": "Event date: 2026-08-06\n",
+            "party_size_line": "Party size: 15 guests\n",
+            "availability_line": "Availability: Available for 2026-08-06.\n",
+            "spend_line": "Recommended minimum spend: \u00a32,000.\n",
+            "room_lines": "Suggested room: Private dining room (up to 18 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_agency_04",
+      "audience_type": "agency",
+      "expected_tone_family": "operational",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Event agency — private dining enquiry — 24 guests",
+      "body": "Dear team, we are an event management company looking to source a private dining venue for a client networking dinner — 24 guests on 17 July. Please provide availability and FAM rate. Best, Philippa",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How wonderful",
+          "How lovely",
+          "such a special occasion",
+          "celebration",
+          "thrilled"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "dinner",
+          "minimum spend",
+          "networking",
+          "confirm"
+        ],
+        "notes": "Event management company — operational, B2B tone. No celebratory language."
+      },
+      "target_extraction": {
+        "occasion": "networking dinner",
+        "guest_count": 24,
+        "meal_period": "dinner",
+        "event_time": "18:30",
+        "audience_type": "agency",
+        "customer_type": "agency",
+        "acting_on_behalf": true,
+        "commission_requested": true,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "agency", "commission_requested": true},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "professional, clear, planner-friendly",
+            "persona_style": "operational hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Philippa",
+            "audience_type": "agency",
+            "occasion": "networking dinner",
+            "guest_count": 24,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-07-17"],
+            "commission_requested": true,
+            "acting_on_behalf": true
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-07-17",
+            "candidate_dates": ["2026-07-17"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: agency\n",
+            "event_type_line": "Event type: networking dinner\n",
+            "event_date_line": "Event date: 2026-07-17\n",
+            "party_size_line": "Party size: 24 guests\n",
+            "availability_line": "Availability: Available for 2026-07-17.\n",
+            "spend_line": "Recommended minimum spend: \u00a33,500.\n",
+            "room_lines": "Suggested room: Private dining room (up to 28 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_agency_05",
+      "audience_type": "agency",
+      "expected_tone_family": "operational",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Concierge desk — VIP dinner enquiry",
+      "body": "Good afternoon, I'm from Quintessentially and I'm arranging a private dinner for a VIP client — 6 people on 9 August. Please confirm availability and the relevant contact. Best, Charlotte",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How wonderful",
+          "How lovely",
+          "such a special",
+          "celebration with us",
+          "how exciting"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "dinner",
+          "minimum spend",
+          "confirm",
+          "private"
+        ],
+        "notes": "Concierge agency — professional, efficient. No emotional openers."
+      },
+      "target_extraction": {
+        "occasion": "VIP dinner",
+        "guest_count": 6,
+        "meal_period": "dinner",
+        "event_time": "19:30",
+        "audience_type": "agency",
+        "customer_type": "agency",
+        "acting_on_behalf": true,
+        "commission_requested": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "agency", "acting_on_behalf": true},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "professional, clear, efficient",
+            "persona_style": "operational hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Charlotte",
+            "audience_type": "agency",
+            "occasion": "VIP dinner",
+            "guest_count": 6,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-08-09"],
+            "acting_on_behalf": true
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-08-09",
+            "candidate_dates": ["2026-08-09"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: agency\n",
+            "event_type_line": "Event type: VIP dinner\n",
+            "event_date_line": "Event date: 2026-08-09\n",
+            "party_size_line": "Party size: 6 guests\n",
+            "availability_line": "Availability: Available for 2026-08-09.\n",
+            "spend_line": "Recommended minimum spend: \u00a3900.\n",
+            "room_lines": "Suggested room: Private dining room (up to 8 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_agency_06",
+      "audience_type": "agency",
+      "expected_tone_family": "operational",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Agency multi-date enquiry — 30 guests",
+      "body": "Hi, I source venues for corporate clients. I need availability for a dinner for 30 on either 23 or 24 July. Client is in financial services. Commission applies. Regards, Gemma",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How wonderful",
+          "How lovely",
+          "such a special occasion",
+          "celebration",
+          "thrilled to host"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "dinner",
+          "minimum spend",
+          "commission",
+          "financial services"
+        ],
+        "notes": "Multi-date agency sourcing — efficient, professional, logistics-first."
+      },
+      "target_extraction": {
+        "occasion": "corporate dinner",
+        "guest_count": 30,
+        "meal_period": "dinner",
+        "event_time": "19:00",
+        "audience_type": "agency",
+        "customer_type": "agency",
+        "acting_on_behalf": true,
+        "commission_requested": true,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "agency", "commission_requested": true},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "professional, clear, planner-friendly",
+            "persona_style": "operational hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Gemma",
+            "audience_type": "agency",
+            "occasion": "corporate dinner",
+            "guest_count": 30,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-07-23"],
+            "commission_requested": true,
+            "acting_on_behalf": true
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-07-23",
+            "candidate_dates": ["2026-07-23"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: agency\n",
+            "event_type_line": "Event type: corporate dinner\n",
+            "event_date_line": "Event date: 2026-07-23\n",
+            "party_size_line": "Party size: 30 guests\n",
+            "availability_line": "Availability: Available for 2026-07-23.\n",
+            "spend_line": "Recommended minimum spend: \u00a35,000.\n",
+            "room_lines": "Suggested room: Private dining room (up to 35 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_luxury_01",
+      "audience_type": "luxury",
+      "expected_tone_family": "refined",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Private family office — bespoke dinner",
+      "body": "Good evening, I represent a private family office and I am enquiring about an exclusive private dinner for 12 guests on 13 August. Discretion is essential. Yours sincerely, Alexander",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How wonderful",
+          "How exciting",
+          "amazing",
+          "fantastic",
+          "totally",
+          "super excited",
+          "can't wait"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "dinner",
+          "private",
+          "exclusive",
+          "delighted"
+        ],
+        "notes": "Private family office — refined, understated. No casual or enthusiastic language."
+      },
+      "target_extraction": {
+        "occasion": "private dinner",
+        "guest_count": 12,
+        "meal_period": "dinner",
+        "event_time": "20:00",
+        "audience_type": "luxury",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "luxury"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "refined, calm, understated, high-touch",
+            "persona_style": "luxury hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Alexander",
+            "audience_type": "luxury",
+            "occasion": "private dinner",
+            "guest_count": 12,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-08-13"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-08-13",
+            "candidate_dates": ["2026-08-13"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: luxury\n",
+            "event_type_line": "Event type: private dinner\n",
+            "event_date_line": "Event date: 2026-08-13\n",
+            "party_size_line": "Party size: 12 guests\n",
+            "availability_line": "Availability: Available for 2026-08-13.\n",
+            "spend_line": "Recommended minimum spend: \u00a32,000.\n",
+            "room_lines": "Suggested room: Private dining room (up to 14 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_luxury_02",
+      "audience_type": "luxury",
+      "expected_tone_family": "refined",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "VIP birthday dinner — 6 guests",
+      "body": "Good morning, I am arranging a landmark birthday dinner for 6 guests on 1 August. We require the highest level of service and total privacy. Please respond at your earliest convenience. Kind regards, Arabella",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How exciting",
+          "amazing",
+          "fantastic",
+          "brilliant",
+          "totally",
+          "super"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "dinner",
+          "private",
+          "delighted",
+          "pleasure"
+        ],
+        "notes": "Luxury birthday — refined and understated. Warm but not enthusiastic."
+      },
+      "target_extraction": {
+        "occasion": "birthday",
+        "guest_count": 6,
+        "meal_period": "dinner",
+        "event_time": "20:00",
+        "audience_type": "luxury",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "luxury"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "refined, calm, understated, high-touch",
+            "persona_style": "luxury hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Arabella",
+            "audience_type": "luxury",
+            "occasion": "birthday",
+            "guest_count": 6,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-08-01"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-08-01",
+            "candidate_dates": ["2026-08-01"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: luxury\n",
+            "event_type_line": "Event type: birthday\n",
+            "event_date_line": "Event date: 2026-08-01\n",
+            "party_size_line": "Party size: 6 guests\n",
+            "availability_line": "Availability: Available for 2026-08-01.\n",
+            "spend_line": "Recommended minimum spend: \u00a3900.\n",
+            "room_lines": "Suggested room: Private dining room (up to 8 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_luxury_03",
+      "audience_type": "luxury",
+      "expected_tone_family": "refined",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Ultra-luxury anniversary dinner",
+      "body": "Dear Madam, my clients are celebrating their 40th wedding anniversary and require an exceptionally private and refined dining experience — 8 guests on 20 August. Please advise. Yours faithfully, Edward",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How exciting",
+          "amazing",
+          "fantastic",
+          "brilliant",
+          "how wonderful",
+          "super"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "dinner",
+          "private",
+          "pleasure",
+          "delighted"
+        ],
+        "notes": "Anniversary for ultra-luxury client — calm, gracious, understated."
+      },
+      "target_extraction": {
+        "occasion": "anniversary",
+        "guest_count": 8,
+        "meal_period": "dinner",
+        "event_time": "20:00",
+        "audience_type": "luxury",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "luxury"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "refined, calm, gracious, high-touch",
+            "persona_style": "luxury hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Edward",
+            "audience_type": "luxury",
+            "occasion": "anniversary",
+            "guest_count": 8,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-08-20"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-08-20",
+            "candidate_dates": ["2026-08-20"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: luxury\n",
+            "event_type_line": "Event type: anniversary\n",
+            "event_date_line": "Event date: 2026-08-20\n",
+            "party_size_line": "Party size: 8 guests\n",
+            "availability_line": "Availability: Available for 2026-08-20.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,200.\n",
+            "room_lines": "Suggested room: Private dining room (up to 10 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_luxury_04",
+      "audience_type": "luxury",
+      "expected_tone_family": "refined",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "High-net-worth client — exclusive dining experience",
+      "body": "Hello, I'm arranging a dining experience for 10 high-net-worth individuals on 7 August. Absolute discretion and impeccable service required. Please confirm availability. Regards, Imogen",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How exciting",
+          "amazing",
+          "fantastic",
+          "brilliant",
+          "super",
+          "can't wait"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "dinner",
+          "private",
+          "delighted",
+          "pleased"
+        ],
+        "notes": "High-net-worth — poised, restrained, impeccably professional."
+      },
+      "target_extraction": {
+        "occasion": "private dining experience",
+        "guest_count": 10,
+        "meal_period": "dinner",
+        "event_time": "19:30",
+        "audience_type": "luxury",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "luxury"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "refined, calm, understated, high-touch",
+            "persona_style": "luxury hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Imogen",
+            "audience_type": "luxury",
+            "occasion": "private dining experience",
+            "guest_count": 10,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-08-07"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-08-07",
+            "candidate_dates": ["2026-08-07"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: luxury\n",
+            "event_type_line": "Event type: private dining experience\n",
+            "event_date_line": "Event date: 2026-08-07\n",
+            "party_size_line": "Party size: 10 guests\n",
+            "availability_line": "Availability: Available for 2026-08-07.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,500.\n",
+            "room_lines": "Suggested room: Private dining room (up to 12 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_luxury_05",
+      "audience_type": "luxury",
+      "expected_tone_family": "refined",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Titled guest — private dinner — 4 August",
+      "body": "Good afternoon. I am writing on behalf of a distinguished client who wishes to host an intimate private dinner for 8 guests on 4 August. Utmost discretion expected. Yours, William",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How exciting",
+          "amazing",
+          "fantastic",
+          "brilliant",
+          "how wonderful",
+          "super"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "dinner",
+          "private",
+          "pleased",
+          "pleasure"
+        ],
+        "notes": "Titled or UHNW guest — gracious, restrained, no enthusiasm."
+      },
+      "target_extraction": {
+        "occasion": "private dinner",
+        "guest_count": 8,
+        "meal_period": "dinner",
+        "event_time": "20:00",
+        "audience_type": "luxury",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": true,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "luxury", "acting_on_behalf": true},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "luxury hospitality"
+          },
+          "known_facts": {
+            "guest_name": "William",
+            "audience_type": "luxury",
+            "occasion": "private dinner",
+            "guest_count": 8,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-08-04"],
+            "acting_on_behalf": true
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-08-04",
+            "candidate_dates": ["2026-08-04"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: luxury\n",
+            "event_type_line": "Event type: private dinner\n",
+            "event_date_line": "Event date: 2026-08-04\n",
+            "party_size_line": "Party size: 8 guests\n",
+            "availability_line": "Availability: Available for 2026-08-04.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,200.\n",
+            "room_lines": "Suggested room: Private dining room (up to 10 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_luxury_06",
+      "audience_type": "luxury",
+      "expected_tone_family": "refined",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Exclusive tasting dinner — 6 guests — 16 August",
+      "body": "Dear Sir/Madam, I am arranging a private fine dining experience for 6 guests on 16 August. Please confirm availability and provide your premium private dining options. Yours sincerely, Henrietta",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How exciting",
+          "amazing",
+          "fantastic",
+          "brilliant",
+          "super",
+          "how wonderful"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "dinner",
+          "private",
+          "please",
+          "delighted"
+        ],
+        "notes": "Fine dining — restrained, poised, high-touch."
+      },
+      "target_extraction": {
+        "occasion": "fine dining experience",
+        "guest_count": 6,
+        "meal_period": "dinner",
+        "event_time": "20:00",
+        "audience_type": "luxury",
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "luxury"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "refined, calm, understated",
+            "persona_style": "luxury hospitality"
+          },
+          "known_facts": {
+            "guest_name": "Henrietta",
+            "audience_type": "luxury",
+            "occasion": "fine dining experience",
+            "guest_count": 6,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-08-16"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-08-16",
+            "candidate_dates": ["2026-08-16"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: luxury\n",
+            "event_type_line": "Event type: fine dining experience\n",
+            "event_date_line": "Event date: 2026-08-16\n",
+            "party_size_line": "Party size: 6 guests\n",
+            "availability_line": "Availability: Available for 2026-08-16.\n",
+            "spend_line": "Recommended minimum spend: \u00a3900.\n",
+            "room_lines": "Suggested room: Private dining room (up to 8 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_unknown_01",
+      "audience_type": "unknown",
+      "expected_tone_family": "neutral",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Dinner for 10 — no context",
+      "body": "Hi, can you tell me if you have availability for a dinner for 10 people on 5 August? Thanks",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How wonderful",
+          "How exciting",
+          "amazing",
+          "fantastic",
+          "such a special"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "dinner",
+          "confirm",
+          "minimum spend"
+        ],
+        "notes": "Unknown audience — neutral professional fallback. No assumptions about occasion or tone."
+      },
+      "target_extraction": {
+        "occasion": null,
+        "guest_count": 10,
+        "meal_period": "dinner",
+        "event_time": null,
+        "audience_type": "unknown",
+        "customer_type": "unknown",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "unknown"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "neutral, professional",
+            "persona_style": "professional hospitality"
+          },
+          "known_facts": {
+            "guest_name": null,
+            "audience_type": "unknown",
+            "occasion": null,
+            "guest_count": 10,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-08-05"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-08-05",
+            "candidate_dates": ["2026-08-05"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: unknown\n",
+            "event_type_line": "",
+            "event_date_line": "Event date: 2026-08-05\n",
+            "party_size_line": "Party size: 10 guests\n",
+            "availability_line": "Availability: Available for 2026-08-05.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,500.\n",
+            "room_lines": "Suggested room: Private dining room (up to 12 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tone_unknown_02",
+      "audience_type": "unknown",
+      "expected_tone_family": "neutral",
+      "anchor_date": "2026-07-01",
+      "timezone": "Europe/London",
+      "subject": "Private dining — 20 July",
+      "body": "Hello, please could you let me know if you have private dining available for 15 on 20 July? Regards",
+      "tone_expectations": {
+        "forbidden_patterns": [
+          "How wonderful",
+          "How exciting",
+          "amazing",
+          "fantastic",
+          "such a special occasion"
+        ],
+        "acceptable_signals": [
+          "availability",
+          "dinner",
+          "confirm",
+          "minimum spend"
+        ],
+        "notes": "Unknown audience, no occasion context — neutral professional tone."
+      },
+      "target_extraction": {
+        "occasion": null,
+        "guest_count": 15,
+        "meal_period": "dinner",
+        "event_time": null,
+        "audience_type": "unknown",
+        "customer_type": "unknown",
+        "acting_on_behalf": false,
+        "response_preparation_target": {
+          "availability_decision": {"availability_status": "AVAILABLE"},
+          "customer_type_context": {"audience_type": "unknown"},
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "neutral, professional",
+            "persona_style": "professional hospitality"
+          },
+          "known_facts": {
+            "guest_name": null,
+            "audience_type": "unknown",
+            "occasion": null,
+            "guest_count": 15,
+            "meal_period": "dinner",
+            "candidate_dates": ["2026-07-20"]
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "assumed_date": "2026-07-20",
+            "candidate_dates": ["2026-07-20"]
+          },
+          "draft_prompt_variables": {
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "audience_type_line": "Audience type: unknown\n",
+            "event_type_line": "",
+            "event_date_line": "Event date: 2026-07-20\n",
+            "party_size_line": "Party size: 15 guests\n",
+            "availability_line": "Availability: Available for 2026-07-20.\n",
+            "spend_line": "Recommended minimum spend: \u00a32,000.\n",
+            "room_lines": "Suggested room: Private dining room (up to 18 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      }
+    }
+  ]
+}
