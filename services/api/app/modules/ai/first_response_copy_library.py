@@ -1,4 +1,4 @@
-"""First Response Copy Library (RESP-017, updated RESP-037, RESP-043, RESP-051, RESP-057, RESP-058, RESP-071, RESP-072, RESP-073).
+"""First Response Copy Library (RESP-017, updated RESP-037, RESP-043, RESP-051, RESP-057, RESP-058, RESP-071, RESP-072, RESP-073, RESP-074).
 
 Approved deterministic copy blocks for operationally sensitive first-response
 statements.  The LLM must use these blocks verbatim (with variable interpolation)
@@ -76,6 +76,15 @@ BLOCK_AVAILABILITY_CONFIRMED_SHORT = "availability_confirmed_short"
 BLOCK_RDTC_AVAILABLE_OPENER = "rdtc_available_opener"
 # RESP-073: single clean next-step for RDTC — no second "availability" mention.
 BLOCK_RDTC_NEXT_STEP = "rdtc_next_step"
+# RESP-074: audience-aware CONFIRM_AVAILABLE openers — deterministic, no LLM.
+# Each opener is selected by audience_type via FirstResponseCopyLibrary.audience_opener().
+# Corporate/agency/luxury/unknown use these deterministic blocks instead of warmth generation.
+# Social retains the existing BLOCK_AVAILABILITY_CONFIRMED block (warm celebratory).
+BLOCK_OPENER_CORPORATE = "opener_corporate"
+BLOCK_OPENER_AGENCY    = "opener_agency"
+BLOCK_OPENER_LUXURY    = "opener_luxury"
+BLOCK_OPENER_SOCIAL    = "opener_social"
+BLOCK_OPENER_UNKNOWN   = "opener_unknown"
 
 # ── Template registry ──────────────────────────────────────────────────────────
 
@@ -168,6 +177,32 @@ _TEMPLATES: dict[str, str] = {
     BLOCK_RDTC_NEXT_STEP: (
         "Once confirmed, we'll come back to you straight away."
     ),
+    # RESP-074: audience-aware CONFIRM_AVAILABLE openers — deterministic, no LLM.
+    # Corporate: professional acknowledgement, no celebratory language.
+    BLOCK_OPENER_CORPORATE: (
+        "Thank you for your enquiry. I'm pleased to confirm that we have availability "
+        "for {meal_period} on {event_date}."
+    ),
+    # Agency: operational and logistics-oriented, no emotional language.
+    BLOCK_OPENER_AGENCY: (
+        "Thank you for your enquiry. I can confirm that we have availability "
+        "for {meal_period} on {event_date}."
+    ),
+    # Luxury: refined and understated, high-touch without enthusiasm.
+    BLOCK_OPENER_LUXURY: (
+        "Thank you for your enquiry. It would be a pleasure to welcome your guests — "
+        "I'm pleased to confirm availability for {meal_period} on {event_date}."
+    ),
+    # Social: warm and celebratory — mirrors BLOCK_AVAILABILITY_CONFIRMED content.
+    BLOCK_OPENER_SOCIAL: (
+        "Thank you for your enquiry — I'm delighted to confirm that we have availability "
+        "for {meal_period} on {event_date}."
+    ),
+    # Unknown: neutral professional fallback.
+    BLOCK_OPENER_UNKNOWN: (
+        "Thank you for your enquiry. I'm pleased to confirm that we have availability "
+        "for {meal_period} on {event_date}."
+    ),
 }
 
 # Required variables per block key (empty set = no required vars)
@@ -188,6 +223,22 @@ _REQUIRED_VARS: dict[str, frozenset[str]] = {
     BLOCK_AVAILABILITY_CONFIRMED_SHORT: frozenset({"meal_period", "event_date"}),
     BLOCK_RDTC_AVAILABLE_OPENER: frozenset({"meal_period", "assumed_date", "alternative_date"}),
     BLOCK_RDTC_NEXT_STEP: frozenset(),
+    # RESP-074: audience-aware openers
+    BLOCK_OPENER_CORPORATE: frozenset({"meal_period", "event_date"}),
+    BLOCK_OPENER_AGENCY:    frozenset({"meal_period", "event_date"}),
+    BLOCK_OPENER_LUXURY:    frozenset({"meal_period", "event_date"}),
+    BLOCK_OPENER_SOCIAL:    frozenset({"meal_period", "event_date"}),
+    BLOCK_OPENER_UNKNOWN:   frozenset({"meal_period", "event_date"}),
+}
+
+# RESP-074: map audience_type → opener block key.
+# Used by FirstResponseCopyLibrary.audience_opener().
+_AUDIENCE_OPENER_MAP: dict[str, str] = {
+    "corporate": BLOCK_OPENER_CORPORATE,
+    "agency":    BLOCK_OPENER_AGENCY,
+    "luxury":    BLOCK_OPENER_LUXURY,
+    "social":    BLOCK_OPENER_SOCIAL,
+    "unknown":   BLOCK_OPENER_UNKNOWN,
 }
 
 
@@ -254,3 +305,23 @@ class FirstResponseCopyLibrary:
             return cls.render(key, variables)
         except (KeyError, ValueError):
             return None
+
+    @classmethod
+    def audience_opener(cls, audience_type: str, variables: dict[str, str]) -> str:
+        """Return the deterministic CONFIRM_AVAILABLE opener for ``audience_type``.
+
+        RESP-074: Selects the correct audience-aware opener block and renders it.
+        Falls back to ``BLOCK_OPENER_UNKNOWN`` for unrecognised audience types.
+
+        Args:
+            audience_type: One of corporate, agency, luxury, social, unknown.
+            variables:     Must include ``meal_period`` and ``event_date``.
+
+        Returns:
+            Rendered opener string.
+
+        Raises:
+            ValueError: If ``meal_period`` or ``event_date`` are missing from ``variables``.
+        """
+        key = _AUDIENCE_OPENER_MAP.get((audience_type or "").lower(), BLOCK_OPENER_UNKNOWN)
+        return cls.render(key, variables)
