@@ -75,6 +75,7 @@ from app.modules.ai.first_response_copy_library import (
 )
 from app.modules.ai.draft_compliance_validator import DraftComplianceValidator, ValidationContext
 from app.modules.ai.auto_send_readiness_gate import AutoSendReadinessGate
+from app.modules.ai.audience_tone_validator import AudienceToneValidator
 from app.modules.ai.draft_post_processor import (
     DraftPostProcessor,
     strip_provisional_sentences as _strip_provisional_sentences,
@@ -607,7 +608,12 @@ def _run_compliance(
     }
 
 
-def _run_auto_send_gate(goal: str, compliance_passed: bool, violations: list[str]) -> dict:
+def _run_auto_send_gate(
+    goal: str,
+    compliance_passed: bool,
+    violations: list[str],
+    tone_validation_result=None,
+) -> dict:
     from app.modules.ai.draft_compliance_validator import ComplianceResult
     compliance = ComplianceResult(
         passed=compliance_passed,
@@ -617,12 +623,14 @@ def _run_auto_send_gate(goal: str, compliance_passed: bool, violations: list[str
     integrity = IntegrityCheckResult(passed=True)
     # HOTFIX-007: RDTC carries pending_date_confirmation — matches service.py pipeline
     date_status = "pending_date_confirmation" if goal == "REQUEST_DATE_CONFIRMATION" else "resolved"
+    # RESP-079: tone_validation_result wires Rule 7 — None skips the check (backwards-compatible)
     result = AutoSendReadinessGate.evaluate(
         response_goal=goal,
         draft_compliance_result=compliance,
         date_status=date_status,
         integrity_result=integrity,
         review_required_policy_questions=None,
+        tone_validation_result=tone_validation_result,
     )
     return result.to_dict()
 
@@ -725,11 +733,23 @@ def _process_record(record: dict, idx: int, total: int) -> dict:
     # Checks
     safety = _safety_checks(draft, goal, record)
     compliance = _run_compliance(draft, goal, availability_contract, clarification_questions)
-    auto_send = _run_auto_send_gate(goal, compliance["passed"], compliance["violations"])
 
     # TEST-023: persona-fit scoring (additional layer — does not affect compliance/auto-send)
     audience_type = _extract_audience_type(record)
     persona_fit = _run_persona_fit(draft, audience_type)
+
+    # RESP-079: tone validation for CONFIRM_AVAILABLE — result wires Rule 7 in the auto-send gate.
+    # None for other goals: Rule 7 skips the check (backwards-compatible per RESP-077 design).
+    tone_result = None
+    if goal == "CONFIRM_AVAILABLE":
+        tone_result = AudienceToneValidator.validate(draft, audience_type)
+
+    auto_send = _run_auto_send_gate(
+        goal,
+        compliance["passed"],
+        compliance["violations"],
+        tone_validation_result=tone_result,
+    )
 
     return {
         "record_id": record_id,
@@ -748,6 +768,11 @@ def _process_record(record: dict, idx: int, total: int) -> dict:
         "safety_checks": safety,
         "compliance": compliance,
         "auto_send": auto_send,
+        "tone_validation": {
+            "passed": tone_result.passed,
+            "audience_type": tone_result.audience_type,
+            "violations": tone_result.violations,
+        } if tone_result is not None else None,
         "persona_fit": persona_fit,
     }
 
