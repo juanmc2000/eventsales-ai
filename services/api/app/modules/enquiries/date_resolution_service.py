@@ -27,6 +27,10 @@ from datetime import date, timedelta
 from sqlalchemy.orm import Session
 
 from app.modules.enquiries.date_intent_normalizer import DateIntentNormalizer
+from app.modules.enquiries.freeform_date_clarification_detector import (
+    ClarificationDetectionResult,
+    FreeformDateClarificationDetector,
+)
 from app.modules.enquiries.numeric_date_disambiguation_service import (
     DisambiguationResult,
     NumericDateDisambiguationService,
@@ -160,6 +164,23 @@ class EnquiryDateResolutionService:
             dr, date_request_type, date_request_type_normalized, anchor_date,
             disambiguation=disambiguation,
         )
+
+        # ── 3b. DATE-003: freeform edge-case fallback ──────────────────────────
+        # When the normalized type is unknown and no candidates were produced,
+        # try raw-text pattern detection for multi-option weekdays and approximate
+        # month expressions that the LLM could not structure.
+        freeform_detection: ClarificationDetectionResult | None = None
+        if date_request_type_normalized == "unknown" and not candidate_dates and raw_text:
+            freeform_detection = FreeformDateClarificationDetector.detect(
+                raw_text=raw_text,
+                anchor_date=anchor_date,
+            )
+            if freeform_detection.pattern_detected:
+                requires_clarification = True
+                clarification_question = freeform_detection.clarification_question
+                candidate_dates = [
+                    date.fromisoformat(d) for d in freeform_detection.candidate_dates
+                ]
 
         # ── 4. Persist EnquiryDateRequest ──────────────────────────────────────
         date_request_row = self._persist_date_request(
