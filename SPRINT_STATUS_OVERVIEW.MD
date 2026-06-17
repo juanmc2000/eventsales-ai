@@ -2,7 +2,7 @@
 
 **Project:** EventSales AI
 **Phase:** POC (Proof of Concept)
-**Last Updated:** 2026-06-17 (post-Sprint-24)
+**Last Updated:** 2026-06-17 (post-Sprint-25)
 
 ---
 
@@ -38,6 +38,7 @@
 | Sprint 22 | RESP-081: Rule 2c social context text + client thank-you signal | ✓ Complete | #518 |
 | Sprint 23 | TEST-027: Fix accuracy runner fixture staleness (deprecated goal + luxury priority) | ✓ Complete | #520 |
 | Sprint 24 | TEST-028/029 fixture hardening + DATE-003 freeform date edge-case detection | ✓ Complete | #524–#526 |
+| Sprint 25 | Validation explainability + date-expression accuracy + evaluation tooling | ✓ Complete | #537–#540 |
 
 ---
 
@@ -517,14 +518,39 @@ UI display for the diagnostics endpoint is deferred — the ENQ-005 issue lacks 
 
 ---
 
+## Sprint 25 Issues
+
+| Issue | PR | Title | Status |
+|---|---|---|---|
+| TEST-030 | #536 | 12-layer independent evaluation in response-preparation runner | ✓ Merged |
+| RESP-082 | #536 | CustomerTypeResolution rule_id + reason metadata fields | ✓ Merged |
+| TEST-031 | #536 | 40-case audience boundary regression fixture and runner | ✓ Merged |
+| DATE-004 | #537 | FreeformDateClarificationDetector patterns 3–9 (7 new patterns) | ✓ Merged |
+| TEST-032 | #538 | 51-case date expression regression fixture and offline runner | ✓ Merged |
+| OBSERVE-004 | #539 | Markdown evaluation report exporter | ✓ Merged |
+| DOC-025 | #540 | Sprint 25 completion review | ✓ Merged |
+
+### Sprint 25 Evaluation Baseline (2026-06-17)
+
+| Metric | Value |
+|---|---|
+| Compliance pass rate | 110/110 (100%) |
+| Auto-send allowed | 110/110 (100%) |
+| Persona fit | 110/110 (100%) |
+| Tone validation | 95/95 checked (100%) |
+| Safety issues | 0/110 (0%) |
+| Audience boundary accuracy | 40/40 (100%) |
+| Date expression accuracy (active) | 35/35 (100%) |
+| Backend pytest total | ~3,000 (TBC after PR merge) |
+
+---
+
 ## Remaining Gaps
 
 | Gap | Priority | Sprint |
 |-----|----------|--------|
-| Date resolver: "next Friday or Saturday" resolves current week (should be next) | P2 | Known L4 |
-| Date resolver: "any morning next week" → Mon–Fri only (test expects Mon–Sun) | P3 | Known L4 |
-| Date resolver: "end of month weekends" → all weekends not just last | P3 | Known L4 |
-| Date resolver: "mid-July" month context wrong when anchor in May | P3 | Known L4 |
+| DATE-004 cases in TEST-032 skipped on main (16 cases) | P1 | Auto-activates when #537 merges |
+| `test_first_response_safety_regression_100.py` fixture staleness (3 failures) | P2 | Sprint 26 backlog |
 | CustomerTypeResolver: `eventsbyemma.com` (agency keyword) but sender is personal organiser → resolves agency, expected social | P2 | Known CT |
 | ENQ-005 UI — diagnostics display in enquiry detail view (blocked: no UI/UX Reference Requirements in issue) | P2 | 8C |
 | Gmail App Password not in CI/CD | P1 | 6 |
