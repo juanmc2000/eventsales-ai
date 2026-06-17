@@ -7105,7 +7105,7 @@
         ],
         "occasion": "work team meal",
         "guest_count": 11,
-        "meal_period": "unknown",
+        "meal_period": "dinner",
         "event_time": "16:00",
         "sender_classification": {
           "domain_type": "public",
@@ -7119,32 +7119,28 @@
         "structured_enquiry": false,
         "response_preparation_target": {
           "response_goal_engine": {
-            "expected_rule_number": 5,
-            "response_goal": "REQUEST_MISSING_INFORMATION",
-            "goal_reason": "One or more critical booking details are missing and should be requested by email.",
+            "expected_rule_number": 6,
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation. Meal period inferred as dinner from event_time 16:00 (RESP-066).",
             "precedence_applied": "first_match_wins",
-            "readiness": "NEEDS_CLARIFICATION",
+            "readiness": "READY",
             "date_status": "RESOLVED",
-            "critical_missing_fields": [
-              "meal_period"
-            ],
+            "critical_missing_fields": [],
             "should_send_webform": false,
             "can_generate_draft": true
           },
           "response_priority": "HIGH",
           "availability_decision": {
-            "availability_status": "INSUFFICIENT_INFORMATION",
-            "checked_candidate_dates": [],
+            "availability_status": "AVAILABLE",
+            "checked_candidate_dates": [
+              "2026-06-10"
+            ],
             "notes": "Synthetic expected availability context for response-preparation testing; not a live availability result."
           },
           "missing_information": {
-            "critical_missing_fields": [
-              "meal_period"
-            ],
+            "critical_missing_fields": [],
             "should_send_webform": false,
-            "clarification_questions": [
-              "Could you confirm whether you are looking for breakfast, lunch or dinner?"
-            ],
+            "clarification_questions": [],
             "webform_threshold": 3
           },
           "customer_type_context": {
@@ -7167,7 +7163,7 @@
             "audience_type": "social",
             "occasion": "work team meal",
             "guest_count": 11,
-            "meal_period": "unknown",
+            "meal_period": "dinner",
             "event_time": "16:00",
             "candidate_dates": [
               "2026-06-10"
@@ -7188,7 +7184,7 @@
             "clarification_question": null
           },
           "draft_instructions": {
-            "response_goal": "REQUEST_MISSING_INFORMATION",
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
             "max_words": 200,
             "must_use_only_provided_facts": true,
             "must_not_expose_internal_logic": true,
@@ -7201,18 +7197,18 @@
             "restaurant_name": "The Ivy Tower Bridge",
             "persona_tone": "warm, friendly, celebratory",
             "persona_style": "approachable luxury hospitality",
-            "response_goal": "REQUEST_MISSING_INFORMATION",
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
             "guest_first_name": "Sarah",
             "guest_last_name": "Green",
             "audience_type_line": "Audience type: social\n",
             "event_type_line": "Event type / occasion: work team meal\n",
             "event_date_line": "Event date: 2026-06-10\n",
             "party_size_line": "Party size: 11 guests\n",
-            "availability_line": "Availability status: Not checked because required information is missing.\n",
-            "spend_line": "Recommended minimum spend: Not calculated yet.\n",
+            "availability_line": "Availability: Available for 2026-06-10.\n",
+            "spend_line": "Recommended minimum spend: £1,100.\n",
             "guest_message_line": "Guest message: Hi, can I book for a work team meal next Weds for 11 people? Not sure if lunch or early dinner is better, probably around 4ish. One person is vegetarian. Thanks, Helen\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
-            "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you are looking for breakfast, lunch or dinner?\n"
+            "clarification_questions_line": ""
           }
         }
       },
