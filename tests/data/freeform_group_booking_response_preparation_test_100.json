@@ -145,7 +145,19 @@
         "name": "Amy Harris",
         "email": "amy.harris@hotmail.com",
         "domain": "hotmail.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-07-10",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_02",
@@ -288,7 +300,19 @@
         "name": "Martin Lewis",
         "email": "martin.lewis@gmail.com",
         "domain": "gmail.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-07-18",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_03",
@@ -435,7 +459,19 @@
         "name": "Priya Shah",
         "email": "priya.shah@yahoo.com",
         "domain": "yahoo.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-08-17",
+        "minimum_spend:\u00a3780"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_04",
@@ -615,7 +651,19 @@
         "name": "Chris Porter",
         "email": "chris.porter@outlook.com",
         "domain": "outlook.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-07-04",
+        "minimum_spend:\u00a31,400"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_05",
@@ -795,7 +843,19 @@
         "name": "Hannah Mills",
         "email": "hannah.mills@btinternet.com",
         "domain": "btinternet.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-08-01",
+        "minimum_spend:\u00a3520"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_06",
@@ -938,7 +998,32 @@
         "name": "Claire Dawson",
         "email": "claire.dawson@smithconsulting.co.uk",
         "domain": "smithconsulting.co.uk"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-22",
+        "minimum_spend:\u00a31,600"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_07",
@@ -1081,7 +1166,19 @@
         "name": "Tom Bennett",
         "email": "tom.bennett@gmail.com",
         "domain": "gmail.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-22",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_08",
@@ -1224,7 +1321,19 @@
         "name": "Sarah Green",
         "email": "sarah.green@aol.com",
         "domain": "aol.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-22",
+        "minimum_spend:\u00a31,100"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_09",
@@ -1367,7 +1476,19 @@
         "name": "James Carter",
         "email": "james.carter@icloud.com",
         "domain": "icloud.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-07-24",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_10",
@@ -1510,7 +1631,19 @@
         "name": "Mark Stevens",
         "email": "mark.stevens@live.co.uk",
         "domain": "live.co.uk"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "breakfast",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:breakfast",
+        "event_date:2026-07-11",
+        "minimum_spend:\u00a3250"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_11",
@@ -1657,7 +1790,19 @@
         "name": "Nadia Khan",
         "email": "nadia.khan@gmail.com",
         "domain": "gmail.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-07-09",
+        "minimum_spend:\u00a3520"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_12",
@@ -1800,7 +1945,19 @@
         "name": "Emily Watts",
         "email": "emily.watts@hotmail.com",
         "domain": "hotmail.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-22",
+        "minimum_spend:\u00a31,800"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_13",
@@ -1959,7 +2116,19 @@
         "name": "Rob Evans",
         "email": "rob.evans@google.com",
         "domain": "google.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-09-04",
+        "minimum_spend:\u00a31,200"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_14",
@@ -2102,7 +2271,32 @@
         "name": "Aisha Ahmed",
         "email": "aisha.ahmed@deloitte.com",
         "domain": "deloitte.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-01",
+        "minimum_spend:\u00a31,500"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_15",
@@ -2245,7 +2439,19 @@
         "name": "Laura King",
         "email": "laura.king@yahoo.com",
         "domain": "yahoo.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "breakfast",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:breakfast",
+        "event_date:2026-07-16",
+        "minimum_spend:\u00a3350"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_16",
@@ -2388,7 +2594,32 @@
         "name": "Ben Cooper",
         "email": "ben.cooper@barclays.co.uk",
         "domain": "barclays.co.uk"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-08-05",
+        "minimum_spend:\u00a3500"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_17",
@@ -2536,7 +2767,19 @@
         "name": "Sophie Turner",
         "email": "sophie.turner@proton.me",
         "domain": "proton.me"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-07-10",
+        "minimum_spend:\u00a32,000"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_18",
@@ -2721,7 +2964,32 @@
         "name": "Rebecca Lane",
         "email": "rebecca.lane@kpmg.com",
         "domain": "kpmg.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-07-06",
+        "minimum_spend:\u00a3585"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_19",
@@ -2864,7 +3132,19 @@
         "name": "Omar Ali",
         "email": "omar.ali@gmail.com",
         "domain": "gmail.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-07-12",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_20",
@@ -3024,7 +3304,18 @@
         "name": "Neil Brooks",
         "email": "neil.brooks@unknownmail.co.uk",
         "domain": "unknownmail.co.uk"
-      }
+      },
+      "expected_audience_type": "unknown",
+      "expected_response_goal": "REQUEST_DATE_CONFIRMATION",
+      "expected_date_status": "pending_date_confirmation",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_21",
@@ -3171,7 +3462,19 @@
         "name": "Yasmin Begum",
         "email": "yasmin.begum@btinternet.com",
         "domain": "btinternet.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-07-12",
+        "minimum_spend:\u00a3845"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_22",
@@ -3314,7 +3617,19 @@
         "name": "Peter Walsh",
         "email": "peter.walsh@icloud.com",
         "domain": "icloud.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "breakfast",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:breakfast",
+        "event_date:2026-07-03",
+        "minimum_spend:\u00a3250"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_23",
@@ -3470,7 +3785,32 @@
         "name": "Lara Stone",
         "email": "lara.stone@eventsbylara.com",
         "domain": "eventsbylara.com"
-      }
+      },
+      "expected_audience_type": "agency",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-21",
+        "minimum_spend:\u00a31,200"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_24",
@@ -3613,7 +3953,19 @@
         "name": "Fiona Blake",
         "email": "fiona.blake@amazon.com",
         "domain": "amazon.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-07-18",
+        "minimum_spend:\u00a3500"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_25",
@@ -3756,7 +4108,19 @@
         "name": "George Miller",
         "email": "george.miller@gmail.com",
         "domain": "gmail.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "breakfast",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:breakfast",
+        "event_date:2026-07-13",
+        "minimum_spend:\u00a3280"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_26",
@@ -3912,7 +4276,32 @@
         "name": "Natalie Price",
         "email": "natalie.price@microsoft.com",
         "domain": "microsoft.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-01",
+        "minimum_spend:\u00a31,400"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_27",
@@ -4059,7 +4448,19 @@
         "name": "Daniel Wood",
         "email": "daniel.wood@aol.com",
         "domain": "aol.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-07-02",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_28",
@@ -4206,7 +4607,32 @@
         "name": "Maya Singh",
         "email": "maya.singh@accenture.com",
         "domain": "accenture.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-07-15",
+        "minimum_spend:\u00a3715"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_29",
@@ -4349,7 +4775,19 @@
         "name": "Oliver Reed",
         "email": "oliver.reed@hotmail.com",
         "domain": "hotmail.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "breakfast",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:breakfast",
+        "event_date:2026-08-01",
+        "minimum_spend:\u00a3250"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_30",
@@ -4501,7 +4939,32 @@
         "name": "Elena Rossi",
         "email": "elena.rossi@jpmorgan.com",
         "domain": "jpmorgan.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-09-12",
+        "minimum_spend:\u00a31,600"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_31",
@@ -4644,7 +5107,32 @@
         "name": "Sam Roberts",
         "email": "sam.roberts@smallbusiness.co.uk",
         "domain": "smallbusiness.co.uk"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-09-29",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_32",
@@ -4787,7 +5275,19 @@
         "name": "Megan Clark",
         "email": "megan.clark@gmail.com",
         "domain": "gmail.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-09-29",
+        "minimum_spend:\u00a3650"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_33",
@@ -4930,7 +5430,32 @@
         "name": "Helen Cross",
         "email": "helen.cross@executiveoffice.co.uk",
         "domain": "executiveoffice.co.uk"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-07-09",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_34",
@@ -5095,7 +5620,19 @@
         "name": "Connor Murphy",
         "email": "connor.murphy@yahoo.com",
         "domain": "yahoo.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-07-01",
+        "minimum_spend:\u00a3500"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_35",
@@ -5238,7 +5775,32 @@
         "name": "Amelia Fox",
         "email": "amelia.fox@sohohouse.com",
         "domain": "sohohouse.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-09-26",
+        "minimum_spend:\u00a31,800"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_36",
@@ -5381,7 +5943,19 @@
         "name": "Rachel Adams",
         "email": "rachel.adams@googlemail.com",
         "domain": "googlemail.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "breakfast",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:breakfast",
+        "event_date:2026-07-06",
+        "minimum_spend:\u00a3250"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_37",
@@ -5533,7 +6107,19 @@
         "name": "Dan White",
         "email": "dan.white@btopenworld.com",
         "domain": "btopenworld.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-15",
+        "minimum_spend:\u00a31,200"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_38",
@@ -5680,7 +6266,32 @@
         "name": "Clara Hughes",
         "email": "clara.hughes@familyholdings.com",
         "domain": "familyholdings.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-07-31",
+        "minimum_spend:\u00a3520"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_39",
@@ -5861,7 +6472,32 @@
         "name": "Tina Brown",
         "email": "tina.brown@ivygroup.co.uk",
         "domain": "ivygroup.co.uk"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "breakfast",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:breakfast",
+        "event_date:2026-07-06",
+        "minimum_spend:\u00a3350"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_40",
@@ -6042,7 +6678,32 @@
         "name": "Vik Patel",
         "email": "vik.patel@londonbusinessgroup.com",
         "domain": "londonbusinessgroup.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-09-29",
+        "minimum_spend:\u00a3975"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_41",
@@ -6185,7 +6846,19 @@
         "name": "Amy Harris",
         "email": "amy.harris@hotmail.com",
         "domain": "hotmail.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-09-25",
+        "minimum_spend:\u00a31,400"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_42",
@@ -6328,7 +7001,19 @@
         "name": "Martin Lewis",
         "email": "martin.lewis@gmail.com",
         "domain": "gmail.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-08-17",
+        "minimum_spend:\u00a3780"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_43",
@@ -6471,7 +7156,19 @@
         "name": "Priya Shah",
         "email": "priya.shah@yahoo.com",
         "domain": "yahoo.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "breakfast",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:breakfast",
+        "event_date:2026-07-31",
+        "minimum_spend:\u00a3350"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_44",
@@ -6634,7 +7331,19 @@
         "name": "Chris Porter",
         "email": "chris.porter@outlook.com",
         "domain": "outlook.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-07-31",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_45",
@@ -6787,7 +7496,19 @@
         "name": "Hannah Mills",
         "email": "hannah.mills@btinternet.com",
         "domain": "btinternet.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-08-08",
+        "minimum_spend:\u00a31,170"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_46",
@@ -6930,7 +7651,32 @@
         "name": "Claire Dawson",
         "email": "claire.dawson@smithconsulting.co.uk",
         "domain": "smithconsulting.co.uk"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-22",
+        "minimum_spend:\u00a31,600"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_47",
@@ -7073,7 +7819,19 @@
         "name": "Tom Bennett",
         "email": "tom.bennett@gmail.com",
         "domain": "gmail.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "breakfast",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:breakfast",
+        "event_date:2026-07-12",
+        "minimum_spend:\u00a3250"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_48",
@@ -7216,7 +7974,32 @@
         "name": "Sarah Green",
         "email": "sarah.green@aol.com",
         "domain": "aol.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-07-08",
+        "minimum_spend:\u00a31,100"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_49",
@@ -7359,7 +8142,19 @@
         "name": "James Carter",
         "email": "james.carter@icloud.com",
         "domain": "icloud.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-07-13",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_50",
@@ -7502,7 +8297,19 @@
         "name": "Mark Stevens",
         "email": "mark.stevens@live.co.uk",
         "domain": "live.co.uk"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-09-04",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_51",
@@ -7651,7 +8458,19 @@
         "name": "Nadia Khan",
         "email": "nadia.khan@gmail.com",
         "domain": "gmail.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-10-03",
+        "minimum_spend:\u00a32,000"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_52",
@@ -7848,7 +8667,32 @@
         "name": "Emily Watts",
         "email": "emily.watts@hotmail.com",
         "domain": "hotmail.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-07-29",
+        "minimum_spend:\u00a3650"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_53",
@@ -7991,7 +8835,32 @@
         "name": "Rob Evans",
         "email": "rob.evans@google.com",
         "domain": "google.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-15",
+        "minimum_spend:\u00a32,200"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_54",
@@ -8167,7 +9036,19 @@
         "name": "Aisha Ahmed",
         "email": "aisha.ahmed@deloitte.com",
         "domain": "deloitte.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-08-01",
+        "minimum_spend:\u00a3975"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_55",
@@ -8327,7 +9208,18 @@
         "name": "Laura King",
         "email": "laura.king@yahoo.com",
         "domain": "yahoo.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "REQUEST_DATE_CONFIRMATION",
+      "expected_date_status": "pending_date_confirmation",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_56",
@@ -8470,7 +9362,19 @@
         "name": "Ben Cooper",
         "email": "ben.cooper@barclays.co.uk",
         "domain": "barclays.co.uk"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-07-28",
+        "minimum_spend:\u00a3845"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_57",
@@ -8613,7 +9517,32 @@
         "name": "Sophie Turner",
         "email": "sophie.turner@proton.me",
         "domain": "proton.me"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "breakfast",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:breakfast",
+        "event_date:2026-07-22",
+        "minimum_spend:\u00a3250"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_58",
@@ -8761,7 +9690,19 @@
         "name": "Rebecca Lane",
         "email": "rebecca.lane@kpmg.com",
         "domain": "kpmg.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-07-25",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_59",
@@ -8904,7 +9845,32 @@
         "name": "Omar Ali",
         "email": "omar.ali@gmail.com",
         "domain": "gmail.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-07-10",
+        "minimum_spend:\u00a3780"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_60",
@@ -9047,7 +10013,19 @@
         "name": "Neil Brooks",
         "email": "neil.brooks@unknownmail.co.uk",
         "domain": "unknownmail.co.uk"
-      }
+      },
+      "expected_audience_type": "unknown",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-09-11",
+        "minimum_spend:\u00a31,800"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_61",
@@ -9207,7 +10185,18 @@
         "name": "Yasmin Begum",
         "email": "yasmin.begum@btinternet.com",
         "domain": "btinternet.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "REQUEST_DATE_CONFIRMATION",
+      "expected_date_status": "pending_date_confirmation",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_62",
@@ -9350,7 +10339,32 @@
         "name": "Peter Walsh",
         "email": "peter.walsh@icloud.com",
         "domain": "icloud.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-09-03",
+        "minimum_spend:\u00a3780"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_63",
@@ -9493,7 +10507,32 @@
         "name": "Lara Stone",
         "email": "lara.stone@eventsbylara.com",
         "domain": "eventsbylara.com"
-      }
+      },
+      "expected_audience_type": "agency",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-07-06",
+        "minimum_spend:\u00a3910"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_64",
@@ -9653,7 +10692,31 @@
         "name": "Fiona Blake",
         "email": "fiona.blake@amazon.com",
         "domain": "amazon.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "REQUEST_DATE_CONFIRMATION",
+      "expected_date_status": "pending_date_confirmation",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_65",
@@ -9796,7 +10859,19 @@
         "name": "George Miller",
         "email": "george.miller@gmail.com",
         "domain": "gmail.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-01",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_66",
@@ -9956,7 +11031,31 @@
         "name": "Natalie Price",
         "email": "natalie.price@microsoft.com",
         "domain": "microsoft.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "REQUEST_DATE_CONFIRMATION",
+      "expected_date_status": "pending_date_confirmation",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "minimum_spend:\u00a31,100"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_67",
@@ -10099,7 +11198,19 @@
         "name": "Daniel Wood",
         "email": "daniel.wood@aol.com",
         "domain": "aol.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-09-02",
+        "minimum_spend:\u00a3500"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_68",
@@ -10259,7 +11370,31 @@
         "name": "Maya Singh",
         "email": "maya.singh@accenture.com",
         "domain": "accenture.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "REQUEST_DATE_CONFIRMATION",
+      "expected_date_status": "pending_date_confirmation",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "minimum_spend:\u00a31,170"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_69",
@@ -10402,7 +11537,19 @@
         "name": "Oliver Reed",
         "email": "oliver.reed@hotmail.com",
         "domain": "hotmail.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-08-08",
+        "minimum_spend:\u00a3975"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_70",
@@ -10545,7 +11692,32 @@
         "name": "Elena Rossi",
         "email": "elena.rossi@jpmorgan.com",
         "domain": "jpmorgan.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-07",
+        "minimum_spend:\u00a32,000"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_71",
@@ -10705,7 +11877,31 @@
         "name": "Sam Roberts",
         "email": "sam.roberts@smallbusiness.co.uk",
         "domain": "smallbusiness.co.uk"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "REQUEST_DATE_CONFIRMATION",
+      "expected_date_status": "pending_date_confirmation",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "minimum_spend:\u00a31,200"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_72",
@@ -10865,7 +12061,31 @@
         "name": "Megan Clark",
         "email": "megan.clark@gmail.com",
         "domain": "gmail.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "REQUEST_DATE_CONFIRMATION",
+      "expected_date_status": "pending_date_confirmation",
+      "expected_meal_period": "breakfast",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:breakfast",
+        "minimum_spend:\u00a3250"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_73",
@@ -11008,7 +12228,32 @@
         "name": "Helen Cross",
         "email": "helen.cross@executiveoffice.co.uk",
         "domain": "executiveoffice.co.uk"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "breakfast",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:breakfast",
+        "event_date:2026-10-04",
+        "minimum_spend:\u00a3250"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_74",
@@ -11151,7 +12396,19 @@
         "name": "Connor Murphy",
         "email": "connor.murphy@yahoo.com",
         "domain": "yahoo.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-07-31",
+        "minimum_spend:\u00a31,300"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_75",
@@ -11311,7 +12568,31 @@
         "name": "Amelia Fox",
         "email": "amelia.fox@sohohouse.com",
         "domain": "sohohouse.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "REQUEST_DATE_CONFIRMATION",
+      "expected_date_status": "pending_date_confirmation",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "minimum_spend:\u00a31,600"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_76",
@@ -11454,7 +12735,19 @@
         "name": "Rachel Adams",
         "email": "rachel.adams@googlemail.com",
         "domain": "googlemail.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "breakfast",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:breakfast",
+        "event_date:2026-09-06",
+        "minimum_spend:\u00a3280"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_77",
@@ -11597,7 +12890,32 @@
         "name": "Dan White",
         "email": "dan.white@btopenworld.com",
         "domain": "btopenworld.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-09-06",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_78",
@@ -11745,7 +13063,32 @@
         "name": "Clara Hughes",
         "email": "clara.hughes@familyholdings.com",
         "domain": "familyholdings.com"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-09-30",
+        "minimum_spend:\u00a3780"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_79",
@@ -11905,7 +13248,31 @@
         "name": "Tina Brown",
         "email": "tina.brown@ivygroup.co.uk",
         "domain": "ivygroup.co.uk"
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "REQUEST_DATE_CONFIRMATION",
+      "expected_date_status": "pending_date_confirmation",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "minimum_spend:\u00a31,400"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_80",
@@ -12048,7 +13415,19 @@
         "name": "Vik Patel",
         "email": "vik.patel@londonbusinessgroup.com",
         "domain": "londonbusinessgroup.com"
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-08-09",
+        "minimum_spend:\u00a31,105"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_81",
@@ -12191,7 +13570,32 @@
             "clarification_questions_line": ""
           }
         }
-      }
+      },
+      "expected_audience_type": "agency",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-07-27",
+        "minimum_spend:\u00a31,200"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_82",
@@ -12334,7 +13738,32 @@
             "clarification_questions_line": ""
           }
         }
-      }
+      },
+      "expected_audience_type": "agency",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-01",
+        "minimum_spend:\u00a31,800"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_83",
@@ -12477,7 +13906,32 @@
             "clarification_questions_line": ""
           }
         }
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-07-09",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_84",
@@ -12620,7 +14074,32 @@
             "clarification_questions_line": ""
           }
         }
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-08-05",
+        "minimum_spend:\u00a3910"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_85",
@@ -12763,7 +14242,32 @@
             "clarification_questions_line": ""
           }
         }
-      }
+      },
+      "expected_audience_type": "agency",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-05",
+        "minimum_spend:\u00a32,200"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_86",
@@ -12906,7 +14410,32 @@
             "clarification_questions_line": ""
           }
         }
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-28",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_87",
@@ -13066,7 +14595,31 @@
             "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 11 August or 8 November? I have provisionally checked availability for 11 August.\n"
           }
         }
-      }
+      },
+      "expected_audience_type": "agency",
+      "expected_response_goal": "REQUEST_DATE_CONFIRMATION",
+      "expected_date_status": "pending_date_confirmation",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "minimum_spend:\u00a31,600"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_88",
@@ -13235,7 +14788,32 @@
             "clarification_questions_line": ""
           }
         }
-      }
+      },
+      "expected_audience_type": "agency",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-08-17",
+        "minimum_spend:\u00a31,560"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_89",
@@ -13378,7 +14956,32 @@
             "clarification_questions_line": ""
           }
         }
-      }
+      },
+      "expected_audience_type": "agency",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-09-12",
+        "minimum_spend:\u00a31,200"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_90",
@@ -13521,7 +15124,32 @@
             "clarification_questions_line": ""
           }
         }
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-10-01",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_91",
@@ -13664,7 +15292,19 @@
             "clarification_questions_line": ""
           }
         }
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-01",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_92",
@@ -13807,7 +15447,19 @@
             "clarification_questions_line": ""
           }
         }
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-09-04",
+        "minimum_spend:\u00a31,000"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_93",
@@ -13967,7 +15619,18 @@
             "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 5 July or 7 May? I have provisionally checked availability for 5 July.\n"
           }
         }
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "REQUEST_DATE_CONFIRMATION",
+      "expected_date_status": "pending_date_confirmation",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "minimum_spend:\u00a3585"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_94",
@@ -14110,7 +15773,32 @@
             "clarification_questions_line": ""
           }
         }
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-09-18",
+        "minimum_spend:\u00a31,500"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_95",
@@ -14253,7 +15941,19 @@
             "clarification_questions_line": ""
           }
         }
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-09-04",
+        "minimum_spend:\u00a31,200"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_96",
@@ -14396,7 +16096,32 @@
             "clarification_questions_line": ""
           }
         }
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-08-07",
+        "minimum_spend:\u00a3650"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_97",
@@ -14556,7 +16281,18 @@
             "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 8 September or 9 August? I have provisionally checked availability for 8 September.\n"
           }
         }
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "REQUEST_DATE_CONFIRMATION",
+      "expected_date_status": "pending_date_confirmation",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "minimum_spend:\u00a31,100"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_98",
@@ -14699,7 +16435,32 @@
             "clarification_questions_line": ""
           }
         }
-      }
+      },
+      "expected_audience_type": "corporate",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "breakfast",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:breakfast",
+        "event_date:2026-07-22",
+        "minimum_spend:\u00a3250"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_99",
@@ -14851,7 +16612,19 @@
             "clarification_questions_line": ""
           }
         }
-      }
+      },
+      "expected_audience_type": "social",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "warm_celebratory",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-09-19",
+        "minimum_spend:\u00a31,300"
+      ],
+      "expected_forbidden_phrases": []
     },
     {
       "id": "email_100",
@@ -14994,7 +16767,32 @@
             "clarification_questions_line": ""
           }
         }
-      }
+      },
+      "expected_audience_type": "agency",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "breakfast",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "professional",
+      "expected_required_fields_used": [
+        "meal_period:breakfast",
+        "event_date:2026-09-30",
+        "minimum_spend:\u00a3875"
+      ],
+      "expected_forbidden_phrases": [
+        "how wonderful",
+        "how lovely",
+        "how exciting",
+        "how delightful",
+        "what a lovely occasion",
+        "what a wonderful",
+        "such a special occasion",
+        "such a meaningful occasion",
+        "celebration with us",
+        "will be special",
+        "delighted to celebrate",
+        "thrilled"
+      ]
     },
     {
       "id": "email_101",
@@ -15137,7 +16935,27 @@
         "name": "Victoria Ashworth",
         "email": "v.ashworth@chelseaprivate.co.uk",
         "domain": "chelseaprivate.co.uk"
-      }
+      },
+      "expected_audience_type": "luxury",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "refined",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-01",
+        "minimum_spend:\u00a32,400"
+      ],
+      "expected_forbidden_phrases": [
+        "amazing",
+        "fantastic",
+        "brilliant",
+        "super",
+        "totally",
+        "can't wait",
+        "how exciting"
+      ]
     },
     {
       "id": "email_102",
@@ -15280,7 +17098,27 @@
         "name": "Sebastian Clarke",
         "email": "sclarke@londonprivate.net",
         "domain": "londonprivate.net"
-      }
+      },
+      "expected_audience_type": "luxury",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "refined",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-07-24",
+        "minimum_spend:\u00a3800"
+      ],
+      "expected_forbidden_phrases": [
+        "amazing",
+        "fantastic",
+        "brilliant",
+        "super",
+        "totally",
+        "can't wait",
+        "how exciting"
+      ]
     },
     {
       "id": "email_103",
@@ -15423,7 +17261,27 @@
         "name": "Arabella Pemberton",
         "email": "arabella.pemberton@icloud.com",
         "domain": "icloud.com"
-      }
+      },
+      "expected_audience_type": "luxury",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "refined",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-15",
+        "minimum_spend:\u00a33,200"
+      ],
+      "expected_forbidden_phrases": [
+        "amazing",
+        "fantastic",
+        "brilliant",
+        "super",
+        "totally",
+        "can't wait",
+        "how exciting"
+      ]
     },
     {
       "id": "email_104",
@@ -15569,7 +17427,26 @@
         "name": "Rupert Cavendish",
         "email": "rupert.cavendish@mayfairclub.co.uk",
         "domain": "mayfairclub.co.uk"
-      }
+      },
+      "expected_audience_type": "luxury",
+      "expected_response_goal": "REQUEST_DATE_CONFIRMATION",
+      "expected_date_status": "pending_date_confirmation",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "refined",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "minimum_spend:\u00a34,000"
+      ],
+      "expected_forbidden_phrases": [
+        "amazing",
+        "fantastic",
+        "brilliant",
+        "super",
+        "totally",
+        "can't wait",
+        "how exciting"
+      ]
     },
     {
       "id": "email_105",
@@ -15712,7 +17589,27 @@
         "name": "Clarissa Montague",
         "email": "clarissa@montague-estates.co.uk",
         "domain": "montague-estates.co.uk"
-      }
+      },
+      "expected_audience_type": "luxury",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "refined",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-09-08",
+        "minimum_spend:\u00a32,400"
+      ],
+      "expected_forbidden_phrases": [
+        "amazing",
+        "fantastic",
+        "brilliant",
+        "super",
+        "totally",
+        "can't wait",
+        "how exciting"
+      ]
     },
     {
       "id": "email_106",
@@ -15855,7 +17752,27 @@
         "name": "Edward Fairfax",
         "email": "e.fairfax@knightsbridgecapital.co.uk",
         "domain": "knightsbridgecapital.co.uk"
-      }
+      },
+      "expected_audience_type": "luxury",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "lunch",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "refined",
+      "expected_required_fields_used": [
+        "meal_period:lunch",
+        "event_date:2026-08-12",
+        "minimum_spend:\u00a31,600"
+      ],
+      "expected_forbidden_phrases": [
+        "amazing",
+        "fantastic",
+        "brilliant",
+        "super",
+        "totally",
+        "can't wait",
+        "how exciting"
+      ]
     },
     {
       "id": "email_107",
@@ -15998,7 +17915,27 @@
         "name": "Henrietta St John",
         "email": "h.stjohn@gmail.com",
         "domain": "gmail.com"
-      }
+      },
+      "expected_audience_type": "luxury",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "refined",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-09-05",
+        "minimum_spend:\u00a34,000"
+      ],
+      "expected_forbidden_phrases": [
+        "amazing",
+        "fantastic",
+        "brilliant",
+        "super",
+        "totally",
+        "can't wait",
+        "how exciting"
+      ]
     },
     {
       "id": "email_108",
@@ -16145,7 +18082,26 @@
         "name": "Georgina Harlow",
         "email": "georgina.harlow@privatemail.co.uk",
         "domain": "privatemail.co.uk"
-      }
+      },
+      "expected_audience_type": "luxury",
+      "expected_response_goal": "REQUEST_DATE_CONFIRMATION",
+      "expected_date_status": "pending_date_confirmation",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "refined",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "minimum_spend:\u00a33,200"
+      ],
+      "expected_forbidden_phrases": [
+        "amazing",
+        "fantastic",
+        "brilliant",
+        "super",
+        "totally",
+        "can't wait",
+        "how exciting"
+      ]
     },
     {
       "id": "email_109",
@@ -16288,7 +18244,27 @@
         "name": "Alexander Thornton",
         "email": "a.thornton@thorntonwealth.co.uk",
         "domain": "thorntonwealth.co.uk"
-      }
+      },
+      "expected_audience_type": "luxury",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "refined",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-08-28",
+        "minimum_spend:\u00a34,800"
+      ],
+      "expected_forbidden_phrases": [
+        "amazing",
+        "fantastic",
+        "brilliant",
+        "super",
+        "totally",
+        "can't wait",
+        "how exciting"
+      ]
     },
     {
       "id": "email_110",
@@ -16431,7 +18407,27 @@
         "name": "Piers Worthington",
         "email": "piers.worthington@icloud.com",
         "domain": "icloud.com"
-      }
+      },
+      "expected_audience_type": "luxury",
+      "expected_response_goal": "CONFIRM_AVAILABLE",
+      "expected_date_status": "resolved",
+      "expected_meal_period": "dinner",
+      "expected_auto_send_allowed": true,
+      "expected_persona_tone_category": "refined",
+      "expected_required_fields_used": [
+        "meal_period:dinner",
+        "event_date:2026-09-19",
+        "minimum_spend:\u00a32,400"
+      ],
+      "expected_forbidden_phrases": [
+        "amazing",
+        "fantastic",
+        "brilliant",
+        "super",
+        "totally",
+        "can't wait",
+        "how exciting"
+      ]
     }
   ],
   "response_preparation_schema_version": "sprint_10_v1",
