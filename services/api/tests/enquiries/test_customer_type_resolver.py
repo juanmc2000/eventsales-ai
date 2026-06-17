@@ -8,6 +8,7 @@ from app.modules.enquiries.customer_type_resolver import (
     METHOD_COMMISSION_TEXT_SIGNAL,
     METHOD_CONSUMER_DOMAIN_SOCIAL,
     METHOD_CORPORATE_CONTEXT_TEXT,
+    METHOD_SOCIAL_CONTEXT_TEXT,
     METHOD_EXTRACTION_CORPORATE,
     METHOD_EXTRACTION_SOCIAL,
     METHOD_KNOWN_AGENCY_DOMAIN,
@@ -226,12 +227,12 @@ class TestRule2bCorporateContextText:
         assert result.resolution_method == METHOD_COMMISSION_TEXT_SIGNAL
 
     def test_social_occasion_no_corporate_keywords_stays_social(self):
-        # Birthday dinner from gmail — no corporate keywords — still social
+        # Personal dinner from gmail — no corporate or social signal keywords — still social via domain
         domain = classify("amy@gmail.com")
         result = CustomerTypeResolver.resolve(
             audience_type_from_extraction="social",
             domain_classification=domain,
-            enquiry_text="Hi, do you have availability for dinner for 8? It's my sister's birthday.",
+            enquiry_text="Hi, do you have availability for dinner for 8? It's a family gathering.",
         )
         assert result.resolved_type == RESOLVED_SOCIAL
         assert result.resolution_method == METHOD_CONSUMER_DOMAIN_SOCIAL
@@ -272,6 +273,143 @@ class TestRule2bCorporateContextText:
         )
         assert result.resolved_type == RESOLVED_CORPORATE
         assert result.resolution_method == METHOD_CORPORATE_CONTEXT_TEXT
+
+
+# ── Rule 2c: Social context text signal ──────────────────────────────────────
+
+
+class TestRule2cSocialContextText:
+    """Personal occasion keywords classify as social regardless of sender domain."""
+
+    def test_birthday_from_corporate_domain_resolves_social(self):
+        """email_13 regression: birthday dinner from google.com must be social."""
+        domain = classify("user@google.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="corporate",
+            domain_classification=domain,
+            enquiry_text="Hi, I'm looking for dinner for a birthday for 12 people, any Friday in August.",
+        )
+        assert result.resolved_type == RESOLVED_SOCIAL
+        assert result.resolution_method == METHOD_SOCIAL_CONTEXT_TEXT
+        assert result.confidence >= 0.85
+
+    def test_mums_birthday_from_corporate_domain_resolves_social(self):
+        """email_24 regression: mum's birthday from amazon.com must be social."""
+        domain = classify("user@amazon.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="corporate",
+            domain_classification=domain,
+            enquiry_text="Hi, do you have lunch for 6 on 06/20? It's for my mum's birthday.",
+        )
+        assert result.resolved_type == RESOLVED_SOCIAL
+        assert result.resolution_method == METHOD_SOCIAL_CONTEXT_TEXT
+
+    def test_baby_shower_from_corporate_domain_resolves_social(self):
+        """email_54 regression: baby shower from deloitte.com must be social."""
+        domain = classify("user@deloitte.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="corporate",
+            domain_classification=domain,
+            enquiry_text="Hello, I'm arranging a baby shower for 15 ladies. Any weekend next month for lunch.",
+        )
+        assert result.resolved_type == RESOLVED_SOCIAL
+        assert result.resolution_method == METHOD_SOCIAL_CONTEXT_TEXT
+
+    def test_birthday_lunch_from_corporate_domain_resolves_social(self):
+        """email_56 regression: birthday lunch from barclays.co.uk must be social."""
+        domain = classify("user@barclays.co.uk")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="corporate",
+            domain_classification=domain,
+            enquiry_text="Hi, can you fit 13 of us on 30 June for a birthday lunch?",
+        )
+        assert result.resolved_type == RESOLVED_SOCIAL
+        assert result.resolution_method == METHOD_SOCIAL_CONTEXT_TEXT
+
+    def test_flatmate_birthday_from_corporate_domain_resolves_social(self):
+        """email_58 regression: flatmate's birthday from kpmg.com must be social."""
+        domain = classify("user@kpmg.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="corporate",
+            domain_classification=domain,
+            enquiry_text="Hey, do you have a table for 10 for my flatmate's birthday? Dinner ideally.",
+        )
+        assert result.resolved_type == RESOLVED_SOCIAL
+        assert result.resolution_method == METHOD_SOCIAL_CONTEXT_TEXT
+
+    def test_baby_naming_from_ambiguous_domain_resolves_social(self):
+        """email_80 regression: baby naming lunch from londonbusinessgroup.com must be social."""
+        domain = classify("user@londonbusinessgroup.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="corporate",
+            domain_classification=domain,
+            enquiry_text="Hello, I'm arranging a baby naming lunch for 17 on 12/7.",
+        )
+        assert result.resolved_type == RESOLVED_SOCIAL
+        assert result.resolution_method == METHOD_SOCIAL_CONTEXT_TEXT
+
+    def test_client_thank_you_from_consumer_domain_resolves_corporate(self):
+        """email_52 regression: client thank-you meal from hotmail.com must be corporate."""
+        domain = classify("user@hotmail.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="social",
+            domain_classification=domain,
+            enquiry_text="Good afternoon, this is for a small client thank-you meal, 10 guests.",
+        )
+        assert result.resolved_type == RESOLVED_CORPORATE
+        assert result.resolution_method == METHOD_CORPORATE_CONTEXT_TEXT
+
+    def test_client_thank_you_lunch_from_consumer_domain_resolves_corporate(self):
+        """email_62 regression: client thank-you lunch from icloud.com must be corporate."""
+        domain = classify("user@icloud.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="social",
+            domain_classification=domain,
+            enquiry_text="Could I book lunch for 12 on 8/6? It's for a client thank-you lunch.",
+        )
+        assert result.resolved_type == RESOLVED_CORPORATE
+        assert result.resolution_method == METHOD_CORPORATE_CONTEXT_TEXT
+
+    def test_corporate_context_beats_social_context(self):
+        """Rule 2b fires before Rule 2c: board meeting birthday stays corporate."""
+        domain = classify("user@gmail.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="unknown",
+            domain_classification=domain,
+            enquiry_text="We're hosting a board meeting breakfast. It also happens to be the CEO's birthday.",
+        )
+        assert result.resolved_type == RESOLVED_CORPORATE
+        assert result.resolution_method == METHOD_CORPORATE_CONTEXT_TEXT
+
+    def test_birthday_from_consumer_domain_resolves_social_via_rule_2c(self):
+        """Birthday from gmail hits Rule 2c (social text) before Rule 5 (consumer domain)."""
+        domain = classify("user@gmail.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="social",
+            domain_classification=domain,
+            enquiry_text="Dinner for 8 please — it's a birthday celebration.",
+        )
+        assert result.resolved_type == RESOLVED_SOCIAL
+        assert result.resolution_method == METHOD_SOCIAL_CONTEXT_TEXT
+
+    def test_hen_do_from_corporate_domain_resolves_social(self):
+        domain = classify("user@hsbc.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="corporate",
+            domain_classification=domain,
+            enquiry_text="I'm organising a hen do for my colleague — dinner for 12.",
+        )
+        assert result.resolved_type == RESOLVED_SOCIAL
+        assert result.resolution_method == METHOD_SOCIAL_CONTEXT_TEXT
+
+    def test_evidence_contains_social_signals(self):
+        domain = classify("user@deloitte.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="corporate",
+            domain_classification=domain,
+            enquiry_text="Lunch for 15 — it's a baby shower.",
+        )
+        assert any("baby shower" in e for e in result.evidence)
 
 
 # ── Rule 3: Known corporate domain ───────────────────────────────────────────
