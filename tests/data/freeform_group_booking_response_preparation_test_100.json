@@ -16005,10 +16005,10 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Exclusive private dinner enquiry",
-      "body": "Hello, I would like to host a private dinner for eight guests on 5/7. We require exclusivity and a tasting menu if possible. Could you advise on availability? Many thanks, Georgina Harlow",
+      "body": "Hello, I would like to host a private dinner for eight guests on 7/8. We require exclusivity and a tasting menu if possible. Could you advise on availability? Many thanks, Georgina Harlow",
       "target_extraction": {
         "date_request": {
-          "raw_text": "5/7",
+          "raw_text": "7/8",
           "date_request_type": "ambiguous",
           "anchor_date": "2026-06-03",
           "timezone": "Europe/London",
@@ -16016,18 +16016,18 @@
           "date_range": null,
           "relative_period": null,
           "weekdays": [],
-          "month": 5,
+          "month": 8,
           "year": 2026,
           "ambiguous_dates": [
-            "2026-07-05",
-            "2026-05-07"
+            "2026-08-07",
+            "2026-07-08"
           ],
           "requires_date_clarification": true,
-          "clarification_question": "Could you confirm whether you mean 5 July or 7 May? I have provisionally checked availability for 5 July.",
+          "clarification_question": "Could you confirm whether you mean 7 August or 8 July? I have provisionally checked availability for 7 August.",
           "confidence": 0.6
         },
         "candidate_dates": [
-          "2026-07-05"
+          "2026-08-07"
         ],
         "occasion": "private dinner",
         "guest_count": 8,
@@ -16050,7 +16050,7 @@
             "goal_reason": "The requested date is ambiguous and needs customer confirmation before finalising availability.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
-            "date_status": "RESOLVED_WITH_CONFIRMATION",
+            "date_status": "UNRESOLVED_AMBIGUITY",
             "critical_missing_fields": [],
             "should_send_webform": false,
             "can_generate_draft": true
@@ -16059,7 +16059,7 @@
           "availability_decision": {
             "availability_status": "PENDING_DATE_CONFIRMATION",
             "checked_candidate_dates": [
-              "2026-07-05"
+              "2026-08-07"
             ],
             "notes": "Synthetic expected availability context for response-preparation testing; not a live availability result."
           },
@@ -16067,7 +16067,7 @@
             "critical_missing_fields": [],
             "should_send_webform": false,
             "clarification_questions": [
-              "Could you confirm whether you mean 5 July or 7 May? I have provisionally checked availability for 5 July."
+              "Could you confirm whether you mean 7 August or 8 July? I have provisionally checked availability for 7 August."
             ],
             "webform_threshold": 3
           },
@@ -16094,22 +16094,22 @@
             "meal_period": "dinner",
             "event_time": null,
             "candidate_dates": [
-              "2026-07-05"
+              "2026-08-07"
             ],
             "commission_requested": false,
             "acting_on_behalf": false,
             "represented_party": null
           },
           "date_context": {
-            "date_status": "RESOLVED_WITH_CONFIRMATION",
-            "raw_text": "5/7",
+            "date_status": "UNRESOLVED_AMBIGUITY",
+            "raw_text": "7/8",
             "candidate_dates": [
               "2026-07-05"
             ],
-            "assumed_date": "2026-07-05",
-            "alternative_date": "2026-05-07",
+            "assumed_date": "2026-08-07",
+            "alternative_date": "2026-07-08",
             "clarification_required": true,
-            "clarification_question": "Could you confirm whether you mean 5 July or 7 May? I have provisionally checked availability for 5 July."
+            "clarification_question": "Could you confirm whether you mean 7 August or 8 July? I have provisionally checked availability for 7 August."
           },
           "draft_instructions": {
             "response_goal": "REQUEST_DATE_CONFIRMATION",
@@ -16130,13 +16130,13 @@
             "guest_last_name": "Harlow",
             "audience_type_line": "Audience type: luxury\n",
             "event_type_line": "Event type / occasion: private dinner\n",
-            "event_date_line": "Event date: 2026-07-05\n",
+            "event_date_line": "Event date: 2026-08-07\n",
             "party_size_line": "Party size: 8 guests\n",
-            "availability_line": "Availability status: Pending date confirmation. Provisionally checked 2026-07-05.\n",
+            "availability_line": "Availability status: Pending date confirmation. Provisionally checked 2026-08-07.\n",
             "spend_line": "Recommended minimum spend: £3,200.\n",
-            "guest_message_line": "Guest message: Hello, I would like to host a private dinner for eight guests on 5/7. We require exclusivity and a tasting menu if possible. Could you advise on availability? Many thanks, Georgina Harlow\n",
+            "guest_message_line": "Guest message: Hello, I would like to host a private dinner for eight guests on 7/8. We require exclusivity and a tasting menu if possible. Could you advise on availability? Many thanks, Georgina Harlow\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
-            "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 5 July or 7 May? I have provisionally checked availability for 5 July.\n"
+            "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 7 August or 8 July? I have provisionally checked availability for 7 August.\n"
           }
         }
       },
