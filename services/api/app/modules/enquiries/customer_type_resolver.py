@@ -16,14 +16,15 @@ Output:
 - evidence: list of signals that contributed to the decision
 
 Deterministic precedence rules (highest to lowest):
-  Rule 1 — Agency domain (known)         → agency    (confidence 0.95)
-  Rule 2 — Commission/agency text signal → agency    (confidence 0.85)
-  Rule 3 — Corporate domain (known)      → corporate (confidence 0.90)
-  Rule 4 — Extraction says corporate     → corporate (confidence 0.75)
-  Rule 5 — Consumer domain               → social    (confidence 0.80)
-  Rule 6 — Agency keyword domain         → agency    (confidence 0.70)
-  Rule 7 — Extraction says social        → social    (confidence 0.65)
-  Rule 8 — No deterministic signal       → unknown   (confidence 0.0)
+  Rule 1 — Agency domain (known)              → agency    (confidence 0.95)
+  Rule 2 — Commission/agency text signal      → agency    (confidence 0.85)
+  Rule 2b — Corporate context text signal     → corporate (confidence 0.88)  [RESP-080]
+  Rule 3 — Corporate domain (known)           → corporate (confidence 0.90)
+  Rule 4 — Extraction says corporate          → corporate (confidence 0.75)
+  Rule 5 — Consumer domain                   → social    (confidence 0.80)
+  Rule 6 — Agency keyword domain             → agency    (confidence 0.70)
+  Rule 7 — Extraction says social            → social    (confidence 0.65)
+  Rule 8 — No deterministic signal           → unknown   (confidence 0.0)
 
 Rules are evaluated in order — first match wins.
 
@@ -65,6 +66,7 @@ from app.modules.enquiries.sender_domain_classification_service import (
 
 METHOD_KNOWN_AGENCY_DOMAIN = "known_agency_domain"
 METHOD_COMMISSION_TEXT_SIGNAL = "commission_text_signal"
+METHOD_CORPORATE_CONTEXT_TEXT = "corporate_context_text_signal"
 METHOD_KNOWN_CORPORATE_DOMAIN = "known_corporate_domain"
 METHOD_EXTRACTION_CORPORATE = "extraction_said_corporate"
 METHOD_CONSUMER_DOMAIN_SOCIAL = "consumer_domain_infers_social"
@@ -80,6 +82,28 @@ RESOLVED_SOCIAL = "social"
 RESOLVED_UNKNOWN = "unknown"
 
 ALL_RESOLVED_TYPES = {RESOLVED_AGENCY, RESOLVED_CORPORATE, RESOLVED_SOCIAL, RESOLVED_UNKNOWN}
+
+# ── Corporate context text signals (RESP-080) ─────────────────────────────────
+# Keywords that indicate a corporate/professional booking context regardless of
+# sender domain. These fire after agency text signals (Rule 2) so that genuine
+# agency enquiries that also mention client dinners remain classified as agency.
+_CORPORATE_CONTEXT_SIGNALS: tuple[str, ...] = (
+    "board meeting",
+    "client meeting",
+    "client dinner",
+    "client lunch",
+    "client workshop",
+    "team meeting",
+    "work team meal",
+    "business breakfast",
+    "corporate lunch",
+    "corporate dinner",
+    "pa booking",
+    "ea booking",
+    "managing director",
+    "private office",
+    "family office",
+)
 
 # ── Commission / agency text signals ─────────────────────────────────────────
 # Keywords that strongly indicate this is an agency enquiry (commission intent,
@@ -181,6 +205,20 @@ class CustomerTypeResolver:
                 resolved_type=RESOLVED_AGENCY,
                 confidence=0.85,
                 resolution_method=METHOD_COMMISSION_TEXT_SIGNAL,
+                evidence=evidence,
+            )
+
+        # Rule 2b — Corporate context text signal (RESP-080)
+        # Fires when the enquiry body contains explicit corporate-context keywords.
+        # Takes precedence over consumer-domain social inference (Rule 5) but yields
+        # to agency text signals (Rule 2) already checked above.
+        triggered_corporate = [sig for sig in _CORPORATE_CONTEXT_SIGNALS if sig in text_lower]
+        if triggered_corporate:
+            evidence.append(f"corporate context signals detected in enquiry text: {triggered_corporate}")
+            return CustomerTypeResolution(
+                resolved_type=RESOLVED_CORPORATE,
+                confidence=0.88,
+                resolution_method=METHOD_CORPORATE_CONTEXT_TEXT,
                 evidence=evidence,
             )
 
