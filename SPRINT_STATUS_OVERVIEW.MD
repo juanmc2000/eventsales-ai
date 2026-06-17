@@ -2,7 +2,7 @@
 
 **Project:** EventSales AI
 **Phase:** POC (Proof of Concept)
-**Last Updated:** 2026-06-15 (post-Sprint-16)
+**Last Updated:** 2026-06-17 (post-Sprint-23)
 
 ---
 
@@ -33,6 +33,10 @@
 | Sprint 14 | Date Formatting + Subject Stripping + Name Guard + RESP-063–065 | ✓ Complete | #447–#460 |
 | Sprint 15 | TEST-019 + RESP-057–062 + TEST-020/021 | ✓ Complete | #470–#474 (issues #461–#469) |
 | Sprint 16 | Audience-Aware Persona Restoration (TEST-022/023, RESP-074–077, DOC-020) | ✓ Complete | #498–#504 |
+| Sprints 17–20 | Evaluation Pipeline Completion (RESP-078–080, TEST-024/025) | ✓ Complete | #509–#514 |
+| Sprint 21 | TEST-026: Fix email_108 date ambiguity (5/7 → 7/8) | ✓ Complete | #516 |
+| Sprint 22 | RESP-081: Rule 2c social context text + client thank-you signal | ✓ Complete | #518 |
+| Sprint 23 | TEST-027: Fix accuracy runner fixture staleness (deprecated goal + luxury priority) | ✓ Complete | #520 |
 
 ---
 
