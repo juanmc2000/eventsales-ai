@@ -83,7 +83,7 @@ from app.modules.enquiries.persona_routing_context import (  # noqa: E402
 # ── Configuration ─────────────────────────────────────────────────────────────
 
 DATASET_NAME = "freeform_group_booking_response_preparation_test_100"
-ANCHOR_DATE = date(2026, 6, 3)
+ANCHOR_DATE = date(2026, 7, 1)  # updated from 2026-06-03 (TEST-029 re-anchor +28 days)
 
 # Synthetic personas mirroring Eleanor / James / Sophia seed data
 SYNTHETIC_PERSONAS: list[dict] = [
