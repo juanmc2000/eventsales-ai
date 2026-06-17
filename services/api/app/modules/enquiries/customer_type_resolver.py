@@ -76,6 +76,21 @@ METHOD_EXTRACTION_SOCIAL = "extraction_said_social"
 METHOD_AGENCY_KEYWORD_DOMAIN = "agency_keyword_domain"
 METHOD_NO_SIGNAL = "no_deterministic_signal"
 
+# ── Rule ID constants (RESP-082) ───────────────────────────────────────────────
+# Short, stable identifiers for each precedence rule.  Used in structured
+# classification metadata returned alongside the resolved type.
+
+RULE_ID_1_KNOWN_AGENCY_DOMAIN = "rule_1_known_agency_domain"
+RULE_ID_2_COMMISSION_TEXT = "rule_2_commission_text"
+RULE_ID_2B_CORPORATE_CONTEXT = "rule_2b_corporate_context"
+RULE_ID_2C_SOCIAL_CONTEXT = "rule_2c_social_context"
+RULE_ID_3_KNOWN_CORPORATE_DOMAIN = "rule_3_known_corporate_domain"
+RULE_ID_4_EXTRACTION_CORPORATE = "rule_4_extraction_corporate"
+RULE_ID_5_CONSUMER_DOMAIN = "rule_5_consumer_domain"
+RULE_ID_6_AGENCY_KEYWORD_DOMAIN = "rule_6_agency_keyword_domain"
+RULE_ID_7_EXTRACTION_SOCIAL = "rule_7_extraction_social"
+RULE_ID_8_NO_SIGNAL = "rule_8_no_signal"
+
 # ── Output types ──────────────────────────────────────────────────────────────
 
 RESOLVED_AGENCY = "agency"
@@ -167,12 +182,20 @@ _COMMISSION_SIGNALS: tuple[str, ...] = (
 
 @dataclass
 class CustomerTypeResolution:
-    """Result of customer type resolution."""
+    """Result of customer type resolution.
+
+    RESP-082: rule_id and reason provide structured, human-readable metadata
+    explaining which rule fired and why.  Safe for internal logs and reports;
+    must NOT be included in customer-facing email copy.
+    """
 
     resolved_type: str
     confidence: float
     resolution_method: str
     evidence: list[str] = field(default_factory=list)
+    # RESP-082: structured classification metadata
+    rule_id: str = ""    # e.g. "rule_2b_corporate_context"
+    reason: str = ""     # e.g. "Matched corporate context signal: client dinner"
 
 
 # ── Resolver ──────────────────────────────────────────────────────────────────
@@ -222,6 +245,8 @@ class CustomerTypeResolver:
                 confidence=0.95,
                 resolution_method=METHOD_KNOWN_AGENCY_DOMAIN,
                 evidence=evidence,
+                rule_id=RULE_ID_1_KNOWN_AGENCY_DOMAIN,
+                reason=f"Known agency domain: {domain_classification.domain or domain_reason}",
             )
 
         # Rule 2 — Commission / agency-specific language in enquiry text
@@ -235,6 +260,8 @@ class CustomerTypeResolver:
                 confidence=0.85,
                 resolution_method=METHOD_COMMISSION_TEXT_SIGNAL,
                 evidence=evidence,
+                rule_id=RULE_ID_2_COMMISSION_TEXT,
+                reason=f"Agency/commission text signal: {triggered_signals[0]}",
             )
 
         # Rule 2b — Corporate context text signal (RESP-080)
@@ -249,6 +276,8 @@ class CustomerTypeResolver:
                 confidence=0.88,
                 resolution_method=METHOD_CORPORATE_CONTEXT_TEXT,
                 evidence=evidence,
+                rule_id=RULE_ID_2B_CORPORATE_CONTEXT,
+                reason=f"Corporate context signal: {triggered_corporate[0]}",
             )
 
         # Rule 2c — Social context text signal (RESP-081)
@@ -266,6 +295,8 @@ class CustomerTypeResolver:
                 confidence=0.85,
                 resolution_method=METHOD_SOCIAL_CONTEXT_TEXT,
                 evidence=evidence,
+                rule_id=RULE_ID_2C_SOCIAL_CONTEXT,
+                reason=f"Social context signal: {triggered_social[0]}",
             )
 
         # Rule 3 — Known corporate domain
@@ -276,6 +307,8 @@ class CustomerTypeResolver:
                 confidence=0.90,
                 resolution_method=METHOD_KNOWN_CORPORATE_DOMAIN,
                 evidence=evidence,
+                rule_id=RULE_ID_3_KNOWN_CORPORATE_DOMAIN,
+                reason=f"Known corporate domain: {domain_classification.domain or domain_reason}",
             )
 
         # Rule 4 — Extraction classified as corporate (plus domain doesn't say otherwise)
@@ -288,6 +321,8 @@ class CustomerTypeResolver:
                 confidence=0.75,
                 resolution_method=METHOD_EXTRACTION_CORPORATE,
                 evidence=evidence,
+                rule_id=RULE_ID_4_EXTRACTION_CORPORATE,
+                reason="LLM extraction classified as corporate; domain does not override",
             )
 
         # Rule 5 — Consumer domain implies social enquiry
@@ -298,6 +333,8 @@ class CustomerTypeResolver:
                 confidence=0.80,
                 resolution_method=METHOD_CONSUMER_DOMAIN_SOCIAL,
                 evidence=evidence,
+                rule_id=RULE_ID_5_CONSUMER_DOMAIN,
+                reason=f"Consumer domain infers social: {domain_classification.domain or domain_reason}",
             )
 
         # Rule 6 — Agency keyword domain (higher confidence than LLM social extraction)
@@ -308,6 +345,8 @@ class CustomerTypeResolver:
                 confidence=0.70,
                 resolution_method=METHOD_AGENCY_KEYWORD_DOMAIN,
                 evidence=evidence,
+                rule_id=RULE_ID_6_AGENCY_KEYWORD_DOMAIN,
+                reason="Agency keyword found in sender domain name",
             )
 
         # Rule 7 — Extraction classified as social
@@ -318,6 +357,8 @@ class CustomerTypeResolver:
                 confidence=0.65,
                 resolution_method=METHOD_EXTRACTION_SOCIAL,
                 evidence=evidence,
+                rule_id=RULE_ID_7_EXTRACTION_SOCIAL,
+                reason="LLM extraction classified as social; no domain override",
             )
 
         # Rule 8 — No deterministic signal
@@ -329,6 +370,8 @@ class CustomerTypeResolver:
                 confidence=0.50,
                 resolution_method=METHOD_NO_SIGNAL,
                 evidence=evidence,
+                rule_id=RULE_ID_8_NO_SIGNAL,
+                reason="LLM extraction said agency but no domain or text corroboration",
             )
 
         evidence.append("no deterministic signal from domain or text; extraction type is unknown")
@@ -337,4 +380,6 @@ class CustomerTypeResolver:
             confidence=0.0,
             resolution_method=METHOD_NO_SIGNAL,
             evidence=evidence,
+            rule_id=RULE_ID_8_NO_SIGNAL,
+            reason="No deterministic signal; falling back to unknown",
         )

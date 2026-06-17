@@ -14,6 +14,16 @@ from app.modules.enquiries.customer_type_resolver import (
     METHOD_KNOWN_AGENCY_DOMAIN,
     METHOD_KNOWN_CORPORATE_DOMAIN,
     METHOD_NO_SIGNAL,
+    RULE_ID_1_KNOWN_AGENCY_DOMAIN,
+    RULE_ID_2_COMMISSION_TEXT,
+    RULE_ID_2B_CORPORATE_CONTEXT,
+    RULE_ID_2C_SOCIAL_CONTEXT,
+    RULE_ID_3_KNOWN_CORPORATE_DOMAIN,
+    RULE_ID_4_EXTRACTION_CORPORATE,
+    RULE_ID_5_CONSUMER_DOMAIN,
+    RULE_ID_6_AGENCY_KEYWORD_DOMAIN,
+    RULE_ID_7_EXTRACTION_SOCIAL,
+    RULE_ID_8_NO_SIGNAL,
     RESOLVED_AGENCY,
     RESOLVED_CORPORATE,
     RESOLVED_SOCIAL,
@@ -581,6 +591,9 @@ class TestResultShape:
         assert hasattr(result, "confidence")
         assert hasattr(result, "resolution_method")
         assert hasattr(result, "evidence")
+        # RESP-082: structured classification metadata
+        assert hasattr(result, "rule_id")
+        assert hasattr(result, "reason")
 
     def test_resolved_type_always_in_known_set(self):
         cases = [
@@ -613,3 +626,103 @@ class TestResultShape:
         source = open(mod.__file__).read()
         assert "AIGateway" not in source
         assert "anthropic" not in source
+
+
+# ── RESP-082: rule_id and reason metadata ─────────────────────────────────────
+
+
+class TestRuleIdAndReasonMetadata:
+    """RESP-082: Verify structured classification metadata per rule."""
+
+    def test_rule_1_known_agency_domain(self):
+        domain = classify("planner@eventconcepts.com")
+        result = CustomerTypeResolver.resolve("unknown", domain)
+        assert result.rule_id == RULE_ID_1_KNOWN_AGENCY_DOMAIN
+        assert "agency" in result.reason.lower()
+        assert result.reason != ""
+
+    def test_rule_2_commission_text(self):
+        domain = classify("user@gmail.com")
+        result = CustomerTypeResolver.resolve("unknown", domain, "my client is looking for a venue")
+        assert result.rule_id == RULE_ID_2_COMMISSION_TEXT
+        assert "my client" in result.reason.lower() or "commission" in result.reason.lower() or "agency" in result.reason.lower()
+
+    def test_rule_2b_corporate_context(self):
+        domain = classify("user@gmail.com")
+        result = CustomerTypeResolver.resolve("unknown", domain, "I need a room for a board meeting")
+        assert result.rule_id == RULE_ID_2B_CORPORATE_CONTEXT
+        assert "corporate" in result.reason.lower() or "board meeting" in result.reason.lower()
+
+    def test_rule_2c_social_context(self):
+        domain = classify("user@ibm.com")
+        result = CustomerTypeResolver.resolve("corporate", domain, "planning a birthday dinner for my team")
+        assert result.rule_id == RULE_ID_2C_SOCIAL_CONTEXT
+        assert "social" in result.reason.lower() or "birthday" in result.reason.lower()
+
+    def test_rule_3_known_corporate_domain(self):
+        domain = classify("user@ibm.com")
+        result = CustomerTypeResolver.resolve("unknown", domain)
+        assert result.rule_id == RULE_ID_3_KNOWN_CORPORATE_DOMAIN
+        assert "corporate" in result.reason.lower() or "domain" in result.reason.lower()
+
+    def test_rule_4_extraction_corporate(self):
+        domain = classify("user@unknownplace.io")
+        result = CustomerTypeResolver.resolve("corporate", domain)
+        assert result.rule_id == RULE_ID_4_EXTRACTION_CORPORATE
+        assert "corporate" in result.reason.lower() or "extraction" in result.reason.lower()
+
+    def test_rule_5_consumer_domain(self):
+        domain = classify("user@gmail.com")
+        result = CustomerTypeResolver.resolve("unknown", domain)
+        assert result.rule_id == RULE_ID_5_CONSUMER_DOMAIN
+        assert "consumer" in result.reason.lower() or "social" in result.reason.lower()
+
+    def test_rule_6_agency_keyword_domain(self):
+        # Use a domain with agency keyword but not an exact known agency domain
+        domain = classify("user@mycorporateevents.com")
+        result = CustomerTypeResolver.resolve("social", domain)
+        assert result.rule_id == RULE_ID_6_AGENCY_KEYWORD_DOMAIN
+        assert "agency" in result.reason.lower() or "keyword" in result.reason.lower()
+
+    def test_rule_7_extraction_social(self):
+        domain = classify("user@unknownplace.io")
+        result = CustomerTypeResolver.resolve("social", domain)
+        assert result.rule_id == RULE_ID_7_EXTRACTION_SOCIAL
+        assert "social" in result.reason.lower() or "extraction" in result.reason.lower()
+
+    def test_rule_8_no_signal_unknown(self):
+        result = CustomerTypeResolver.resolve("unknown", None)
+        assert result.rule_id == RULE_ID_8_NO_SIGNAL
+        assert result.reason != ""
+
+    def test_reason_is_string(self):
+        cases = [
+            ("unknown", None, None),
+            ("corporate", classify("user@gmail.com"), None),
+            ("unknown", classify("user@gmail.com"), "birthday dinner"),
+            ("social", classify("user@ibm.com"), "birthday dinner"),
+            ("unknown", classify("user@ibm.com"), "board meeting"),
+        ]
+        for extraction, domain, text in cases:
+            result = CustomerTypeResolver.resolve(extraction, domain, text)
+            assert isinstance(result.rule_id, str)
+            assert isinstance(result.reason, str)
+            assert len(result.rule_id) > 0
+            assert len(result.reason) > 0
+
+    def test_rule_id_starts_with_rule_prefix(self):
+        cases = [
+            ("unknown", None, None),
+            ("corporate", classify("user@gmail.com"), "client dinner"),
+            ("unknown", classify("user@gmail.com"), "birthday"),
+            ("unknown", classify("user@ibm.com"), None),
+            ("unknown", classify("planner@eventconcepts.com"), None),
+        ]
+        for extraction, domain, text in cases:
+            result = CustomerTypeResolver.resolve(extraction, domain, text)
+            assert result.rule_id.startswith("rule_"), f"Expected rule_ prefix, got: {result.rule_id}"
+
+    def test_luxury_not_classified(self):
+        """Luxury classification is out of scope for resolver; no luxury rule_id expected."""
+        result = CustomerTypeResolver.resolve("unknown", None)
+        assert "luxury" not in result.rule_id
