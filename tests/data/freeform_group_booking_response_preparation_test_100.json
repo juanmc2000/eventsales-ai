@@ -1881,7 +1881,7 @@
             "webform_threshold": 3
           },
           "customer_type_context": {
-            "audience_type": "corporate",
+            "audience_type": "social",
             "customer_type": "corporate",
             "domain_type": "corporate",
             "acting_on_behalf": false,
@@ -1889,10 +1889,10 @@
             "commission_requested": false
           },
           "persona_context": {
-            "persona_name": "James",
-            "persona_tone": "concise, professional, efficient",
-            "persona_style": "commercially direct hospitality sales",
-            "persona_system_prompt": "You are James, a concise and professional corporate events sales persona. Be efficient, precise and clear on next steps."
+            "persona_name": "Eleanor",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality",
+            "persona_system_prompt": "You are Eleanor, a warm and polished private dining sales persona. Be friendly, celebratory, helpful, concise and commercially clear."
           },
           "known_facts": {
             "guest_name": "Rob Evans",
@@ -1935,15 +1935,15 @@
             "must_not_invent_availability_pricing_or_rooms": true
           },
           "draft_prompt_variables": {
-            "persona_system_prompt": "You are James, a concise and professional corporate events sales persona. Be efficient, precise and clear on next steps.",
-            "persona_name": "James",
+            "persona_system_prompt": "You are Eleanor, a warm and polished private dining sales persona. Be friendly, celebratory, helpful, concise and commercially clear.",
+            "persona_name": "Eleanor",
             "restaurant_name": "The Ivy Tower Bridge",
-            "persona_tone": "concise, professional, efficient",
-            "persona_style": "commercially direct hospitality sales",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality",
             "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
             "guest_first_name": "Rob",
             "guest_last_name": "Evans",
-            "audience_type_line": "Audience type: corporate\n",
+            "audience_type_line": "Audience type: social\n",
             "event_type_line": "Event type / occasion: birthday\n",
             "event_date_line": "Event date: 2026-08-07, 2026-08-14, 2026-08-21, 2026-08-28\n",
             "party_size_line": "Party size: 12 guests\n",
@@ -3541,7 +3541,7 @@
             "webform_threshold": 3
           },
           "customer_type_context": {
-            "audience_type": "corporate",
+            "audience_type": "social",
             "customer_type": "corporate",
             "domain_type": "corporate",
             "acting_on_behalf": false,
@@ -3549,10 +3549,10 @@
             "commission_requested": false
           },
           "persona_context": {
-            "persona_name": "James",
-            "persona_tone": "concise, professional, efficient",
-            "persona_style": "commercially direct hospitality sales",
-            "persona_system_prompt": "You are James, a concise and professional corporate events sales persona. Be efficient, precise and clear on next steps."
+            "persona_name": "Eleanor",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality",
+            "persona_system_prompt": "You are Eleanor, a warm and polished private dining sales persona. Be friendly, celebratory, helpful, concise and commercially clear."
           },
           "known_facts": {
             "guest_name": "Fiona Blake",
@@ -3589,15 +3589,15 @@
             "must_not_invent_availability_pricing_or_rooms": true
           },
           "draft_prompt_variables": {
-            "persona_system_prompt": "You are James, a concise and professional corporate events sales persona. Be efficient, precise and clear on next steps.",
-            "persona_name": "James",
+            "persona_system_prompt": "You are Eleanor, a warm and polished private dining sales persona. Be friendly, celebratory, helpful, concise and commercially clear.",
+            "persona_name": "Eleanor",
             "restaurant_name": "The Ivy Tower Bridge",
-            "persona_tone": "concise, professional, efficient",
-            "persona_style": "commercially direct hospitality sales",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality",
             "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
             "guest_first_name": "Fiona",
             "guest_last_name": "Blake",
-            "audience_type_line": "Audience type: corporate\n",
+            "audience_type_line": "Audience type: social\n",
             "event_type_line": "Event type / occasion: birthday\n",
             "event_date_line": "Event date: 2026-06-20\n",
             "party_size_line": "Party size: 6 guests\n",
@@ -7752,7 +7752,7 @@
             "webform_threshold": 3
           },
           "customer_type_context": {
-            "audience_type": "social",
+            "audience_type": "corporate",
             "customer_type": "direct_customer",
             "domain_type": "public",
             "acting_on_behalf": false,
@@ -7760,10 +7760,10 @@
             "commission_requested": false
           },
           "persona_context": {
-            "persona_name": "Eleanor",
-            "persona_tone": "warm, friendly, celebratory",
-            "persona_style": "approachable luxury hospitality",
-            "persona_system_prompt": "You are Eleanor, a warm and polished private dining sales persona. Be friendly, celebratory, helpful, concise and commercially clear."
+            "persona_name": "James",
+            "persona_tone": "concise, professional, efficient",
+            "persona_style": "commercially direct hospitality sales",
+            "persona_system_prompt": "You are James, a concise and professional corporate events sales persona. Be efficient, precise and clear on next steps."
           },
           "known_facts": {
             "guest_name": "Emily Watts",
@@ -7824,15 +7824,15 @@
             "must_not_invent_availability_pricing_or_rooms": true
           },
           "draft_prompt_variables": {
-            "persona_system_prompt": "You are Eleanor, a warm and polished private dining sales persona. Be friendly, celebratory, helpful, concise and commercially clear.",
-            "persona_name": "Eleanor",
+            "persona_system_prompt": "You are James, a concise and professional corporate events sales persona. Be efficient, precise and clear on next steps.",
+            "persona_name": "James",
             "restaurant_name": "The Ivy Tower Bridge",
-            "persona_tone": "warm, friendly, celebratory",
-            "persona_style": "approachable luxury hospitality",
+            "persona_tone": "concise, professional, efficient",
+            "persona_style": "commercially direct hospitality sales",
             "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
             "guest_first_name": "Emily",
             "guest_last_name": "Watts",
-            "audience_type_line": "Audience type: social\n",
+            "audience_type_line": "Audience type: corporate\n",
             "event_type_line": "Event type / occasion: client thank-you meal\n",
             "event_date_line": "Event date: 2026-07-01, 2026-07-06, 2026-07-07, 2026-07-08, 2026-07-13, 2026-07-14, 2026-07-15, 2026-07-20, 2026-07-21, 2026-07-22, 2026-07-27, 2026-07-28, 2026-07-29\n",
             "party_size_line": "Party size: 10 guests\n",
@@ -8081,7 +8081,7 @@
             "webform_threshold": 3
           },
           "customer_type_context": {
-            "audience_type": "corporate",
+            "audience_type": "social",
             "customer_type": "corporate",
             "domain_type": "corporate",
             "acting_on_behalf": false,
@@ -8089,10 +8089,10 @@
             "commission_requested": false
           },
           "persona_context": {
-            "persona_name": "James",
-            "persona_tone": "concise, professional, efficient",
-            "persona_style": "commercially direct hospitality sales",
-            "persona_system_prompt": "You are James, a concise and professional corporate events sales persona. Be efficient, precise and clear on next steps."
+            "persona_name": "Eleanor",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality",
+            "persona_system_prompt": "You are Eleanor, a warm and polished private dining sales persona. Be friendly, celebratory, helpful, concise and commercially clear."
           },
           "known_facts": {
             "guest_name": "Aisha Ahmed",
@@ -8143,15 +8143,15 @@
             "must_not_invent_availability_pricing_or_rooms": true
           },
           "draft_prompt_variables": {
-            "persona_system_prompt": "You are James, a concise and professional corporate events sales persona. Be efficient, precise and clear on next steps.",
-            "persona_name": "James",
+            "persona_system_prompt": "You are Eleanor, a warm and polished private dining sales persona. Be friendly, celebratory, helpful, concise and commercially clear.",
+            "persona_name": "Eleanor",
             "restaurant_name": "The Ivy Tower Bridge",
-            "persona_tone": "concise, professional, efficient",
-            "persona_style": "commercially direct hospitality sales",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality",
             "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
             "guest_first_name": "Aisha",
             "guest_last_name": "Ahmed",
-            "audience_type_line": "Audience type: corporate\n",
+            "audience_type_line": "Audience type: social\n",
             "event_type_line": "Event type / occasion: baby shower\n",
             "event_date_line": "Event date: 2026-07-04, 2026-07-05, 2026-07-11, 2026-07-12, 2026-07-18, 2026-07-19, 2026-07-25, 2026-07-26\n",
             "party_size_line": "Party size: 15 guests\n",
@@ -8398,7 +8398,7 @@
             "webform_threshold": 3
           },
           "customer_type_context": {
-            "audience_type": "corporate",
+            "audience_type": "social",
             "customer_type": "corporate",
             "domain_type": "corporate",
             "acting_on_behalf": false,
@@ -8406,10 +8406,10 @@
             "commission_requested": false
           },
           "persona_context": {
-            "persona_name": "James",
-            "persona_tone": "concise, professional, efficient",
-            "persona_style": "commercially direct hospitality sales",
-            "persona_system_prompt": "You are James, a concise and professional corporate events sales persona. Be efficient, precise and clear on next steps."
+            "persona_name": "Eleanor",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality",
+            "persona_system_prompt": "You are Eleanor, a warm and polished private dining sales persona. Be friendly, celebratory, helpful, concise and commercially clear."
           },
           "known_facts": {
             "guest_name": "Ben Cooper",
@@ -8446,15 +8446,15 @@
             "must_not_invent_availability_pricing_or_rooms": true
           },
           "draft_prompt_variables": {
-            "persona_system_prompt": "You are James, a concise and professional corporate events sales persona. Be efficient, precise and clear on next steps.",
-            "persona_name": "James",
+            "persona_system_prompt": "You are Eleanor, a warm and polished private dining sales persona. Be friendly, celebratory, helpful, concise and commercially clear.",
+            "persona_name": "Eleanor",
             "restaurant_name": "The Ivy Tower Bridge",
-            "persona_tone": "concise, professional, efficient",
-            "persona_style": "commercially direct hospitality sales",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality",
             "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
             "guest_first_name": "Ben",
             "guest_last_name": "Cooper",
-            "audience_type_line": "Audience type: corporate\n",
+            "audience_type_line": "Audience type: social\n",
             "event_type_line": "Event type / occasion: birthday\n",
             "event_date_line": "Event date: 2026-06-30\n",
             "party_size_line": "Party size: 13 guests\n",
@@ -8687,7 +8687,7 @@
             "webform_threshold": 3
           },
           "customer_type_context": {
-            "audience_type": "corporate",
+            "audience_type": "social",
             "customer_type": "corporate",
             "domain_type": "corporate",
             "acting_on_behalf": false,
@@ -8695,10 +8695,10 @@
             "commission_requested": false
           },
           "persona_context": {
-            "persona_name": "James",
-            "persona_tone": "concise, professional, efficient",
-            "persona_style": "commercially direct hospitality sales",
-            "persona_system_prompt": "You are James, a concise and professional corporate events sales persona. Be efficient, precise and clear on next steps."
+            "persona_name": "Eleanor",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality",
+            "persona_system_prompt": "You are Eleanor, a warm and polished private dining sales persona. Be friendly, celebratory, helpful, concise and commercially clear."
           },
           "known_facts": {
             "guest_name": "Rebecca Lane",
@@ -8737,15 +8737,15 @@
             "must_not_invent_availability_pricing_or_rooms": true
           },
           "draft_prompt_variables": {
-            "persona_system_prompt": "You are James, a concise and professional corporate events sales persona. Be efficient, precise and clear on next steps.",
-            "persona_name": "James",
+            "persona_system_prompt": "You are Eleanor, a warm and polished private dining sales persona. Be friendly, celebratory, helpful, concise and commercially clear.",
+            "persona_name": "Eleanor",
             "restaurant_name": "The Ivy Tower Bridge",
-            "persona_tone": "concise, professional, efficient",
-            "persona_style": "commercially direct hospitality sales",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality",
             "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
             "guest_first_name": "Rebecca",
             "guest_last_name": "Lane",
-            "audience_type_line": "Audience type: corporate\n",
+            "audience_type_line": "Audience type: social\n",
             "event_type_line": "Event type / occasion: birthday\n",
             "event_date_line": "Event date: 2026-06-27, 2026-06-28\n",
             "party_size_line": "Party size: 10 guests\n",
@@ -9278,7 +9278,7 @@
             "webform_threshold": 3
           },
           "customer_type_context": {
-            "audience_type": "social",
+            "audience_type": "corporate",
             "customer_type": "direct_customer",
             "domain_type": "public",
             "acting_on_behalf": false,
@@ -9286,10 +9286,10 @@
             "commission_requested": false
           },
           "persona_context": {
-            "persona_name": "Eleanor",
-            "persona_tone": "warm, friendly, celebratory",
-            "persona_style": "approachable luxury hospitality",
-            "persona_system_prompt": "You are Eleanor, a warm and polished private dining sales persona. Be friendly, celebratory, helpful, concise and commercially clear."
+            "persona_name": "James",
+            "persona_tone": "concise, professional, efficient",
+            "persona_style": "commercially direct hospitality sales",
+            "persona_system_prompt": "You are James, a concise and professional corporate events sales persona. Be efficient, precise and clear on next steps."
           },
           "known_facts": {
             "guest_name": "Peter Walsh",
@@ -9326,15 +9326,15 @@
             "must_not_invent_availability_pricing_or_rooms": true
           },
           "draft_prompt_variables": {
-            "persona_system_prompt": "You are Eleanor, a warm and polished private dining sales persona. Be friendly, celebratory, helpful, concise and commercially clear.",
-            "persona_name": "Eleanor",
+            "persona_system_prompt": "You are James, a concise and professional corporate events sales persona. Be efficient, precise and clear on next steps.",
+            "persona_name": "James",
             "restaurant_name": "The Ivy Tower Bridge",
-            "persona_tone": "warm, friendly, celebratory",
-            "persona_style": "approachable luxury hospitality",
+            "persona_tone": "concise, professional, efficient",
+            "persona_style": "commercially direct hospitality sales",
             "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
             "guest_first_name": "Peter",
             "guest_last_name": "Walsh",
-            "audience_type_line": "Audience type: social\n",
+            "audience_type_line": "Audience type: corporate\n",
             "event_type_line": "Event type / occasion: client thank-you lunch\n",
             "event_date_line": "Event date: 2026-08-06\n",
             "party_size_line": "Party size: 12 guests\n",
@@ -11976,7 +11976,7 @@
             "webform_threshold": 3
           },
           "customer_type_context": {
-            "audience_type": "corporate",
+            "audience_type": "social",
             "customer_type": "corporate",
             "domain_type": "ambiguous",
             "acting_on_behalf": false,
@@ -11984,10 +11984,10 @@
             "commission_requested": false
           },
           "persona_context": {
-            "persona_name": "James",
-            "persona_tone": "concise, professional, efficient",
-            "persona_style": "commercially direct hospitality sales",
-            "persona_system_prompt": "You are James, a concise and professional corporate events sales persona. Be efficient, precise and clear on next steps."
+            "persona_name": "Eleanor",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality",
+            "persona_system_prompt": "You are Eleanor, a warm and polished private dining sales persona. Be friendly, celebratory, helpful, concise and commercially clear."
           },
           "known_facts": {
             "guest_name": "Vik Patel",
@@ -12024,15 +12024,15 @@
             "must_not_invent_availability_pricing_or_rooms": true
           },
           "draft_prompt_variables": {
-            "persona_system_prompt": "You are James, a concise and professional corporate events sales persona. Be efficient, precise and clear on next steps.",
-            "persona_name": "James",
+            "persona_system_prompt": "You are Eleanor, a warm and polished private dining sales persona. Be friendly, celebratory, helpful, concise and commercially clear.",
+            "persona_name": "Eleanor",
             "restaurant_name": "The Ivy Tower Bridge",
-            "persona_tone": "concise, professional, efficient",
-            "persona_style": "commercially direct hospitality sales",
+            "persona_tone": "warm, friendly, celebratory",
+            "persona_style": "approachable luxury hospitality",
             "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
             "guest_first_name": "Vik",
             "guest_last_name": "Patel",
-            "audience_type_line": "Audience type: corporate\n",
+            "audience_type_line": "Audience type: social\n",
             "event_type_line": "Event type / occasion: baby naming\n",
             "event_date_line": "Event date: 2026-07-12\n",
             "party_size_line": "Party size: 17 guests\n",

@@ -19,6 +19,7 @@ Deterministic precedence rules (highest to lowest):
   Rule 1 — Agency domain (known)              → agency    (confidence 0.95)
   Rule 2 — Commission/agency text signal      → agency    (confidence 0.85)
   Rule 2b — Corporate context text signal     → corporate (confidence 0.88)  [RESP-080]
+  Rule 2c — Social context text signal        → social    (confidence 0.85)  [RESP-081]
   Rule 3 — Corporate domain (known)           → corporate (confidence 0.90)
   Rule 4 — Extraction says corporate          → corporate (confidence 0.75)
   Rule 5 — Consumer domain                   → social    (confidence 0.80)
@@ -67,6 +68,7 @@ from app.modules.enquiries.sender_domain_classification_service import (
 METHOD_KNOWN_AGENCY_DOMAIN = "known_agency_domain"
 METHOD_COMMISSION_TEXT_SIGNAL = "commission_text_signal"
 METHOD_CORPORATE_CONTEXT_TEXT = "corporate_context_text_signal"
+METHOD_SOCIAL_CONTEXT_TEXT = "social_context_text_signal"
 METHOD_KNOWN_CORPORATE_DOMAIN = "known_corporate_domain"
 METHOD_EXTRACTION_CORPORATE = "extraction_said_corporate"
 METHOD_CONSUMER_DOMAIN_SOCIAL = "consumer_domain_infers_social"
@@ -92,6 +94,8 @@ _CORPORATE_CONTEXT_SIGNALS: tuple[str, ...] = (
     "client meeting",
     "client dinner",
     "client lunch",
+    "client thank-you",
+    "client thank you",
     "client workshop",
     "team meeting",
     "work team meal",
@@ -103,6 +107,31 @@ _CORPORATE_CONTEXT_SIGNALS: tuple[str, ...] = (
     "managing director",
     "private office",
     "family office",
+)
+
+# ── Social context text signals (RESP-081) ─────────────────────────────────────
+# Keywords that indicate an explicit personal/social occasion context regardless
+# of sender domain. These fire after corporate context signals (Rule 2b) so that
+# enquiries containing both (e.g. "client birthday dinner") remain corporate.
+# Prevents personal occasions sent from corporate email addresses from being
+# misclassified as corporate (Rule 3 / Rule 4 over-correction).
+_SOCIAL_CONTEXT_SIGNALS: tuple[str, ...] = (
+    "birthday",
+    "baby shower",
+    "baby naming",
+    "hen party",
+    "hen do",
+    "stag party",
+    "stag do",
+    "engagement party",
+    "leaving do",
+    "leaving party",
+    "flatmate",
+    "christening",
+    "graduation dinner",
+    "graduation lunch",
+    "graduation celebration",
+    "wedding anniversary",
 )
 
 # ── Commission / agency text signals ─────────────────────────────────────────
@@ -219,6 +248,23 @@ class CustomerTypeResolver:
                 resolved_type=RESOLVED_CORPORATE,
                 confidence=0.88,
                 resolution_method=METHOD_CORPORATE_CONTEXT_TEXT,
+                evidence=evidence,
+            )
+
+        # Rule 2c — Social context text signal (RESP-081)
+        # Fires when the enquiry body contains an explicit personal/social occasion
+        # keyword (birthday, baby shower, flatmate, etc.). Takes precedence over
+        # corporate domain (Rule 3) and extraction-says-corporate (Rule 4), preventing
+        # personal occasions sent from corporate email addresses from being classified
+        # as corporate. Yields to corporate context text (Rule 2b) already checked
+        # above, so "client birthday dinner" remains corporate.
+        triggered_social = [sig for sig in _SOCIAL_CONTEXT_SIGNALS if sig in text_lower]
+        if triggered_social:
+            evidence.append(f"social context signals detected in enquiry text: {triggered_social}")
+            return CustomerTypeResolution(
+                resolved_type=RESOLVED_SOCIAL,
+                confidence=0.85,
+                resolution_method=METHOD_SOCIAL_CONTEXT_TEXT,
                 evidence=evidence,
             )
 
