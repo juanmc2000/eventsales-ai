@@ -815,9 +815,21 @@ def _print_summary(results: list[dict]) -> None:
         cat = pf.get("opener_tone_category", "neutral")
         tone_category_counts[cat] = tone_category_counts.get(cat, 0) + 1
 
+    # TEST-025: per-audience persona-fit breakdown
+    audience_pf: dict[str, dict[str, int]] = {}
+    for r in results:
+        pf = r.get("persona_fit", {})
+        aud = pf.get("audience_type") or "unknown"
+        if aud not in audience_pf:
+            audience_pf[aud] = {"pass": 0, "fail": 0}
+        if pf.get("persona_fit_passed", True):
+            audience_pf[aud]["pass"] += 1
+        else:
+            audience_pf[aud]["fail"] += 1
+
     sep = "=" * 70
     print(f"\n{sep}")
-    print("RESPONSE PREPARATION TEST — 100 records")
+    print(f"RESPONSE PREPARATION TEST — {total} records")
     print(sep)
     print(f"\nGoal breakdown:")
     for g, n in sorted(goals.items()):
@@ -827,9 +839,17 @@ def _print_summary(results: list[dict]) -> None:
     print(f"Safety issues found   : {safety_issues}/{total}")
 
     # TEST-023: persona-fit summary
-    print(f"\n--- Persona-Fit Scoring (TEST-023) ---")
+    print(f"\n--- Persona-Fit Scoring (TEST-023 / TEST-025) ---")
     print(f"Persona-fit pass rate : {persona_fit_pass}/{total} ({persona_fit_pass/total*100:.1f}%)")
     print(f"Persona-fit failures  : {len(persona_fit_failures)}/{total}")
+    print(f"\nPer-audience persona-fit breakdown:")
+    for aud in ("social", "corporate", "agency", "luxury", "unknown"):
+        counts = audience_pf.get(aud, {"pass": 0, "fail": 0})
+        aud_total = counts["pass"] + counts["fail"]
+        if aud_total == 0:
+            continue
+        pct = counts["pass"] / aud_total * 100
+        print(f"  {aud:<12}: {counts['pass']}/{aud_total} ({pct:.0f}%)")
     print(f"\nOpener tone distribution:")
     for cat, n in sorted(tone_category_counts.items(), key=lambda x: -x[1]):
         print(f"  {cat:<25}: {n:>3}")

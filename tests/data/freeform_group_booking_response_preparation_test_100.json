@@ -14995,6 +14995,1442 @@
           }
         }
       }
+    },
+    {
+      "id": "email_101",
+      "anchor_date": "2026-06-03",
+      "timezone": "Europe/London",
+      "subject": "Private anniversary dinner enquiry",
+      "body": "Good evening, I would like to enquire about reserving your private dining room for an anniversary dinner on Saturday, 4 July. We are a party of six and would require an exclusive setting for the evening. We have specific dietary requirements — one guest is vegan and one has a nut allergy. I would be grateful if you could confirm availability. Kind regards, Victoria Ashworth",
+      "target_extraction": {
+        "date_request": {
+          "raw_text": "Saturday, 4 July",
+          "date_request_type": "exact",
+          "anchor_date": "2026-06-03",
+          "timezone": "Europe/London",
+          "explicit_dates": [
+            "2026-07-04"
+          ],
+          "date_range": null,
+          "relative_period": null,
+          "weekdays": [],
+          "month": 7,
+          "year": 2026,
+          "ambiguous_dates": [],
+          "requires_date_clarification": false,
+          "clarification_question": null,
+          "confidence": 1.0
+        },
+        "candidate_dates": [
+          "2026-07-04"
+        ],
+        "occasion": "anniversary dinner",
+        "guest_count": 6,
+        "meal_period": "dinner",
+        "event_time": "19:30",
+        "sender_classification": {
+          "domain_type": "public",
+          "confidence": 1.0
+        },
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "represented_party": null,
+        "commission_requested": false,
+        "budget_provided": false,
+        "structured_enquiry": false,
+        "response_preparation_target": {
+          "response_goal_engine": {
+            "expected_rule_number": 6,
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
+            "precedence_applied": "first_match_wins",
+            "readiness": "READY",
+            "date_status": "RESOLVED",
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "can_generate_draft": true
+          },
+          "response_priority": "HIGH",
+          "availability_decision": {
+            "availability_status": "AVAILABLE",
+            "checked_candidate_dates": [
+              "2026-07-04"
+            ],
+            "notes": "Synthetic expected availability context for response-preparation testing; not a live availability result."
+          },
+          "missing_information": {
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "clarification_questions": [],
+            "webform_threshold": 3
+          },
+          "customer_type_context": {
+            "audience_type": "luxury",
+            "customer_type": "direct_customer",
+            "domain_type": "public",
+            "acting_on_behalf": false,
+            "represented_party": null,
+            "commission_requested": false
+          },
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear."
+          },
+          "known_facts": {
+            "guest_name": "Victoria Ashworth",
+            "sender_email": "v.ashworth@chelseaprivate.co.uk",
+            "audience_type": "luxury",
+            "occasion": "anniversary dinner",
+            "guest_count": 6,
+            "meal_period": "dinner",
+            "event_time": "19:30",
+            "candidate_dates": [
+              "2026-07-04"
+            ],
+            "commission_requested": false,
+            "acting_on_behalf": false,
+            "represented_party": null
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "raw_text": "Saturday, 4 July",
+            "candidate_dates": [
+              "2026-07-04"
+            ],
+            "assumed_date": "2026-07-04",
+            "alternative_date": null,
+            "clarification_required": false,
+            "clarification_question": null
+          },
+          "draft_instructions": {
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "max_words": 200,
+            "must_use_only_provided_facts": true,
+            "must_not_expose_internal_logic": true,
+            "must_ask_only_listed_clarification_questions": true,
+            "must_not_invent_availability_pricing_or_rooms": true
+          },
+          "draft_prompt_variables": {
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear.",
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "guest_first_name": "Victoria",
+            "guest_last_name": "Ashworth",
+            "audience_type_line": "Audience type: luxury\n",
+            "event_type_line": "Event type / occasion: anniversary dinner\n",
+            "event_date_line": "Event date: 2026-07-04\n",
+            "party_size_line": "Party size: 6 guests\n",
+            "availability_line": "Availability: Available for 2026-07-04.\n",
+            "spend_line": "Recommended minimum spend: £2,400.\n",
+            "guest_message_line": "Guest message: Good evening, I would like to enquire about reserving your private dining room for an anniversary dinner on Saturday, 4 July. We are a party of six and would require an exclusive setting for the evening. We have specific dietary requirements — one guest is vegan and one has a nut allergy. I would be grateful if you could confirm availability. Kind regards, Victoria Ashworth\n",
+            "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      },
+      "sender": {
+        "name": "Victoria Ashworth",
+        "email": "v.ashworth@chelseaprivate.co.uk",
+        "domain": "chelseaprivate.co.uk"
+      }
+    },
+    {
+      "id": "email_102",
+      "anchor_date": "2026-06-03",
+      "timezone": "Europe/London",
+      "subject": "Intimate private dinner for two",
+      "body": "Dear team, I am hoping to arrange a very special private dinner for two on the evening of Friday, 26 June. I am planning to propose during the meal and would require complete privacy and a personal touch. Could you please confirm whether you are able to accommodate this? Many thanks, Sebastian Clarke",
+      "target_extraction": {
+        "date_request": {
+          "raw_text": "Friday, 26 June",
+          "date_request_type": "exact",
+          "anchor_date": "2026-06-03",
+          "timezone": "Europe/London",
+          "explicit_dates": [
+            "2026-06-26"
+          ],
+          "date_range": null,
+          "relative_period": null,
+          "weekdays": [],
+          "month": 6,
+          "year": 2026,
+          "ambiguous_dates": [],
+          "requires_date_clarification": false,
+          "clarification_question": null,
+          "confidence": 1.0
+        },
+        "candidate_dates": [
+          "2026-06-26"
+        ],
+        "occasion": "proposal dinner",
+        "guest_count": 2,
+        "meal_period": "dinner",
+        "event_time": "20:00",
+        "sender_classification": {
+          "domain_type": "public",
+          "confidence": 1.0
+        },
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "represented_party": null,
+        "commission_requested": false,
+        "budget_provided": false,
+        "structured_enquiry": false,
+        "response_preparation_target": {
+          "response_goal_engine": {
+            "expected_rule_number": 6,
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
+            "precedence_applied": "first_match_wins",
+            "readiness": "READY",
+            "date_status": "RESOLVED",
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "can_generate_draft": true
+          },
+          "response_priority": "HIGH",
+          "availability_decision": {
+            "availability_status": "AVAILABLE",
+            "checked_candidate_dates": [
+              "2026-06-26"
+            ],
+            "notes": "Synthetic expected availability context for response-preparation testing; not a live availability result."
+          },
+          "missing_information": {
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "clarification_questions": [],
+            "webform_threshold": 3
+          },
+          "customer_type_context": {
+            "audience_type": "luxury",
+            "customer_type": "direct_customer",
+            "domain_type": "public",
+            "acting_on_behalf": false,
+            "represented_party": null,
+            "commission_requested": false
+          },
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear."
+          },
+          "known_facts": {
+            "guest_name": "Sebastian Clarke",
+            "sender_email": "sclarke@londonprivate.net",
+            "audience_type": "luxury",
+            "occasion": "proposal dinner",
+            "guest_count": 2,
+            "meal_period": "dinner",
+            "event_time": "20:00",
+            "candidate_dates": [
+              "2026-06-26"
+            ],
+            "commission_requested": false,
+            "acting_on_behalf": false,
+            "represented_party": null
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "raw_text": "Friday, 26 June",
+            "candidate_dates": [
+              "2026-06-26"
+            ],
+            "assumed_date": "2026-06-26",
+            "alternative_date": null,
+            "clarification_required": false,
+            "clarification_question": null
+          },
+          "draft_instructions": {
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "max_words": 200,
+            "must_use_only_provided_facts": true,
+            "must_not_expose_internal_logic": true,
+            "must_ask_only_listed_clarification_questions": true,
+            "must_not_invent_availability_pricing_or_rooms": true
+          },
+          "draft_prompt_variables": {
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear.",
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "guest_first_name": "Sebastian",
+            "guest_last_name": "Clarke",
+            "audience_type_line": "Audience type: luxury\n",
+            "event_type_line": "Event type / occasion: proposal dinner\n",
+            "event_date_line": "Event date: 2026-06-26\n",
+            "party_size_line": "Party size: 2 guests\n",
+            "availability_line": "Availability: Available for 2026-06-26.\n",
+            "spend_line": "Recommended minimum spend: £800.\n",
+            "guest_message_line": "Guest message: Dear team, I am hoping to arrange a very special private dinner for two on the evening of Friday, 26 June. I am planning to propose during the meal and would require complete privacy and a personal touch. Could you please confirm whether you are able to accommodate this? Many thanks, Sebastian Clarke\n",
+            "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      },
+      "sender": {
+        "name": "Sebastian Clarke",
+        "email": "sclarke@londonprivate.net",
+        "domain": "londonprivate.net"
+      }
+    },
+    {
+      "id": "email_103",
+      "anchor_date": "2026-06-03",
+      "timezone": "Europe/London",
+      "subject": "Exclusive birthday dinner for 8 guests",
+      "body": "Hello, I am looking to book an exclusive private dining experience for my husband's 40th birthday on Saturday, 18 July. There will be eight of us in total. We would prefer a secluded setting and impeccable service. Please could you advise on availability and the minimum spend for an exclusive arrangement? With thanks, Arabella Pemberton",
+      "target_extraction": {
+        "date_request": {
+          "raw_text": "Saturday, 18 July",
+          "date_request_type": "exact",
+          "anchor_date": "2026-06-03",
+          "timezone": "Europe/London",
+          "explicit_dates": [
+            "2026-07-18"
+          ],
+          "date_range": null,
+          "relative_period": null,
+          "weekdays": [],
+          "month": 7,
+          "year": 2026,
+          "ambiguous_dates": [],
+          "requires_date_clarification": false,
+          "clarification_question": null,
+          "confidence": 1.0
+        },
+        "candidate_dates": [
+          "2026-07-18"
+        ],
+        "occasion": "birthday dinner (40th)",
+        "guest_count": 8,
+        "meal_period": "dinner",
+        "event_time": "19:00",
+        "sender_classification": {
+          "domain_type": "public",
+          "confidence": 1.0
+        },
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "represented_party": null,
+        "commission_requested": false,
+        "budget_provided": false,
+        "structured_enquiry": false,
+        "response_preparation_target": {
+          "response_goal_engine": {
+            "expected_rule_number": 6,
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
+            "precedence_applied": "first_match_wins",
+            "readiness": "READY",
+            "date_status": "RESOLVED",
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "can_generate_draft": true
+          },
+          "response_priority": "HIGH",
+          "availability_decision": {
+            "availability_status": "AVAILABLE",
+            "checked_candidate_dates": [
+              "2026-07-18"
+            ],
+            "notes": "Synthetic expected availability context for response-preparation testing; not a live availability result."
+          },
+          "missing_information": {
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "clarification_questions": [],
+            "webform_threshold": 3
+          },
+          "customer_type_context": {
+            "audience_type": "luxury",
+            "customer_type": "direct_customer",
+            "domain_type": "public",
+            "acting_on_behalf": false,
+            "represented_party": null,
+            "commission_requested": false
+          },
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear."
+          },
+          "known_facts": {
+            "guest_name": "Arabella Pemberton",
+            "sender_email": "arabella.pemberton@icloud.com",
+            "audience_type": "luxury",
+            "occasion": "birthday dinner (40th)",
+            "guest_count": 8,
+            "meal_period": "dinner",
+            "event_time": "19:00",
+            "candidate_dates": [
+              "2026-07-18"
+            ],
+            "commission_requested": false,
+            "acting_on_behalf": false,
+            "represented_party": null
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "raw_text": "Saturday, 18 July",
+            "candidate_dates": [
+              "2026-07-18"
+            ],
+            "assumed_date": "2026-07-18",
+            "alternative_date": null,
+            "clarification_required": false,
+            "clarification_question": null
+          },
+          "draft_instructions": {
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "max_words": 200,
+            "must_use_only_provided_facts": true,
+            "must_not_expose_internal_logic": true,
+            "must_ask_only_listed_clarification_questions": true,
+            "must_not_invent_availability_pricing_or_rooms": true
+          },
+          "draft_prompt_variables": {
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear.",
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "guest_first_name": "Arabella",
+            "guest_last_name": "Pemberton",
+            "audience_type_line": "Audience type: luxury\n",
+            "event_type_line": "Event type / occasion: birthday dinner (40th)\n",
+            "event_date_line": "Event date: 2026-07-18\n",
+            "party_size_line": "Party size: 8 guests\n",
+            "availability_line": "Availability: Available for 2026-07-18.\n",
+            "spend_line": "Recommended minimum spend: £3,200.\n",
+            "guest_message_line": "Guest message: Hello, I am looking to book an exclusive private dining experience for my husband's 40th birthday on Saturday, 18 July. There will be eight of us in total. We would prefer a secluded setting and impeccable service. Please could you advise on availability and the minimum spend for an exclusive arrangement? With thanks, Arabella Pemberton\n",
+            "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      },
+      "sender": {
+        "name": "Arabella Pemberton",
+        "email": "arabella.pemberton@icloud.com",
+        "domain": "icloud.com"
+      }
+    },
+    {
+      "id": "email_104",
+      "anchor_date": "2026-06-03",
+      "timezone": "Europe/London",
+      "subject": "Private dinner reservation — date query",
+      "body": "Good afternoon, I would like to reserve your private dining room for an exclusive dinner for ten guests on 8/9. Could you kindly confirm availability and the exclusive hire arrangement? Regards, Rupert Cavendish",
+      "target_extraction": {
+        "date_request": {
+          "raw_text": "8/9",
+          "date_request_type": "ambiguous",
+          "anchor_date": "2026-06-03",
+          "timezone": "Europe/London",
+          "explicit_dates": [],
+          "date_range": null,
+          "relative_period": null,
+          "weekdays": [],
+          "month": 8,
+          "year": 2026,
+          "ambiguous_dates": [
+            "2026-08-09",
+            "2026-09-08"
+          ],
+          "requires_date_clarification": true,
+          "clarification_question": "Could you confirm whether you mean 8 August or 9 September? I have provisionally checked availability for 8 August.",
+          "confidence": 0.6
+        },
+        "candidate_dates": [
+          "2026-08-09"
+        ],
+        "occasion": "private dinner",
+        "guest_count": 10,
+        "meal_period": "dinner",
+        "event_time": null,
+        "sender_classification": {
+          "domain_type": "public",
+          "confidence": 1.0
+        },
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "represented_party": null,
+        "commission_requested": false,
+        "budget_provided": false,
+        "structured_enquiry": false,
+        "response_preparation_target": {
+          "response_goal_engine": {
+            "expected_rule_number": 3,
+            "response_goal": "REQUEST_DATE_CONFIRMATION",
+            "goal_reason": "The requested date is ambiguous and needs customer confirmation before finalising availability.",
+            "precedence_applied": "first_match_wins",
+            "readiness": "READY",
+            "date_status": "RESOLVED_WITH_CONFIRMATION",
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "can_generate_draft": true
+          },
+          "response_priority": "HIGH",
+          "availability_decision": {
+            "availability_status": "PENDING_DATE_CONFIRMATION",
+            "checked_candidate_dates": [
+              "2026-08-09"
+            ],
+            "notes": "Synthetic expected availability context for response-preparation testing; not a live availability result."
+          },
+          "missing_information": {
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "clarification_questions": [
+              "Could you confirm whether you mean 8 August or 9 September? I have provisionally checked availability for 8 August."
+            ],
+            "webform_threshold": 3
+          },
+          "customer_type_context": {
+            "audience_type": "luxury",
+            "customer_type": "direct_customer",
+            "domain_type": "public",
+            "acting_on_behalf": false,
+            "represented_party": null,
+            "commission_requested": false
+          },
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear."
+          },
+          "known_facts": {
+            "guest_name": "Rupert Cavendish",
+            "sender_email": "rupert.cavendish@mayfairclub.co.uk",
+            "audience_type": "luxury",
+            "occasion": "private dinner",
+            "guest_count": 10,
+            "meal_period": "dinner",
+            "event_time": null,
+            "candidate_dates": [
+              "2026-08-09"
+            ],
+            "commission_requested": false,
+            "acting_on_behalf": false,
+            "represented_party": null
+          },
+          "date_context": {
+            "date_status": "RESOLVED_WITH_CONFIRMATION",
+            "raw_text": "8/9",
+            "candidate_dates": [
+              "2026-08-09"
+            ],
+            "assumed_date": "2026-08-09",
+            "alternative_date": "2026-09-08",
+            "clarification_required": true,
+            "clarification_question": "Could you confirm whether you mean 8 August or 9 September? I have provisionally checked availability for 8 August."
+          },
+          "draft_instructions": {
+            "response_goal": "REQUEST_DATE_CONFIRMATION",
+            "max_words": 200,
+            "must_use_only_provided_facts": true,
+            "must_not_expose_internal_logic": true,
+            "must_ask_only_listed_clarification_questions": true,
+            "must_not_invent_availability_pricing_or_rooms": true
+          },
+          "draft_prompt_variables": {
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear.",
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "response_goal": "REQUEST_DATE_CONFIRMATION",
+            "guest_first_name": "Rupert",
+            "guest_last_name": "Cavendish",
+            "audience_type_line": "Audience type: luxury\n",
+            "event_type_line": "Event type / occasion: private dinner\n",
+            "event_date_line": "Event date: 2026-08-09\n",
+            "party_size_line": "Party size: 10 guests\n",
+            "availability_line": "Availability status: Pending date confirmation. Provisionally checked 2026-08-09.\n",
+            "spend_line": "Recommended minimum spend: £4,000.\n",
+            "guest_message_line": "Guest message: Good afternoon, I would like to reserve your private dining room for an exclusive dinner for ten guests on 8/9. Could you kindly confirm availability and the exclusive hire arrangement? Regards, Rupert Cavendish\n",
+            "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
+            "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 8 August or 9 September? I have provisionally checked availability for 8 August.\n"
+          }
+        }
+      },
+      "sender": {
+        "name": "Rupert Cavendish",
+        "email": "rupert.cavendish@mayfairclub.co.uk",
+        "domain": "mayfairclub.co.uk"
+      }
+    },
+    {
+      "id": "email_105",
+      "anchor_date": "2026-06-03",
+      "timezone": "Europe/London",
+      "subject": "Wine pairing dinner for six",
+      "body": "Dear Reservations, I am writing to enquire about availability for a private wine pairing dinner for six guests on Tuesday, 11 August. We are connoisseurs who enjoy an intimate and unhurried experience. Please could you confirm whether the private dining room is available on this date? Yours faithfully, Clarissa Montague",
+      "target_extraction": {
+        "date_request": {
+          "raw_text": "Tuesday, 11 August",
+          "date_request_type": "exact",
+          "anchor_date": "2026-06-03",
+          "timezone": "Europe/London",
+          "explicit_dates": [
+            "2026-08-11"
+          ],
+          "date_range": null,
+          "relative_period": null,
+          "weekdays": [],
+          "month": 8,
+          "year": 2026,
+          "ambiguous_dates": [],
+          "requires_date_clarification": false,
+          "clarification_question": null,
+          "confidence": 1.0
+        },
+        "candidate_dates": [
+          "2026-08-11"
+        ],
+        "occasion": "wine pairing dinner",
+        "guest_count": 6,
+        "meal_period": "dinner",
+        "event_time": "19:00",
+        "sender_classification": {
+          "domain_type": "public",
+          "confidence": 1.0
+        },
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "represented_party": null,
+        "commission_requested": false,
+        "budget_provided": false,
+        "structured_enquiry": false,
+        "response_preparation_target": {
+          "response_goal_engine": {
+            "expected_rule_number": 6,
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
+            "precedence_applied": "first_match_wins",
+            "readiness": "READY",
+            "date_status": "RESOLVED",
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "can_generate_draft": true
+          },
+          "response_priority": "HIGH",
+          "availability_decision": {
+            "availability_status": "AVAILABLE",
+            "checked_candidate_dates": [
+              "2026-08-11"
+            ],
+            "notes": "Synthetic expected availability context for response-preparation testing; not a live availability result."
+          },
+          "missing_information": {
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "clarification_questions": [],
+            "webform_threshold": 3
+          },
+          "customer_type_context": {
+            "audience_type": "luxury",
+            "customer_type": "direct_customer",
+            "domain_type": "public",
+            "acting_on_behalf": false,
+            "represented_party": null,
+            "commission_requested": false
+          },
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear."
+          },
+          "known_facts": {
+            "guest_name": "Clarissa Montague",
+            "sender_email": "clarissa@montague-estates.co.uk",
+            "audience_type": "luxury",
+            "occasion": "wine pairing dinner",
+            "guest_count": 6,
+            "meal_period": "dinner",
+            "event_time": "19:00",
+            "candidate_dates": [
+              "2026-08-11"
+            ],
+            "commission_requested": false,
+            "acting_on_behalf": false,
+            "represented_party": null
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "raw_text": "Tuesday, 11 August",
+            "candidate_dates": [
+              "2026-08-11"
+            ],
+            "assumed_date": "2026-08-11",
+            "alternative_date": null,
+            "clarification_required": false,
+            "clarification_question": null
+          },
+          "draft_instructions": {
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "max_words": 200,
+            "must_use_only_provided_facts": true,
+            "must_not_expose_internal_logic": true,
+            "must_ask_only_listed_clarification_questions": true,
+            "must_not_invent_availability_pricing_or_rooms": true
+          },
+          "draft_prompt_variables": {
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear.",
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "guest_first_name": "Clarissa",
+            "guest_last_name": "Montague",
+            "audience_type_line": "Audience type: luxury\n",
+            "event_type_line": "Event type / occasion: wine pairing dinner\n",
+            "event_date_line": "Event date: 2026-08-11\n",
+            "party_size_line": "Party size: 6 guests\n",
+            "availability_line": "Availability: Available for 2026-08-11.\n",
+            "spend_line": "Recommended minimum spend: £2,400.\n",
+            "guest_message_line": "Guest message: Dear Reservations, I am writing to enquire about availability for a private wine pairing dinner for six guests on Tuesday, 11 August. We are connoisseurs who enjoy an intimate and unhurried experience. Please could you confirm whether the private dining room is available on this date? Yours faithfully, Clarissa Montague\n",
+            "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      },
+      "sender": {
+        "name": "Clarissa Montague",
+        "email": "clarissa@montague-estates.co.uk",
+        "domain": "montague-estates.co.uk"
+      }
+    },
+    {
+      "id": "email_106",
+      "anchor_date": "2026-06-03",
+      "timezone": "Europe/London",
+      "subject": "Private lunch for four",
+      "body": "Good morning, I would like to reserve the private dining space for a luncheon for four guests on Wednesday, 15 July. This is a quiet, confidential gathering and discretion is paramount. Please confirm availability. Kind regards, Edward Fairfax",
+      "target_extraction": {
+        "date_request": {
+          "raw_text": "Wednesday, 15 July",
+          "date_request_type": "exact",
+          "anchor_date": "2026-06-03",
+          "timezone": "Europe/London",
+          "explicit_dates": [
+            "2026-07-15"
+          ],
+          "date_range": null,
+          "relative_period": null,
+          "weekdays": [],
+          "month": 7,
+          "year": 2026,
+          "ambiguous_dates": [],
+          "requires_date_clarification": false,
+          "clarification_question": null,
+          "confidence": 1.0
+        },
+        "candidate_dates": [
+          "2026-07-15"
+        ],
+        "occasion": "private luncheon",
+        "guest_count": 4,
+        "meal_period": "lunch",
+        "event_time": "12:30",
+        "sender_classification": {
+          "domain_type": "public",
+          "confidence": 1.0
+        },
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "represented_party": null,
+        "commission_requested": false,
+        "budget_provided": false,
+        "structured_enquiry": false,
+        "response_preparation_target": {
+          "response_goal_engine": {
+            "expected_rule_number": 6,
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
+            "precedence_applied": "first_match_wins",
+            "readiness": "READY",
+            "date_status": "RESOLVED",
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "can_generate_draft": true
+          },
+          "response_priority": "HIGH",
+          "availability_decision": {
+            "availability_status": "AVAILABLE",
+            "checked_candidate_dates": [
+              "2026-07-15"
+            ],
+            "notes": "Synthetic expected availability context for response-preparation testing; not a live availability result."
+          },
+          "missing_information": {
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "clarification_questions": [],
+            "webform_threshold": 3
+          },
+          "customer_type_context": {
+            "audience_type": "luxury",
+            "customer_type": "direct_customer",
+            "domain_type": "public",
+            "acting_on_behalf": false,
+            "represented_party": null,
+            "commission_requested": false
+          },
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear."
+          },
+          "known_facts": {
+            "guest_name": "Edward Fairfax",
+            "sender_email": "e.fairfax@knightsbridgecapital.co.uk",
+            "audience_type": "luxury",
+            "occasion": "private luncheon",
+            "guest_count": 4,
+            "meal_period": "lunch",
+            "event_time": "12:30",
+            "candidate_dates": [
+              "2026-07-15"
+            ],
+            "commission_requested": false,
+            "acting_on_behalf": false,
+            "represented_party": null
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "raw_text": "Wednesday, 15 July",
+            "candidate_dates": [
+              "2026-07-15"
+            ],
+            "assumed_date": "2026-07-15",
+            "alternative_date": null,
+            "clarification_required": false,
+            "clarification_question": null
+          },
+          "draft_instructions": {
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "max_words": 200,
+            "must_use_only_provided_facts": true,
+            "must_not_expose_internal_logic": true,
+            "must_ask_only_listed_clarification_questions": true,
+            "must_not_invent_availability_pricing_or_rooms": true
+          },
+          "draft_prompt_variables": {
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear.",
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "guest_first_name": "Edward",
+            "guest_last_name": "Fairfax",
+            "audience_type_line": "Audience type: luxury\n",
+            "event_type_line": "Event type / occasion: private luncheon\n",
+            "event_date_line": "Event date: 2026-07-15\n",
+            "party_size_line": "Party size: 4 guests\n",
+            "availability_line": "Availability: Available for 2026-07-15.\n",
+            "spend_line": "Recommended minimum spend: £1,600.\n",
+            "guest_message_line": "Guest message: Good morning, I would like to reserve the private dining space for a luncheon for four guests on Wednesday, 15 July. This is a quiet, confidential gathering and discretion is paramount. Please confirm availability. Kind regards, Edward Fairfax\n",
+            "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      },
+      "sender": {
+        "name": "Edward Fairfax",
+        "email": "e.fairfax@knightsbridgecapital.co.uk",
+        "domain": "knightsbridgecapital.co.uk"
+      }
+    },
+    {
+      "id": "email_107",
+      "anchor_date": "2026-06-03",
+      "timezone": "Europe/London",
+      "subject": "Family celebration dinner",
+      "body": "Dear Sir or Madam, I am hoping to arrange a private dinner for ten family members on Saturday, 8 August to mark a significant family milestone. We would require an exclusive dining room and attentive service throughout the evening. Could you please confirm availability for that date? With kind regards, Henrietta St John",
+      "target_extraction": {
+        "date_request": {
+          "raw_text": "Saturday, 8 August",
+          "date_request_type": "exact",
+          "anchor_date": "2026-06-03",
+          "timezone": "Europe/London",
+          "explicit_dates": [
+            "2026-08-08"
+          ],
+          "date_range": null,
+          "relative_period": null,
+          "weekdays": [],
+          "month": 8,
+          "year": 2026,
+          "ambiguous_dates": [],
+          "requires_date_clarification": false,
+          "clarification_question": null,
+          "confidence": 1.0
+        },
+        "candidate_dates": [
+          "2026-08-08"
+        ],
+        "occasion": "family celebration dinner",
+        "guest_count": 10,
+        "meal_period": "dinner",
+        "event_time": "19:00",
+        "sender_classification": {
+          "domain_type": "public",
+          "confidence": 1.0
+        },
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "represented_party": null,
+        "commission_requested": false,
+        "budget_provided": false,
+        "structured_enquiry": false,
+        "response_preparation_target": {
+          "response_goal_engine": {
+            "expected_rule_number": 6,
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
+            "precedence_applied": "first_match_wins",
+            "readiness": "READY",
+            "date_status": "RESOLVED",
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "can_generate_draft": true
+          },
+          "response_priority": "HIGH",
+          "availability_decision": {
+            "availability_status": "AVAILABLE",
+            "checked_candidate_dates": [
+              "2026-08-08"
+            ],
+            "notes": "Synthetic expected availability context for response-preparation testing; not a live availability result."
+          },
+          "missing_information": {
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "clarification_questions": [],
+            "webform_threshold": 3
+          },
+          "customer_type_context": {
+            "audience_type": "luxury",
+            "customer_type": "direct_customer",
+            "domain_type": "public",
+            "acting_on_behalf": false,
+            "represented_party": null,
+            "commission_requested": false
+          },
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear."
+          },
+          "known_facts": {
+            "guest_name": "Henrietta St John",
+            "sender_email": "h.stjohn@gmail.com",
+            "audience_type": "luxury",
+            "occasion": "family celebration dinner",
+            "guest_count": 10,
+            "meal_period": "dinner",
+            "event_time": "19:00",
+            "candidate_dates": [
+              "2026-08-08"
+            ],
+            "commission_requested": false,
+            "acting_on_behalf": false,
+            "represented_party": null
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "raw_text": "Saturday, 8 August",
+            "candidate_dates": [
+              "2026-08-08"
+            ],
+            "assumed_date": "2026-08-08",
+            "alternative_date": null,
+            "clarification_required": false,
+            "clarification_question": null
+          },
+          "draft_instructions": {
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "max_words": 200,
+            "must_use_only_provided_facts": true,
+            "must_not_expose_internal_logic": true,
+            "must_ask_only_listed_clarification_questions": true,
+            "must_not_invent_availability_pricing_or_rooms": true
+          },
+          "draft_prompt_variables": {
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear.",
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "guest_first_name": "Henrietta",
+            "guest_last_name": "St John",
+            "audience_type_line": "Audience type: luxury\n",
+            "event_type_line": "Event type / occasion: family celebration dinner\n",
+            "event_date_line": "Event date: 2026-08-08\n",
+            "party_size_line": "Party size: 10 guests\n",
+            "availability_line": "Availability: Available for 2026-08-08.\n",
+            "spend_line": "Recommended minimum spend: £4,000.\n",
+            "guest_message_line": "Guest message: Dear Sir or Madam, I am hoping to arrange a private dinner for ten family members on Saturday, 8 August to mark a significant family milestone. We would require an exclusive dining room and attentive service throughout the evening. Could you please confirm availability for that date? With kind regards, Henrietta St John\n",
+            "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      },
+      "sender": {
+        "name": "Henrietta St John",
+        "email": "h.stjohn@gmail.com",
+        "domain": "gmail.com"
+      }
+    },
+    {
+      "id": "email_108",
+      "anchor_date": "2026-06-03",
+      "timezone": "Europe/London",
+      "subject": "Exclusive private dinner enquiry",
+      "body": "Hello, I would like to host a private dinner for eight guests on 5/7. We require exclusivity and a tasting menu if possible. Could you advise on availability? Many thanks, Georgina Harlow",
+      "target_extraction": {
+        "date_request": {
+          "raw_text": "5/7",
+          "date_request_type": "ambiguous",
+          "anchor_date": "2026-06-03",
+          "timezone": "Europe/London",
+          "explicit_dates": [],
+          "date_range": null,
+          "relative_period": null,
+          "weekdays": [],
+          "month": 5,
+          "year": 2026,
+          "ambiguous_dates": [
+            "2026-07-05",
+            "2026-05-07"
+          ],
+          "requires_date_clarification": true,
+          "clarification_question": "Could you confirm whether you mean 5 July or 7 May? I have provisionally checked availability for 5 July.",
+          "confidence": 0.6
+        },
+        "candidate_dates": [
+          "2026-07-05"
+        ],
+        "occasion": "private dinner",
+        "guest_count": 8,
+        "meal_period": "dinner",
+        "event_time": null,
+        "sender_classification": {
+          "domain_type": "public",
+          "confidence": 1.0
+        },
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "represented_party": null,
+        "commission_requested": false,
+        "budget_provided": false,
+        "structured_enquiry": false,
+        "response_preparation_target": {
+          "response_goal_engine": {
+            "expected_rule_number": 3,
+            "response_goal": "REQUEST_DATE_CONFIRMATION",
+            "goal_reason": "The requested date is ambiguous and needs customer confirmation before finalising availability.",
+            "precedence_applied": "first_match_wins",
+            "readiness": "READY",
+            "date_status": "RESOLVED_WITH_CONFIRMATION",
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "can_generate_draft": true
+          },
+          "response_priority": "HIGH",
+          "availability_decision": {
+            "availability_status": "PENDING_DATE_CONFIRMATION",
+            "checked_candidate_dates": [
+              "2026-07-05"
+            ],
+            "notes": "Synthetic expected availability context for response-preparation testing; not a live availability result."
+          },
+          "missing_information": {
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "clarification_questions": [
+              "Could you confirm whether you mean 5 July or 7 May? I have provisionally checked availability for 5 July."
+            ],
+            "webform_threshold": 3
+          },
+          "customer_type_context": {
+            "audience_type": "luxury",
+            "customer_type": "direct_customer",
+            "domain_type": "public",
+            "acting_on_behalf": false,
+            "represented_party": null,
+            "commission_requested": false
+          },
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear."
+          },
+          "known_facts": {
+            "guest_name": "Georgina Harlow",
+            "sender_email": "georgina.harlow@privatemail.co.uk",
+            "audience_type": "luxury",
+            "occasion": "private dinner",
+            "guest_count": 8,
+            "meal_period": "dinner",
+            "event_time": null,
+            "candidate_dates": [
+              "2026-07-05"
+            ],
+            "commission_requested": false,
+            "acting_on_behalf": false,
+            "represented_party": null
+          },
+          "date_context": {
+            "date_status": "RESOLVED_WITH_CONFIRMATION",
+            "raw_text": "5/7",
+            "candidate_dates": [
+              "2026-07-05"
+            ],
+            "assumed_date": "2026-07-05",
+            "alternative_date": "2026-05-07",
+            "clarification_required": true,
+            "clarification_question": "Could you confirm whether you mean 5 July or 7 May? I have provisionally checked availability for 5 July."
+          },
+          "draft_instructions": {
+            "response_goal": "REQUEST_DATE_CONFIRMATION",
+            "max_words": 200,
+            "must_use_only_provided_facts": true,
+            "must_not_expose_internal_logic": true,
+            "must_ask_only_listed_clarification_questions": true,
+            "must_not_invent_availability_pricing_or_rooms": true
+          },
+          "draft_prompt_variables": {
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear.",
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "response_goal": "REQUEST_DATE_CONFIRMATION",
+            "guest_first_name": "Georgina",
+            "guest_last_name": "Harlow",
+            "audience_type_line": "Audience type: luxury\n",
+            "event_type_line": "Event type / occasion: private dinner\n",
+            "event_date_line": "Event date: 2026-07-05\n",
+            "party_size_line": "Party size: 8 guests\n",
+            "availability_line": "Availability status: Pending date confirmation. Provisionally checked 2026-07-05.\n",
+            "spend_line": "Recommended minimum spend: £3,200.\n",
+            "guest_message_line": "Guest message: Hello, I would like to host a private dinner for eight guests on 5/7. We require exclusivity and a tasting menu if possible. Could you advise on availability? Many thanks, Georgina Harlow\n",
+            "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
+            "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 5 July or 7 May? I have provisionally checked availability for 5 July.\n"
+          }
+        }
+      },
+      "sender": {
+        "name": "Georgina Harlow",
+        "email": "georgina.harlow@privatemail.co.uk",
+        "domain": "privatemail.co.uk"
+      }
+    },
+    {
+      "id": "email_109",
+      "anchor_date": "2026-06-03",
+      "timezone": "Europe/London",
+      "subject": "50th birthday celebration — private dining",
+      "body": "Dear Events Team, I am planning a milestone birthday dinner for my mother's 50th birthday on Friday, 31 July. We will be a party of twelve and would require exclusive use of a private room for the evening. Dietary notes: two guests are vegetarian. Please confirm availability at your earliest convenience. Yours sincerely, Alexander Thornton",
+      "target_extraction": {
+        "date_request": {
+          "raw_text": "Friday, 31 July",
+          "date_request_type": "exact",
+          "anchor_date": "2026-06-03",
+          "timezone": "Europe/London",
+          "explicit_dates": [
+            "2026-07-31"
+          ],
+          "date_range": null,
+          "relative_period": null,
+          "weekdays": [],
+          "month": 7,
+          "year": 2026,
+          "ambiguous_dates": [],
+          "requires_date_clarification": false,
+          "clarification_question": null,
+          "confidence": 1.0
+        },
+        "candidate_dates": [
+          "2026-07-31"
+        ],
+        "occasion": "birthday dinner (50th)",
+        "guest_count": 12,
+        "meal_period": "dinner",
+        "event_time": "19:00",
+        "sender_classification": {
+          "domain_type": "public",
+          "confidence": 1.0
+        },
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "represented_party": null,
+        "commission_requested": false,
+        "budget_provided": false,
+        "structured_enquiry": false,
+        "response_preparation_target": {
+          "response_goal_engine": {
+            "expected_rule_number": 6,
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
+            "precedence_applied": "first_match_wins",
+            "readiness": "READY",
+            "date_status": "RESOLVED",
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "can_generate_draft": true
+          },
+          "response_priority": "HIGH",
+          "availability_decision": {
+            "availability_status": "AVAILABLE",
+            "checked_candidate_dates": [
+              "2026-07-31"
+            ],
+            "notes": "Synthetic expected availability context for response-preparation testing; not a live availability result."
+          },
+          "missing_information": {
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "clarification_questions": [],
+            "webform_threshold": 3
+          },
+          "customer_type_context": {
+            "audience_type": "luxury",
+            "customer_type": "direct_customer",
+            "domain_type": "public",
+            "acting_on_behalf": false,
+            "represented_party": null,
+            "commission_requested": false
+          },
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear."
+          },
+          "known_facts": {
+            "guest_name": "Alexander Thornton",
+            "sender_email": "a.thornton@thorntonwealth.co.uk",
+            "audience_type": "luxury",
+            "occasion": "birthday dinner (50th)",
+            "guest_count": 12,
+            "meal_period": "dinner",
+            "event_time": "19:00",
+            "candidate_dates": [
+              "2026-07-31"
+            ],
+            "commission_requested": false,
+            "acting_on_behalf": false,
+            "represented_party": null
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "raw_text": "Friday, 31 July",
+            "candidate_dates": [
+              "2026-07-31"
+            ],
+            "assumed_date": "2026-07-31",
+            "alternative_date": null,
+            "clarification_required": false,
+            "clarification_question": null
+          },
+          "draft_instructions": {
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "max_words": 200,
+            "must_use_only_provided_facts": true,
+            "must_not_expose_internal_logic": true,
+            "must_ask_only_listed_clarification_questions": true,
+            "must_not_invent_availability_pricing_or_rooms": true
+          },
+          "draft_prompt_variables": {
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear.",
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "guest_first_name": "Alexander",
+            "guest_last_name": "Thornton",
+            "audience_type_line": "Audience type: luxury\n",
+            "event_type_line": "Event type / occasion: birthday dinner (50th)\n",
+            "event_date_line": "Event date: 2026-07-31\n",
+            "party_size_line": "Party size: 12 guests\n",
+            "availability_line": "Availability: Available for 2026-07-31.\n",
+            "spend_line": "Recommended minimum spend: £4,800.\n",
+            "guest_message_line": "Guest message: Dear Events Team, I am planning a milestone birthday dinner for my mother's 50th birthday on Friday, 31 July. We will be a party of twelve and would require exclusive use of a private room for the evening. Dietary notes: two guests are vegetarian. Please confirm availability at your earliest convenience. Yours sincerely, Alexander Thornton\n",
+            "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      },
+      "sender": {
+        "name": "Alexander Thornton",
+        "email": "a.thornton@thorntonwealth.co.uk",
+        "domain": "thorntonwealth.co.uk"
+      }
+    },
+    {
+      "id": "email_110",
+      "anchor_date": "2026-06-03",
+      "timezone": "Europe/London",
+      "subject": "Engagement celebration dinner",
+      "body": "Good afternoon, my fiancée and I are recently engaged and we would like to celebrate with our closest family in your private dining room on Saturday, 22 August. We will be six guests in total. We value refined, discreet service above all. Could you kindly confirm availability? With gratitude, Piers Worthington",
+      "target_extraction": {
+        "date_request": {
+          "raw_text": "Saturday, 22 August",
+          "date_request_type": "exact",
+          "anchor_date": "2026-06-03",
+          "timezone": "Europe/London",
+          "explicit_dates": [
+            "2026-08-22"
+          ],
+          "date_range": null,
+          "relative_period": null,
+          "weekdays": [],
+          "month": 8,
+          "year": 2026,
+          "ambiguous_dates": [],
+          "requires_date_clarification": false,
+          "clarification_question": null,
+          "confidence": 1.0
+        },
+        "candidate_dates": [
+          "2026-08-22"
+        ],
+        "occasion": "engagement celebration dinner",
+        "guest_count": 6,
+        "meal_period": "dinner",
+        "event_time": "19:30",
+        "sender_classification": {
+          "domain_type": "public",
+          "confidence": 1.0
+        },
+        "customer_type": "direct_customer",
+        "acting_on_behalf": false,
+        "represented_party": null,
+        "commission_requested": false,
+        "budget_provided": false,
+        "structured_enquiry": false,
+        "response_preparation_target": {
+          "response_goal_engine": {
+            "expected_rule_number": 6,
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
+            "precedence_applied": "first_match_wins",
+            "readiness": "READY",
+            "date_status": "RESOLVED",
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "can_generate_draft": true
+          },
+          "response_priority": "HIGH",
+          "availability_decision": {
+            "availability_status": "AVAILABLE",
+            "checked_candidate_dates": [
+              "2026-08-22"
+            ],
+            "notes": "Synthetic expected availability context for response-preparation testing; not a live availability result."
+          },
+          "missing_information": {
+            "critical_missing_fields": [],
+            "should_send_webform": false,
+            "clarification_questions": [],
+            "webform_threshold": 3
+          },
+          "customer_type_context": {
+            "audience_type": "luxury",
+            "customer_type": "direct_customer",
+            "domain_type": "public",
+            "acting_on_behalf": false,
+            "represented_party": null,
+            "commission_requested": false
+          },
+          "persona_context": {
+            "persona_name": "Eleanor",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear."
+          },
+          "known_facts": {
+            "guest_name": "Piers Worthington",
+            "sender_email": "piers.worthington@icloud.com",
+            "audience_type": "luxury",
+            "occasion": "engagement celebration dinner",
+            "guest_count": 6,
+            "meal_period": "dinner",
+            "event_time": "19:30",
+            "candidate_dates": [
+              "2026-08-22"
+            ],
+            "commission_requested": false,
+            "acting_on_behalf": false,
+            "represented_party": null
+          },
+          "date_context": {
+            "date_status": "RESOLVED",
+            "raw_text": "Saturday, 22 August",
+            "candidate_dates": [
+              "2026-08-22"
+            ],
+            "assumed_date": "2026-08-22",
+            "alternative_date": null,
+            "clarification_required": false,
+            "clarification_question": null
+          },
+          "draft_instructions": {
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "max_words": 200,
+            "must_use_only_provided_facts": true,
+            "must_not_expose_internal_logic": true,
+            "must_ask_only_listed_clarification_questions": true,
+            "must_not_invent_availability_pricing_or_rooms": true
+          },
+          "draft_prompt_variables": {
+            "persona_system_prompt": "You are Eleanor, a refined and gracious private dining sales persona at The Ivy Tower Bridge. Be understated, warm, and high-touch. Use polished language appropriate for discerning guests. Be concise and commercially clear.",
+            "persona_name": "Eleanor",
+            "restaurant_name": "The Ivy Tower Bridge",
+            "persona_tone": "refined, gracious, understated",
+            "persona_style": "high-touch luxury hospitality",
+            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "guest_first_name": "Piers",
+            "guest_last_name": "Worthington",
+            "audience_type_line": "Audience type: luxury\n",
+            "event_type_line": "Event type / occasion: engagement celebration dinner\n",
+            "event_date_line": "Event date: 2026-08-22\n",
+            "party_size_line": "Party size: 6 guests\n",
+            "availability_line": "Availability: Available for 2026-08-22.\n",
+            "spend_line": "Recommended minimum spend: £2,400.\n",
+            "guest_message_line": "Guest message: Good afternoon, my fiancée and I are recently engaged and we would like to celebrate with our closest family in your private dining room on Saturday, 22 August. We will be six guests in total. We value refined, discreet service above all. Could you kindly confirm availability? With gratitude, Piers Worthington\n",
+            "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
+            "clarification_questions_line": ""
+          }
+        }
+      },
+      "sender": {
+        "name": "Piers Worthington",
+        "email": "piers.worthington@icloud.com",
+        "domain": "icloud.com"
+      }
     }
   ],
   "response_preparation_schema_version": "sprint_10_v1",
