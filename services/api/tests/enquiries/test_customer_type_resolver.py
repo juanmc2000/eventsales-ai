@@ -7,6 +7,7 @@ from app.modules.enquiries.customer_type_resolver import (
     METHOD_AGENCY_KEYWORD_DOMAIN,
     METHOD_COMMISSION_TEXT_SIGNAL,
     METHOD_CONSUMER_DOMAIN_SOCIAL,
+    METHOD_CORPORATE_CONTEXT_TEXT,
     METHOD_EXTRACTION_CORPORATE,
     METHOD_EXTRACTION_SOCIAL,
     METHOD_KNOWN_AGENCY_DOMAIN,
@@ -132,6 +133,145 @@ class TestRule2CommissionTextSignal:
         )
         assert result.resolved_type == RESOLVED_AGENCY
         assert any("venue find" in e for e in result.evidence)
+
+
+# ── Rule 2b: Corporate context text signal (RESP-080) ────────────────────────
+
+
+class TestRule2bCorporateContextText:
+    """Board/client/work-meeting keywords classify as corporate regardless of domain."""
+
+    def test_board_meeting_gmail_resolves_corporate(self):
+        # email_57 / email_72 scenario: board meeting from gmail/protonmail
+        domain = classify("elaine@gmail.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="social",
+            domain_classification=domain,
+            enquiry_text="Good morning, I need to book breakfast for 7. It's a board meeting.",
+        )
+        assert result.resolved_type == RESOLVED_CORPORATE
+        assert result.resolution_method == METHOD_CORPORATE_CONTEXT_TEXT
+        assert result.confidence >= 0.85
+
+    def test_board_meeting_protonmail_resolves_corporate(self):
+        domain = classify("sophie.turner@proton.me")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="social",
+            domain_classification=domain,
+            enquiry_text="It's a board meeting. Morning, maybe 8am.",
+        )
+        assert result.resolved_type == RESOLVED_CORPORATE
+        assert result.resolution_method == METHOD_CORPORATE_CONTEXT_TEXT
+
+    def test_client_dinner_personal_domain_resolves_corporate(self):
+        domain = classify("user@hotmail.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="social",
+            domain_classification=domain,
+            enquiry_text="I need dinner for 10 on Friday. This is a client dinner.",
+        )
+        assert result.resolved_type == RESOLVED_CORPORATE
+        assert result.resolution_method == METHOD_CORPORATE_CONTEXT_TEXT
+
+    def test_client_meeting_resolves_corporate(self):
+        domain = classify("user@icloud.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="unknown",
+            domain_classification=domain,
+            enquiry_text="Booking for a client meeting, 6 guests, Wednesday lunch.",
+        )
+        assert result.resolved_type == RESOLVED_CORPORATE
+        assert result.resolution_method == METHOD_CORPORATE_CONTEXT_TEXT
+
+    def test_work_team_meal_resolves_corporate(self):
+        domain = classify("sarah.green@aol.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="social",
+            domain_classification=domain,
+            enquiry_text="Hi, can I book for a work team meal next Weds for 11 people?",
+        )
+        assert result.resolved_type == RESOLVED_CORPORATE
+        assert result.resolution_method == METHOD_CORPORATE_CONTEXT_TEXT
+
+    def test_business_breakfast_resolves_corporate(self):
+        domain = classify("user@yahoo.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="social",
+            domain_classification=domain,
+            enquiry_text="Looking to arrange a business breakfast for 8 next Tuesday.",
+        )
+        assert result.resolved_type == RESOLVED_CORPORATE
+        assert result.resolution_method == METHOD_CORPORATE_CONTEXT_TEXT
+
+    def test_team_meeting_resolves_corporate(self):
+        domain = classify("user@gmail.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="social",
+            domain_classification=domain,
+            enquiry_text="Lunch for 12 — team meeting offsite.",
+        )
+        assert result.resolved_type == RESOLVED_CORPORATE
+        assert result.resolution_method == METHOD_CORPORATE_CONTEXT_TEXT
+
+    def test_agency_commission_text_still_beats_corporate_context(self):
+        # If both corporate context AND agency commission text are present,
+        # agency (Rule 2) takes precedence over corporate context (Rule 2b).
+        domain = classify("planner@gmail.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="social",
+            domain_classification=domain,
+            enquiry_text="I am working on behalf of my client for a client dinner, 15 guests.",
+        )
+        assert result.resolved_type == RESOLVED_AGENCY
+        assert result.resolution_method == METHOD_COMMISSION_TEXT_SIGNAL
+
+    def test_social_occasion_no_corporate_keywords_stays_social(self):
+        # Birthday dinner from gmail — no corporate keywords — still social
+        domain = classify("amy@gmail.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="social",
+            domain_classification=domain,
+            enquiry_text="Hi, do you have availability for dinner for 8? It's my sister's birthday.",
+        )
+        assert result.resolved_type == RESOLVED_SOCIAL
+        assert result.resolution_method == METHOD_CONSUMER_DOMAIN_SOCIAL
+
+    def test_evidence_contains_triggered_signals(self):
+        domain = classify("user@gmail.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="social",
+            domain_classification=domain,
+            enquiry_text="This is for a board meeting breakfast, 7 guests.",
+        )
+        assert any("board meeting" in e for e in result.evidence)
+
+    def test_email_57_scenario(self):
+        """Regression: email_57 — board meeting from proton.me must be corporate."""
+        domain = classify("sophie.turner@proton.me")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="social",
+            domain_classification=domain,
+            enquiry_text=(
+                "Good morning, I need to book a breakfast meeting for 7 on the 24th of this month. "
+                "Morning, maybe 8am or 8.30. It's a board meeting. Regards, Elaine"
+            ),
+        )
+        assert result.resolved_type == RESOLVED_CORPORATE
+        assert result.resolution_method == METHOD_CORPORATE_CONTEXT_TEXT
+
+    def test_email_72_scenario(self):
+        """Regression: email_72 — board meeting from gmail must be corporate."""
+        domain = classify("megan.clark@gmail.com")
+        result = CustomerTypeResolver.resolve(
+            audience_type_from_extraction="social",
+            domain_classification=domain,
+            enquiry_text=(
+                "Good morning, could we book breakfast for 7 on 6/9? It's a board meeting. "
+                "Date format might be ambiguous, so please confirm. Around 8.30. Regards, Eva"
+            ),
+        )
+        assert result.resolved_type == RESOLVED_CORPORATE
+        assert result.resolution_method == METHOD_CORPORATE_CONTEXT_TEXT
 
 
 # ── Rule 3: Known corporate domain ───────────────────────────────────────────
