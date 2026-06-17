@@ -699,6 +699,184 @@ def _run_persona_fit(draft: str, audience_type: str) -> dict:
     }
 
 
+# ── Independent 12-layer evaluation (TEST-030) ────────────────────────────────
+
+
+def _tone_matches_expected(actual_tone: str, expected_aud: str) -> bool:
+    """Return True if opener tone is appropriate for the expected audience type.
+
+    Corporate/agency/luxury: warm_celebratory is forbidden.
+    Social/unknown: any tone is acceptable.
+    """
+    if expected_aud in ("corporate", "agency", "luxury"):
+        return actual_tone != "warm_celebratory"
+    return True  # social, unknown
+
+
+_SUITABILITY_CLAIMS = [
+    "ideal for", "perfect for", "ideal setting", "excellent choice",
+    "perfect setting", "well accommodated", "excellent fit",
+    "intimate setting", "excellent setting", "would be ideal", "ideally suited",
+]
+
+_CLARIFICATION_TRIGGERS = [
+    "could you let us know", "would you be able to confirm", "could you confirm if",
+    "could you also let us know", "please let us know if",
+]
+
+
+def _run_independent_evaluation(result: dict, record: dict) -> dict:
+    """TEST-030: 12-layer independent evaluation against fixture expected values.
+
+    Compares actual output against oracle expected_* values in the fixture.
+    Does NOT trust the pipeline's own metadata as proof of correctness.
+
+    Layers:
+      L1  Extraction correctness
+      L2  Audience classification correctness
+      L3  Response goal correctness
+      L4  Date handling correctness
+      L5  Availability workflow (compliance)
+      L6  Tone/persona fit against expected audience
+      L7  Factual accuracy (safety checks)
+      L8  Hallucination risk (suitability claims)
+      L9  Information utilisation (required fields in response)
+      L10 Auto-send reviewer agreement
+      L11 Commercial quality (unnecessary friction)
+      L12 Regression risk (forbidden phrases for expected audience)
+    """
+    expected_aud = record.get("expected_audience_type", "unknown")
+    expected_goal = record.get("expected_response_goal", "")
+    expected_date_status = record.get("expected_date_status", "resolved")
+    expected_meal_period = record.get("expected_meal_period", "dinner")
+    expected_auto_send = record.get("expected_auto_send_allowed", True)
+    expected_req_fields = record.get("expected_required_fields_used", [])
+    expected_forbidden = record.get("expected_forbidden_phrases", [])
+
+    draft = result.get("response", "")
+    draft_lower = draft.lower()
+    actual_aud = result["persona_fit"]["audience_type"]
+    actual_goal = result["response_goal"]
+    actual_auto_send = result["auto_send"]["auto_send_allowed"]
+    actual_tone_cat = result["persona_fit"]["opener_tone_category"]
+    actual_meal_period = record["target_extraction"].get("meal_period") or "dinner"
+
+    # L1: Extraction correctness
+    l1_pass = actual_meal_period == expected_meal_period
+    l1 = {"passed": l1_pass, "expected_meal_period": expected_meal_period,
+          "actual_meal_period": actual_meal_period}
+
+    # L2: Audience classification correctness
+    l2_pass = actual_aud == expected_aud
+    l2 = {"passed": l2_pass, "expected": expected_aud, "actual": actual_aud}
+
+    # L3: Response goal correctness
+    l3_pass = actual_goal == expected_goal
+    l3 = {"passed": l3_pass, "expected": expected_goal, "actual": actual_goal}
+
+    # L4: Date handling correctness
+    _date_status_map = {
+        "REQUEST_DATE_CONFIRMATION": "pending_date_confirmation",
+        "REQUEST_MISSING_INFORMATION": "insufficient_information",
+        "RESPOND_UNAVAILABLE": "resolved",
+    }
+    actual_date_status = _date_status_map.get(actual_goal, "resolved")
+    l4_pass = actual_date_status == expected_date_status
+    l4 = {"passed": l4_pass, "expected": expected_date_status, "actual": actual_date_status}
+
+    # L5: Availability workflow (compliance)
+    l5_pass = result["compliance"]["passed"]
+    l5 = {"passed": l5_pass, "violations": result["compliance"]["violations"]}
+
+    # L6: Tone/persona fit against EXPECTED audience (not actual)
+    l6_pass = _tone_matches_expected(actual_tone_cat, expected_aud)
+    l6 = {"passed": l6_pass, "expected_audience": expected_aud,
+          "actual_tone_category": actual_tone_cat}
+
+    # L7: Factual accuracy (safety checks)
+    l7_pass = not result["safety_checks"]["has_issues"]
+    l7 = {"passed": l7_pass, "issues": result["safety_checks"]["issues"]}
+
+    # L8: Hallucination risk (unsupported suitability claims)
+    hallu_hits = [p for p in _SUITABILITY_CLAIMS if p in draft_lower]
+    l8_pass = len(hallu_hits) == 0
+    l8 = {"passed": l8_pass, "suitability_claims": hallu_hits}
+
+    # L9: Information utilisation (required fields present in response)
+    l9_failures: list[str] = []
+    for field_spec in expected_req_fields:
+        if ":" in field_spec:
+            kind, value = field_spec.split(":", 1)
+            if kind == "event_date" and value not in draft:
+                l9_failures.append(f"event_date {value} missing from response")
+            elif kind == "minimum_spend":
+                amount = value.replace("£", "").replace(",", "")
+                if amount not in draft and value not in draft:
+                    l9_failures.append(f"spend {value} missing from response")
+    l9_pass = len(l9_failures) == 0
+    l9 = {"passed": l9_pass, "missing_fields": l9_failures}
+
+    # L10: Auto-send reviewer agreement
+    # A reviewer would block auto-send if classification, tone, or compliance fails.
+    reviewer_blocks: list[str] = []
+    if not l2_pass:
+        reviewer_blocks.append("audience_misclassification")
+    if not l6_pass:
+        reviewer_blocks.append("inappropriate_tone")
+    if not l5_pass:
+        reviewer_blocks.append("compliance_failure")
+    reviewer_would_send = actual_auto_send and len(reviewer_blocks) == 0
+    l10_pass = reviewer_would_send == expected_auto_send
+    l10 = {"passed": l10_pass, "expected_auto_send": expected_auto_send,
+           "gate_auto_send": actual_auto_send, "reviewer_would_send": reviewer_would_send,
+           "reviewer_blocks": reviewer_blocks}
+
+    # L11: Commercial quality (unnecessary clarification in CONFIRM_AVAILABLE)
+    l11_issues: list[str] = []
+    if actual_goal == "CONFIRM_AVAILABLE":
+        for phrase in _CLARIFICATION_TRIGGERS:
+            if phrase in draft_lower:
+                l11_issues.append(f'unnecessary_clarification: "{phrase}"')
+    l11_pass = len(l11_issues) == 0
+    l11 = {"passed": l11_pass, "issues": l11_issues}
+
+    # L12: Regression risk (forbidden phrases for expected audience)
+    l12_hits = [p for p in expected_forbidden if p in draft_lower]
+    l12_pass = len(l12_hits) == 0
+    l12 = {"passed": l12_pass, "forbidden_phrase_hits": l12_hits,
+           "expected_audience": expected_aud}
+
+    layers = {
+        "L1_extraction": l1,
+        "L2_audience_classification": l2,
+        "L3_response_goal": l3,
+        "L4_date_handling": l4,
+        "L5_availability_workflow": l5,
+        "L6_persona_fit": l6,
+        "L7_factual_accuracy": l7,
+        "L8_hallucination_risk": l8,
+        "L9_information_utilisation": l9,
+        "L10_auto_send_readiness": l10,
+        "L11_commercial_quality": l11,
+        "L12_regression_risk": l12,
+    }
+
+    _critical = {
+        "L2_audience_classification", "L3_response_goal", "L5_availability_workflow",
+        "L6_persona_fit", "L8_hallucination_risk", "L12_regression_risk",
+    }
+    critical_failures = [k for k, v in layers.items() if not v["passed"] and k in _critical]
+    all_pass = all(v["passed"] for v in layers.values())
+
+    return {
+        "layers": layers,
+        "all_layers_passed": all_pass,
+        "critical_failures": critical_failures,
+        "layer_pass_count": sum(1 for v in layers.values() if v["passed"]),
+        "layer_total": len(layers),
+    }
+
+
 # ── Process one record ────────────────────────────────────────────────────────
 
 
@@ -751,7 +929,7 @@ def _process_record(record: dict, idx: int, total: int) -> dict:
         tone_validation_result=tone_result,
     )
 
-    return {
+    partial_result = {
         "record_id": record_id,
         "subject": record.get("subject", ""),
         "body_preview": record.get("body", "")[:120],
@@ -775,6 +953,10 @@ def _process_record(record: dict, idx: int, total: int) -> dict:
         } if tone_result is not None else None,
         "persona_fit": persona_fit,
     }
+
+    # TEST-030: 12-layer independent evaluation against fixture expected values
+    independent_eval = _run_independent_evaluation(partial_result, record)
+    return {**partial_result, "independent_evaluation": independent_eval}
 
 
 # ── Summary ───────────────────────────────────────────────────────────────────
@@ -800,7 +982,6 @@ def _print_summary(results: list[dict]) -> None:
         if r["safety_checks"]["has_issues"]:
             safety_issues += 1
 
-        # TEST-023: persona-fit tallying
         pf = r.get("persona_fit", {})
         if pf.get("persona_fit_passed", True):
             persona_fit_pass += 1
@@ -815,7 +996,7 @@ def _print_summary(results: list[dict]) -> None:
         cat = pf.get("opener_tone_category", "neutral")
         tone_category_counts[cat] = tone_category_counts.get(cat, 0) + 1
 
-    # TEST-025: per-audience persona-fit breakdown
+    # Per-audience persona-fit breakdown (TEST-025)
     audience_pf: dict[str, dict[str, int]] = {}
     for r in results:
         pf = r.get("persona_fit", {})
@@ -827,6 +1008,40 @@ def _print_summary(results: list[dict]) -> None:
         else:
             audience_pf[aud]["fail"] += 1
 
+    # TEST-030: aggregate 12-layer independent evaluation
+    layer_names = [
+        "L1_extraction", "L2_audience_classification", "L3_response_goal",
+        "L4_date_handling", "L5_availability_workflow", "L6_persona_fit",
+        "L7_factual_accuracy", "L8_hallucination_risk", "L9_information_utilisation",
+        "L10_auto_send_readiness", "L11_commercial_quality", "L12_regression_risk",
+    ]
+    layer_pass_counts: dict[str, int] = {ln: 0 for ln in layer_names}
+    layer_failures: dict[str, list[dict]] = {ln: [] for ln in layer_names}
+    records_all_layers_pass = 0
+    records_with_critical_failures = 0
+    all_critical_failures: list[dict] = []
+
+    for r in results:
+        ie = r.get("independent_evaluation", {})
+        layers = ie.get("layers", {})
+        if ie.get("all_layers_passed", False):
+            records_all_layers_pass += 1
+        if ie.get("critical_failures"):
+            records_with_critical_failures += 1
+            all_critical_failures.append({
+                "record_id": r["record_id"],
+                "critical_failures": ie["critical_failures"],
+            })
+        for ln in layer_names:
+            ldata = layers.get(ln, {})
+            if ldata.get("passed", True):
+                layer_pass_counts[ln] += 1
+            else:
+                layer_failures[ln].append({
+                    "record_id": r["record_id"],
+                    "detail": ldata,
+                })
+
     sep = "=" * 70
     print(f"\n{sep}")
     print(f"RESPONSE PREPARATION TEST — {total} records")
@@ -834,15 +1049,15 @@ def _print_summary(results: list[dict]) -> None:
     print(f"\nGoal breakdown:")
     for g, n in sorted(goals.items()):
         print(f"  {g:<45}: {n:>3}")
-    print(f"\nCompliance pass rate  : {compliance_pass}/{total} ({compliance_pass/total*100:.1f}%)")
+
+    print(f"\n--- Legacy metrics ---")
+    print(f"Compliance pass rate  : {compliance_pass}/{total} ({compliance_pass/total*100:.1f}%)")
     print(f"Auto-send allowed     : {auto_send_allowed}/{total} ({auto_send_allowed/total*100:.1f}%)")
     print(f"Safety issues found   : {safety_issues}/{total}")
 
-    # TEST-023: persona-fit summary
-    print(f"\n--- Persona-Fit Scoring (TEST-023 / TEST-025) ---")
+    print(f"\n--- Persona-Fit (TEST-023 / TEST-025) ---")
     print(f"Persona-fit pass rate : {persona_fit_pass}/{total} ({persona_fit_pass/total*100:.1f}%)")
-    print(f"Persona-fit failures  : {len(persona_fit_failures)}/{total}")
-    print(f"\nPer-audience persona-fit breakdown:")
+    print(f"\nPer-audience persona-fit:")
     for aud in ("social", "corporate", "agency", "luxury", "unknown"):
         counts = audience_pf.get(aud, {"pass": 0, "fail": 0})
         aud_total = counts["pass"] + counts["fail"]
@@ -854,11 +1069,87 @@ def _print_summary(results: list[dict]) -> None:
     for cat, n in sorted(tone_category_counts.items(), key=lambda x: -x[1]):
         print(f"  {cat:<25}: {n:>3}")
     if persona_fit_failures:
-        print(f"\nTop persona-fit failures (by record_id):")
+        print(f"\nTop persona-fit failures:")
         for failure in persona_fit_failures[:10]:
             hits_str = ", ".join(f"'{h}'" for h in failure["forbidden_phrase_hits"])
             print(f"  {failure['record_id']:<12} [{failure['audience_type']}]"
                   f" opener={failure['opener_tone_category']}  hits={hits_str}")
+
+    # TEST-030: 12-layer independent evaluation report
+    print(f"\n{sep}")
+    print(f"12-LAYER INDEPENDENT EVALUATION (TEST-030)")
+    print(sep)
+    print(f"Records — all 12 layers passed : {records_all_layers_pass}/{total}")
+    print(f"Records — critical layer failed: {records_with_critical_failures}/{total}")
+    print(f"\nPer-layer pass rates:")
+    layer_labels = {
+        "L1_extraction":               "L1  Extraction correctness",
+        "L2_audience_classification":  "L2  Audience classification",
+        "L3_response_goal":            "L3  Response goal correctness",
+        "L4_date_handling":            "L4  Date handling correctness",
+        "L5_availability_workflow":    "L5  Availability workflow",
+        "L6_persona_fit":              "L6  Tone/persona fit (vs expected audience)",
+        "L7_factual_accuracy":         "L7  Factual accuracy",
+        "L8_hallucination_risk":       "L8  Hallucination risk",
+        "L9_information_utilisation":  "L9  Information utilisation",
+        "L10_auto_send_readiness":     "L10 Auto-send reviewer agreement",
+        "L11_commercial_quality":      "L11 Commercial quality",
+        "L12_regression_risk":         "L12 Regression risk",
+    }
+    _critical_set = {
+        "L2_audience_classification", "L3_response_goal", "L5_availability_workflow",
+        "L6_persona_fit", "L8_hallucination_risk", "L12_regression_risk",
+    }
+    for ln in layer_names:
+        n_pass = layer_pass_counts[ln]
+        n_fail = total - n_pass
+        pct = n_pass / total * 100
+        crit_tag = " [CRITICAL]" if ln in _critical_set else ""
+        fail_tag = f"  ← {n_fail} FAILED" if n_fail > 0 else ""
+        print(f"  {layer_labels[ln]:<45}: {n_pass:>3}/{total} ({pct:>5.1f}%){crit_tag}{fail_tag}")
+
+    # Failure tables by layer
+    any_failure_printed = False
+    for ln in layer_names:
+        failures = layer_failures[ln]
+        if not failures:
+            continue
+        if not any_failure_printed:
+            print(f"\n--- Failure tables by layer ---")
+            any_failure_printed = True
+        crit_tag = " [CRITICAL]" if ln in _critical_set else ""
+        print(f"\n{layer_labels[ln]}{crit_tag} — {len(failures)} failed:")
+        for f in failures[:20]:
+            detail = f["detail"]
+            exp = detail.get("expected") or detail.get("expected_meal_period", "")
+            act = detail.get("actual") or detail.get("actual_meal_period", "") or detail.get("actual_tone_category", "")
+            issues = (detail.get("violations") or detail.get("issues") or
+                      detail.get("suitability_claims") or detail.get("forbidden_phrase_hits") or
+                      detail.get("missing_fields") or detail.get("reviewer_blocks") or [])
+            issues_str = f"  [{', '.join(str(i) for i in issues[:3])}]" if issues else ""
+            if exp and act:
+                print(f"    {f['record_id']:<12}  expected={exp}  actual={act}{issues_str}")
+            else:
+                print(f"    {f['record_id']:<12}{issues_str}")
+        if len(failures) > 20:
+            print(f"    ... and {len(failures) - 20} more")
+
+    # Overall verdict
+    has_critical = records_with_critical_failures > 0
+    all_layers_100pct = all(layer_pass_counts[ln] == total for ln in layer_names)
+    print(f"\n--- Overall verdict ---")
+    if has_critical:
+        print(f"RESULT: CRITICAL FAILURES PRESENT — {records_with_critical_failures} record(s) failed "
+              f"one or more critical layers. Do NOT report as 10/10.")
+        print(f"Critical failure records:")
+        for cf in all_critical_failures[:10]:
+            print(f"  {cf['record_id']}: {cf['critical_failures']}")
+    elif not all_layers_100pct:
+        failed_layers = [ln for ln in layer_names if layer_pass_counts[ln] < total]
+        print(f"RESULT: NON-CRITICAL FAILURES — layers with failures: {failed_layers}")
+    else:
+        print(f"RESULT: ALL 12 LAYERS PASSED — {total}/{total} records fully verified.")
+
     print(sep)
 
 
