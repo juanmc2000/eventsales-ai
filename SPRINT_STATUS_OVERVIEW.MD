@@ -2,7 +2,7 @@
 
 **Project:** EventSales AI
 **Phase:** POC (Proof of Concept)
-**Last Updated:** 2026-06-17 (post-Sprint-23)
+**Last Updated:** 2026-06-17 (post-Sprint-24)
 
 ---
 
@@ -37,6 +37,7 @@
 | Sprint 21 | TEST-026: Fix email_108 date ambiguity (5/7 → 7/8) | ✓ Complete | #516 |
 | Sprint 22 | RESP-081: Rule 2c social context text + client thank-you signal | ✓ Complete | #518 |
 | Sprint 23 | TEST-027: Fix accuracy runner fixture staleness (deprecated goal + luxury priority) | ✓ Complete | #520 |
+| Sprint 24 | TEST-028/029 fixture hardening + DATE-003 freeform date edge-case detection | ✓ Complete | #524–#526 |
 
 ---
 
