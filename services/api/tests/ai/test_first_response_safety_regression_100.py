@@ -76,6 +76,8 @@ def _context_from_scenario(scenario: dict[str, Any]) -> ValidationContext:
         allow_menu_discussion=ctx.get("allow_menu_discussion", False),
         allow_special_touches=ctx.get("allow_special_touches", False),
         allow_call_scheduling=ctx.get("allow_call_scheduling", False),
+        # RESP-062: pass guest_first_name so CustomerNameConsistencyValidator can check
+        expected_customer_name=ctx.get("guest_first_name"),
     )
 
 
