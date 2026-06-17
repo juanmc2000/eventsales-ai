@@ -726,3 +726,120 @@ class TestRuleIdAndReasonMetadata:
         """Luxury classification is out of scope for resolver; no luxury rule_id expected."""
         result = CustomerTypeResolver.resolve("unknown", None)
         assert "luxury" not in result.rule_id
+
+
+# ── TEST-031: Audience boundary fixture cases ──────────────────────────────────
+
+
+import json
+import pathlib
+
+_BOUNDARY_FIXTURE = (
+    pathlib.Path(__file__).resolve().parent.parent.parent.parent.parent
+    / "tests" / "data" / "audience_classification_boundary_cases.json"
+)
+
+
+def _load_boundary_cases() -> list[dict]:
+    if not _BOUNDARY_FIXTURE.exists():
+        return []
+    with open(_BOUNDARY_FIXTURE) as f:
+        return json.load(f)["records"]
+
+
+class TestAudienceBoundaryCases:
+    """TEST-031: 40-record audience-boundary fixture regression suite.
+
+    Covers corporate-from-personal-domain, social-from-corporate-domain,
+    agency+social, luxury-social, private/family-office, PA/EA bookings,
+    client thank-you edge cases, event-manager wording, and helping-a-friend.
+    """
+
+    def test_fixture_loads_and_has_40_records(self):
+        cases = _load_boundary_cases()
+        assert len(cases) == 40, f"Expected 40 boundary cases, got {len(cases)}"
+
+    def test_all_cases_pass(self):
+        cases = _load_boundary_cases()
+        if not cases:
+            pytest.skip("Boundary fixture not found — skipping")
+        failures: list[str] = []
+        for rec in cases:
+            domain = SenderDomainClassificationService.classify(rec["sender_email"])
+            result = CustomerTypeResolver.resolve(
+                rec.get("extraction_audience_type", "unknown"),
+                domain,
+                rec.get("enquiry_text", ""),
+            )
+            if result.resolved_type != rec["expected_audience_type"]:
+                failures.append(
+                    f"{rec['case_id']}: expected={rec['expected_audience_type']} "
+                    f"actual={result.resolved_type} | {rec['description']}"
+                )
+        assert not failures, "Boundary case failures:\n" + "\n".join(failures)
+
+    def test_corporate_from_personal_domain_cases(self):
+        cases = [c for c in _load_boundary_cases() if c["category"] == "corporate_from_personal_domain"]
+        assert len(cases) == 5
+        for rec in cases:
+            domain = SenderDomainClassificationService.classify(rec["sender_email"])
+            result = CustomerTypeResolver.resolve(
+                rec.get("extraction_audience_type", "unknown"), domain, rec["enquiry_text"]
+            )
+            assert result.resolved_type == "corporate", (
+                f"{rec['case_id']}: corporate context from personal domain should resolve to corporate"
+            )
+
+    def test_social_from_corporate_domain_cases(self):
+        cases = [c for c in _load_boundary_cases() if c["category"] == "social_from_corporate_domain"]
+        assert len(cases) == 5
+        for rec in cases:
+            domain = SenderDomainClassificationService.classify(rec["sender_email"])
+            result = CustomerTypeResolver.resolve(
+                rec.get("extraction_audience_type", "unknown"), domain, rec["enquiry_text"]
+            )
+            assert result.resolved_type == "social", (
+                f"{rec['case_id']}: social occasion from corporate domain should resolve to social"
+            )
+
+    def test_agency_plus_social_cases(self):
+        cases = [c for c in _load_boundary_cases() if c["category"] == "agency_plus_social"]
+        assert len(cases) == 5
+        for rec in cases:
+            domain = SenderDomainClassificationService.classify(rec["sender_email"])
+            result = CustomerTypeResolver.resolve(
+                rec.get("extraction_audience_type", "unknown"), domain, rec["enquiry_text"]
+            )
+            assert result.resolved_type == "agency", (
+                f"{rec['case_id']}: agency signal should override social signal"
+            )
+
+    def test_client_thank_you_before_birthday(self):
+        cases = [c for c in _load_boundary_cases() if c["case_id"] == "boundary_31"]
+        assert len(cases) == 1
+        rec = cases[0]
+        domain = SenderDomainClassificationService.classify(rec["sender_email"])
+        result = CustomerTypeResolver.resolve(
+            rec.get("extraction_audience_type", "unknown"), domain, rec["enquiry_text"]
+        )
+        assert result.resolved_type == "corporate", (
+            "client thank-you should take precedence over birthday (Rule 2b before Rule 2c)"
+        )
+
+    def test_no_signal_resolves_to_unknown(self):
+        cases = [c for c in _load_boundary_cases() if c["category"] == "no_signal_unknown"]
+        assert len(cases) == 1
+        rec = cases[0]
+        domain = SenderDomainClassificationService.classify(rec["sender_email"])
+        result = CustomerTypeResolver.resolve(
+            rec.get("extraction_audience_type", "unknown"), domain, rec["enquiry_text"]
+        )
+        assert result.resolved_type == "unknown"
+
+    def test_all_audience_types_represented(self):
+        cases = _load_boundary_cases()
+        types_found = {c["expected_audience_type"] for c in cases}
+        assert "social" in types_found
+        assert "corporate" in types_found
+        assert "agency" in types_found
+        assert "unknown" in types_found
