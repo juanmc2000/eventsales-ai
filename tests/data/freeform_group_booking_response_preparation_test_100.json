@@ -9,7 +9,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Dinner for next Friday",
-      "body": "Hi, do you have availability next Friday for dinner for 8? It’s for my sister’s birthday. Around 7ish would be ideal, but we can be flexible if needed. Thanks, Amy",
+      "body": "Hi, do you have availability next Friday for dinner for 8? It\u2019s for my sister\u2019s birthday. Around 7ish would be ideal, but we can be flexible if needed. Thanks, Amy",
       "target_extraction": {
         "date_request": {
           "raw_text": "next Friday",
@@ -49,7 +49,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -134,8 +134,8 @@
             "event_date_line": "Event date: 2026-06-12\n",
             "party_size_line": "Party size: 8 guests\n",
             "availability_line": "Availability: Available for 2026-06-12.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
-            "guest_message_line": "Guest message: Hi, do you have availability next Friday for dinner for 8? It’s for my sister’s birthday. Around 7ish would be ideal, but we can be flexible if needed. Thanks, Amy\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
+            "guest_message_line": "Guest message: Hi, do you have availability next Friday for dinner for 8? It\u2019s for my sister\u2019s birthday. Around 7ish would be ideal, but we can be flexible if needed. Thanks, Amy\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -152,7 +152,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Table on the 20th",
-      "body": "Hello, I’m trying to book dinner on the 20th for a group of 10. It’s for my dad’s birthday, nothing too formal, just a nice evening meal. Do you have anything from 7pm?",
+      "body": "Hello, I\u2019m trying to book dinner on the 20th for a group of 10. It\u2019s for my dad\u2019s birthday, nothing too formal, just a nice evening meal. Do you have anything from 7pm?",
       "target_extraction": {
         "date_request": {
           "raw_text": "on the 20th",
@@ -192,7 +192,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -277,8 +277,8 @@
             "event_date_line": "Event date: 2026-06-20\n",
             "party_size_line": "Party size: 10 guests\n",
             "availability_line": "Availability: Available for 2026-06-20.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
-            "guest_message_line": "Guest message: Hello, I’m trying to book dinner on the 20th for a group of 10. It’s for my dad’s birthday, nothing too formal, just a nice evening meal. Do you have anything from 7pm?\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
+            "guest_message_line": "Guest message: Hello, I\u2019m trying to book dinner on the 20th for a group of 10. It\u2019s for my dad\u2019s birthday, nothing too formal, just a nice evening meal. Do you have anything from 7pm?\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -295,7 +295,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Lunch next month",
-      "body": "Hi there, could you do lunch on the 20th of next month for 12 people? We’re planning a baby shower and would prefer something around midday if possible. Thanks, Priya",
+      "body": "Hi there, could you do lunch on the 20th of next month for 12 people? We\u2019re planning a baby shower and would prefer something around midday if possible. Thanks, Priya",
       "target_extraction": {
         "date_request": {
           "raw_text": "the 20th of next month",
@@ -339,7 +339,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -424,8 +424,8 @@
             "event_date_line": "Event date: 2026-07-20\n",
             "party_size_line": "Party size: 12 guests\n",
             "availability_line": "Availability: Available for 2026-07-20.\n",
-            "spend_line": "Recommended minimum spend: £780.\n",
-            "guest_message_line": "Guest message: Hi there, could you do lunch on the 20th of next month for 12 people? We’re planning a baby shower and would prefer something around midday if possible. Thanks, Priya\n",
+            "spend_line": "Recommended minimum spend: \u00a3780.\n",
+            "guest_message_line": "Guest message: Hi there, could you do lunch on the 20th of next month for 12 people? We\u2019re planning a baby shower and would prefer something around midday if possible. Thanks, Priya\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -442,7 +442,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Any weekend this month",
-      "body": "Hello, we’re looking for dinner for 14 people for an engagement party, any weekend this month if you have space. Evening would be best but we’re open. Thanks, Chris",
+      "body": "Hello, we\u2019re looking for dinner for 14 people for an engagement party, any weekend this month if you have space. Evening would be best but we\u2019re open. Thanks, Chris",
       "target_extraction": {
         "date_request": {
           "raw_text": "any weekend this month",
@@ -498,7 +498,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -604,8 +604,8 @@
             "event_date_line": "Event date: 2026-06-06, 2026-06-07, 2026-06-13, 2026-06-14, 2026-06-20, 2026-06-21, 2026-06-27, 2026-06-28\n",
             "party_size_line": "Party size: 14 guests\n",
             "availability_line": "Availability: Available for 2026-06-06, 2026-06-07, 2026-06-13, 2026-06-14, 2026-06-20, 2026-06-21, 2026-06-27, 2026-06-28.\n",
-            "spend_line": "Recommended minimum spend: £1,400.\n",
-            "guest_message_line": "Guest message: Hello, we’re looking for dinner for 14 people for an engagement party, any weekend this month if you have space. Evening would be best but we’re open. Thanks, Chris\n",
+            "spend_line": "Recommended minimum spend: \u00a31,400.\n",
+            "guest_message_line": "Guest message: Hello, we\u2019re looking for dinner for 14 people for an engagement party, any weekend this month if you have space. Evening would be best but we\u2019re open. Thanks, Chris\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -678,7 +678,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -784,7 +784,7 @@
             "event_date_line": "Event date: 2026-07-04, 2026-07-05, 2026-07-11, 2026-07-12, 2026-07-18, 2026-07-19, 2026-07-25, 2026-07-26\n",
             "party_size_line": "Party size: 8 guests\n",
             "availability_line": "Availability: Available for 2026-07-04, 2026-07-05, 2026-07-11, 2026-07-12, 2026-07-18, 2026-07-19, 2026-07-25, 2026-07-26.\n",
-            "spend_line": "Recommended minimum spend: £520.\n",
+            "spend_line": "Recommended minimum spend: \u00a3520.\n",
             "guest_message_line": "Guest message: Hi, do you have availability for lunch for 8 for a babyshower on any weekend next month? Morning or midday could work, depending on what you have. Best, Hannah\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
@@ -802,7 +802,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "July 25 dinner",
-      "body": "Good afternoon, I’d like to enquire about dinner on July 25 for a group of 16. It’s for an engagement party. Around 8pm would be great if available.",
+      "body": "Good afternoon, I\u2019d like to enquire about dinner on July 25 for a group of 16. It\u2019s for an engagement party. Around 8pm would be great if available.",
       "target_extraction": {
         "date_request": {
           "raw_text": "July 25",
@@ -842,7 +842,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -927,8 +927,8 @@
             "event_date_line": "Event date: 2026-07-25\n",
             "party_size_line": "Party size: 16 guests\n",
             "availability_line": "Availability: Available for 2026-07-25.\n",
-            "spend_line": "Recommended minimum spend: £1,600.\n",
-            "guest_message_line": "Guest message: Good afternoon, I’d like to enquire about dinner on July 25 for a group of 16. It’s for an engagement party. Around 8pm would be great if available.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,600.\n",
+            "guest_message_line": "Guest message: Good afternoon, I\u2019d like to enquire about dinner on July 25 for a group of 16. It\u2019s for an engagement party. Around 8pm would be great if available.\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
           }
@@ -945,7 +945,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Jul 25 birthday",
-      "body": "Hi, can you fit 9 of us for Jul 25? It’s my friend’s birthday and we’d like dinner, maybe early evening around 6. Thanks!",
+      "body": "Hi, can you fit 9 of us for Jul 25? It\u2019s my friend\u2019s birthday and we\u2019d like dinner, maybe early evening around 6. Thanks!",
       "target_extraction": {
         "date_request": {
           "raw_text": "Jul 25",
@@ -985,7 +985,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -1070,8 +1070,8 @@
             "event_date_line": "Event date: 2026-07-25\n",
             "party_size_line": "Party size: 9 guests\n",
             "availability_line": "Availability: Available for 2026-07-25.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
-            "guest_message_line": "Guest message: Hi, can you fit 9 of us for Jul 25? It’s my friend’s birthday and we’d like dinner, maybe early evening around 6. Thanks!\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
+            "guest_message_line": "Guest message: Hi, can you fit 9 of us for Jul 25? It\u2019s my friend\u2019s birthday and we\u2019d like dinner, maybe early evening around 6. Thanks!\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -1088,7 +1088,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "7/25 reservation",
-      "body": "Hello, looking to book for 11 people on 7/25 for dinner. It’s a surprise birthday, probably 7:30pm if that works.",
+      "body": "Hello, looking to book for 11 people on 7/25 for dinner. It\u2019s a surprise birthday, probably 7:30pm if that works.",
       "target_extraction": {
         "date_request": {
           "raw_text": "7/25",
@@ -1128,7 +1128,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -1213,8 +1213,8 @@
             "event_date_line": "Event date: 2026-07-25\n",
             "party_size_line": "Party size: 11 guests\n",
             "availability_line": "Availability: Available for 2026-07-25.\n",
-            "spend_line": "Recommended minimum spend: £1,100.\n",
-            "guest_message_line": "Guest message: Hello, looking to book for 11 people on 7/25 for dinner. It’s a surprise birthday, probably 7:30pm if that works.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,100.\n",
+            "guest_message_line": "Guest message: Hello, looking to book for 11 people on 7/25 for dinner. It\u2019s a surprise birthday, probably 7:30pm if that works.\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -1231,7 +1231,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Last Friday of the month",
-      "body": "Hi there, do you have space for the last Friday of the month for 10 people? It’s for an engagement dinner. Later dinner would suit us best.",
+      "body": "Hi there, do you have space for the last Friday of the month for 10 people? It\u2019s for an engagement dinner. Later dinner would suit us best.",
       "target_extraction": {
         "date_request": {
           "raw_text": "the last Friday of the month",
@@ -1271,7 +1271,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -1356,8 +1356,8 @@
             "event_date_line": "Event date: 2026-06-26\n",
             "party_size_line": "Party size: 10 guests\n",
             "availability_line": "Availability: Available for 2026-06-26.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
-            "guest_message_line": "Guest message: Hi there, do you have space for the last Friday of the month for 10 people? It’s for an engagement dinner. Later dinner would suit us best.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
+            "guest_message_line": "Guest message: Hi there, do you have space for the last Friday of the month for 10 people? It\u2019s for an engagement dinner. Later dinner would suit us best.\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -1374,7 +1374,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Breakfast next Saturday",
-      "body": "Morning, I’m organising a birthday breakfast next Saturday for 6 people. Something in the morning would be ideal, but I don’t have an exact time yet.",
+      "body": "Morning, I\u2019m organising a birthday breakfast next Saturday for 6 people. Something in the morning would be ideal, but I don\u2019t have an exact time yet.",
       "target_extraction": {
         "date_request": {
           "raw_text": "next Saturday",
@@ -1414,7 +1414,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -1499,8 +1499,8 @@
             "event_date_line": "Event date: 2026-06-13\n",
             "party_size_line": "Party size: 6 guests\n",
             "availability_line": "Availability: Available for 2026-06-13.\n",
-            "spend_line": "Recommended minimum spend: £250.\n",
-            "guest_message_line": "Guest message: Morning, I’m organising a birthday breakfast next Saturday for 6 people. Something in the morning would be ideal, but I don’t have an exact time yet.\n",
+            "spend_line": "Recommended minimum spend: \u00a3250.\n",
+            "guest_message_line": "Guest message: Morning, I\u2019m organising a birthday breakfast next Saturday for 6 people. Something in the morning would be ideal, but I don\u2019t have an exact time yet.\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -1517,7 +1517,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Lunch tomorrow week",
-      "body": "Hi, can you do lunch for 8 a week tomorrow? It’s for a small baby shower. Midday-ish would be lovely if possible.",
+      "body": "Hi, can you do lunch for 8 a week tomorrow? It\u2019s for a small baby shower. Midday-ish would be lovely if possible.",
       "target_extraction": {
         "date_request": {
           "raw_text": "a week tomorrow",
@@ -1561,7 +1561,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -1646,8 +1646,8 @@
             "event_date_line": "Event date: 2026-06-11\n",
             "party_size_line": "Party size: 8 guests\n",
             "availability_line": "Availability: Available for 2026-06-11.\n",
-            "spend_line": "Recommended minimum spend: £520.\n",
-            "guest_message_line": "Guest message: Hi, can you do lunch for 8 a week tomorrow? It’s for a small baby shower. Midday-ish would be lovely if possible.\n",
+            "spend_line": "Recommended minimum spend: \u00a3520.\n",
+            "guest_message_line": "Guest message: Hi, can you do lunch for 8 a week tomorrow? It\u2019s for a small baby shower. Midday-ish would be lovely if possible.\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -1664,7 +1664,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Dinner on 25/7",
-      "body": "Hello, we’re hoping to book dinner on 25/7 for 18 guests for an engagement party. We can do 7 or 8pm depending on availability.",
+      "body": "Hello, we\u2019re hoping to book dinner on 25/7 for 18 guests for an engagement party. We can do 7 or 8pm depending on availability.",
       "target_extraction": {
         "date_request": {
           "raw_text": "25/7",
@@ -1704,7 +1704,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -1789,8 +1789,8 @@
             "event_date_line": "Event date: 2026-07-25\n",
             "party_size_line": "Party size: 18 guests\n",
             "availability_line": "Availability: Available for 2026-07-25.\n",
-            "spend_line": "Recommended minimum spend: £1,800.\n",
-            "guest_message_line": "Guest message: Hello, we’re hoping to book dinner on 25/7 for 18 guests for an engagement party. We can do 7 or 8pm depending on availability.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,800.\n",
+            "guest_message_line": "Guest message: Hello, we\u2019re hoping to book dinner on 25/7 for 18 guests for an engagement party. We can do 7 or 8pm depending on availability.\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
           }
@@ -1807,7 +1807,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Any Friday in August",
-      "body": "Hi, I’m looking for dinner for a birthday for 12 people, any Friday in August would work. We’d prefer evening but can be flexible.",
+      "body": "Hi, I\u2019m looking for dinner for a birthday for 12 people, any Friday in August would work. We\u2019d prefer evening but can be flexible.",
       "target_extraction": {
         "date_request": {
           "raw_text": "any Friday in August",
@@ -1854,7 +1854,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -1948,8 +1948,8 @@
             "event_date_line": "Event date: 2026-08-07, 2026-08-14, 2026-08-21, 2026-08-28\n",
             "party_size_line": "Party size: 12 guests\n",
             "availability_line": "Availability: Available for 2026-08-07, 2026-08-14, 2026-08-21, 2026-08-28.\n",
-            "spend_line": "Recommended minimum spend: £1,200.\n",
-            "guest_message_line": "Guest message: Hi, I’m looking for dinner for a birthday for 12 people, any Friday in August would work. We’d prefer evening but can be flexible.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,200.\n",
+            "guest_message_line": "Guest message: Hi, I\u2019m looking for dinner for a birthday for 12 people, any Friday in August would work. We\u2019d prefer evening but can be flexible.\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -1966,7 +1966,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "First Saturday in July",
-      "body": "Hi, do you have dinner availability for 15 people on the first Saturday in July? It’s for a babyshower celebration, although dinner rather than lunch.",
+      "body": "Hi, do you have dinner availability for 15 people on the first Saturday in July? It\u2019s for a babyshower celebration, although dinner rather than lunch.",
       "target_extraction": {
         "date_request": {
           "raw_text": "the first Saturday in July",
@@ -2006,7 +2006,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -2091,8 +2091,8 @@
             "event_date_line": "Event date: 2026-07-04\n",
             "party_size_line": "Party size: 15 guests\n",
             "availability_line": "Availability: Available for 2026-07-04.\n",
-            "spend_line": "Recommended minimum spend: £1,500.\n",
-            "guest_message_line": "Guest message: Hi, do you have dinner availability for 15 people on the first Saturday in July? It’s for a babyshower celebration, although dinner rather than lunch.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,500.\n",
+            "guest_message_line": "Guest message: Hi, do you have dinner availability for 15 people on the first Saturday in July? It\u2019s for a babyshower celebration, although dinner rather than lunch.\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
           }
@@ -2109,7 +2109,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Morning booking",
-      "body": "Hello, can I book something in the morning on June 18 for 10 people? It’s for a birthday breakfast, but we haven’t fixed the exact time yet.",
+      "body": "Hello, can I book something in the morning on June 18 for 10 people? It\u2019s for a birthday breakfast, but we haven\u2019t fixed the exact time yet.",
       "target_extraction": {
         "date_request": {
           "raw_text": "June 18",
@@ -2149,7 +2149,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -2234,8 +2234,8 @@
             "event_date_line": "Event date: 2026-06-18\n",
             "party_size_line": "Party size: 10 guests\n",
             "availability_line": "Availability: Available for 2026-06-18.\n",
-            "spend_line": "Recommended minimum spend: £350.\n",
-            "guest_message_line": "Guest message: Hello, can I book something in the morning on June 18 for 10 people? It’s for a birthday breakfast, but we haven’t fixed the exact time yet.\n",
+            "spend_line": "Recommended minimum spend: \u00a3350.\n",
+            "guest_message_line": "Guest message: Hello, can I book something in the morning on June 18 for 10 people? It\u2019s for a birthday breakfast, but we haven\u2019t fixed the exact time yet.\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -2252,7 +2252,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Midday lunch enquiry",
-      "body": "Hi there, looking for a table at midday on 8 July for a group of 7. It’s for a small engagement lunch. Could you let me know availability?",
+      "body": "Hi there, looking for a table at midday on 8 July for a group of 7. It\u2019s for a small engagement lunch. Could you let me know availability?",
       "target_extraction": {
         "date_request": {
           "raw_text": "8 July",
@@ -2292,7 +2292,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -2377,8 +2377,8 @@
             "event_date_line": "Event date: 2026-07-08\n",
             "party_size_line": "Party size: 7 guests\n",
             "availability_line": "Availability: Available for 2026-07-08.\n",
-            "spend_line": "Recommended minimum spend: £500.\n",
-            "guest_message_line": "Guest message: Hi there, looking for a table at midday on 8 July for a group of 7. It’s for a small engagement lunch. Could you let me know availability?\n",
+            "spend_line": "Recommended minimum spend: \u00a3500.\n",
+            "guest_message_line": "Guest message: Hi there, looking for a table at midday on 8 July for a group of 7. It\u2019s for a small engagement lunch. Could you let me know availability?\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -2395,7 +2395,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Next Friday or Saturday",
-      "body": "Hi, do you have dinner space for 20 people next Friday or Saturday? It’s for a joint birthday. We’ll take whichever night has better availability.",
+      "body": "Hi, do you have dinner space for 20 people next Friday or Saturday? It\u2019s for a joint birthday. We\u2019ll take whichever night has better availability.",
       "target_extraction": {
         "date_request": {
           "raw_text": "next Friday or Saturday",
@@ -2437,7 +2437,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -2525,8 +2525,8 @@
             "event_date_line": "Event date: 2026-06-12, 2026-06-13\n",
             "party_size_line": "Party size: 20 guests\n",
             "availability_line": "Availability: Available for 2026-06-12, 2026-06-13.\n",
-            "spend_line": "Recommended minimum spend: £2,000.\n",
-            "guest_message_line": "Guest message: Hi, do you have dinner space for 20 people next Friday or Saturday? It’s for a joint birthday. We’ll take whichever night has better availability.\n",
+            "spend_line": "Recommended minimum spend: \u00a32,000.\n",
+            "guest_message_line": "Guest message: Hi, do you have dinner space for 20 people next Friday or Saturday? It\u2019s for a joint birthday. We\u2019ll take whichever night has better availability.\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
           }
@@ -2601,7 +2601,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -2710,7 +2710,7 @@
             "event_date_line": "Event date: 2026-06-08, 2026-06-09, 2026-06-10, 2026-06-15, 2026-06-16, 2026-06-17, 2026-06-22, 2026-06-23, 2026-06-24\n",
             "party_size_line": "Party size: 9 guests\n",
             "availability_line": "Availability: Available for 2026-06-08, 2026-06-09, 2026-06-10, 2026-06-15, 2026-06-16, 2026-06-17, 2026-06-22, 2026-06-23, 2026-06-24.\n",
-            "spend_line": "Recommended minimum spend: £585.\n",
+            "spend_line": "Recommended minimum spend: \u00a3585.\n",
             "guest_message_line": "Guest message: Hello, I need lunch for a baby shower for 9 guests, any Monday to Wednesday in the next three weeks. Midday would be preferred but not essential.\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -2728,7 +2728,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "On 14/6 dinner",
-      "body": "Hi, we’re looking to book dinner on 14/6 for 8 people. It’s an engagement party, just close friends and family.",
+      "body": "Hi, we\u2019re looking to book dinner on 14/6 for 8 people. It\u2019s an engagement party, just close friends and family.",
       "target_extraction": {
         "date_request": {
           "raw_text": "14/6",
@@ -2768,7 +2768,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -2853,8 +2853,8 @@
             "event_date_line": "Event date: 2026-06-14\n",
             "party_size_line": "Party size: 8 guests\n",
             "availability_line": "Availability: Available for 2026-06-14.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
-            "guest_message_line": "Guest message: Hi, we’re looking to book dinner on 14/6 for 8 people. It’s an engagement party, just close friends and family.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
+            "guest_message_line": "Guest message: Hi, we\u2019re looking to book dinner on 14/6 for 8 people. It\u2019s an engagement party, just close friends and family.\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -2871,7 +2871,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Ambiguous 7/6",
-      "body": "Hi, could you book dinner for 10 on 7/6? It’s for a birthday. I’m not sure how you read the date format so please check if needed.",
+      "body": "Hi, could you book dinner for 10 on 7/6? It\u2019s for a birthday. I\u2019m not sure how you read the date format so please check if needed.",
       "target_extraction": {
         "date_request": {
           "raw_text": "7/6",
@@ -3013,8 +3013,8 @@
             "event_date_line": "Event date: 2026-06-07\n",
             "party_size_line": "Party size: 10 guests\n",
             "availability_line": "Availability status: Pending date confirmation. Provisionally check 2026-06-07.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
-            "guest_message_line": "Guest message: Hi, could you book dinner for 10 on 7/6? It’s for a birthday. I’m not sure how you read the date format so please check if needed.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
+            "guest_message_line": "Guest message: Hi, could you book dinner for 10 on 7/6? It\u2019s for a birthday. I\u2019m not sure how you read the date format so please check if needed.\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 7 June or 6 July? I have provisionally checked availability for 7 June.\n"
           }
@@ -3031,7 +3031,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "The Sunday after next",
-      "body": "Hi there, do you have lunch for 13 people the Sunday after next? It’s for a baby shower and we’d probably arrive around midday.",
+      "body": "Hi there, do you have lunch for 13 people the Sunday after next? It\u2019s for a baby shower and we\u2019d probably arrive around midday.",
       "target_extraction": {
         "date_request": {
           "raw_text": "the Sunday after next",
@@ -3075,7 +3075,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -3160,8 +3160,8 @@
             "event_date_line": "Event date: 2026-06-14\n",
             "party_size_line": "Party size: 13 guests\n",
             "availability_line": "Availability: Available for 2026-06-14.\n",
-            "spend_line": "Recommended minimum spend: £845.\n",
-            "guest_message_line": "Guest message: Hi there, do you have lunch for 13 people the Sunday after next? It’s for a baby shower and we’d probably arrive around midday.\n",
+            "spend_line": "Recommended minimum spend: \u00a3845.\n",
+            "guest_message_line": "Guest message: Hi there, do you have lunch for 13 people the Sunday after next? It\u2019s for a baby shower and we\u2019d probably arrive around midday.\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -3178,7 +3178,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "This Friday breakfast",
-      "body": "Hello, can we book breakfast this Friday for 5 people? It’s a birthday breakfast, probably morning but we can confirm the time later.",
+      "body": "Hello, can we book breakfast this Friday for 5 people? It\u2019s a birthday breakfast, probably morning but we can confirm the time later.",
       "target_extraction": {
         "date_request": {
           "raw_text": "this Friday",
@@ -3218,7 +3218,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -3303,8 +3303,8 @@
             "event_date_line": "Event date: 2026-06-05\n",
             "party_size_line": "Party size: 5 guests\n",
             "availability_line": "Availability: Available for 2026-06-05.\n",
-            "spend_line": "Recommended minimum spend: £250.\n",
-            "guest_message_line": "Guest message: Hello, can we book breakfast this Friday for 5 people? It’s a birthday breakfast, probably morning but we can confirm the time later.\n",
+            "spend_line": "Recommended minimum spend: \u00a3250.\n",
+            "guest_message_line": "Guest message: Hello, can we book breakfast this Friday for 5 people? It\u2019s a birthday breakfast, probably morning but we can confirm the time later.\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -3321,7 +3321,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "End of July",
-      "body": "Hi, I’m arranging an engagement dinner for around 12 people at the end of July. Ideally a Friday or Saturday night if you have anything.",
+      "body": "Hi, I\u2019m arranging an engagement dinner for around 12 people at the end of July. Ideally a Friday or Saturday night if you have anything.",
       "target_extraction": {
         "date_request": {
           "raw_text": "the end of July",
@@ -3368,7 +3368,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -3459,8 +3459,8 @@
             "event_date_line": "Event date: 2026-07-24, 2026-07-25, 2026-07-31\n",
             "party_size_line": "Party size: 12 guests\n",
             "availability_line": "Availability: Available for 2026-07-24, 2026-07-25, 2026-07-31.\n",
-            "spend_line": "Recommended minimum spend: £1,200.\n",
-            "guest_message_line": "Guest message: Hi, I’m arranging an engagement dinner for around 12 people at the end of July. Ideally a Friday or Saturday night if you have anything.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,200.\n",
+            "guest_message_line": "Guest message: Hi, I\u2019m arranging an engagement dinner for around 12 people at the end of July. Ideally a Friday or Saturday night if you have anything.\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -3477,7 +3477,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Lunch 06/20",
-      "body": "Hi, do you have lunch available on 06/20 for a group of 6? It’s for my mum’s birthday. Midday or early afternoon is fine.",
+      "body": "Hi, do you have lunch available on 06/20 for a group of 6? It\u2019s for my mum\u2019s birthday. Midday or early afternoon is fine.",
       "target_extraction": {
         "date_request": {
           "raw_text": "06/20",
@@ -3517,7 +3517,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -3602,8 +3602,8 @@
             "event_date_line": "Event date: 2026-06-20\n",
             "party_size_line": "Party size: 6 guests\n",
             "availability_line": "Availability: Available for 2026-06-20.\n",
-            "spend_line": "Recommended minimum spend: £500.\n",
-            "guest_message_line": "Guest message: Hi, do you have lunch available on 06/20 for a group of 6? It’s for my mum’s birthday. Midday or early afternoon is fine.\n",
+            "spend_line": "Recommended minimum spend: \u00a3500.\n",
+            "guest_message_line": "Guest message: Hi, do you have lunch available on 06/20 for a group of 6? It\u2019s for my mum\u2019s birthday. Midday or early afternoon is fine.\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -3620,7 +3620,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Breakfast on the 15th",
-      "body": "Good morning, I’m looking for breakfast on the 15th for 8 people. It’s for a small office birthday breakfast, sometime in the morning.",
+      "body": "Good morning, I\u2019m looking for breakfast on the 15th for 8 people. It\u2019s for a small office birthday breakfast, sometime in the morning.",
       "target_extraction": {
         "date_request": {
           "raw_text": "the 15th",
@@ -3660,7 +3660,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -3745,8 +3745,8 @@
             "event_date_line": "Event date: 2026-06-15\n",
             "party_size_line": "Party size: 8 guests\n",
             "availability_line": "Availability: Available for 2026-06-15.\n",
-            "spend_line": "Recommended minimum spend: £280.\n",
-            "guest_message_line": "Guest message: Good morning, I’m looking for breakfast on the 15th for 8 people. It’s for a small office birthday breakfast, sometime in the morning.\n",
+            "spend_line": "Recommended minimum spend: \u00a3280.\n",
+            "guest_message_line": "Guest message: Good morning, I\u2019m looking for breakfast on the 15th for 8 people. It\u2019s for a small office birthday breakfast, sometime in the morning.\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -3763,7 +3763,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Next month first weekend",
-      "body": "Hello, could you let me know availability for dinner for 14 on the first weekend next month? It’s for an engagement party.",
+      "body": "Hello, could you let me know availability for dinner for 14 on the first weekend next month? It\u2019s for an engagement party.",
       "target_extraction": {
         "date_request": {
           "raw_text": "the first weekend next month",
@@ -3813,7 +3813,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -3901,8 +3901,8 @@
             "event_date_line": "Event date: 2026-07-04, 2026-07-05\n",
             "party_size_line": "Party size: 14 guests\n",
             "availability_line": "Availability: Available for 2026-07-04, 2026-07-05.\n",
-            "spend_line": "Recommended minimum spend: £1,400.\n",
-            "guest_message_line": "Guest message: Hello, could you let me know availability for dinner for 14 on the first weekend next month? It’s for an engagement party.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,400.\n",
+            "guest_message_line": "Guest message: Hello, could you let me know availability for dinner for 14 on the first weekend next month? It\u2019s for an engagement party.\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -3919,7 +3919,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Tomorrow dinner",
-      "body": "Hi, can you fit 10 people tomorrow for dinner? It’s a last-minute birthday meal. We’d be looking for around 7pm if possible.",
+      "body": "Hi, can you fit 10 people tomorrow for dinner? It\u2019s a last-minute birthday meal. We\u2019d be looking for around 7pm if possible.",
       "target_extraction": {
         "date_request": {
           "raw_text": "tomorrow",
@@ -3963,7 +3963,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -4048,8 +4048,8 @@
             "event_date_line": "Event date: 2026-06-04\n",
             "party_size_line": "Party size: 10 guests\n",
             "availability_line": "Availability: Available for 2026-06-04.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
-            "guest_message_line": "Guest message: Hi, can you fit 10 people tomorrow for dinner? It’s a last-minute birthday meal. We’d be looking for around 7pm if possible.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
+            "guest_message_line": "Guest message: Hi, can you fit 10 people tomorrow for dinner? It\u2019s a last-minute birthday meal. We\u2019d be looking for around 7pm if possible.\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -4066,7 +4066,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Two weeks today",
-      "body": "Hi there, I’d like to book lunch for 11 people two weeks today. It’s for a babyshower and midday would be great.",
+      "body": "Hi there, I\u2019d like to book lunch for 11 people two weeks today. It\u2019s for a babyshower and midday would be great.",
       "target_extraction": {
         "date_request": {
           "raw_text": "two weeks today",
@@ -4110,7 +4110,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -4195,8 +4195,8 @@
             "event_date_line": "Event date: 2026-06-17\n",
             "party_size_line": "Party size: 11 guests\n",
             "availability_line": "Availability: Available for 2026-06-17.\n",
-            "spend_line": "Recommended minimum spend: £715.\n",
-            "guest_message_line": "Guest message: Hi there, I’d like to book lunch for 11 people two weeks today. It’s for a babyshower and midday would be great.\n",
+            "spend_line": "Recommended minimum spend: \u00a3715.\n",
+            "guest_message_line": "Guest message: Hi there, I\u2019d like to book lunch for 11 people two weeks today. It\u2019s for a babyshower and midday would be great.\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -4213,7 +4213,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "July 4 morning",
-      "body": "Hello, do you have anything on July 4 in the morning for 7 people? It’s a birthday breakfast but we can be flexible on exact time.",
+      "body": "Hello, do you have anything on July 4 in the morning for 7 people? It\u2019s a birthday breakfast but we can be flexible on exact time.",
       "target_extraction": {
         "date_request": {
           "raw_text": "July 4",
@@ -4253,7 +4253,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -4338,8 +4338,8 @@
             "event_date_line": "Event date: 2026-07-04\n",
             "party_size_line": "Party size: 7 guests\n",
             "availability_line": "Availability: Available for 2026-07-04.\n",
-            "spend_line": "Recommended minimum spend: £250.\n",
-            "guest_message_line": "Guest message: Hello, do you have anything on July 4 in the morning for 7 people? It’s a birthday breakfast but we can be flexible on exact time.\n",
+            "spend_line": "Recommended minimum spend: \u00a3250.\n",
+            "guest_message_line": "Guest message: Hello, do you have anything on July 4 in the morning for 7 people? It\u2019s a birthday breakfast but we can be flexible on exact time.\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -4402,7 +4402,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -4490,7 +4490,7 @@
             "event_date_line": "Event date: 2026-08-15, 2026-08-16\n",
             "party_size_line": "Party size: 16 guests\n",
             "availability_line": "Availability: Available for 2026-08-15, 2026-08-16.\n",
-            "spend_line": "Recommended minimum spend: £1,600.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,600.\n",
             "guest_message_line": "Guest message: Hi, we need dinner for an engagement party for 16 people sometime in mid August, ideally a weekend. Please let me know options.\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
@@ -4508,7 +4508,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "On 9/1 ambiguous",
-      "body": "Hi, can you do dinner for 9 on 9/1? It’s for a birthday. I’m writing dates the American way, if that helps.",
+      "body": "Hi, can you do dinner for 9 on 9/1? It\u2019s for a birthday. I\u2019m writing dates the American way, if that helps.",
       "target_extraction": {
         "date_request": {
           "raw_text": "9/1",
@@ -4548,7 +4548,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -4633,8 +4633,8 @@
             "event_date_line": "Event date: 2026-09-01\n",
             "party_size_line": "Party size: 9 guests\n",
             "availability_line": "Availability: Available for 2026-09-01.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
-            "guest_message_line": "Guest message: Hi, can you do dinner for 9 on 9/1? It’s for a birthday. I’m writing dates the American way, if that helps.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
+            "guest_message_line": "Guest message: Hi, can you do dinner for 9 on 9/1? It\u2019s for a birthday. I\u2019m writing dates the American way, if that helps.\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -4691,7 +4691,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -4776,7 +4776,7 @@
             "event_date_line": "Event date: 2026-09-01\n",
             "party_size_line": "Party size: 10 guests\n",
             "availability_line": "Availability: Available for 2026-09-01.\n",
-            "spend_line": "Recommended minimum spend: £650.\n",
+            "spend_line": "Recommended minimum spend: \u00a3650.\n",
             "guest_message_line": "Guest message: Hello, we want lunch for 10 on 1/9 for a baby shower. I mean UK format, 1 September. Midday if possible.\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -4794,7 +4794,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Next Thursday evening",
-      "body": "Hi, do you have dinner availability next Thursday for a group of 8? It’s for an engagement dinner and we’d like evening if possible.",
+      "body": "Hi, do you have dinner availability next Thursday for a group of 8? It\u2019s for an engagement dinner and we\u2019d like evening if possible.",
       "target_extraction": {
         "date_request": {
           "raw_text": "next Thursday",
@@ -4834,7 +4834,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -4919,8 +4919,8 @@
             "event_date_line": "Event date: 2026-06-11\n",
             "party_size_line": "Party size: 8 guests\n",
             "availability_line": "Availability: Available for 2026-06-11.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
-            "guest_message_line": "Guest message: Hi, do you have dinner availability next Thursday for a group of 8? It’s for an engagement dinner and we’d like evening if possible.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
+            "guest_message_line": "Guest message: Hi, do you have dinner availability next Thursday for a group of 8? It\u2019s for an engagement dinner and we\u2019d like evening if possible.\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -4937,7 +4937,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Any lunch this week",
-      "body": "Hi, is there any lunch availability this week for 6 people? It’s for a small birthday. Around midday, but we can do another lunchtime slot.",
+      "body": "Hi, is there any lunch availability this week for 6 people? It\u2019s for a small birthday. Around midday, but we can do another lunchtime slot.",
       "target_extraction": {
         "date_request": {
           "raw_text": "any lunch this week",
@@ -4987,7 +4987,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -5084,8 +5084,8 @@
             "event_date_line": "Event date: 2026-06-03, 2026-06-04, 2026-06-05, 2026-06-06, 2026-06-07\n",
             "party_size_line": "Party size: 6 guests\n",
             "availability_line": "Availability: Available for 2026-06-03, 2026-06-04, 2026-06-05, 2026-06-06, 2026-06-07.\n",
-            "spend_line": "Recommended minimum spend: £500.\n",
-            "guest_message_line": "Guest message: Hi, is there any lunch availability this week for 6 people? It’s for a small birthday. Around midday, but we can do another lunchtime slot.\n",
+            "spend_line": "Recommended minimum spend: \u00a3500.\n",
+            "guest_message_line": "Guest message: Hi, is there any lunch availability this week for 6 people? It\u2019s for a small birthday. Around midday, but we can do another lunchtime slot.\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -5102,7 +5102,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Last Saturday in August",
-      "body": "Hello, I’m trying to book dinner for 18 on the last Saturday in August. It’s for an engagement party. Later evening preferred.",
+      "body": "Hello, I\u2019m trying to book dinner for 18 on the last Saturday in August. It\u2019s for an engagement party. Later evening preferred.",
       "target_extraction": {
         "date_request": {
           "raw_text": "the last Saturday in August",
@@ -5142,7 +5142,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -5227,8 +5227,8 @@
             "event_date_line": "Event date: 2026-08-29\n",
             "party_size_line": "Party size: 18 guests\n",
             "availability_line": "Availability: Available for 2026-08-29.\n",
-            "spend_line": "Recommended minimum spend: £1,800.\n",
-            "guest_message_line": "Guest message: Hello, I’m trying to book dinner for 18 on the last Saturday in August. It’s for an engagement party. Later evening preferred.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,800.\n",
+            "guest_message_line": "Guest message: Hello, I\u2019m trying to book dinner for 18 on the last Saturday in August. It\u2019s for an engagement party. Later evening preferred.\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
           }
@@ -5245,7 +5245,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Breakfast next Monday",
-      "body": "Hi, could we book breakfast next Monday for 4 people? It’s a small birthday breakfast. Morning is fine, exact time flexible.",
+      "body": "Hi, could we book breakfast next Monday for 4 people? It\u2019s a small birthday breakfast. Morning is fine, exact time flexible.",
       "target_extraction": {
         "date_request": {
           "raw_text": "next Monday",
@@ -5285,7 +5285,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -5370,8 +5370,8 @@
             "event_date_line": "Event date: 2026-06-08\n",
             "party_size_line": "Party size: 4 guests\n",
             "availability_line": "Availability: Available for 2026-06-08.\n",
-            "spend_line": "Recommended minimum spend: £250.\n",
-            "guest_message_line": "Guest message: Hi, could we book breakfast next Monday for 4 people? It’s a small birthday breakfast. Morning is fine, exact time flexible.\n",
+            "spend_line": "Recommended minimum spend: \u00a3250.\n",
+            "guest_message_line": "Guest message: Hi, could we book breakfast next Monday for 4 people? It\u2019s a small birthday breakfast. Morning is fine, exact time flexible.\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -5388,7 +5388,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Weekend around July 18",
-      "body": "Hi, do you have dinner for 12 people the weekend around July 18? It’s a baby shower dinner, probably Saturday if available but Sunday could work.",
+      "body": "Hi, do you have dinner for 12 people the weekend around July 18? It\u2019s a baby shower dinner, probably Saturday if available but Sunday could work.",
       "target_extraction": {
         "date_request": {
           "raw_text": "the weekend around July 18",
@@ -5434,7 +5434,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -5522,8 +5522,8 @@
             "event_date_line": "Event date: 2026-07-18, 2026-07-19\n",
             "party_size_line": "Party size: 12 guests\n",
             "availability_line": "Availability: Available for 2026-07-18, 2026-07-19.\n",
-            "spend_line": "Recommended minimum spend: £1,200.\n",
-            "guest_message_line": "Guest message: Hi, do you have dinner for 12 people the weekend around July 18? It’s a baby shower dinner, probably Saturday if available but Sunday could work.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,200.\n",
+            "guest_message_line": "Guest message: Hi, do you have dinner for 12 people the weekend around July 18? It\u2019s a baby shower dinner, probably Saturday if available but Sunday could work.\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -5540,7 +5540,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "On the 3rd of next month",
-      "body": "Hi, can we reserve lunch on the 3rd of next month for 8? It’s for an engagement celebration, nothing huge. Midday would be ideal.",
+      "body": "Hi, can we reserve lunch on the 3rd of next month for 8? It\u2019s for an engagement celebration, nothing huge. Midday would be ideal.",
       "target_extraction": {
         "date_request": {
           "raw_text": "the 3rd of next month",
@@ -5584,7 +5584,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -5669,8 +5669,8 @@
             "event_date_line": "Event date: 2026-07-03\n",
             "party_size_line": "Party size: 8 guests\n",
             "availability_line": "Availability: Available for 2026-07-03.\n",
-            "spend_line": "Recommended minimum spend: £520.\n",
-            "guest_message_line": "Guest message: Hi, can we reserve lunch on the 3rd of next month for 8? It’s for an engagement celebration, nothing huge. Midday would be ideal.\n",
+            "spend_line": "Recommended minimum spend: \u00a3520.\n",
+            "guest_message_line": "Guest message: Hi, can we reserve lunch on the 3rd of next month for 8? It\u2019s for an engagement celebration, nothing huge. Midday would be ideal.\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -5687,7 +5687,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Any morning next week",
-      "body": "Hello, I’m looking for a birthday breakfast for 10 people any morning next week. We don’t mind which weekday if there is availability.",
+      "body": "Hello, I\u2019m looking for a birthday breakfast for 10 people any morning next week. We don\u2019t mind which weekday if there is availability.",
       "target_extraction": {
         "date_request": {
           "raw_text": "any morning next week",
@@ -5747,7 +5747,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -5850,8 +5850,8 @@
             "event_date_line": "Event date: 2026-06-08, 2026-06-09, 2026-06-10, 2026-06-11, 2026-06-12, 2026-06-13, 2026-06-14\n",
             "party_size_line": "Party size: 10 guests\n",
             "availability_line": "Availability: Available for 2026-06-08, 2026-06-09, 2026-06-10, 2026-06-11, 2026-06-12, 2026-06-13, 2026-06-14.\n",
-            "spend_line": "Recommended minimum spend: £350.\n",
-            "guest_message_line": "Guest message: Hello, I’m looking for a birthday breakfast for 10 people any morning next week. We don’t mind which weekday if there is availability.\n",
+            "spend_line": "Recommended minimum spend: \u00a3350.\n",
+            "guest_message_line": "Guest message: Hello, I\u2019m looking for a birthday breakfast for 10 people any morning next week. We don\u2019t mind which weekday if there is availability.\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -5868,7 +5868,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Early September lunch",
-      "body": "Hi, could you send availability for lunch for 15 people in early September? It’s for a baby shower. Midday or early afternoon would work.",
+      "body": "Hi, could you send availability for lunch for 15 people in early September? It\u2019s for a baby shower. Midday or early afternoon would work.",
       "target_extraction": {
         "date_request": {
           "raw_text": "early September",
@@ -5919,7 +5919,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -6031,8 +6031,8 @@
             "event_date_line": "Event date: 2026-09-01, 2026-09-02, 2026-09-03, 2026-09-04, 2026-09-05, 2026-09-06, 2026-09-07, 2026-09-08, 2026-09-09, 2026-09-10\n",
             "party_size_line": "Party size: 15 guests\n",
             "availability_line": "Availability: Available for 2026-09-01, 2026-09-02, 2026-09-03, 2026-09-04, 2026-09-05, 2026-09-06, 2026-09-07, 2026-09-08, 2026-09-09, 2026-09-10.\n",
-            "spend_line": "Recommended minimum spend: £975.\n",
-            "guest_message_line": "Guest message: Hi, could you send availability for lunch for 15 people in early September? It’s for a baby shower. Midday or early afternoon would work.\n",
+            "spend_line": "Recommended minimum spend: \u00a3975.\n",
+            "guest_message_line": "Guest message: Hi, could you send availability for lunch for 15 people in early September? It\u2019s for a baby shower. Midday or early afternoon would work.\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
           }
@@ -6089,7 +6089,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -6174,7 +6174,7 @@
             "event_date_line": "Event date: 2026-08-28\n",
             "party_size_line": "Party size: 14 guests\n",
             "availability_line": "Availability: Available for 2026-08-28.\n",
-            "spend_line": "Recommended minimum spend: £1,400.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,400.\n",
             "guest_message_line": "Guest message: Hello, do you have space for an engagment diner for 14 on the last Friday of August? Thinking 7pm but can shift a bit. Thanks, Lara\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -6232,7 +6232,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -6317,7 +6317,7 @@
             "event_date_line": "Event date: 2026-07-20\n",
             "party_size_line": "Party size: 12 guests\n",
             "availability_line": "Availability: Available for 2026-07-20.\n",
-            "spend_line": "Recommended minimum spend: £780.\n",
+            "spend_line": "Recommended minimum spend: \u00a3780.\n",
             "guest_message_line": "Guest message: Hi, I am looking for lunch for a babyshower on the 20th of next month for 12 people. Midday would be perfect if you have any space. Many thanks, Priya\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -6335,7 +6335,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Breakfast after graduation",
-      "body": "Morning, could you do brekfast for 10 of us on July 3rd? It is for my daughter’s graduation day and we would like something in the morning, maybe around 9. Cheers, Mark",
+      "body": "Morning, could you do brekfast for 10 of us on July 3rd? It is for my daughter\u2019s graduation day and we would like something in the morning, maybe around 9. Cheers, Mark",
       "target_extraction": {
         "date_request": {
           "raw_text": "July 3rd",
@@ -6375,7 +6375,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -6460,8 +6460,8 @@
             "event_date_line": "Event date: 2026-07-03\n",
             "party_size_line": "Party size: 10 guests\n",
             "availability_line": "Availability: Available for 2026-07-03.\n",
-            "spend_line": "Recommended minimum spend: £350.\n",
-            "guest_message_line": "Guest message: Morning, could you do brekfast for 10 of us on July 3rd? It is for my daughter’s graduation day and we would like something in the morning, maybe around 9. Cheers, Mark\n",
+            "spend_line": "Recommended minimum spend: \u00a3350.\n",
+            "guest_message_line": "Guest message: Morning, could you do brekfast for 10 of us on July 3rd? It is for my daughter\u2019s graduation day and we would like something in the morning, maybe around 9. Cheers, Mark\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -6526,7 +6526,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -6623,7 +6623,7 @@
             "event_date_line": "Event date: 2026-07-03, 2026-07-10, 2026-07-17, 2026-07-24, 2026-07-31\n",
             "party_size_line": "Party size: 8 guests\n",
             "availability_line": "Availability: Available for 2026-07-03, 2026-07-10, 2026-07-17, 2026-07-24, 2026-07-31.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
             "guest_message_line": "Guest message: Hi there, we need a table for 8 for a leaving do. Any Friday in July would work, preferably dinner time. Could you let me know what dates are free? Thanks, Sophie\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
@@ -6685,7 +6685,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -6776,7 +6776,7 @@
             "event_date_line": "Event date: 2026-07-11, 2026-07-12, 2026-07-13\n",
             "party_size_line": "Party size: 18 guests\n",
             "availability_line": "Availability: Available for 2026-07-11, 2026-07-12, 2026-07-13.\n",
-            "spend_line": "Recommended minimum spend: £1,170.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,170.\n",
             "guest_message_line": "Guest message: Hello, do you have availability for a christning lunch for 18 people between 11th and 13th July? We can do any of those days around 1pm. Regards, Nadia\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
@@ -6794,7 +6794,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Hens diner",
-      "body": "Hi, I’m trying to sort a hen do diner for 16 girls on 7/25 if you have availability. Later evening would be great, around 8.30. Thanks!! Emily",
+      "body": "Hi, I\u2019m trying to sort a hen do diner for 16 girls on 7/25 if you have availability. Later evening would be great, around 8.30. Thanks!! Emily",
       "target_extraction": {
         "date_request": {
           "raw_text": "7/25",
@@ -6834,7 +6834,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -6919,8 +6919,8 @@
             "event_date_line": "Event date: 2026-07-25\n",
             "party_size_line": "Party size: 16 guests\n",
             "availability_line": "Availability: Available for 2026-07-25.\n",
-            "spend_line": "Recommended minimum spend: £1,600.\n",
-            "guest_message_line": "Guest message: Hi, I’m trying to sort a hen do diner for 16 girls on 7/25 if you have availability. Later evening would be great, around 8.30. Thanks!! Emily\n",
+            "spend_line": "Recommended minimum spend: \u00a31,600.\n",
+            "guest_message_line": "Guest message: Hi, I\u2019m trying to sort a hen do diner for 16 girls on 7/25 if you have availability. Later evening would be great, around 8.30. Thanks!! Emily\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
           }
@@ -6937,7 +6937,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Bday brunch",
-      "body": "Hey, have you got brunch for 6 next Sunday? It’s for my brother’s bday. Morning-ish is fine, maybe 10 or 11. Thanks, Josh",
+      "body": "Hey, have you got brunch for 6 next Sunday? It\u2019s for my brother\u2019s bday. Morning-ish is fine, maybe 10 or 11. Thanks, Josh",
       "target_extraction": {
         "date_request": {
           "raw_text": "next Sunday",
@@ -6977,7 +6977,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -7062,8 +7062,8 @@
             "event_date_line": "Event date: 2026-06-14\n",
             "party_size_line": "Party size: 6 guests\n",
             "availability_line": "Availability: Available for 2026-06-14.\n",
-            "spend_line": "Recommended minimum spend: £250.\n",
-            "guest_message_line": "Guest message: Hey, have you got brunch for 6 next Sunday? It’s for my brother’s bday. Morning-ish is fine, maybe 10 or 11. Thanks, Josh\n",
+            "spend_line": "Recommended minimum spend: \u00a3250.\n",
+            "guest_message_line": "Guest message: Hey, have you got brunch for 6 next Sunday? It\u2019s for my brother\u2019s bday. Morning-ish is fine, maybe 10 or 11. Thanks, Josh\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -7120,7 +7120,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation. Meal period inferred as dinner from event_time 16:00 (RESP-066).",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -7205,7 +7205,7 @@
             "event_date_line": "Event date: 2026-06-10\n",
             "party_size_line": "Party size: 11 guests\n",
             "availability_line": "Availability: Available for 2026-06-10.\n",
-            "spend_line": "Recommended minimum spend: £1,100.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,100.\n",
             "guest_message_line": "Guest message: Hi, can I book for a work team meal next Weds for 11 people? Not sure if lunch or early dinner is better, probably around 4ish. One person is vegetarian. Thanks, Helen\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -7223,7 +7223,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Mums birthday",
-      "body": "Hello, I need dinner for 9 on the 15th for my mum’s 70th birthday. I mean this month if possible. Around 6:30 please. Thanks, Aaron",
+      "body": "Hello, I need dinner for 9 on the 15th for my mum\u2019s 70th birthday. I mean this month if possible. Around 6:30 please. Thanks, Aaron",
       "target_extraction": {
         "date_request": {
           "raw_text": "the 15th ... this month",
@@ -7263,7 +7263,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -7348,8 +7348,8 @@
             "event_date_line": "Event date: 2026-06-15\n",
             "party_size_line": "Party size: 9 guests\n",
             "availability_line": "Availability: Available for 2026-06-15.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
-            "guest_message_line": "Guest message: Hello, I need dinner for 9 on the 15th for my mum’s 70th birthday. I mean this month if possible. Around 6:30 please. Thanks, Aaron\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
+            "guest_message_line": "Guest message: Hello, I need dinner for 9 on the 15th for my mum\u2019s 70th birthday. I mean this month if possible. Around 6:30 please. Thanks, Aaron\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -7366,7 +7366,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Anniversary meal",
-      "body": "Hi, would you have a table for 4 for an anniversery dinner on 07/08? I’m not sure if you read that as July or August — I mean 7 August. Around 7pm. Thanks, Clara",
+      "body": "Hi, would you have a table for 4 for an anniversery dinner on 07/08? I\u2019m not sure if you read that as July or August \u2014 I mean 7 August. Around 7pm. Thanks, Clara",
       "target_extraction": {
         "date_request": {
           "raw_text": "07/08 ... I mean 7 August",
@@ -7406,7 +7406,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -7491,8 +7491,8 @@
             "event_date_line": "Event date: 2026-08-07\n",
             "party_size_line": "Party size: 4 guests\n",
             "availability_line": "Availability: Available for 2026-08-07.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
-            "guest_message_line": "Guest message: Hi, would you have a table for 4 for an anniversery dinner on 07/08? I’m not sure if you read that as July or August — I mean 7 August. Around 7pm. Thanks, Clara\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
+            "guest_message_line": "Guest message: Hi, would you have a table for 4 for an anniversery dinner on 07/08? I\u2019m not sure if you read that as July or August \u2014 I mean 7 August. Around 7pm. Thanks, Clara\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -7509,7 +7509,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Private party maybe September",
-      "body": "Hi, looking for a small private party for 20 people the first weekend of September. It’s an engagement / family celebration. Dinner or drinks and food would be fine. Thanks, Rob",
+      "body": "Hi, looking for a small private party for 20 people the first weekend of September. It\u2019s an engagement / family celebration. Dinner or drinks and food would be fine. Thanks, Rob",
       "target_extraction": {
         "date_request": {
           "raw_text": "the first weekend of September",
@@ -7552,7 +7552,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -7640,8 +7640,8 @@
             "event_date_line": "Event date: 2026-09-05, 2026-09-06\n",
             "party_size_line": "Party size: 20 guests\n",
             "availability_line": "Availability: Available for 2026-09-05, 2026-09-06.\n",
-            "spend_line": "Recommended minimum spend: £2,000.\n",
-            "guest_message_line": "Guest message: Hi, looking for a small private party for 20 people the first weekend of September. It’s an engagement / family celebration. Dinner or drinks and food would be fine. Thanks, Rob\n",
+            "spend_line": "Recommended minimum spend: \u00a32,000.\n",
+            "guest_message_line": "Guest message: Hi, looking for a small private party for 20 people the first weekend of September. It\u2019s an engagement / family celebration. Dinner or drinks and food would be fine. Thanks, Rob\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
           }
@@ -7716,7 +7716,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -7837,7 +7837,7 @@
             "event_date_line": "Event date: 2026-07-01, 2026-07-06, 2026-07-07, 2026-07-08, 2026-07-13, 2026-07-14, 2026-07-15, 2026-07-20, 2026-07-21, 2026-07-22, 2026-07-27, 2026-07-28, 2026-07-29\n",
             "party_size_line": "Party size: 10 guests\n",
             "availability_line": "Availability: Available for 2026-07-01, 2026-07-06, 2026-07-07, 2026-07-08, 2026-07-13, 2026-07-14, 2026-07-15, 2026-07-20, 2026-07-21, 2026-07-22, 2026-07-27, 2026-07-28, 2026-07-29.\n",
-            "spend_line": "Recommended minimum spend: £650.\n",
+            "spend_line": "Recommended minimum spend: \u00a3650.\n",
             "guest_message_line": "Guest message: Good afternoon, do you have a room for 10 pp for lunch any Monday to Wednesday in July? This is for a small client thank-you meal. Midday or early afternoon is ok. Kind regards, Martin\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -7895,7 +7895,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -7980,7 +7980,7 @@
             "event_date_line": "Event date: 2026-07-18\n",
             "party_size_line": "Party size: 22 guests\n",
             "availability_line": "Availability: Available for 2026-07-18.\n",
-            "spend_line": "Recommended minimum spend: £2,200.\n",
+            "spend_line": "Recommended minimum spend: \u00a32,200.\n",
             "guest_message_line": "Guest message: Hi there, we are organising a school reunion diner for approx 22 on Saturday 18 July. Do you have anything after 7? Thanks, Becky\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
@@ -7998,7 +7998,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Baby shower any weekend next month",
-      "body": "Hello, I’m arranging a baby shower for 15 ladies. Any weekend next month could work, ideally lunch. Could you send options please? Thanks, Amira",
+      "body": "Hello, I\u2019m arranging a baby shower for 15 ladies. Any weekend next month could work, ideally lunch. Could you send options please? Thanks, Amira",
       "target_extraction": {
         "date_request": {
           "raw_text": "Any weekend next month",
@@ -8050,7 +8050,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -8156,8 +8156,8 @@
             "event_date_line": "Event date: 2026-07-04, 2026-07-05, 2026-07-11, 2026-07-12, 2026-07-18, 2026-07-19, 2026-07-25, 2026-07-26\n",
             "party_size_line": "Party size: 15 guests\n",
             "availability_line": "Availability: Available for 2026-07-04, 2026-07-05, 2026-07-11, 2026-07-12, 2026-07-18, 2026-07-19, 2026-07-25, 2026-07-26.\n",
-            "spend_line": "Recommended minimum spend: £975.\n",
-            "guest_message_line": "Guest message: Hello, I’m arranging a baby shower for 15 ladies. Any weekend next month could work, ideally lunch. Could you send options please? Thanks, Amira\n",
+            "spend_line": "Recommended minimum spend: \u00a3975.\n",
+            "guest_message_line": "Guest message: Hello, I\u2019m arranging a baby shower for 15 ladies. Any weekend next month could work, ideally lunch. Could you send options please? Thanks, Amira\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
           }
@@ -8174,7 +8174,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Date maybe ambiguous",
-      "body": "Hi, do you have diner for 8 on 9/8? It’s for a promotion celebration. I’m not sure if that is clear in your system. Around 8pm please. Thanks, Neil",
+      "body": "Hi, do you have diner for 8 on 9/8? It\u2019s for a promotion celebration. I\u2019m not sure if that is clear in your system. Around 8pm please. Thanks, Neil",
       "target_extraction": {
         "date_request": {
           "raw_text": "9/8",
@@ -8316,8 +8316,8 @@
             "event_date_line": "Event date: 2026-08-09\n",
             "party_size_line": "Party size: 8 guests\n",
             "availability_line": "Availability status: Pending date confirmation. Provisionally check 2026-08-09.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
-            "guest_message_line": "Guest message: Hi, do you have diner for 8 on 9/8? It’s for a promotion celebration. I’m not sure if that is clear in your system. Around 8pm please. Thanks, Neil\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
+            "guest_message_line": "Guest message: Hi, do you have diner for 8 on 9/8? It\u2019s for a promotion celebration. I\u2019m not sure if that is clear in your system. Around 8pm please. Thanks, Neil\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 9 August or 8 September? I have provisionally checked availability for 9 August.\n"
           }
@@ -8374,7 +8374,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -8459,7 +8459,7 @@
             "event_date_line": "Event date: 2026-06-30\n",
             "party_size_line": "Party size: 13 guests\n",
             "availability_line": "Availability: Available for 2026-06-30.\n",
-            "spend_line": "Recommended minimum spend: £845.\n",
+            "spend_line": "Recommended minimum spend: \u00a3845.\n",
             "guest_message_line": "Guest message: Hi, can you fit 13 of us on 30 June for a birthday lunch? Miday would be best, sorry I mean around 12. Thanks, Fran\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -8477,7 +8477,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Breakfast meeting",
-      "body": "Good morning, I need to book a breakfast meeting for 7 on the 24th of this month. Morning, maybe 8am or 8.30. It’s a board meeting. Regards, Elaine",
+      "body": "Good morning, I need to book a breakfast meeting for 7 on the 24th of this month. Morning, maybe 8am or 8.30. It\u2019s a board meeting. Regards, Elaine",
       "target_extraction": {
         "date_request": {
           "raw_text": "the 24th of this month",
@@ -8517,7 +8517,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -8602,8 +8602,8 @@
             "event_date_line": "Event date: 2026-06-24\n",
             "party_size_line": "Party size: 7 guests\n",
             "availability_line": "Availability: Available for 2026-06-24.\n",
-            "spend_line": "Recommended minimum spend: £250.\n",
-            "guest_message_line": "Guest message: Good morning, I need to book a breakfast meeting for 7 on the 24th of this month. Morning, maybe 8am or 8.30. It’s a board meeting. Regards, Elaine\n",
+            "spend_line": "Recommended minimum spend: \u00a3250.\n",
+            "guest_message_line": "Guest message: Good morning, I need to book a breakfast meeting for 7 on the 24th of this month. Morning, maybe 8am or 8.30. It\u2019s a board meeting. Regards, Elaine\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -8620,7 +8620,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Birthday end of month",
-      "body": "Hey, do you have a table for 10 at the end of this month for my flatmate’s birthday? Dinner ideally but dates are flexible, maybe the last Sat or Sun. Cheers, Dan",
+      "body": "Hey, do you have a table for 10 at the end of this month for my flatmate\u2019s birthday? Dinner ideally but dates are flexible, maybe the last Sat or Sun. Cheers, Dan",
       "target_extraction": {
         "date_request": {
           "raw_text": "the last Sat or Sun",
@@ -8662,7 +8662,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -8750,8 +8750,8 @@
             "event_date_line": "Event date: 2026-06-27, 2026-06-28\n",
             "party_size_line": "Party size: 10 guests\n",
             "availability_line": "Availability: Available for 2026-06-27, 2026-06-28.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
-            "guest_message_line": "Guest message: Hey, do you have a table for 10 at the end of this month for my flatmate’s birthday? Dinner ideally but dates are flexible, maybe the last Sat or Sun. Cheers, Dan\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
+            "guest_message_line": "Guest message: Hey, do you have a table for 10 at the end of this month for my flatmate\u2019s birthday? Dinner ideally but dates are flexible, maybe the last Sat or Sun. Cheers, Dan\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -8768,7 +8768,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Corporate lunch Friday",
-      "body": "Hi, I’m booking on behalf of my director. Can you do lunch for 12 next Friday for a client workshop? Around midday, nothing too formal. Best, Jessica, EA",
+      "body": "Hi, I\u2019m booking on behalf of my director. Can you do lunch for 12 next Friday for a client workshop? Around midday, nothing too formal. Best, Jessica, EA",
       "target_extraction": {
         "date_request": {
           "raw_text": "next Friday",
@@ -8808,7 +8808,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -8893,8 +8893,8 @@
             "event_date_line": "Event date: 2026-06-12\n",
             "party_size_line": "Party size: 12 guests\n",
             "availability_line": "Availability: Available for 2026-06-12.\n",
-            "spend_line": "Recommended minimum spend: £780.\n",
-            "guest_message_line": "Guest message: Hi, I’m booking on behalf of my director. Can you do lunch for 12 next Friday for a client workshop? Around midday, nothing too formal. Best, Jessica, EA\n",
+            "spend_line": "Recommended minimum spend: \u00a3780.\n",
+            "guest_message_line": "Guest message: Hi, I\u2019m booking on behalf of my director. Can you do lunch for 12 next Friday for a client workshop? Around midday, nothing too formal. Best, Jessica, EA\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -8951,7 +8951,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -9036,7 +9036,7 @@
             "event_date_line": "Event date: 2026-08-14\n",
             "party_size_line": "Party size: 18 guests\n",
             "availability_line": "Availability: Available for 2026-08-14.\n",
-            "spend_line": "Recommended minimum spend: £1,800.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,800.\n",
             "guest_message_line": "Guest message: Hello, looking for dinner for 18 for a family get together on Aug 14th. Early evening preferred, around 6. Can you advise availability? Thanks, Monica\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
@@ -9054,7 +9054,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Ambiguous 6/8 dinner",
-      "body": "Hi, can you do dinner for 10 on 6/8? It’s for a birthday meal. I’m using slash dates and not sure if that’s clear. Around 7 would be ideal. Thanks, Mia",
+      "body": "Hi, can you do dinner for 10 on 6/8? It\u2019s for a birthday meal. I\u2019m using slash dates and not sure if that\u2019s clear. Around 7 would be ideal. Thanks, Mia",
       "target_extraction": {
         "date_request": {
           "raw_text": "6/8",
@@ -9196,8 +9196,8 @@
             "event_date_line": "Event date: 2026-08-06\n",
             "party_size_line": "Party size: 10 guests\n",
             "availability_line": "Availability status: Pending date confirmation. Provisionally check 2026-08-06.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
-            "guest_message_line": "Guest message: Hi, can you do dinner for 10 on 6/8? It’s for a birthday meal. I’m using slash dates and not sure if that’s clear. Around 7 would be ideal. Thanks, Mia\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
+            "guest_message_line": "Guest message: Hi, can you do dinner for 10 on 6/8? It\u2019s for a birthday meal. I\u2019m using slash dates and not sure if that\u2019s clear. Around 7 would be ideal. Thanks, Mia\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 6 August or 8 June? I have provisionally checked availability for 6 August.\n"
           }
@@ -9214,7 +9214,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "US date format lunch",
-      "body": "Hello, could I book lunch for 12 on 8/6? I mean American format, August 6. It’s for a client thank-you lunch, ideally midday. Regards, Alan",
+      "body": "Hello, could I book lunch for 12 on 8/6? I mean American format, August 6. It\u2019s for a client thank-you lunch, ideally midday. Regards, Alan",
       "target_extraction": {
         "date_request": {
           "raw_text": "8/6 ... American format, August 6",
@@ -9254,7 +9254,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -9339,8 +9339,8 @@
             "event_date_line": "Event date: 2026-08-06\n",
             "party_size_line": "Party size: 12 guests\n",
             "availability_line": "Availability: Available for 2026-08-06.\n",
-            "spend_line": "Recommended minimum spend: £780.\n",
-            "guest_message_line": "Guest message: Hello, could I book lunch for 12 on 8/6? I mean American format, August 6. It’s for a client thank-you lunch, ideally midday. Regards, Alan\n",
+            "spend_line": "Recommended minimum spend: \u00a3780.\n",
+            "guest_message_line": "Guest message: Hello, could I book lunch for 12 on 8/6? I mean American format, August 6. It\u2019s for a client thank-you lunch, ideally midday. Regards, Alan\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -9357,7 +9357,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "UK date format baby shower",
-      "body": "Hi, I’m looking for a baby shower lunch for 14 on 8/6, UK format, so 8 June. Midday or early afternoon please. Thanks, Leila",
+      "body": "Hi, I\u2019m looking for a baby shower lunch for 14 on 8/6, UK format, so 8 June. Midday or early afternoon please. Thanks, Leila",
       "target_extraction": {
         "date_request": {
           "raw_text": "8/6, UK format, so 8 June",
@@ -9397,7 +9397,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -9482,8 +9482,8 @@
             "event_date_line": "Event date: 2026-06-08\n",
             "party_size_line": "Party size: 14 guests\n",
             "availability_line": "Availability: Available for 2026-06-08.\n",
-            "spend_line": "Recommended minimum spend: £910.\n",
-            "guest_message_line": "Guest message: Hi, I’m looking for a baby shower lunch for 14 on 8/6, UK format, so 8 June. Midday or early afternoon please. Thanks, Leila\n",
+            "spend_line": "Recommended minimum spend: \u00a3910.\n",
+            "guest_message_line": "Guest message: Hi, I\u2019m looking for a baby shower lunch for 14 on 8/6, UK format, so 8 June. Midday or early afternoon please. Thanks, Leila\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -9500,7 +9500,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Birthday on 4/7",
-      "body": "Hey, do you have dinner for 8 on 4/7? It’s my partner’s birthday and I realise the date might be read two ways. Around 8pm if possible. Thanks, Nina",
+      "body": "Hey, do you have dinner for 8 on 4/7? It\u2019s my partner\u2019s birthday and I realise the date might be read two ways. Around 8pm if possible. Thanks, Nina",
       "target_extraction": {
         "date_request": {
           "raw_text": "4/7",
@@ -9642,8 +9642,8 @@
             "event_date_line": "Event date: 2026-07-04\n",
             "party_size_line": "Party size: 8 guests\n",
             "availability_line": "Availability status: Pending date confirmation. Provisionally check 2026-07-04.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
-            "guest_message_line": "Guest message: Hey, do you have dinner for 8 on 4/7? It’s my partner’s birthday and I realise the date might be read two ways. Around 8pm if possible. Thanks, Nina\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
+            "guest_message_line": "Guest message: Hey, do you have dinner for 8 on 4/7? It\u2019s my partner\u2019s birthday and I realise the date might be read two ways. Around 8pm if possible. Thanks, Nina\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 4 July or April 7? I have provisionally checked availability for 4 July.\n"
           }
@@ -9660,7 +9660,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "US July 4 celebration",
-      "body": "Hi there, can I book dinner for 9 on 7/4? I mean July 4 in US date format. It’s for a small Independence Day get together. Thanks, Sam",
+      "body": "Hi there, can I book dinner for 9 on 7/4? I mean July 4 in US date format. It\u2019s for a small Independence Day get together. Thanks, Sam",
       "target_extraction": {
         "date_request": {
           "raw_text": "7/4 ... July 4 in US date format",
@@ -9700,7 +9700,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -9785,8 +9785,8 @@
             "event_date_line": "Event date: 2026-07-04\n",
             "party_size_line": "Party size: 9 guests\n",
             "availability_line": "Availability: Available for 2026-07-04.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
-            "guest_message_line": "Guest message: Hi there, can I book dinner for 9 on 7/4? I mean July 4 in US date format. It’s for a small Independence Day get together. Thanks, Sam\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
+            "guest_message_line": "Guest message: Hi there, can I book dinner for 9 on 7/4? I mean July 4 in US date format. It\u2019s for a small Independence Day get together. Thanks, Sam\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -9803,7 +9803,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Promotion dinner unclear date",
-      "body": "Hello, do you have availability for a promotion diner for 11 on 5/8? I’m not sure if your system reads that as May or August. Around 7:30 please. Thanks, Omar",
+      "body": "Hello, do you have availability for a promotion diner for 11 on 5/8? I\u2019m not sure if your system reads that as May or August. Around 7:30 please. Thanks, Omar",
       "target_extraction": {
         "date_request": {
           "raw_text": "5/8",
@@ -9945,8 +9945,8 @@
             "event_date_line": "Event date: 2026-08-05\n",
             "party_size_line": "Party size: 11 guests\n",
             "availability_line": "Availability status: Pending date confirmation. Provisionally check 2026-08-05.\n",
-            "spend_line": "Recommended minimum spend: £1,100.\n",
-            "guest_message_line": "Guest message: Hello, do you have availability for a promotion diner for 11 on 5/8? I’m not sure if your system reads that as May or August. Around 7:30 please. Thanks, Omar\n",
+            "spend_line": "Recommended minimum spend: \u00a31,100.\n",
+            "guest_message_line": "Guest message: Hello, do you have availability for a promotion diner for 11 on 5/8? I\u2019m not sure if your system reads that as May or August. Around 7:30 please. Thanks, Omar\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 5 August or May 8? I have provisionally checked availability for 5 August.\n"
           }
@@ -9963,7 +9963,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Anniversary lunch 05/08",
-      "body": "Hi, could you fit 6 for lunch on 05/08? I mean 5 August. It’s for an anniversery lunch and midday would be ideal.",
+      "body": "Hi, could you fit 6 for lunch on 05/08? I mean 5 August. It\u2019s for an anniversery lunch and midday would be ideal.",
       "target_extraction": {
         "date_request": {
           "raw_text": "05/08 ... I mean 5 August",
@@ -10003,7 +10003,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -10088,8 +10088,8 @@
             "event_date_line": "Event date: 2026-08-05\n",
             "party_size_line": "Party size: 6 guests\n",
             "availability_line": "Availability: Available for 2026-08-05.\n",
-            "spend_line": "Recommended minimum spend: £500.\n",
-            "guest_message_line": "Guest message: Hi, could you fit 6 for lunch on 05/08? I mean 5 August. It’s for an anniversery lunch and midday would be ideal.\n",
+            "spend_line": "Recommended minimum spend: \u00a3500.\n",
+            "guest_message_line": "Guest message: Hi, could you fit 6 for lunch on 05/08? I mean 5 August. It\u2019s for an anniversery lunch and midday would be ideal.\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -10106,7 +10106,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Christening lunch ambiguous",
-      "body": "Hello, do you have a room for 18 pp for christening lunch on 11/7? I mean the date as I’ve written it, but please confirm if unclear. Around 1pm. Thanks, Iman",
+      "body": "Hello, do you have a room for 18 pp for christening lunch on 11/7? I mean the date as I\u2019ve written it, but please confirm if unclear. Around 1pm. Thanks, Iman",
       "target_extraction": {
         "date_request": {
           "raw_text": "11/7",
@@ -10248,8 +10248,8 @@
             "event_date_line": "Event date: 2026-07-11\n",
             "party_size_line": "Party size: 18 guests\n",
             "availability_line": "Availability status: Pending date confirmation. Provisionally check 2026-07-11.\n",
-            "spend_line": "Recommended minimum spend: £1,170.\n",
-            "guest_message_line": "Guest message: Hello, do you have a room for 18 pp for christening lunch on 11/7? I mean the date as I’ve written it, but please confirm if unclear. Around 1pm. Thanks, Iman\n",
+            "spend_line": "Recommended minimum spend: \u00a31,170.\n",
+            "guest_message_line": "Guest message: Hello, do you have a room for 18 pp for christening lunch on 11/7? I mean the date as I\u2019ve written it, but please confirm if unclear. Around 1pm. Thanks, Iman\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 11 July or 7 November? I have provisionally checked availability for 11 July.\n"
           }
@@ -10266,7 +10266,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Baby shower US typed",
-      "body": "Hi, I’m organising a baby shower for 15 on 7/11. Sorry, that’s US format for July 11. Lunch would be best. Thanks, Noor",
+      "body": "Hi, I\u2019m organising a baby shower for 15 on 7/11. Sorry, that\u2019s US format for July 11. Lunch would be best. Thanks, Noor",
       "target_extraction": {
         "date_request": {
           "raw_text": "7/11 ... US format for July 11",
@@ -10306,7 +10306,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -10391,8 +10391,8 @@
             "event_date_line": "Event date: 2026-07-11\n",
             "party_size_line": "Party size: 15 guests\n",
             "availability_line": "Availability: Available for 2026-07-11.\n",
-            "spend_line": "Recommended minimum spend: £975.\n",
-            "guest_message_line": "Guest message: Hi, I’m organising a baby shower for 15 on 7/11. Sorry, that’s US format for July 11. Lunch would be best. Thanks, Noor\n",
+            "spend_line": "Recommended minimum spend: \u00a3975.\n",
+            "guest_message_line": "Guest message: Hi, I\u2019m organising a baby shower for 15 on 7/11. Sorry, that\u2019s US format for July 11. Lunch would be best. Thanks, Noor\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
           }
@@ -10409,7 +10409,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Leaving do UK date",
-      "body": "Hi there, we need dinner for 20 on 10/7, UK format so 10 July. It’s for a leaving do. Ideally after 7pm. Cheers, Matt",
+      "body": "Hi there, we need dinner for 20 on 10/7, UK format so 10 July. It\u2019s for a leaving do. Ideally after 7pm. Cheers, Matt",
       "target_extraction": {
         "date_request": {
           "raw_text": "10/7, UK format so 10 July",
@@ -10449,7 +10449,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -10534,8 +10534,8 @@
             "event_date_line": "Event date: 2026-07-10\n",
             "party_size_line": "Party size: 20 guests\n",
             "availability_line": "Availability: Available for 2026-07-10.\n",
-            "spend_line": "Recommended minimum spend: £2,000.\n",
-            "guest_message_line": "Guest message: Hi there, we need dinner for 20 on 10/7, UK format so 10 July. It’s for a leaving do. Ideally after 7pm. Cheers, Matt\n",
+            "spend_line": "Recommended minimum spend: \u00a32,000.\n",
+            "guest_message_line": "Guest message: Hi there, we need dinner for 20 on 10/7, UK format so 10 July. It\u2019s for a leaving do. Ideally after 7pm. Cheers, Matt\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
           }
@@ -10552,7 +10552,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Ambiguous 7/10 dinner",
-      "body": "Hello, could you check dinner availability for 12 on 7/10? It’s for an engagement party and I’m not sure if that date is clear. Evening please. Thanks, Chloe",
+      "body": "Hello, could you check dinner availability for 12 on 7/10? It\u2019s for an engagement party and I\u2019m not sure if that date is clear. Evening please. Thanks, Chloe",
       "target_extraction": {
         "date_request": {
           "raw_text": "7/10",
@@ -10694,8 +10694,8 @@
             "event_date_line": "Event date: 2026-10-07\n",
             "party_size_line": "Party size: 12 guests\n",
             "availability_line": "Availability status: Pending date confirmation. Provisionally check 2026-10-07.\n",
-            "spend_line": "Recommended minimum spend: £1,200.\n",
-            "guest_message_line": "Guest message: Hello, could you check dinner availability for 12 on 7/10? It’s for an engagement party and I’m not sure if that date is clear. Evening please. Thanks, Chloe\n",
+            "spend_line": "Recommended minimum spend: \u00a31,200.\n",
+            "guest_message_line": "Guest message: Hello, could you check dinner availability for 12 on 7/10? It\u2019s for an engagement party and I\u2019m not sure if that date is clear. Evening please. Thanks, Chloe\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 7 October or 10 July? I have provisionally checked availability for 7 October.\n"
           }
@@ -10712,7 +10712,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Morning meeting 6/9",
-      "body": "Good morning, could we book breakfast for 7 on 6/9? It’s a board meeting. Date format might be ambiguous, so please confirm. Around 8.30. Regards, Eva",
+      "body": "Good morning, could we book breakfast for 7 on 6/9? It\u2019s a board meeting. Date format might be ambiguous, so please confirm. Around 8.30. Regards, Eva",
       "target_extraction": {
         "date_request": {
           "raw_text": "6/9",
@@ -10854,8 +10854,8 @@
             "event_date_line": "Event date: 2026-09-06\n",
             "party_size_line": "Party size: 7 guests\n",
             "availability_line": "Availability status: Pending date confirmation. Provisionally check 2026-09-06.\n",
-            "spend_line": "Recommended minimum spend: £250.\n",
-            "guest_message_line": "Guest message: Good morning, could we book breakfast for 7 on 6/9? It’s a board meeting. Date format might be ambiguous, so please confirm. Around 8.30. Regards, Eva\n",
+            "spend_line": "Recommended minimum spend: \u00a3250.\n",
+            "guest_message_line": "Guest message: Good morning, could we book breakfast for 7 on 6/9? It\u2019s a board meeting. Date format might be ambiguous, so please confirm. Around 8.30. Regards, Eva\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 6 September or 9 June? I have provisionally checked availability for 6 September.\n"
           }
@@ -10872,7 +10872,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "US morning meeting",
-      "body": "Hi, can you do breakfast for 7 on 9/6? I mean US format, September 6. It’s for a board meeting, morning slot please.",
+      "body": "Hi, can you do breakfast for 7 on 9/6? I mean US format, September 6. It\u2019s for a board meeting, morning slot please.",
       "target_extraction": {
         "date_request": {
           "raw_text": "9/6 ... US format, September 6",
@@ -10912,7 +10912,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -10997,8 +10997,8 @@
             "event_date_line": "Event date: 2026-09-06\n",
             "party_size_line": "Party size: 7 guests\n",
             "availability_line": "Availability: Available for 2026-09-06.\n",
-            "spend_line": "Recommended minimum spend: £250.\n",
-            "guest_message_line": "Guest message: Hi, can you do breakfast for 7 on 9/6? I mean US format, September 6. It’s for a board meeting, morning slot please.\n",
+            "spend_line": "Recommended minimum spend: \u00a3250.\n",
+            "guest_message_line": "Guest message: Hi, can you do breakfast for 7 on 9/6? I mean US format, September 6. It\u2019s for a board meeting, morning slot please.\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -11015,7 +11015,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Graduation dinner ambiguous",
-      "body": "Hi, looking for dinner for 13 on 3/7 for a graduation meal. I’m UK based so I mean day/month if that helps. Around 6:30. Thanks, Rachel",
+      "body": "Hi, looking for dinner for 13 on 3/7 for a graduation meal. I\u2019m UK based so I mean day/month if that helps. Around 6:30. Thanks, Rachel",
       "target_extraction": {
         "date_request": {
           "raw_text": "3/7 ... day/month",
@@ -11055,7 +11055,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -11140,8 +11140,8 @@
             "event_date_line": "Event date: 2026-07-03\n",
             "party_size_line": "Party size: 13 guests\n",
             "availability_line": "Availability: Available for 2026-07-03.\n",
-            "spend_line": "Recommended minimum spend: £1,300.\n",
-            "guest_message_line": "Guest message: Hi, looking for dinner for 13 on 3/7 for a graduation meal. I’m UK based so I mean day/month if that helps. Around 6:30. Thanks, Rachel\n",
+            "spend_line": "Recommended minimum spend: \u00a31,300.\n",
+            "guest_message_line": "Guest message: Hi, looking for dinner for 13 on 3/7 for a graduation meal. I\u2019m UK based so I mean day/month if that helps. Around 6:30. Thanks, Rachel\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -11158,7 +11158,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Ambiguous family meal",
-      "body": "Hello, I’d like dinner for 16 on 8/9 for a family get together. I’m not sure whether you use UK or US dates. Around 7pm please. Thanks, Tony",
+      "body": "Hello, I\u2019d like dinner for 16 on 8/9 for a family get together. I\u2019m not sure whether you use UK or US dates. Around 7pm please. Thanks, Tony",
       "target_extraction": {
         "date_request": {
           "raw_text": "8/9",
@@ -11300,8 +11300,8 @@
             "event_date_line": "Event date: 2026-09-08\n",
             "party_size_line": "Party size: 16 guests\n",
             "availability_line": "Availability status: Pending date confirmation. Provisionally check 2026-09-08.\n",
-            "spend_line": "Recommended minimum spend: £1,600.\n",
-            "guest_message_line": "Guest message: Hello, I’d like dinner for 16 on 8/9 for a family get together. I’m not sure whether you use UK or US dates. Around 7pm please. Thanks, Tony\n",
+            "spend_line": "Recommended minimum spend: \u00a31,600.\n",
+            "guest_message_line": "Guest message: Hello, I\u2019d like dinner for 16 on 8/9 for a family get together. I\u2019m not sure whether you use UK or US dates. Around 7pm please. Thanks, Tony\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 8 September or 9 August? I have provisionally checked availability for 8 September.\n"
           }
@@ -11318,7 +11318,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Birthday brunch 09/08",
-      "body": "Hey, have you got brunch for 8 on 09/08? I mean 9 August, UK style. It’s for my sister’s bday, morning-ish. Thanks, Ellie",
+      "body": "Hey, have you got brunch for 8 on 09/08? I mean 9 August, UK style. It\u2019s for my sister\u2019s bday, morning-ish. Thanks, Ellie",
       "target_extraction": {
         "date_request": {
           "raw_text": "09/08 ... 9 August, UK style",
@@ -11358,7 +11358,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -11443,8 +11443,8 @@
             "event_date_line": "Event date: 2026-08-09\n",
             "party_size_line": "Party size: 8 guests\n",
             "availability_line": "Availability: Available for 2026-08-09.\n",
-            "spend_line": "Recommended minimum spend: £280.\n",
-            "guest_message_line": "Guest message: Hey, have you got brunch for 8 on 09/08? I mean 9 August, UK style. It’s for my sister’s bday, morning-ish. Thanks, Ellie\n",
+            "spend_line": "Recommended minimum spend: \u00a3280.\n",
+            "guest_message_line": "Guest message: Hey, have you got brunch for 8 on 09/08? I mean 9 August, UK style. It\u2019s for my sister\u2019s bday, morning-ish. Thanks, Ellie\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -11501,7 +11501,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -11586,7 +11586,7 @@
             "event_date_line": "Event date: 2026-08-09\n",
             "party_size_line": "Party size: 10 guests\n",
             "availability_line": "Availability: Available for 2026-08-09.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
             "guest_message_line": "Guest message: Good afternoon, I need dinner for 10 on 08/09, using US format for August 9. This is a client dinner. Around 7.30 if possible. Best, Michael\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -11649,7 +11649,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -11734,7 +11734,7 @@
             "event_date_line": "Event date: 2026-09-02\n",
             "party_size_line": "Party size: 12 guests\n",
             "availability_line": "Availability: Available for 2026-09-02.\n",
-            "spend_line": "Recommended minimum spend: £780.\n",
+            "spend_line": "Recommended minimum spend: \u00a3780.\n",
             "guest_message_line": "Guest message: Hi, could you fit 12 for a retirement lunch on 2/9? It may be ambiguous but we are in the UK. Midday if available. Thanks, Paula\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -11752,7 +11752,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Work celebration unclear",
-      "body": "Hi, can you do dinner for 14 on 10/8? It’s a work celebration. I’m not sure if that will be read as October or August, so please check. Thanks, Greg",
+      "body": "Hi, can you do dinner for 14 on 10/8? It\u2019s a work celebration. I\u2019m not sure if that will be read as October or August, so please check. Thanks, Greg",
       "target_extraction": {
         "date_request": {
           "raw_text": "10/8",
@@ -11894,8 +11894,8 @@
             "event_date_line": "Event date: 2026-08-10\n",
             "party_size_line": "Party size: 14 guests\n",
             "availability_line": "Availability status: Pending date confirmation. Provisionally check 2026-08-10.\n",
-            "spend_line": "Recommended minimum spend: £1,400.\n",
-            "guest_message_line": "Guest message: Hi, can you do dinner for 14 on 10/8? It’s a work celebration. I’m not sure if that will be read as October or August, so please check. Thanks, Greg\n",
+            "spend_line": "Recommended minimum spend: \u00a31,400.\n",
+            "guest_message_line": "Guest message: Hi, can you do dinner for 14 on 10/8? It\u2019s a work celebration. I\u2019m not sure if that will be read as October or August, so please check. Thanks, Greg\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 10 August or 8 October? I have provisionally checked availability for 10 August.\n"
           }
@@ -11912,7 +11912,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Baby naming lunch",
-      "body": "Hello, I’m arranging a baby naming lunch for 17 on 12/7. We are UK based, so I mean 12 July. Around 12:30 would be perfect. Thanks, Yasmin",
+      "body": "Hello, I\u2019m arranging a baby naming lunch for 17 on 12/7. We are UK based, so I mean 12 July. Around 12:30 would be perfect. Thanks, Yasmin",
       "target_extraction": {
         "date_request": {
           "raw_text": "12/7 ... UK based, so I mean 12 July",
@@ -11952,7 +11952,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -12037,8 +12037,8 @@
             "event_date_line": "Event date: 2026-07-12\n",
             "party_size_line": "Party size: 17 guests\n",
             "availability_line": "Availability: Available for 2026-07-12.\n",
-            "spend_line": "Recommended minimum spend: £1,105.\n",
-            "guest_message_line": "Guest message: Hello, I’m arranging a baby naming lunch for 17 on 12/7. We are UK based, so I mean 12 July. Around 12:30 would be perfect. Thanks, Yasmin\n",
+            "spend_line": "Recommended minimum spend: \u00a31,105.\n",
+            "guest_message_line": "Guest message: Hello, I\u2019m arranging a baby naming lunch for 17 on 12/7. We are UK based, so I mean 12 July. Around 12:30 would be perfect. Thanks, Yasmin\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
           }
@@ -12100,7 +12100,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -12185,7 +12185,7 @@
             "event_date_line": "Event date: 2026-06-29\n",
             "party_size_line": "Party size: 12 guests\n",
             "availability_line": "Availability: Available for 2026-06-29.\n",
-            "spend_line": "Recommended minimum spend: £1,200.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,200.\n",
             "guest_message_line": "Guest message: Hi there, please can you help with a new private dining enquiry? My client is looking for a private dinner on Monday 29th June 2026 for 12 guests, arriving from 19:00 and finishing around 23:00. Budget has not yet been advised. Please confirm minimum numbers, maximum numbers, access times, where pre-dinner drinks are served, whether a set or choice menu is available, any room hire, minimum spend, service charge, drinks prices and whether you offer agency commission. Thank you, Olivia\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -12243,7 +12243,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -12328,7 +12328,7 @@
             "event_date_line": "Event date: 2026-07-04\n",
             "party_size_line": "Party size: 18 guests\n",
             "availability_line": "Availability: Available for 2026-07-04.\n",
-            "spend_line": "Recommended minimum spend: £1,800.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,800.\n",
             "guest_message_line": "Guest message: Good afternoon, I am working on behalf of a corporate client who needs dinner for 18 guests on 4/7. UK format, so 4 July. Arrival would be 18:30 with dinner from 19:00. Could you send private dining rates, minimum spend, room hire, menus, wine packages, service charge and commission terms? Kind regards, James\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
@@ -12386,7 +12386,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -12471,7 +12471,7 @@
             "event_date_line": "Event date: 2026-06-11\n",
             "party_size_line": "Party size: 10 guests\n",
             "availability_line": "Availability: Available for 2026-06-11.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
             "guest_message_line": "Guest message: Hello, I am the PA to our Managing Director and I am looking to arrange a board dinner for 10 guests next Thursday. Please could you confirm availability, minimum spend, whether a pre-order is required and whether the room has a screen or private area? Dinner would be from 7pm. Best, Rebecca\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -12529,7 +12529,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -12614,7 +12614,7 @@
             "event_date_line": "Event date: 2026-07-08\n",
             "party_size_line": "Party size: 14 guests\n",
             "availability_line": "Availability: Available for 2026-07-08.\n",
-            "spend_line": "Recommended minimum spend: £910.\n",
+            "spend_line": "Recommended minimum spend: \u00a3910.\n",
             "guest_message_line": "Guest message: Dear team, I am booking on behalf of a private family office. They would like lunch for 14 guests on 8/7. Please treat this as UK format, 8 July. Could you confirm availability, private room options, minimum and maximum numbers, menu choices, access times and service charge? Commission is not required. Regards, Anna\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -12672,7 +12672,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -12757,7 +12757,7 @@
             "event_date_line": "Event date: 2026-07-08\n",
             "party_size_line": "Party size: 22 guests\n",
             "availability_line": "Availability: Available for 2026-07-08.\n",
-            "spend_line": "Recommended minimum spend: £2,200.\n",
+            "spend_line": "Recommended minimum spend: \u00a32,200.\n",
             "guest_message_line": "Guest message: Hi, my client is considering a dinner for 22 on 8/7 but I am not sure which date format your system uses. We are UK based so we would mean 8 July. Please send rates, packages, minimum spend, room hire, pre-order deadlines, cancellation terms and agency commission. Arrival about 7pm. Many thanks, Zoe\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
@@ -12815,7 +12815,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -12900,7 +12900,7 @@
             "event_date_line": "Event date: 2026-07-31\n",
             "party_size_line": "Party size: 8 guests\n",
             "availability_line": "Availability: Available for 2026-07-31.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
             "guest_message_line": "Guest message: Hello, I am the EA to our CEO. Could you check dinner availability for 8 people on Friday 31 July? We would like a private or semi-private space from 19:30. Please confirm room hire, minimum spend, menu options and whether drinks can be served before dinner. Best wishes, Helen\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
@@ -13060,7 +13060,7 @@
             "event_date_line": "Event date: 2026-08-11\n",
             "party_size_line": "Party size: 16 guests\n",
             "availability_line": "Availability status: Pending date confirmation. Provisionally check 2026-08-11.\n",
-            "spend_line": "Recommended minimum spend: £1,600.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,600.\n",
             "guest_message_line": "Guest message: Hi, I am arranging this for a concierge client. They need a birthday dinner for 16 guests on 11/8. Please provisionally check UK format, 11 August, and advise if you need date confirmation. Can you send minimum spend, menus, drinks packages, service charge and commission options? Thanks, Marcus\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 11 August or 8 November? I have provisionally checked availability for 11 August.\n"
@@ -13129,7 +13129,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -13229,7 +13229,7 @@
             "event_date_line": "Event date: 2026-07-20, 2026-07-21, 2026-07-22, 2026-07-27, 2026-07-28, 2026-07-29\n",
             "party_size_line": "Party size: 24 guests\n",
             "availability_line": "Availability: Available for 2026-07-20, 2026-07-21, 2026-07-22, 2026-07-27, 2026-07-28, 2026-07-29.\n",
-            "spend_line": "Recommended minimum spend: £1,560.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,560.\n",
             "guest_message_line": "Guest message: Good morning, I am an events manager organising a product launch lunch for 24 guests on any Monday to Wednesday in the last two weeks of July. Please confirm suitable rooms, capacities, minimum spend, AV availability, menu choices, room hire and access times. Kind regards, Melissa\n",
             "room_lines": "Suggested room: Main Dining Room exclusive area (larger group setup).\n",
             "clarification_questions_line": ""
@@ -13287,7 +13287,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -13372,7 +13372,7 @@
             "event_date_line": "Event date: 2026-08-15\n",
             "party_size_line": "Party size: 12 guests\n",
             "availability_line": "Availability: Available for 2026-08-15.\n",
-            "spend_line": "Recommended minimum spend: £1,200.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,200.\n",
             "guest_message_line": "Guest message: Hi, please can you help with a new private dining enquiry for my client? They are looking for dinner on 15/8 for 12 guests, 19:00 to 22:30. Please send rates, minimum numbers, maximum numbers, menus, wine from prices, soft drink prices, room hire, minimum spend and confirm if agency commission is available. Many thanks, Chloe\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -13430,7 +13430,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -13515,7 +13515,7 @@
             "event_date_line": "Event date: 2026-09-03\n",
             "party_size_line": "Party size: 6 guests\n",
             "availability_line": "Availability: Available for 2026-09-03.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
             "guest_message_line": "Guest message: Hello, I am booking on behalf of Mr and Mrs Carter for an anniversary dinner for 6 on 3/9. We are using UK date format, so 3 September. Please confirm if a quiet table or private area is available and send any set menu options. Kind regards, Lily, Personal Assistant\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
@@ -13573,7 +13573,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -13658,7 +13658,7 @@
             "event_date_line": "Event date: 2026-07-04\n",
             "party_size_line": "Party size: 10 guests\n",
             "availability_line": "Availability: Available for 2026-07-04.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
             "guest_message_line": "Guest message: Hi, do you have dinner for 10 on 4/7? It is for my birthday. I am in London so I mean 4 July, but please check if needed. Around 7pm would be ideal. Thanks, Ellie\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -13671,7 +13671,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "US style date",
-      "body": "Hello, I’m visiting from New York and would like dinner for 8 on 8/7. I mean August 7, American style. It’s for an engagement celebration. Could we do around 8pm? Thanks, Maya",
+      "body": "Hello, I\u2019m visiting from New York and would like dinner for 8 on 8/7. I mean August 7, American style. It\u2019s for an engagement celebration. Could we do around 8pm? Thanks, Maya",
       "sender": {
         "name": "Maya Thompson",
         "email": "maya.thompson@yahoo.com",
@@ -13716,7 +13716,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -13801,8 +13801,8 @@
             "event_date_line": "Event date: 2026-08-07\n",
             "party_size_line": "Party size: 8 guests\n",
             "availability_line": "Availability: Available for 2026-08-07.\n",
-            "spend_line": "Recommended minimum spend: £1,000.\n",
-            "guest_message_line": "Guest message: Hello, I’m visiting from New York and would like dinner for 8 on 8/7. I mean August 7, American style. It’s for an engagement celebration. Could we do around 8pm? Thanks, Maya\n",
+            "spend_line": "Recommended minimum spend: \u00a31,000.\n",
+            "guest_message_line": "Guest message: Hello, I\u2019m visiting from New York and would like dinner for 8 on 8/7. I mean August 7, American style. It\u2019s for an engagement celebration. Could we do around 8pm? Thanks, Maya\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
           }
@@ -13961,7 +13961,7 @@
             "event_date_line": "Event date: 2026-07-05\n",
             "party_size_line": "Party size: 9 guests\n",
             "availability_line": "Availability status: Pending date confirmation. Provisionally check 2026-07-05.\n",
-            "spend_line": "Recommended minimum spend: £585.\n",
+            "spend_line": "Recommended minimum spend: \u00a3585.\n",
             "guest_message_line": "Guest message: Hi there, could you do lunch for 9 on 5/7? It is for a baby shower. I am not sure how your system reads dates. Midday would be ideal.\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 5 July or 7 May? I have provisionally checked availability for 5 July.\n"
@@ -13974,7 +13974,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Corporate team meal",
-      "body": "Hi, can you arrange dinner for 15 on 21 August for a project completion meal? I’m from Deloitte but this is just a team dinner, not an agency booking. Around 6:30 would be good. Thanks, Ryan",
+      "body": "Hi, can you arrange dinner for 15 on 21 August for a project completion meal? I\u2019m from Deloitte but this is just a team dinner, not an agency booking. Around 6:30 would be good. Thanks, Ryan",
       "sender": {
         "name": "Ryan Walsh",
         "email": "ryan.walsh@deloitte.com",
@@ -14019,7 +14019,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -14104,8 +14104,8 @@
             "event_date_line": "Event date: 2026-08-21\n",
             "party_size_line": "Party size: 15 guests\n",
             "availability_line": "Availability: Available for 2026-08-21.\n",
-            "spend_line": "Recommended minimum spend: £1,500.\n",
-            "guest_message_line": "Guest message: Hi, can you arrange dinner for 15 on 21 August for a project completion meal? I’m from Deloitte but this is just a team dinner, not an agency booking. Around 6:30 would be good. Thanks, Ryan\n",
+            "spend_line": "Recommended minimum spend: \u00a31,500.\n",
+            "guest_message_line": "Guest message: Hi, can you arrange dinner for 15 on 21 August for a project completion meal? I\u2019m from Deloitte but this is just a team dinner, not an agency booking. Around 6:30 would be good. Thanks, Ryan\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
           }
@@ -14117,7 +14117,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Possible agency domain",
-      "body": "Hi, I’m Emma from Events by Emma. I’m helping my friend plan her birthday dinner for 12 on the first Friday of August. Could you tell me availability and any minimum spend? No commission needed. Thanks, Emma",
+      "body": "Hi, I\u2019m Emma from Events by Emma. I\u2019m helping my friend plan her birthday dinner for 12 on the first Friday of August. Could you tell me availability and any minimum spend? No commission needed. Thanks, Emma",
       "sender": {
         "name": "Emma Rice",
         "email": "emma@eventsbyemma.com",
@@ -14162,7 +14162,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -14247,8 +14247,8 @@
             "event_date_line": "Event date: 2026-08-07\n",
             "party_size_line": "Party size: 12 guests\n",
             "availability_line": "Availability: Available for 2026-08-07.\n",
-            "spend_line": "Recommended minimum spend: £1,200.\n",
-            "guest_message_line": "Guest message: Hi, I’m Emma from Events by Emma. I’m helping my friend plan her birthday dinner for 12 on the first Friday of August. Could you tell me availability and any minimum spend? No commission needed. Thanks, Emma\n",
+            "spend_line": "Recommended minimum spend: \u00a31,200.\n",
+            "guest_message_line": "Guest message: Hi, I\u2019m Emma from Events by Emma. I\u2019m helping my friend plan her birthday dinner for 12 on the first Friday of August. Could you tell me availability and any minimum spend? No commission needed. Thanks, Emma\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -14305,7 +14305,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -14390,7 +14390,7 @@
             "event_date_line": "Event date: 2026-07-10\n",
             "party_size_line": "Party size: 10 guests\n",
             "availability_line": "Availability: Available for 2026-07-10.\n",
-            "spend_line": "Recommended minimum spend: £650.\n",
+            "spend_line": "Recommended minimum spend: \u00a3650.\n",
             "guest_message_line": "Guest message: Hello, do you have availability for lunch for 10 on 10/7? UK format, 10 July. It is a client thank-you meal. Please send menu options and whether a semi-private area is possible. Regards, Paul\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -14550,7 +14550,7 @@
             "event_date_line": "Event date: 2026-09-08\n",
             "party_size_line": "Party size: 11 guests\n",
             "availability_line": "Availability status: Pending date confirmation. Provisionally check 2026-09-08.\n",
-            "spend_line": "Recommended minimum spend: £1,100.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,100.\n",
             "guest_message_line": "Guest message: Hi, looking for dinner for 11 on 8/9 for a promotion celebration. Not sure if that date is clear. Around 7.30 if you have space. Thanks, Gareth\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 8 September or 9 August? I have provisionally checked availability for 8 September.\n"
@@ -14608,7 +14608,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -14693,7 +14693,7 @@
             "event_date_line": "Event date: 2026-06-24\n",
             "party_size_line": "Party size: 6 guests\n",
             "availability_line": "Availability: Available for 2026-06-24.\n",
-            "spend_line": "Recommended minimum spend: £250.\n",
+            "spend_line": "Recommended minimum spend: \u00a3250.\n",
             "guest_message_line": "Guest message: Hi, I work with Ivy Group Consulting and would like breakfast for 6 on 24/6 for an investor meeting. Could you confirm availability around 8am and any minimum spend? Best, Sofia\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
@@ -14706,7 +14706,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Family celebration public domain",
-      "body": "Hello, can you do lunch for 20 on the weekend of 22 August? It’s a family reunion. Saturday would be best but Sunday also works. Thanks, Patrick",
+      "body": "Hello, can you do lunch for 20 on the weekend of 22 August? It\u2019s a family reunion. Saturday would be best but Sunday also works. Thanks, Patrick",
       "sender": {
         "name": "Patrick Nolan",
         "email": "patrick.nolan@btinternet.com",
@@ -14757,7 +14757,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -14845,8 +14845,8 @@
             "event_date_line": "Event date: 2026-08-22, 2026-08-23\n",
             "party_size_line": "Party size: 20 guests\n",
             "availability_line": "Availability: Available for 2026-08-22, 2026-08-23.\n",
-            "spend_line": "Recommended minimum spend: £1,300.\n",
-            "guest_message_line": "Guest message: Hello, can you do lunch for 20 on the weekend of 22 August? It’s a family reunion. Saturday would be best but Sunday also works. Thanks, Patrick\n",
+            "spend_line": "Recommended minimum spend: \u00a31,300.\n",
+            "guest_message_line": "Guest message: Hello, can you do lunch for 20 on the weekend of 22 August? It\u2019s a family reunion. Saturday would be best but Sunday also works. Thanks, Patrick\n",
             "room_lines": "Suggested room: Large Private Dining Room (up to 24 guests).\n",
             "clarification_questions_line": ""
           }
@@ -14903,7 +14903,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -14988,7 +14988,7 @@
             "event_date_line": "Event date: 2026-09-02\n",
             "party_size_line": "Party size: 25 guests\n",
             "availability_line": "Availability: Available for 2026-09-02.\n",
-            "spend_line": "Recommended minimum spend: £875.\n",
+            "spend_line": "Recommended minimum spend: \u00a3875.\n",
             "guest_message_line": "Guest message: Good morning, we are sourcing venues for a client breakfast briefing for 25 guests on 2/9. Please assume UK date format, 2 September. We need arrival from 08:00, presentation screen, coffee, breakfast menu, rates, minimum spend, room hire, access from time and commission terms. Kind regards, Daniel\n",
             "room_lines": "Suggested room: Main Dining Room exclusive area (larger group setup).\n",
             "clarification_questions_line": ""
@@ -15001,7 +15001,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Private anniversary dinner enquiry",
-      "body": "Good evening, I would like to enquire about reserving your private dining room for an anniversary dinner on Saturday, 4 July. We are a party of six and would require an exclusive setting for the evening. We have specific dietary requirements — one guest is vegan and one has a nut allergy. I would be grateful if you could confirm availability. Kind regards, Victoria Ashworth",
+      "body": "Good evening, I would like to enquire about reserving your private dining room for an anniversary dinner on Saturday, 4 July. We are a party of six and would require an exclusive setting for the evening. We have specific dietary requirements \u2014 one guest is vegan and one has a nut allergy. I would be grateful if you could confirm availability. Kind regards, Victoria Ashworth",
       "target_extraction": {
         "date_request": {
           "raw_text": "Saturday, 4 July",
@@ -15041,7 +15041,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -15050,7 +15050,7 @@
             "should_send_webform": false,
             "can_generate_draft": true
           },
-          "response_priority": "HIGH",
+          "response_priority": "NORMAL",
           "availability_decision": {
             "availability_status": "AVAILABLE",
             "checked_candidate_dates": [
@@ -15126,8 +15126,8 @@
             "event_date_line": "Event date: 2026-07-04\n",
             "party_size_line": "Party size: 6 guests\n",
             "availability_line": "Availability: Available for 2026-07-04.\n",
-            "spend_line": "Recommended minimum spend: £2,400.\n",
-            "guest_message_line": "Guest message: Good evening, I would like to enquire about reserving your private dining room for an anniversary dinner on Saturday, 4 July. We are a party of six and would require an exclusive setting for the evening. We have specific dietary requirements — one guest is vegan and one has a nut allergy. I would be grateful if you could confirm availability. Kind regards, Victoria Ashworth\n",
+            "spend_line": "Recommended minimum spend: \u00a32,400.\n",
+            "guest_message_line": "Guest message: Good evening, I would like to enquire about reserving your private dining room for an anniversary dinner on Saturday, 4 July. We are a party of six and would require an exclusive setting for the evening. We have specific dietary requirements \u2014 one guest is vegan and one has a nut allergy. I would be grateful if you could confirm availability. Kind regards, Victoria Ashworth\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }
@@ -15184,7 +15184,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -15193,7 +15193,7 @@
             "should_send_webform": false,
             "can_generate_draft": true
           },
-          "response_priority": "HIGH",
+          "response_priority": "NORMAL",
           "availability_decision": {
             "availability_status": "AVAILABLE",
             "checked_candidate_dates": [
@@ -15269,7 +15269,7 @@
             "event_date_line": "Event date: 2026-06-26\n",
             "party_size_line": "Party size: 2 guests\n",
             "availability_line": "Availability: Available for 2026-06-26.\n",
-            "spend_line": "Recommended minimum spend: £800.\n",
+            "spend_line": "Recommended minimum spend: \u00a3800.\n",
             "guest_message_line": "Guest message: Dear team, I am hoping to arrange a very special private dinner for two on the evening of Friday, 26 June. I am planning to propose during the meal and would require complete privacy and a personal touch. Could you please confirm whether you are able to accommodate this? Many thanks, Sebastian Clarke\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -15327,7 +15327,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -15336,7 +15336,7 @@
             "should_send_webform": false,
             "can_generate_draft": true
           },
-          "response_priority": "HIGH",
+          "response_priority": "NORMAL",
           "availability_decision": {
             "availability_status": "AVAILABLE",
             "checked_candidate_dates": [
@@ -15412,7 +15412,7 @@
             "event_date_line": "Event date: 2026-07-18\n",
             "party_size_line": "Party size: 8 guests\n",
             "availability_line": "Availability: Available for 2026-07-18.\n",
-            "spend_line": "Recommended minimum spend: £3,200.\n",
+            "spend_line": "Recommended minimum spend: \u00a33,200.\n",
             "guest_message_line": "Guest message: Hello, I am looking to book an exclusive private dining experience for my husband's 40th birthday on Saturday, 18 July. There will be eight of us in total. We would prefer a secluded setting and impeccable service. Please could you advise on availability and the minimum spend for an exclusive arrangement? With thanks, Arabella Pemberton\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -15429,7 +15429,7 @@
       "id": "email_104",
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
-      "subject": "Private dinner reservation — date query",
+      "subject": "Private dinner reservation \u2014 date query",
       "body": "Good afternoon, I would like to reserve your private dining room for an exclusive dinner for ten guests on 8/9. Could you kindly confirm availability and the exclusive hire arrangement? Regards, Rupert Cavendish",
       "target_extraction": {
         "date_request": {
@@ -15480,7 +15480,7 @@
             "should_send_webform": false,
             "can_generate_draft": true
           },
-          "response_priority": "HIGH",
+          "response_priority": "NORMAL",
           "availability_decision": {
             "availability_status": "PENDING_DATE_CONFIRMATION",
             "checked_candidate_dates": [
@@ -15558,7 +15558,7 @@
             "event_date_line": "Event date: 2026-08-09\n",
             "party_size_line": "Party size: 10 guests\n",
             "availability_line": "Availability status: Pending date confirmation. Provisionally checked 2026-08-09.\n",
-            "spend_line": "Recommended minimum spend: £4,000.\n",
+            "spend_line": "Recommended minimum spend: \u00a34,000.\n",
             "guest_message_line": "Guest message: Good afternoon, I would like to reserve your private dining room for an exclusive dinner for ten guests on 8/9. Could you kindly confirm availability and the exclusive hire arrangement? Regards, Rupert Cavendish\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 8 August or 9 September? I have provisionally checked availability for 8 August.\n"
@@ -15616,7 +15616,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -15625,7 +15625,7 @@
             "should_send_webform": false,
             "can_generate_draft": true
           },
-          "response_priority": "HIGH",
+          "response_priority": "NORMAL",
           "availability_decision": {
             "availability_status": "AVAILABLE",
             "checked_candidate_dates": [
@@ -15701,7 +15701,7 @@
             "event_date_line": "Event date: 2026-08-11\n",
             "party_size_line": "Party size: 6 guests\n",
             "availability_line": "Availability: Available for 2026-08-11.\n",
-            "spend_line": "Recommended minimum spend: £2,400.\n",
+            "spend_line": "Recommended minimum spend: \u00a32,400.\n",
             "guest_message_line": "Guest message: Dear Reservations, I am writing to enquire about availability for a private wine pairing dinner for six guests on Tuesday, 11 August. We are connoisseurs who enjoy an intimate and unhurried experience. Please could you confirm whether the private dining room is available on this date? Yours faithfully, Clarissa Montague\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -15759,7 +15759,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -15768,7 +15768,7 @@
             "should_send_webform": false,
             "can_generate_draft": true
           },
-          "response_priority": "HIGH",
+          "response_priority": "NORMAL",
           "availability_decision": {
             "availability_status": "AVAILABLE",
             "checked_candidate_dates": [
@@ -15844,7 +15844,7 @@
             "event_date_line": "Event date: 2026-07-15\n",
             "party_size_line": "Party size: 4 guests\n",
             "availability_line": "Availability: Available for 2026-07-15.\n",
-            "spend_line": "Recommended minimum spend: £1,600.\n",
+            "spend_line": "Recommended minimum spend: \u00a31,600.\n",
             "guest_message_line": "Guest message: Good morning, I would like to reserve the private dining space for a luncheon for four guests on Wednesday, 15 July. This is a quiet, confidential gathering and discretion is paramount. Please confirm availability. Kind regards, Edward Fairfax\n",
             "room_lines": "Suggested room: Semi-private dining area (up to 10 guests).\n",
             "clarification_questions_line": ""
@@ -15902,7 +15902,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -15911,7 +15911,7 @@
             "should_send_webform": false,
             "can_generate_draft": true
           },
-          "response_priority": "HIGH",
+          "response_priority": "NORMAL",
           "availability_decision": {
             "availability_status": "AVAILABLE",
             "checked_candidate_dates": [
@@ -15987,7 +15987,7 @@
             "event_date_line": "Event date: 2026-08-08\n",
             "party_size_line": "Party size: 10 guests\n",
             "availability_line": "Availability: Available for 2026-08-08.\n",
-            "spend_line": "Recommended minimum spend: £4,000.\n",
+            "spend_line": "Recommended minimum spend: \u00a34,000.\n",
             "guest_message_line": "Guest message: Dear Sir or Madam, I am hoping to arrange a private dinner for ten family members on Saturday, 8 August to mark a significant family milestone. We would require an exclusive dining room and attentive service throughout the evening. Could you please confirm availability for that date? With kind regards, Henrietta St John\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -16055,7 +16055,7 @@
             "should_send_webform": false,
             "can_generate_draft": true
           },
-          "response_priority": "HIGH",
+          "response_priority": "NORMAL",
           "availability_decision": {
             "availability_status": "PENDING_DATE_CONFIRMATION",
             "checked_candidate_dates": [
@@ -16104,7 +16104,8 @@
             "date_status": "UNRESOLVED_AMBIGUITY",
             "raw_text": "7/8",
             "candidate_dates": [
-              "2026-07-05"
+              "2026-08-07",
+              "2026-07-08"
             ],
             "assumed_date": "2026-08-07",
             "alternative_date": "2026-07-08",
@@ -16133,7 +16134,7 @@
             "event_date_line": "Event date: 2026-08-07\n",
             "party_size_line": "Party size: 8 guests\n",
             "availability_line": "Availability status: Pending date confirmation. Provisionally checked 2026-08-07.\n",
-            "spend_line": "Recommended minimum spend: £3,200.\n",
+            "spend_line": "Recommended minimum spend: \u00a33,200.\n",
             "guest_message_line": "Guest message: Hello, I would like to host a private dinner for eight guests on 7/8. We require exclusivity and a tasting menu if possible. Could you advise on availability? Many thanks, Georgina Harlow\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": "Clarification questions:\n- Could you confirm whether you mean 7 August or 8 July? I have provisionally checked availability for 7 August.\n"
@@ -16150,7 +16151,7 @@
       "id": "email_109",
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
-      "subject": "50th birthday celebration — private dining",
+      "subject": "50th birthday celebration \u2014 private dining",
       "body": "Dear Events Team, I am planning a milestone birthday dinner for my mother's 50th birthday on Friday, 31 July. We will be a party of twelve and would require exclusive use of a private room for the evening. Dietary notes: two guests are vegetarian. Please confirm availability at your earliest convenience. Yours sincerely, Alexander Thornton",
       "target_extraction": {
         "date_request": {
@@ -16191,7 +16192,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -16200,7 +16201,7 @@
             "should_send_webform": false,
             "can_generate_draft": true
           },
-          "response_priority": "HIGH",
+          "response_priority": "NORMAL",
           "availability_decision": {
             "availability_status": "AVAILABLE",
             "checked_candidate_dates": [
@@ -16276,7 +16277,7 @@
             "event_date_line": "Event date: 2026-07-31\n",
             "party_size_line": "Party size: 12 guests\n",
             "availability_line": "Availability: Available for 2026-07-31.\n",
-            "spend_line": "Recommended minimum spend: £4,800.\n",
+            "spend_line": "Recommended minimum spend: \u00a34,800.\n",
             "guest_message_line": "Guest message: Dear Events Team, I am planning a milestone birthday dinner for my mother's 50th birthday on Friday, 31 July. We will be a party of twelve and would require exclusive use of a private room for the evening. Dietary notes: two guests are vegetarian. Please confirm availability at your earliest convenience. Yours sincerely, Alexander Thornton\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
@@ -16294,7 +16295,7 @@
       "anchor_date": "2026-06-03",
       "timezone": "Europe/London",
       "subject": "Engagement celebration dinner",
-      "body": "Good afternoon, my fiancée and I are recently engaged and we would like to celebrate with our closest family in your private dining room on Saturday, 22 August. We will be six guests in total. We value refined, discreet service above all. Could you kindly confirm availability? With gratitude, Piers Worthington",
+      "body": "Good afternoon, my fianc\u00e9e and I are recently engaged and we would like to celebrate with our closest family in your private dining room on Saturday, 22 August. We will be six guests in total. We value refined, discreet service above all. Could you kindly confirm availability? With gratitude, Piers Worthington",
       "target_extraction": {
         "date_request": {
           "raw_text": "Saturday, 22 August",
@@ -16334,7 +16335,7 @@
         "response_preparation_target": {
           "response_goal_engine": {
             "expected_rule_number": 6,
-            "response_goal": "READY_TO_CONFIRM_AVAILABILITY",
+            "response_goal": "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
             "goal_reason": "Date, occasion, party size and meal period are sufficient for availability confirmation.",
             "precedence_applied": "first_match_wins",
             "readiness": "READY",
@@ -16343,7 +16344,7 @@
             "should_send_webform": false,
             "can_generate_draft": true
           },
-          "response_priority": "HIGH",
+          "response_priority": "NORMAL",
           "availability_decision": {
             "availability_status": "AVAILABLE",
             "checked_candidate_dates": [
@@ -16419,8 +16420,8 @@
             "event_date_line": "Event date: 2026-08-22\n",
             "party_size_line": "Party size: 6 guests\n",
             "availability_line": "Availability: Available for 2026-08-22.\n",
-            "spend_line": "Recommended minimum spend: £2,400.\n",
-            "guest_message_line": "Guest message: Good afternoon, my fiancée and I are recently engaged and we would like to celebrate with our closest family in your private dining room on Saturday, 22 August. We will be six guests in total. We value refined, discreet service above all. Could you kindly confirm availability? With gratitude, Piers Worthington\n",
+            "spend_line": "Recommended minimum spend: \u00a32,400.\n",
+            "guest_message_line": "Guest message: Good afternoon, my fianc\u00e9e and I are recently engaged and we would like to celebrate with our closest family in your private dining room on Saturday, 22 August. We will be six guests in total. We value refined, discreet service above all. Could you kindly confirm availability? With gratitude, Piers Worthington\n",
             "room_lines": "Suggested room: Private Dining Room (up to 16 guests).\n",
             "clarification_questions_line": ""
           }

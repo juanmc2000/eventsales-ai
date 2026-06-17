@@ -150,6 +150,10 @@ _DATE_STATUS_MAP: dict[str, str] = {
     "resolved_with_confirmation": STATUS_RESOLVED_WITH_CONFIRMATION,
     "AMBIGUOUS": STATUS_AMBIGUOUS,
     "ambiguous": STATUS_AMBIGUOUS,
+    # UNRESOLVED_AMBIGUITY is the internal disambiguator state that maps to
+    # STATUS_AMBIGUOUS at the DateResolutionStatus boundary (see date_resolution_status.py:197)
+    "UNRESOLVED_AMBIGUITY": STATUS_AMBIGUOUS,
+    "unresolved_ambiguity": STATUS_AMBIGUOUS,
     "UNKNOWN": STATUS_UNKNOWN,
     "unknown": STATUS_UNKNOWN,
 }
@@ -802,7 +806,10 @@ def run() -> None:
 
     print("Goal Distribution:")
     for goal in [
-        "READY_TO_CONFIRM_AVAILABILITY",
+        "ACKNOWLEDGE_AND_CHECK_AVAILABILITY",
+        "CONFIRM_AVAILABLE",
+        "RESPOND_UNAVAILABLE",
+        "READY_TO_CONFIRM_AVAILABILITY",  # deprecated alias — shown for backward compat
         "REQUEST_DATE_CONFIRMATION",
         "REQUEST_MISSING_INFORMATION",
         "REQUEST_WEBFORM",
