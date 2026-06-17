@@ -167,6 +167,23 @@ class ExtractionSummaryOut(BaseModel):
     extraction_raw_response: str | None = None
 
 
+# ── Audience classification metadata (RESP-082) ────────────────────────────────
+
+
+class AudienceClassificationOut(BaseModel):
+    """Structured metadata explaining how audience type was determined.
+
+    RESP-082: Exposes the deterministic rule, reason, and confidence from
+    CustomerTypeResolver for internal observability and evaluation.
+    Must NOT be included in customer-facing email copy.
+    """
+
+    audience_type: str
+    audience_classification_rule: str
+    audience_classification_reason: str
+    audience_classification_confidence: float
+
+
 class FreeformIntakeOut(BaseModel):
     """Response schema for POST /enquiries/intake/freeform.
 
@@ -181,6 +198,8 @@ class FreeformIntakeOut(BaseModel):
     persona_id: uuid.UUID | None = None
     persona_name: str | None = None
     audience_type: str | None = None
+    # RESP-082: structured audience classification metadata (internal only)
+    audience_classification: AudienceClassificationOut | None = None
     created_at: datetime
     # Sprint 7 enrichments
     extraction: ExtractionSummaryOut | None = None
